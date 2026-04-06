@@ -67,12 +67,6 @@ self.addEventListener('message', e => {
     self.skipWaiting();
     return;
   }
-  // La app pide la versión de este SW para mostrarla en el banner
-  if (e.data && e.data.tipo === 'GET_VERSION') {
-    const ver = CACHE_NAME.replace('dvba-campo-v', 'v');
-    e.ports[0].postMessage({ version: ver });
-    return;
-  }
   if (e.data === 'SYNC_NOW') {
     procesarCola().then(() => {
       notificarClientes({ tipo: 'SYNC_COMPLETO' });
