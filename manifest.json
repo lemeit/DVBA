@@ -1,0 +1,26 @@
+{
+  "name": "Relevamiento Vial · Zona VI",
+  "short_name": "Relevamiento Vial",
+  "description": "Relevamiento vial de campo — Dirección de Vialidad PBA Zona VI",
+  "start_url": "/dvba_campo.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#009aae",
+  "orientation": "portrait-primary",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
