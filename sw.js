@@ -4,7 +4,7 @@
    Credenciales embebidas del proyecto DVBA Zona VI
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v7';   /* ← bump aquí cada vez que actualices */
+const CACHE_NAME = 'dvba-campo-v8';   /* ← bump aquí cada vez que actualices */
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
