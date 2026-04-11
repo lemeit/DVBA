@@ -264,37 +264,123 @@ body.modo-campo #campo-fab{display:flex}
     </div>
     <input type="text" id="fprog" placeholder="Progresiva (ej: 45+500)">
     <select id="ftipo">
-      <option value="">-- Tipo --</option>
+      <option value="">— Seleccioná el tipo —</option>
       <optgroup label="── Calzada ──">
+        <option>Bache</option>
+        <option>Bache crítico</option>
+        <option>Calzada dañada</option>
+        <option>Pavimento fisurado</option>
+        <option>Pavimento ondulado</option>
+        <option>Calzada de tierra deteriorada</option>
+        <option>Borde de calzada deteriorado</option>
         <option>Pavimento asfáltico</option>
         <option>Calzada de hormigón</option>
-        <option>Camino de tierra</option>
-        <option>Bache / hundimiento</option>
-        <option>Zona de curva peligrosa</option>
-        <option>Curva</option>
       </optgroup>
-      <optgroup label="── Señalización ──">
-        <option>Señalización vertical</option>
-        <option>Señalización horizontal</option>
-        <option>Guardarrail / barrera</option>
-        <option>Iluminación vial</option>
+      <optgroup label="── Banquinas y drenaje ──">
+        <option>Banquina deteriorada</option>
+        <option>Cuneta obstruida</option>
+        <option>Alcantarilla tapada</option>
+        <option>Alcantarilla dañada</option>
+        <option>Erosión de talud</option>
+        <option>Zanja / cuneta dañada</option>
+      </optgroup>
+      <optgroup label="── Señalización — Preventivas ──">
+        <option>Curva a la derecha</option>
+        <option>Curva a la izquierda</option>
+        <option>Curvas sucesivas (derecha)</option>
+        <option>Curvas sucesivas (izquierda)</option>
+        <option>Curva y contracurva</option>
+        <option>Pendiente peligrosa</option>
+        <option>Estrechamiento de calzada</option>
+        <option>Estrechamiento (izquierda)</option>
+        <option>Estrechamiento (derecha)</option>
+        <option>Calzada sinuosa</option>
+        <option>Desnivel / badén</option>
+        <option>Cruce de ferrocarril con barreras</option>
+        <option>Cruce de ferrocarril sin barreras</option>
+        <option>Puente angosto</option>
+        <option>Cruce de animales</option>
+        <option>Cruce de maquinaria agrícola</option>
+        <option>Zona de vientos</option>
+        <option>Zona de neblina</option>
+        <option>Pavimento deslizante</option>
+        <option>Obras en la vía (preventiva)</option>
+        <option>Semáforo adelante</option>
+        <option>Paso a nivel</option>
+      </optgroup>
+      <optgroup label="── Señalización — De prioridad ──">
+        <option>Señal PARE (R1)</option>
+        <option>Señal CEDA EL PASO (R2)</option>
+        <option>Fin de prioridad</option>
+      </optgroup>
+      <optgroup label="── Señalización — Reglamentarias ──">
+        <option>Velocidad máxima</option>
+        <option>Prohibido adelantar</option>
+        <option>Prohibido el paso</option>
+        <option>Sentido único</option>
+        <option>Doble mano</option>
+        <option>Peso máximo</option>
+        <option>Altura máxima</option>
+        <option>Ancho máximo</option>
+      </optgroup>
+      <optgroup label="── Señalización — Informativas ──">
+        <option>Escuela / zona escolar</option>
+        <option>Paso peatonal</option>
+        <option>Zona urbana</option>
+        <option>Acceso a localidad</option>
+        <option>Encrucijada / cruce en T</option>
+        <option>Encrucijada / cruce en +</option>
+        <option>Bifurcación en Y</option>
+        <option>Incorporación de carretera</option>
+        <option>Salida de camiones</option>
+        <option>Hospital / asistencia médica</option>
+        <option>Área de servicio</option>
+        <option>Cartel de distancia</option>
+        <option>Mojón kilométrico</option>
+      </optgroup>
+      <optgroup label="── Señalización — Estado / faltante ──">
+        <option>Señal faltante</option>
+        <option>Señal dañada / ilegible</option>
+        <option>Señal caída / volcada</option>
+        <option>Señal mal ubicada</option>
+        <option>Demarcación horizontal borrada</option>
+        <option>Tachones / tachas faltantes</option>
+        <option>Guardarrail dañado</option>
+        <option>Guardarrail faltante</option>
+        <option>Delineador deteriorado</option>
       </optgroup>
       <optgroup label="── Estructura ──">
         <option>Puente / viaducto</option>
         <option>Alcantarilla / drenaje</option>
-        <option>Zanja / cuneta</option>
-        <option>Banquina</option>
+        <option>Puente — fisura</option>
+        <option>Puente — deterioro tablero</option>
+        <option>Muro de contención dañado</option>
       </optgroup>
       <optgroup label="── Entorno ──">
         <option>Vegetación / desmalezado</option>
-        <option>Acceso a campo / tranquera</option>
         <option>Inundación / anegamiento</option>
+        <option>Derrumbe / corte de ruta</option>
+        <option>Árbol caído</option>
+      </optgroup>
+      <optgroup label="── Iluminación ──">
+        <option>Iluminación vial</option>
+        <option>Columna dañada</option>
+        <option>Falta de columna</option>
+        <option>Lámpara fundida</option>
+        <option>Fallo eléctrico ramal</option>
       </optgroup>
       <optgroup label="── Seguridad vial ──">
-        <option>Siniestro vial / accidente</option>
+        <option>Siniestro vial</option>
         <option>Punto negro (accidentología)</option>
+        <option>Zona peligrosa sin señalizar</option>
         <option>Obra en ejecución</option>
+        <option>Obra terminada</option>
         <option>Emergencia vial</option>
+      </optgroup>
+      <optgroup label="── Acceso y caminos ──">
+        <option>Acceso a campo / tranquera</option>
+        <option>Camino vecinal / rural</option>
+        <option>Zona de curva peligrosa</option>
       </optgroup>
       <optgroup label="── Otro ──">
         <option>Otro</option>
@@ -975,7 +1061,7 @@ function buildRegTags() {
   if (!c) return;
   if (!regs.length) { c.innerHTML = '<div class="empty" style="font-size:9px">Sin registros cargados.</div>'; return; }
   c.innerHTML = regs.map(reg => {
-    const meta = RUTA_META[reg.ruta] || { color:'#888', label:'RP '+reg.ruta };
+    const meta = RUTA_META[reg.ruta] || { color:'#888', label:reg.ruta||'?' };
     const on = selRegs.has(String(reg.id));
     return `<span class="regtag ${on?'on':''}" id="regtag-${reg.id}"
       style="background:${on ? meta.color+'30' : 'transparent'};color:${on ? meta.color : '#4a6a80'};
@@ -1008,7 +1094,7 @@ function drawRegMarkers(){
     const meta=RUTA_META[(reg.ruta||'').replace(/^RP\s*/i,'')]||RUTA_META[reg.ruta]||{color:'#009aae'};
     const ico=L.divIcon({className:'',html:`<div style="background:${meta.color};border:2px solid rgba(255,255,255,.4);width:10px;height:10px;border-radius:50%;box-shadow:0 1px 5px rgba(0,0,0,.6)"></div>`,iconAnchor:[5,5]});
     const mk=L.marker([reg.lat,reg.lng],{icon:ico}).addTo(map)
-      .bindPopup(`<b style="color:${meta.color}">RP ${reg.ruta}</b> &middot; ${reg.prog}<br>
+      .bindPopup(`<b style="color:${meta.color}">${reg.ruta}</b> &middot; ${reg.prog}<br>
         <span class="est est-${reg.estado}">${reg.estado}</span> &middot; ${reg.tipo}<br>
         ${reg.obs?reg.obs+'<br>':''}
         ${reg.foto?`<img src="${reg.foto}" style="max-width:200px;border-radius:3px;margin-top:4px;display:block;cursor:pointer" onclick="showFoto(this.src)">`:''}
@@ -1027,7 +1113,7 @@ function renderRegs(){
   buildRegTags();
   if(!regs.length){lista.innerHTML='<div class="empty">Sin registros.</div>';return;}
   lista.innerHTML=regs.slice(0,30).map(reg=>{
-    const m=RUTA_META[reg.ruta]||{color:'#fff',label:'RP '+reg.ruta};
+    const m=RUTA_META[reg.ruta]||{color:'#009aae',label:reg.ruta||'?'};
     return `<div class="ritem" style="border-left-color:${m.color}">
       <div class="rhdr">
         <span class="rbadge" style="background:${m.color}">${m.label}</span>
