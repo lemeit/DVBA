@@ -108,6 +108,19 @@ textarea{resize:none;min-height:80px}
 .pinfo{flex:1}.ptit{font-size:13px;font-weight:700}.psub{font-size:10px;color:var(--mut);margin-top:2px;line-height:1.4}
 .btn-m{flex:1;padding:13px;border-radius:var(--r);font-size:13px;font-weight:800;border:none;cursor:pointer;font-family:'Encode Sans',sans-serif}
 .btn-ms{background:var(--vd);color:#fff}.btn-mc{background:var(--bg);color:var(--mut);border:1.5px solid var(--light)!important}
+/* ── Selector jerárquico de tipo ── */
+.tipo-cats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tipo-cat-btn{display:flex;align-items:center;gap:8px;padding:10px 11px;background:#f4f7fa;border:1.5px solid var(--light);border-radius:8px;font-size:13px;font-weight:600;color:var(--txt);cursor:pointer;text-align:left;font-family:'Encode Sans',sans-serif;transition:border-color .15s,background .15s}
+.tipo-cat-btn:active,.tipo-cat-btn.sel{border-color:var(--p);background:#e6f7f9}
+.tipo-cat-ico{font-size:18px;flex-shrink:0}
+.tipo-cat-lbl{font-size:12px;line-height:1.25}
+.tipo-cat-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin-bottom:8px;padding:0 2px}
+.tipo-items{display:flex;flex-direction:column;gap:6px;max-height:230px;overflow-y:auto}
+.tipo-item-btn{padding:11px 13px;background:#f4f7fa;border:1.5px solid var(--light);border-radius:8px;font-size:14px;color:var(--txt);cursor:pointer;text-align:left;font-family:'Encode Sans',sans-serif;transition:border-color .15s,background .15s}
+.tipo-item-btn:active,.tipo-item-btn.sel{border-color:var(--p);background:#e6f7f9;font-weight:700}
+.tipo-volver{margin-top:8px;background:none;border:none;color:var(--p);font-size:12px;font-weight:700;cursor:pointer;padding:4px 0;font-family:'Encode Sans',sans-serif}
+.tipo-elegido{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;background:#e6f7f9;border:1.5px solid var(--p);border-radius:8px;font-size:14px;font-weight:700;color:var(--txt)}
+.tipo-elegido button{background:none;border:none;color:var(--p);font-size:14px;cursor:pointer;padding:0 4px}
 #camara-modal{display:none;position:fixed;inset:0;z-index:500;background:#000;flex-direction:column}
 #camara-modal.show{display:flex}
 #video-stream{width:100%;flex:1;object-fit:cover;background:#000}
@@ -224,33 +237,23 @@ textarea{resize:none;min-height:80px}
   <div class="card">
     <div class="card-head">🔍 Tipo de registro</div>
     <div class="card-body">
-      <div class="field"><div class="flbl">Tipo</div>
-        <select id="f-tipo">
-          <option value="">— Seleccioná el tipo —</option>
-          <optgroup label="── Calzada ──">
-            <option>Bache</option><option>Bache crítico</option>
-            <option>Calzada dañada</option><option>Pavimento fisurado</option>
-            <option>Pavimento ondulado</option><option>Calzada de tierra deteriorada</option>
-          </optgroup>
-          <optgroup label="── Banquinas y drenaje ──">
-            <option>Banquina deteriorada</option><option>Cuneta obstruida</option>
-            <option>Alcantarilla tapada</option><option>Alcantarilla dañada</option><option>Erosión</option>
-          </optgroup>
-          <optgroup label="── Señalización ──">
-            <option>Señal faltante</option><option>Señal dañada</option><option>Demarcación borrada</option>
-          </optgroup>
-          <optgroup label="── Estructura ──">
-            <option>Puente / viaducto</option><option>Alcantarilla / drenaje</option><option>Banquina</option>
-          </optgroup>
-          <optgroup label="── Entorno ──">
-            <option>Vegetación / desmalezado</option><option>Inundación / anegamiento</option>
-          </optgroup>
-          <optgroup label="── Seguridad vial ──">
-            <option>Siniestro vial</option><option>Punto negro</option>
-            <option>Obra en ejecución</option><option>Obra terminada</option><option>Emergencia vial</option>
-          </optgroup>
-          <optgroup label="── Otro ──"><option>Otro</option></optgroup>
-        </select>
+      <div class="field">
+        <div class="flbl">Tipo</div>
+        <!-- Selector jerárquico 2 pasos -->
+        <div id="tipo-selector">
+          <div id="tipo-cats" class="tipo-cats"></div>
+          <div id="tipo-items-wrap" style="display:none">
+            <div id="tipo-cat-label" class="tipo-cat-label"></div>
+            <div id="tipo-items" class="tipo-items"></div>
+            <button type="button" class="tipo-volver" onclick="tipoVolverCats()">← Cambiar categoría</button>
+          </div>
+          <div id="tipo-elegido" class="tipo-elegido" style="display:none">
+            <span id="tipo-elegido-txt"></span>
+            <button type="button" onclick="tipoVolverItems()">✎</button>
+          </div>
+        </div>
+        <!-- Campo oculto para mantener compatibilidad con el resto del código -->
+        <input type="hidden" id="f-tipo" value="">
       </div>
       <div class="field"><div class="flbl">Estado</div>
         <select id="f-estado">
@@ -881,7 +884,8 @@ async function syncManual(){
 
 /* ── Limpiar form ── */
 function limpiarForm(){
-  ['f-ruta','f-prog','f-tipo','f-estado','f-partido','f-obs'].forEach(id=>document.getElementById(id).value='');
+  ['f-ruta','f-prog','f-estado','f-partido','f-obs'].forEach(id=>document.getElementById(id).value='');
+  tipoReset();
   document.getElementById('f-lat').value=''; document.getElementById('f-lng').value='';
   fotoOriginal=null; fotoFinal=null;
   const p=document.getElementById('foto-prev'); p.src=''; p.style.display='none';
@@ -914,6 +918,62 @@ function onSWMsg(e){
   }
 }
 
+/* ══════════════════════════════════════════════════
+   SELECTOR JERÁRQUICO DE TIPO
+   Requiere dvba_tipos.js cargado antes de este script
+   ══════════════════════════════════════════════════ */
+function tipoInit(){
+  const cDiv=document.getElementById('tipo-cats');
+  if(!cDiv||typeof DVBA_TIPOS==='undefined') return;
+  cDiv.innerHTML='';
+  DVBA_TIPOS.categorias.forEach(c=>{
+    const b=document.createElement('button');
+    b.type='button'; b.className='tipo-cat-btn';
+    b.innerHTML=`<span class="tipo-cat-ico">${c.icon}</span><span class="tipo-cat-lbl">${c.label}</span>`;
+    b.onclick=()=>tipoMostrarItems(c.key);
+    cDiv.appendChild(b);
+  });
+}
+function tipoMostrarItems(catKey){
+  const cat=DVBA_TIPOS.ARBOL[catKey];
+  document.getElementById('tipo-cats').parentElement.querySelectorAll('.tipo-cat-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('tipo-cat-label').textContent=cat.icon+' '+cat.label;
+  const iDiv=document.getElementById('tipo-items');
+  iDiv.innerHTML='';
+  cat.items.forEach(it=>{
+    const b=document.createElement('button');
+    b.type='button'; b.className='tipo-item-btn';
+    b.textContent=it;
+    b.onclick=()=>tipoSeleccionar(it);
+    iDiv.appendChild(b);
+  });
+  document.getElementById('tipo-cats').style.display='none';
+  document.getElementById('tipo-items-wrap').style.display='';
+  document.getElementById('tipo-elegido').style.display='none';
+}
+function tipoSeleccionar(valor){
+  document.getElementById('f-tipo').value=valor;
+  document.getElementById('tipo-elegido-txt').textContent=valor;
+  document.getElementById('tipo-items-wrap').style.display='none';
+  document.getElementById('tipo-cats').style.display='none';
+  document.getElementById('tipo-elegido').style.display='flex';
+}
+function tipoVolverCats(){
+  document.getElementById('tipo-cats').style.display='grid';
+  document.getElementById('tipo-items-wrap').style.display='none';
+  document.getElementById('tipo-elegido').style.display='none';
+}
+function tipoVolverItems(){
+  document.getElementById('tipo-elegido').style.display='none';
+  document.getElementById('tipo-items-wrap').style.display='';
+}
+function tipoReset(){
+  document.getElementById('f-tipo').value='';
+  document.getElementById('tipo-cats').style.display='grid';
+  document.getElementById('tipo-items-wrap').style.display='none';
+  document.getElementById('tipo-elegido').style.display='none';
+}
+
 /* ── Helpers ── */
 let _tt=null;
 function toast(msg,tipo){
@@ -935,6 +995,11 @@ function hacerThumb(b64){
     img.onerror=()=>res(null); img.src=b64;
   });
 }
+</script>
+<script src="dvba_tipos.js"></script>
+<script>
+/* ── Inicializar selector jerárquico de tipo ── */
+document.addEventListener('DOMContentLoaded', () => { tipoInit(); }, { once: true });
 </script>
 </body>
 </html>

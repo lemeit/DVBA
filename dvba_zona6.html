@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="dvba_tipos.js"></script>
 <style>
 :root{
   --p:#009aae;--pd:#007d90;--pl:#00b3c7;
@@ -179,6 +180,23 @@ body.modo-campo #campo-fab{display:flex}
   body.modo-campo .panel{display:none!important}
   #campo-fab{bottom:80px}
 }
+
+/* ── Selector jerárquico de tipo — desktop ── */
+.z6-tipo-sel{position:relative;margin-bottom:4px}
+.z6-tipo-display{display:flex;align-items:center;gap:4px;width:100%;padding:5px 7px;border-radius:4px;border:1px solid var(--light);background:var(--bg);color:var(--txt);font-size:11px;cursor:pointer;user-select:none;transition:border-color .15s}
+.z6-tipo-display:hover,.z6-tipo-display.open{border-color:var(--p);background:var(--w)}
+.z6-tipo-display.elegido{color:var(--txt);font-weight:700;border-color:var(--p);background:#e8f7f9}
+.z6-tipo-panel{position:absolute;top:100%;left:0;right:0;z-index:500;background:var(--w);border:1px solid var(--p);border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,.15);padding:8px;margin-top:2px;max-height:280px;overflow-y:auto}
+.z6-tipo-cats{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.z6-cat-btn{display:flex;align-items:center;gap:5px;padding:5px 7px;background:var(--bg);border:1px solid var(--light);border-radius:4px;font-size:10px;font-weight:600;color:var(--txt);cursor:pointer;text-align:left;font-family:inherit;transition:border-color .12s,background .12s;white-space:nowrap}
+.z6-cat-btn:hover{border-color:var(--p);background:#e8f7f9;color:var(--pd)}
+.z6-cat-ico{font-size:13px;flex-shrink:0}
+.z6-tipo-cat-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin-bottom:5px;padding:2px 0}
+.z6-tipo-items{display:flex;flex-direction:column;gap:3px}
+.z6-item-btn{padding:5px 8px;background:var(--bg);border:1px solid var(--light);border-radius:3px;font-size:11px;color:var(--txt);cursor:pointer;text-align:left;font-family:inherit;transition:all .1s}
+.z6-item-btn:hover{border-color:var(--p);background:#e8f7f9;color:var(--pd);font-weight:600}
+.z6-tipo-back{margin-top:5px;background:none;border:none;color:var(--p);font-size:10px;font-weight:700;cursor:pointer;padding:2px 0;font-family:inherit}
+.z6-tipo-back:hover{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -263,129 +281,23 @@ body.modo-campo #campo-fab{display:flex}
       <select id="fpartido"><option value="">-- Partido --</option></select>
     </div>
     <input type="text" id="fprog" placeholder="Progresiva (ej: 45+500)">
-    <select id="ftipo">
-      <option value="">— Seleccioná el tipo —</option>
-      <optgroup label="── Calzada ──">
-        <option>Bache</option>
-        <option>Bache crítico</option>
-        <option>Calzada dañada</option>
-        <option>Pavimento fisurado</option>
-        <option>Pavimento ondulado</option>
-        <option>Calzada de tierra deteriorada</option>
-        <option>Borde de calzada deteriorado</option>
-        <option>Pavimento asfáltico</option>
-        <option>Calzada de hormigón</option>
-      </optgroup>
-      <optgroup label="── Banquinas y drenaje ──">
-        <option>Banquina deteriorada</option>
-        <option>Cuneta obstruida</option>
-        <option>Alcantarilla tapada</option>
-        <option>Alcantarilla dañada</option>
-        <option>Erosión de talud</option>
-        <option>Zanja / cuneta dañada</option>
-      </optgroup>
-      <optgroup label="── Señalización — Preventivas ──">
-        <option>Curva a la derecha</option>
-        <option>Curva a la izquierda</option>
-        <option>Curvas sucesivas (derecha)</option>
-        <option>Curvas sucesivas (izquierda)</option>
-        <option>Curva y contracurva</option>
-        <option>Pendiente peligrosa</option>
-        <option>Estrechamiento de calzada</option>
-        <option>Estrechamiento (izquierda)</option>
-        <option>Estrechamiento (derecha)</option>
-        <option>Calzada sinuosa</option>
-        <option>Desnivel / badén</option>
-        <option>Cruce de ferrocarril con barreras</option>
-        <option>Cruce de ferrocarril sin barreras</option>
-        <option>Puente angosto</option>
-        <option>Cruce de animales</option>
-        <option>Cruce de maquinaria agrícola</option>
-        <option>Zona de vientos</option>
-        <option>Zona de neblina</option>
-        <option>Pavimento deslizante</option>
-        <option>Obras en la vía (preventiva)</option>
-        <option>Semáforo adelante</option>
-        <option>Paso a nivel</option>
-      </optgroup>
-      <optgroup label="── Señalización — De prioridad ──">
-        <option>Señal PARE (R1)</option>
-        <option>Señal CEDA EL PASO (R2)</option>
-        <option>Fin de prioridad</option>
-      </optgroup>
-      <optgroup label="── Señalización — Reglamentarias ──">
-        <option>Velocidad máxima</option>
-        <option>Prohibido adelantar</option>
-        <option>Prohibido el paso</option>
-        <option>Sentido único</option>
-        <option>Doble mano</option>
-        <option>Peso máximo</option>
-        <option>Altura máxima</option>
-        <option>Ancho máximo</option>
-      </optgroup>
-      <optgroup label="── Señalización — Informativas ──">
-        <option>Escuela / zona escolar</option>
-        <option>Paso peatonal</option>
-        <option>Zona urbana</option>
-        <option>Acceso a localidad</option>
-        <option>Encrucijada / cruce en T</option>
-        <option>Encrucijada / cruce en +</option>
-        <option>Bifurcación en Y</option>
-        <option>Incorporación de carretera</option>
-        <option>Salida de camiones</option>
-        <option>Hospital / asistencia médica</option>
-        <option>Área de servicio</option>
-        <option>Cartel de distancia</option>
-        <option>Mojón kilométrico</option>
-      </optgroup>
-      <optgroup label="── Señalización — Estado / faltante ──">
-        <option>Señal faltante</option>
-        <option>Señal dañada / ilegible</option>
-        <option>Señal caída / volcada</option>
-        <option>Señal mal ubicada</option>
-        <option>Demarcación horizontal borrada</option>
-        <option>Tachones / tachas faltantes</option>
-        <option>Guardarrail dañado</option>
-        <option>Guardarrail faltante</option>
-        <option>Delineador deteriorado</option>
-      </optgroup>
-      <optgroup label="── Estructura ──">
-        <option>Puente / viaducto</option>
-        <option>Alcantarilla / drenaje</option>
-        <option>Puente — fisura</option>
-        <option>Puente — deterioro tablero</option>
-        <option>Muro de contención dañado</option>
-      </optgroup>
-      <optgroup label="── Entorno ──">
-        <option>Vegetación / desmalezado</option>
-        <option>Inundación / anegamiento</option>
-        <option>Derrumbe / corte de ruta</option>
-        <option>Árbol caído</option>
-      </optgroup>
-      <optgroup label="── Iluminación ──">
-        <option>Iluminación vial</option>
-        <option>Columna dañada</option>
-        <option>Falta de columna</option>
-        <option>Lámpara fundida</option>
-        <option>Fallo eléctrico ramal</option>
-      </optgroup>
-      <optgroup label="── Seguridad vial ──">
-        <option>Siniestro vial</option>
-        <option>Punto negro (accidentología)</option>
-        <option>Zona peligrosa sin señalizar</option>
-        <option>Obra en ejecución</option>
-        <option>Obra terminada</option>
-        <option>Emergencia vial</option>
-      </optgroup>
-      <optgroup label="── Acceso y caminos ──">
-        <option>Acceso a campo / tranquera</option>
-        <option>Camino vecinal / rural</option>
-        <option>Zona de curva peligrosa</option>
-      </optgroup>
-      <optgroup label="── Otro ──">
-        <option>Otro</option>
-      </optgroup>
-    </select>
+    <!-- Selector jerárquico de tipo — desktop -->
+    <div id="z6-tipo-selector" class="z6-tipo-sel">
+      <div id="z6-tipo-display" class="z6-tipo-display" onclick="z6TipoToggle()">
+        <span id="z6-tipo-txt" style="flex:1;color:var(--mut)">— Seleccioná el tipo —</span>
+        <span style="color:var(--mut);font-size:9px">▼</span>
+      </div>
+      <div id="z6-tipo-panel" class="z6-tipo-panel" style="display:none">
+        <div id="z6-tipo-cats" class="z6-tipo-cats"></div>
+        <div id="z6-tipo-items-wrap" style="display:none">
+          <div id="z6-tipo-cat-lbl" class="z6-tipo-cat-lbl"></div>
+          <div id="z6-tipo-items" class="z6-tipo-items"></div>
+          <button type="button" class="z6-tipo-back" onclick="z6TipoVolverCats()">← Categorías</button>
+        </div>
+      </div>
+    </div>
+    <!-- campo oculto compatible con el código existente -->
+    <input type="hidden" id="ftipo" value="">
     <select id="festado">
       <option value="">-- Estado --</option>
       <option value="bueno">Bueno</option><option value="regular">Regular</option>
@@ -1551,15 +1463,8 @@ function referencias2(reg) {
 
 
 // ── Filtro de tipos en Reportes ──
-const TIPOS_TODOS = [
-  'Pavimento asfáltico','Calzada de hormigón','Camino de tierra',
-  'Bache / hundimiento','Zona de curva peligrosa','Curva',
-  'Señalización vertical','Señalización horizontal','Guardarrail / barrera','Iluminación vial',
-  'Puente / viaducto','Alcantarilla / drenaje','Zanja / cuneta','Banquina',
-  'Vegetación / desmalezado','Acceso a campo / tranquera','Inundación / anegamiento',
-  'Siniestro vial / accidente','Punto negro (accidentología)',
-  'Obra en ejecución','Emergencia vial','Otro'
-];
+// Lista dinámica desde DVBA_TIPOS (dvba_tipos.js)
+const TIPOS_TODOS = typeof DVBA_TIPOS !== 'undefined' ? DVBA_TIPOS.todos() : [];
 let selTipos = new Set(TIPOS_TODOS);
 
 function buildTipoFiltros() {
@@ -1568,16 +1473,10 @@ function buildTipoFiltros() {
   // Normalizar tipos de registros para matching tolerante a tildes
   const tiposConRegsRaw = regs.filter(r => selR.has(r.ruta)).map(r => r.tipo).filter(Boolean);
   const tiposConRegsNorm = new Set(tiposConRegsRaw.map(normTipo));
-  const tiposConRegs = new Set(tiposConRegsRaw); // originales también
-  // Grupos para el dropdown
-  const grupos = [
-    { label:'Calzada', tipos:['Pavimento asfáltico','Calzada de hormigón','Camino de tierra','Bache / hundimiento','Zona de curva peligrosa','Curva'] },
-    { label:'Señalización', tipos:['Señalización vertical','Señalización horizontal','Guardarrail / barrera','Iluminación vial'] },
-    { label:'Estructura', tipos:['Puente / viaducto','Alcantarilla / drenaje','Zanja / cuneta','Banquina'] },
-    { label:'Entorno', tipos:['Vegetación / desmalezado','Acceso a campo / tranquera','Inundación / anegamiento'] },
-    { label:'Seguridad vial', tipos:['Siniestro vial / accidente','Punto negro (accidentología)','Obra en ejecución','Emergencia vial'] },
-    { label:'Otro', tipos:['Otro'] },
-  ];
+  // Grupos desde DVBA_TIPOS
+  const grupos = typeof DVBA_TIPOS !== 'undefined'
+    ? DVBA_TIPOS.categorias.map(c => ({ label: c.icon + ' ' + c.label, tipos: DVBA_TIPOS.items(c.key) }))
+    : [{ label: 'Todos', tipos: TIPOS_TODOS }];
   div.innerHTML = grupos.map(g => {
     const items = g.tipos.map(t => {
       const on = selTipos.has(t);
@@ -2552,7 +2451,7 @@ function editReg(id) {
   document.getElementById('fruta').value    = reg.ruta;
   document.getElementById('fpartido').value = reg.partido || '';
   document.getElementById('fprog').value    = reg.prog || '';
-  document.getElementById('ftipo').value    = reg.tipo || '';
+  z6TipoSetValor(reg.tipo || '');
   document.getElementById('festado').value  = reg.estado || '';
   document.getElementById('fobs').value     = reg.obs || '';
   document.getElementById('flat').value     = reg.lat ? reg.lat.toFixed(6) : '';
@@ -2607,10 +2506,11 @@ function editReg(id) {
 function limpiarForm() {
   // Limpiar formulario sin cancelar edición (para nuevo registro)
   if (_editandoId) { cancelarEdit(); return; }
-  ['fobs','ftipo','festado','fprog','fruta','fpartido'].forEach(id => {
+  ['fobs','festado','fprog','fruta','fpartido'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  z6TipoReset();
   document.getElementById('flat').value = '';
   document.getElementById('flng').value = '';
   document.getElementById('ffoto').value = '';
@@ -2625,7 +2525,8 @@ function cancelarEdit() {
   document.getElementById('btnGuardar').style.background = '';
   document.getElementById('btnGuardar').style.borderColor = '';
   document.getElementById('btnCancelarEdit').style.display = 'none';
-  ['fobs','ftipo','festado','fprog'].forEach(id => document.getElementById(id).value = '');
+  ['fobs','festado','fprog'].forEach(id => document.getElementById(id).value = '');
+  z6TipoReset();
   document.getElementById('flat').value = '';
   document.getElementById('flng').value = '';
   document.getElementById('ffoto').value = '';
@@ -2687,6 +2588,107 @@ document.addEventListener('click', function(e){
 
 // Versión visible en header
 document.getElementById('app-ver').textContent = APP_VERSION;
+
+/* ══════════════════════════════════════════════════════════════
+   SELECTOR JERÁRQUICO DE TIPO — desktop (zona6)
+   Requiere dvba_tipos.js
+   ══════════════════════════════════════════════════════════════ */
+(function(){
+  // Cerrar panel al click fuera
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#z6-tipo-selector')) z6TipoCerrar();
+  });
+})();
+
+function z6TipoInit() {
+  if (typeof DVBA_TIPOS === 'undefined') return;
+  const div = document.getElementById('z6-tipo-cats');
+  if (!div) return;
+  div.innerHTML = '';
+  DVBA_TIPOS.categorias.forEach(c => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'z6-cat-btn';
+    b.innerHTML = `<span class="z6-cat-ico">${c.icon}</span><span>${c.label}</span>`;
+    b.onclick = () => z6TipoMostrarItems(c.key);
+    div.appendChild(b);
+  });
+}
+
+function z6TipoToggle() {
+  const panel = document.getElementById('z6-tipo-panel');
+  const disp  = document.getElementById('z6-tipo-display');
+  if (panel.style.display === 'none') {
+    // Abrir: mostrar siempre cats primero si no hay nada seleccionado
+    panel.style.display = '';
+    disp.classList.add('open');
+    document.getElementById('z6-tipo-cats').style.display = 'grid';
+    document.getElementById('z6-tipo-items-wrap').style.display = 'none';
+  } else {
+    z6TipoCerrar();
+  }
+}
+
+function z6TipoCerrar() {
+  const panel = document.getElementById('z6-tipo-panel');
+  if (panel) panel.style.display = 'none';
+  const disp = document.getElementById('z6-tipo-display');
+  if (disp) disp.classList.remove('open');
+}
+
+function z6TipoMostrarItems(catKey) {
+  if (typeof DVBA_TIPOS === 'undefined') return;
+  const cat = DVBA_TIPOS.ARBOL[catKey];
+  document.getElementById('z6-tipo-cat-lbl').textContent = cat.icon + ' ' + cat.label;
+  const iDiv = document.getElementById('z6-tipo-items');
+  iDiv.innerHTML = '';
+  cat.items.forEach(it => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'z6-item-btn';
+    b.textContent = it;
+    b.onclick = () => z6TipoSeleccionar(it);
+    iDiv.appendChild(b);
+  });
+  document.getElementById('z6-tipo-cats').style.display = 'none';
+  document.getElementById('z6-tipo-items-wrap').style.display = '';
+}
+
+function z6TipoVolverCats() {
+  document.getElementById('z6-tipo-cats').style.display = 'grid';
+  document.getElementById('z6-tipo-items-wrap').style.display = 'none';
+}
+
+function z6TipoSeleccionar(valor) {
+  document.getElementById('ftipo').value = valor;
+  const disp = document.getElementById('z6-tipo-display');
+  document.getElementById('z6-tipo-txt').textContent = valor;
+  disp.classList.remove('open');
+  disp.classList.add('elegido');
+  document.getElementById('z6-tipo-panel').style.display = 'none';
+}
+
+function z6TipoReset() {
+  document.getElementById('ftipo').value = '';
+  document.getElementById('z6-tipo-txt').textContent = '— Seleccioná el tipo —';
+  document.getElementById('z6-tipo-txt').style.color = '';
+  const disp = document.getElementById('z6-tipo-display');
+  disp.classList.remove('open', 'elegido');
+  document.getElementById('z6-tipo-panel').style.display = 'none';
+  document.getElementById('z6-tipo-cats').style.display = 'grid';
+  document.getElementById('z6-tipo-items-wrap').style.display = 'none';
+}
+
+function z6TipoSetValor(valor) {
+  if (!valor) { z6TipoReset(); return; }
+  document.getElementById('ftipo').value = valor;
+  document.getElementById('z6-tipo-txt').textContent = valor;
+  document.getElementById('z6-tipo-display').classList.add('elegido');
+}
+
+// Inicializar al cargar
+document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
+
 
 
 </script>
