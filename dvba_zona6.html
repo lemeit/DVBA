@@ -321,10 +321,13 @@ body.modo-campo #campo-fab{display:flex}
   
       </div>
       <div class="sec" style="flex:1;border-bottom:none;display:flex;flex-direction:column">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
           <div class="sec-title" style="margin-bottom:0">Registros <span id="rcnt" style="color:#3a5a70;font-weight:400">(0)</span></div>
           <button class="btn btn-xs btn-ghost" onclick="exportCSV()">↓ CSV</button>
         </div>
+        <input type="text" id="reg-busq" placeholder="🔍 Buscar ruta, tipo, partido, km…"
+          style="margin-bottom:5px;font-size:10px;padding:4px 7px"
+          oninput="renderRegs()">
         <div id="rlista" style="flex:1;overflow-y:auto"><div class="empty">Sin registros.</div></div>
       </div>
     </div>
@@ -464,7 +467,7 @@ async function cargarRegs() {
     // Fallback localStorage
     try { regs = JSON.parse(localStorage.getItem('dvba_z6v6') || '[]'); } catch(e) { regs = []; }
     setModoIndicador(false);
-    renderRegs(); drawRegMarkers(); buildRegTags();
+    _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
     // Precalcular OSRM en background para referencias de campo
     const ridsActivos = Object.keys(selR).filter(r => selR[r]);
     const osrmEl = document.getElementById('osrm-status');
@@ -510,7 +513,7 @@ async function cargarRegs() {
     try { regs = JSON.parse(localStorage.getItem('dvba_z6v6') || '[]'); } catch(e2) { regs = []; }
     setModoIndicador(false);
   }
-  renderRegs(); drawRegMarkers(); buildRegTags();
+  _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
 }
 let capasR={}, capasP={}, capasM=[], capasReg=[];
 let rutaLbls={}, partidoLbls={};
@@ -984,7 +987,7 @@ async function guardar(){
     document.getElementById('flat').value = '';
     document.getElementById('flng').value = '';
     if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
-    renderRegs(); drawRegMarkers(); buildRegTags();
+    _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
     alert('Guardado: RP ' + ruta + ' ' + prog + (_supa ? ' ✓ nube' : ' (local)'));
   };
 
@@ -1042,13 +1045,17 @@ function drawRegMarkers(){
         <span class="est est-${reg.estado}">${reg.estado}</span> &middot; ${reg.tipo}<br>
         ${reg.obs?reg.obs+'<br>':''}
         ${reg.foto?`<img src="${reg.foto}" style="max-width:200px;border-radius:3px;margin-top:4px;display:block;cursor:pointer" onclick="showFoto(this.src)">`:''}
-        <div style="margin-top:4px;display:flex;justify-content:space-between;align-items:center">
-          <span style="color:#2a3a4a;font-size:9px">${reg.fecha}</span>
-          <button class="btn-del" onclick="delReg(${reg.id});map.closePopup()">Eliminar</button>
+        <div style="margin-top:5px;display:flex;gap:5px;align-items:center">
+          <span style="color:#2a3a4a;font-size:9px;flex:1">${reg.fecha}</span>
+          <button class="btn-edit" onclick="map.closePopup();editReg(${reg.id})">✏ Editar</button>
+          <button class="btn-del" onclick="delReg(${reg.id});map.closePopup()">✕</button>
         </div>`);
     capasReg.push(mk);
   });
 }
+
+let _regPage = 0; // página actual de registros (30 por página)
+const _REG_PP = 30; // registros por página
 
 function renderRegs(){
   const lista=document.getElementById('rlista');
@@ -1056,7 +1063,22 @@ function renderRegs(){
   document.getElementById('sreg').textContent=regs.length;
   buildRegTags();
   if(!regs.length){lista.innerHTML='<div class="empty">Sin registros.</div>';return;}
-  lista.innerHTML=regs.slice(0,30).map(reg=>{
+
+  // Filtrar por búsqueda
+  const busq=(document.getElementById('reg-busq')||{value:''}).value.trim().toLowerCase();
+  const filtrados = busq ? regs.filter(r=>{
+    const hay=[r.ruta,r.tipo,r.partido,r.prog,r.obs,r.estado].filter(Boolean).join(' ').toLowerCase();
+    return busq.split(' ').every(t=>hay.includes(t));
+  }) : regs;
+
+  const total = filtrados.length;
+  const inicio = _regPage * _REG_PP;
+  const pagina = filtrados.slice(inicio, inicio + _REG_PP);
+  const totalPag = Math.ceil(total / _REG_PP);
+
+  if(!total){lista.innerHTML=`<div class="empty">Sin registros${busq?' para "'+busq+'"':''}.</div>`;return;}
+
+  let html = pagina.map(reg=>{
     const m=RUTA_META[reg.ruta]||{color:'#009aae',label:reg.ruta||'?'};
     return `<div class="ritem" style="border-left-color:${m.color}">
       <div class="rhdr">
@@ -1071,6 +1093,16 @@ function renderRegs(){
       <div class="rfecha">${reg.fecha}${reg.lat?` &middot; ${reg.lat.toFixed(5)},${reg.lng.toFixed(5)}`:''}</div>
     </div>`;
   }).join('');
+
+  // Paginación si hay más de una página
+  if(totalPag > 1){
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 2px;font-size:10px;color:var(--mut)">
+      <button class="btn btn-xs btn-ghost" onclick="_regPage=Math.max(0,_regPage-1);renderRegs()" ${_regPage===0?'disabled':''}>‹ Ant</button>
+      <span>${inicio+1}–${Math.min(inicio+_REG_PP,total)} de ${total}</span>
+      <button class="btn btn-xs btn-ghost" onclick="_regPage=Math.min(${totalPag-1},_regPage+1);renderRegs()" ${_regPage>=totalPag-1?'disabled':''}>Sig ›</button>
+    </div>`;
+  }
+  lista.innerHTML = html;
 }
 
 async function delReg(id){
@@ -1081,7 +1113,7 @@ async function delReg(id){
   }
   regs = regs.filter(r => r.id !== id);
   if (!_supa) { try { localStorage.setItem('dvba_z6v6', JSON.stringify(regs)); } catch(e) {} }
-  renderRegs(); drawRegMarkers(); buildRegTags();
+  _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
 }
 
 function showFoto(src){
