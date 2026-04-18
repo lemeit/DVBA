@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test RP40 — Zona VI DVBA</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: Arial, sans-serif; background: #1a2a3a; color: #eee; }
+#header { background:#003366; padding:10px 16px; display:flex; align-items:center; gap:16px; }
+#header h1 { font-size:1rem; color:#fff; }
+#info-box { font-size:0.8rem; color:#adf; margin-left:auto; }
+#map { width:100%; height:calc(100vh - 44px); }
+.moj-label { background:transparent; border:none; font-size:0.7rem; color:#003366;
+             font-weight:bold; white-space:nowrap; text-shadow:1px 1px 2px #fff,-1px -1px 2px #fff; }
+.moj-label-sint { color:#666; font-weight:normal; }
+.leyenda { position:absolute; bottom:20px; right:10px; z-index:1000;
+           background:rgba(255,255,255,0.95); padding:10px 14px; border-radius:6px;
+           font-size:0.75rem; color:#333; box-shadow:0 2px 8px rgba(0,0,0,0.3); }
+.leyenda h4 { margin-bottom:6px; color:#003366; }
+.dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+.controles { position:absolute; top:56px; right:10px; z-index:1000;
+             background:rgba(255,255,255,0.95); padding:10px; border-radius:6px;
+             font-size:0.75rem; color:#333; box-shadow:0 2px 8px rgba(0,0,0,0.3); }
+.controles label { display:block; margin:4px 0; cursor:pointer; }
+#prog-resultado { position:absolute; bottom:20px; left:10px; z-index:1000;
+                  background:rgba(0,51,102,0.92); color:#fff; padding:10px 14px;
+                  border-radius:6px; font-size:0.8rem; min-width:180px;
+                  box-shadow:0 2px 8px rgba(0,0,0,0.4); display:none; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <h1>🗺 RP40 — Test de integración modular</h1>
+  <div id="info-box">Clic en la traza para ver progresiva</div>
+</div>
+<div id="map"></div>
+
+<div class="controles">
+  <strong>Capas</strong>
+  <label><input type="checkbox" id="chk-traza" checked> Traza RP40</label>
+  <label><input type="checkbox" id="chk-gaps" checked> Gaps</label>
+  <label><input type="checkbox" id="chk-moj-f" checked> Mojones físicos</label>
+  <label><input type="checkbox" id="chk-moj-s" checked> Mojones sintéticos</label>
+  <hr style="margin:6px 0">
+  <label>Cada: <select id="sel-paso" style="font-size:0.75rem">
+    <option value="5">5 km</option>
+    <option value="10">10 km</option>
+    <option value="1">1 km</option>
+  </select></label>
+</div>
+
+<div class="leyenda">
+  <h4>Referencias</h4>
+  <div><span class="dot" style="background:#c8a820"></span> Traza oficial RP40</div>
+  <div><span class="dot" style="background:#e05050"></span> Gap (discontinuidad)</div>
+  <div><span class="dot" style="background:#003366"></span> Mojón físico km50/100/150/200</div>
+  <div><span class="dot" style="background:#888"></span> Mojón sintético cada 5 km</div>
+</div>
+
+<div id="prog-resultado"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="datos/rutas_rp40.js"></script>
+<script src="datos/rutas_mojones.js"></script>
+<script>
+// ── Inicializar mapa ────────────────────────────────────────────────────────
+const map = L.map('map').setView([-35.15, -59.6], 9);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap',
+  maxZoom: 18
+}).addTo(map);
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function hav(a, b) {
+  const R=6371, dLat=(b[1]-a[1])*Math.PI/180, dLng=(b[0]-a[0])*Math.PI/180;
+  const x=Math.sin(dLat/2)**2+Math.cos(a[1]*Math.PI/180)*Math.cos(b[1]*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+// Calcular acumulado
+const acum = [0];
+for (let i=1; i<CHAIN_RP40.length; i++)
+  acum.push(acum[i-1] + hav(CHAIN_RP40[i-1], CHAIN_RP40[i]));
+
+// Calcular progresiva real desde acum local
+function calcProg(accLocal) {
+  // Interpolar con ANCHORS_RP40
+  if (accLocal <= ANCHORS_RP40[0].acc)
+    return META_RP40.progIni + accLocal * (ANCHORS_RP40[0].km - META_RP40.progIni) / ANCHORS_RP40[0].acc;
+  for (let i=0; i<ANCHORS_RP40.length-1; i++) {
+    const a=ANCHORS_RP40[i], b=ANCHORS_RP40[i+1];
+    if (accLocal >= a.acc && accLocal <= b.acc) {
+      const frac = (accLocal-a.acc)/(b.acc-a.acc);
+      return a.km + frac*(b.km-a.km);
+    }
+  }
+  return META_RP40.progIni + accLocal;
+}
+
+// ── Detectar gaps para colorear ─────────────────────────────────────────────
+const GAP_THRESH = 2.0;
+const segmentos_normales = [], segmentos_gap = [];
+let seg_actual = [CHAIN_RP40[0]];
+let es_gap_actual = false;
+
+for (let i=1; i<CHAIN_RP40.length; i++) {
+  const d = hav(CHAIN_RP40[i-1], CHAIN_RP40[i]);
+  const nuevo_gap = d > GAP_THRESH;
+  
+  if (nuevo_gap !== es_gap_actual) {
+    if (es_gap_actual) segmentos_gap.push([...seg_actual]);
+    else segmentos_normales.push([...seg_actual]);
+    seg_actual = [CHAIN_RP40[i-1]];
+    es_gap_actual = nuevo_gap;
+  }
+  seg_actual.push(CHAIN_RP40[i]);
+}
+if (es_gap_actual) segmentos_gap.push(seg_actual);
+else segmentos_normales.push(seg_actual);
+
+// ── Capas ───────────────────────────────────────────────────────────────────
+const lyTraza = L.layerGroup();
+const lyGaps  = L.layerGroup();
+const lyMojF  = L.layerGroup();
+const lyMojS  = L.layerGroup();
+
+function buildTraza() {
+  lyTraza.clearLayers();
+  segmentos_normales.forEach(seg => {
+    L.polyline(seg.map(p=>[p[1],p[0]]), {color:'#c8a820',weight:5,opacity:0.9}).addTo(lyTraza);
+  });
+}
+
+function buildGaps() {
+  lyGaps.clearLayers();
+  segmentos_gap.forEach(seg => {
+    L.polyline(seg.map(p=>[p[1],p[0]]), 
+      {color:'#e05050',weight:3,opacity:0.8,dashArray:'8,6'}).addTo(lyGaps);
+  });
+}
+
+function buildMojonesF() {
+  lyMojF.clearLayers();
+  MOJONES_RP40.forEach(m => {
+    if (m.km === 0) return;
+    const marker = L.circleMarker([m.lat, m.lng], {
+      radius:8, fillColor:'#003366', color:'#fff', weight:2, fillOpacity:1
+    });
+    marker.bindPopup(`<b>km ${m.km}</b><br>${m.sentido||''}<br>[${m.lng}, ${m.lat}]`);
+    const label = L.divIcon({
+      className:'moj-label',
+      html:`km ${m.km}`,
+      iconAnchor:[-6,-4]
+    });
+    L.marker([m.lat, m.lng], {icon:label}).addTo(lyMojF);
+    marker.addTo(lyMojF);
+  });
+}
+
+let paso_actual = 5;
+function buildMojonesS(paso) {
+  lyMojS.clearLayers();
+  MOJONES_RP40_TODOS.filter(m => m.sintetico && m.km % paso === 0).forEach(m => {
+    const color = m.en_gap ? '#e05050' : '#888888';
+    const marker = L.circleMarker([m.lat, m.lng], {
+      radius:4, fillColor:color, color:'#fff', weight:1, fillOpacity:0.8
+    });
+    marker.bindPopup(`<b>km ${m.km}</b> (sintético)${m.en_gap?' ⚠ en gap':''}`);
+    marker.addTo(lyMojS);
+    if (m.km % (paso*2) === 0) {
+      const label = L.divIcon({
+        className:'moj-label moj-label-sint',
+        html:`${m.km}`,
+        iconAnchor:[-4,-3]
+      });
+      L.marker([m.lat, m.lng], {icon:label}).addTo(lyMojS);
+    }
+  });
+}
+
+buildTraza(); buildGaps(); buildMojonesF(); buildMojonesS(5);
+lyTraza.addTo(map); lyGaps.addTo(map); lyMojF.addTo(map); lyMojS.addTo(map);
+
+// ── Click en mapa → progresiva ──────────────────────────────────────────────
+map.on('click', e => {
+  const clng=e.latlng.lng, clat=e.latlng.lat;
+  let bestI=0, bestD=1e9;
+  CHAIN_RP40.forEach((pt,i) => {
+    const d=Math.sqrt((pt[0]-clng)**2+(pt[1]-clat)**2);
+    if(d<bestD){bestD=d;bestI=i;}
+  });
+  const prog = calcProg(acum[bestI]);
+  const en_gap = segmentos_gap.some(seg => 
+    seg.some(pt => Math.sqrt((pt[0]-CHAIN_RP40[bestI][0])**2+(pt[1]-CHAIN_RP40[bestI][1])**2) < 0.001)
+  );
+  const box = document.getElementById('prog-resultado');
+  box.style.display = 'block';
+  box.innerHTML = `<b>RP 40</b><br>
+    Progresiva: <b>km ${prog.toFixed(2)}</b><br>
+    Acum. local: ${acum[bestI].toFixed(3)} km<br>
+    ${en_gap ? '<span style="color:#f88">⚠ Tramo en gap</span>' : ''}`;
+});
+
+// ── Controles ───────────────────────────────────────────────────────────────
+document.getElementById('chk-traza').onchange = e =>
+  e.target.checked ? lyTraza.addTo(map) : lyTraza.remove();
+document.getElementById('chk-gaps').onchange = e =>
+  e.target.checked ? lyGaps.addTo(map) : lyGaps.remove();
+document.getElementById('chk-moj-f').onchange = e =>
+  e.target.checked ? lyMojF.addTo(map) : lyMojF.remove();
+document.getElementById('chk-moj-s').onchange = e =>
+  e.target.checked ? lyMojS.addTo(map) : lyMojS.remove();
+document.getElementById('sel-paso').onchange = e => {
+  paso_actual = parseInt(e.target.value);
+  buildMojonesS(paso_actual);
+  if (document.getElementById('chk-moj-s').checked) lyMojS.addTo(map);
+};
+
+// Fit bounds
+const all_latlng = CHAIN_RP40.map(p=>[p[1],p[0]]);
+map.fitBounds(L.latLngBounds(all_latlng).pad(0.05));
+
+document.getElementById('info-box').textContent = 
+  `Cadena: ${CHAIN_RP40.length} pts | ${META_RP40.longGis} km | ${META_RP40.mojonesS} mojones sintéticos`;
+</script>
+</body>
+</html>
