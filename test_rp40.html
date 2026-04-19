@@ -8,193 +8,209 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Arial,sans-serif;background:#1a2a3a;color:#eee}
-#header{background:#003366;padding:8px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-#header h1{font-size:.95rem;color:#fff;white-space:nowrap}
-#stats{font-size:.75rem;color:#adf;margin-left:auto}
+#hdr{background:#003366;padding:8px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#hdr h1{font-size:.92rem;color:#fff;white-space:nowrap}
+#stats{font-size:.73rem;color:#adf;margin-left:auto}
 #map{width:100%;height:calc(100vh - 40px)}
 .ctrl{position:absolute;z-index:1000;background:rgba(255,255,255,.95);
-      padding:10px;border-radius:6px;font-size:.75rem;color:#333;
-      box-shadow:0 2px 8px rgba(0,0,0,.3)}
-#panel-capas{top:52px;right:10px}
-#panel-capas label{display:block;margin:3px 0;cursor:pointer}
-#panel-capas hr{margin:5px 0;border-color:#ccc}
-#panel-prog{bottom:20px;left:10px;min-width:190px;
-            background:rgba(0,51,102,.93);color:#fff;display:none}
-#panel-leyenda{bottom:20px;right:10px}
-#panel-leyenda h4{color:#003366;margin-bottom:5px}
-.dot{display:inline-block;width:9px;height:9px;border-radius:50%;
-     margin-right:5px;vertical-align:middle}
-.dash{display:inline-block;width:20px;height:3px;
-      margin-right:5px;vertical-align:middle;border-top:2px dashed}
-.mj-lbl{background:transparent;border:none;font-size:.68rem;
-         font-weight:bold;white-space:nowrap;
-         text-shadow:1px 1px 2px #fff,-1px -1px 2px #fff}
+       padding:10px;border-radius:6px;font-size:.75rem;color:#333;
+       box-shadow:0 2px 8px rgba(0,0,0,.3)}
+#pnl-capa{top:52px;right:10px}
+#pnl-capa label{display:block;margin:3px 0;cursor:pointer}
+#pnl-capa hr{margin:5px 0}
+#pnl-prog{bottom:20px;left:10px;min-width:190px;
+           background:rgba(0,51,102,.93);color:#fff;display:none}
+#pnl-ley{bottom:20px;right:10px}
+#pnl-ley h4{color:#003366;margin-bottom:5px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.mjl{background:transparent;border:none;font-size:.68rem;font-weight:bold;
+      white-space:nowrap;text-shadow:1px 1px 2px #fff,-1px -1px 2px #fff}
 </style>
 </head>
 <body>
-<div id="header">
+<div id="hdr">
   <h1>🗺 RP40 — Test integración modular | DVBA Zona VI</h1>
   <div id="stats">cargando...</div>
 </div>
 <div id="map"></div>
 
-<div class="ctrl" id="panel-capas">
+<div class="ctrl" id="pnl-capa">
   <b>Capas</b>
   <label><input type="checkbox" id="c-traza" checked> Traza oficial</label>
-  <label><input type="checkbox" id="c-gaps" checked> Gaps / discontinuidades</label>
-  <label><input type="checkbox" id="c-mf" checked> Mojones físicos (km50..200)</label>
-  <label><input type="checkbox" id="c-ms" checked> Mojones sintéticos</label>
+  <label><input type="checkbox" id="c-gaps"  checked> Gaps / tramos urbanos</label>
+  <label><input type="checkbox" id="c-mf"    checked> Mojones físicos</label>
+  <label><input type="checkbox" id="c-ms"    checked> Mojones sintéticos</label>
   <hr>
-  Paso sintéticos:
-  <select id="sel-paso" style="font-size:.75rem;width:100%;margin-top:3px">
-    <option value="5" selected>Cada 5 km</option>
-    <option value="10">Cada 10 km</option>
-    <option value="1">Cada 1 km</option>
+  Paso sint: <select id="sel-paso" style="font-size:.75rem;width:100%;margin-top:3px">
+    <option value="5" selected>5 km</option>
+    <option value="10">10 km</option>
+    <option value="1">1 km</option>
   </select>
-  <hr>
-  <div style="font-size:.7rem;color:#666;margin-top:4px">
-    Clic en mapa → progresiva
-  </div>
 </div>
 
-<div class="ctrl" id="panel-leyenda">
+<div class="ctrl" id="pnl-ley">
   <h4>Referencias</h4>
-  <div><span class="dot" style="background:#c8a820"></span>Traza RP40 oficial</div>
-  <div><span class="dash" style="border-color:#e05050"></span>Gap / tramo urbano</div>
-  <div><span class="dot" style="background:#003366;border:2px solid #fff"></span>Mojón físico</div>
+  <div><span class="dot" style="background:#c8a820"></span>Traza RP40</div>
+  <div><span class="dot" style="background:#e05050;border-radius:0;width:18px;height:3px"></span>Gap / tramo urbano</div>
+  <div><span class="dot" style="background:#003366;border:2px solid #fff"></span>Mojón físico km50..200</div>
   <div><span class="dot" style="background:#888"></span>Mojón sintético</div>
   <div><span class="dot" style="background:#e05050"></span>Mojón en gap</div>
 </div>
 
-<div class="ctrl" id="panel-prog">
-  <span id="prog-txt"></span>
-</div>
+<div class="ctrl" id="pnl-prog"><span id="prog-txt"></span></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- ORDEN CRÍTICO: primero los datos, luego rutas.js, luego Leaflet, luego el código de la app -->
 <script src="datos/rutas_rp40.js"></script>
-<script src="datos/rutas_mojones.js"></script>
 <script src="datos/rutas.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ── Mapa ────────────────────────────────────────────────────────────────────
-const map = L.map('map').setView([-35.15,-59.6],9);
+// Todo el código de la app va acá, DESPUÉS de que los scripts anteriores cargaron
+
+// ── Verificar que los datos están disponibles ────────────────────────────────
+(function checkDatos() {
+  const faltantes = [];
+  if (typeof CHAIN_RP40       === 'undefined') faltantes.push('CHAIN_RP40');
+  if (typeof ANCHORS_RP40     === 'undefined') faltantes.push('ANCHORS_RP40');
+  if (typeof GAPS_RP40        === 'undefined') faltantes.push('GAPS_RP40');
+  if (typeof MOJONES_RP40_TODOS === 'undefined') faltantes.push('MOJONES_RP40_TODOS');
+  if (faltantes.length > 0) {
+    document.getElementById('stats').textContent = '⚠ Falta: ' + faltantes.join(', ');
+    console.error('Variables faltantes:', faltantes);
+    return;
+  }
+  console.log('✓ Datos OK:', CHAIN_RP40.length, 'pts,', GAPS_RP40.length, 'gaps');
+})();
+
+// ── Mapa ─────────────────────────────────────────────────────────────────────
+const map = L.map('map').setView([-35.15, -59.6], 9);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  {attribution:'© OpenStreetMap',maxZoom:18}).addTo(map);
+  {attribution:'© OpenStreetMap', maxZoom:18}).addTo(map);
 
 // ── Acumulado ────────────────────────────────────────────────────────────────
-function hav(a,b){
-  const R=6371,dL=(b[1]-a[1])*Math.PI/180,dl=(b[0]-a[0])*Math.PI/180;
-  const x=Math.sin(dL/2)**2+Math.cos(a[1]*Math.PI/180)*Math.cos(b[1]*Math.PI/180)*Math.sin(dl/2)**2;
-  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+function hav(a, b) {
+  const R=6371, dL=(b[1]-a[1])*Math.PI/180, dl=(b[0]-a[0])*Math.PI/180;
+  const x = Math.sin(dL/2)**2 + Math.cos(a[1]*Math.PI/180)*Math.cos(b[1]*Math.PI/180)*Math.sin(dl/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
 }
-const ACUM=[0];
-for(let i=1;i<CHAIN_RP40.length;i++) ACUM.push(ACUM[i-1]+hav(CHAIN_RP40[i-1],CHAIN_RP40[i]));
 
-function calcProg(acc){
-  if(!ANCHORS_RP40||ANCHORS_RP40.length===0) return META_RP40.progIni+acc;
-  if(acc<=ANCHORS_RP40[0].acc)
-    return META_RP40.progIni + acc*(ANCHORS_RP40[0].km-META_RP40.progIni)/ANCHORS_RP40[0].acc;
-  for(let i=0;i<ANCHORS_RP40.length-1;i++){
-    const a=ANCHORS_RP40[i],b=ANCHORS_RP40[i+1];
-    if(acc>=a.acc&&acc<=b.acc) return a.km+(acc-a.acc)/(b.acc-a.acc)*(b.km-a.km);
+const ACUM = [0];
+for (let i=1; i<CHAIN_RP40.length; i++)
+  ACUM.push(ACUM[i-1] + hav(CHAIN_RP40[i-1], CHAIN_RP40[i]));
+
+function calcProg(acc) {
+  if (acc <= ANCHORS_RP40[0].acc)
+    return META_RP40.progIni + acc * (ANCHORS_RP40[0].km - META_RP40.progIni) / ANCHORS_RP40[0].acc;
+  for (let i=0; i<ANCHORS_RP40.length-1; i++) {
+    const a=ANCHORS_RP40[i], b=ANCHORS_RP40[i+1];
+    if (acc >= a.acc && acc <= b.acc)
+      return a.km + (acc-a.acc)/(b.acc-a.acc)*(b.km-a.km);
   }
-  return META_RP40.progIni+acc;
+  return META_RP40.progIni + acc;
 }
 
-function enGap(acc){
-  return GAPS_RP40.find(g=>acc>=g.acc_desde-0.05&&acc<=g.acc_hasta+0.05)||null;
+function getGap(acc) {
+  return GAPS_RP40.find(g => acc >= g.acc_desde-0.05 && acc <= g.acc_hasta+0.05) || null;
 }
 
-// ── Segmentar traza por gaps ─────────────────────────────────────────────────
-// Un segmento es "gap" si la distancia entre puntos consecutivos > 2 km
-// O si su acumulado cae dentro de un rango de gap conocido
-const segs_normal=[], segs_gap=[];
-let seg=[CHAIN_RP40[0]], en_gap_actual=false;
-
-for(let i=1;i<CHAIN_RP40.length;i++){
-  const d=hav(CHAIN_RP40[i-1],CHAIN_RP40[i]);
-  const g=enGap(ACUM[i]);
-  const es_gap = d>2.0 || !!g;
-  if(es_gap!==en_gap_actual){
-    (en_gap_actual?segs_gap:segs_normal).push([...seg]);
-    seg=[CHAIN_RP40[i-1]]; en_gap_actual=es_gap;
+// ── Segmentar traza en normal / gap ──────────────────────────────────────────
+const segsNormal=[], segsGap=[];
+let seg=[CHAIN_RP40[0]], esGap=false;
+for (let i=1; i<CHAIN_RP40.length; i++) {
+  const d = hav(CHAIN_RP40[i-1], CHAIN_RP40[i]);
+  const g = getGap(ACUM[i]);
+  const nuevoGap = d > 2.0 || !!g;
+  if (nuevoGap !== esGap) {
+    (esGap ? segsGap : segsNormal).push([...seg]);
+    seg = [CHAIN_RP40[i-1]];
+    esGap = nuevoGap;
   }
   seg.push(CHAIN_RP40[i]);
 }
-(en_gap_actual?segs_gap:segs_normal).push(seg);
+(esGap ? segsGap : segsNormal).push(seg);
+console.log('Segmentos normales:', segsNormal.length, '| Gaps:', segsGap.length);
 
-// ── Capas Leaflet ────────────────────────────────────────────────────────────
-const lyTraza=L.layerGroup(), lyGaps=L.layerGroup();
-const lyMojF=L.layerGroup(), lyMojS=L.layerGroup();
+// ── Capas ────────────────────────────────────────────────────────────────────
+const lyTraza = L.layerGroup();
+const lyGaps  = L.layerGroup();
+const lyMojF  = L.layerGroup();
+const lyMojS  = L.layerGroup();
 
-segs_normal.forEach(s=>
-  L.polyline(s.map(p=>[p[1],p[0]]),{color:'#c8a820',weight:5,opacity:.9}).addTo(lyTraza));
+segsNormal.forEach(s =>
+  L.polyline(s.map(p=>[p[1],p[0]]), {color:'#c8a820',weight:5,opacity:.9}).addTo(lyTraza));
 
-segs_gap.forEach(s=>
+segsGap.forEach(s =>
   L.polyline(s.map(p=>[p[1],p[0]]),
     {color:'#e05050',weight:3,opacity:.85,dashArray:'10,6'}).addTo(lyGaps));
 
-function buildMojF(){
+function buildMojF() {
   lyMojF.clearLayers();
-  MOJONES_RP40.filter(m=>m.km>0).forEach(m=>{
-    L.circleMarker([m.lat,m.lng],{radius:8,fillColor:'#003366',color:'#fff',weight:2,fillOpacity:1})
-      .bindPopup(`<b>km ${m.km}</b><br>${m.sentido||''}<br>Mojón físico (datos internos DVBA)<br><small>Requiere verificación de campo</small>`)
-      .addTo(lyMojF);
-    L.marker([m.lat,m.lng],{icon:L.divIcon({className:'mj-lbl',html:`km ${m.km}`,iconAnchor:[-5,-3]})}).addTo(lyMojF);
+  MOJONES_RP40.filter(m => m.km > 0).forEach(m => {
+    L.circleMarker([m.lat,m.lng],
+      {radius:8,fillColor:'#003366',color:'#fff',weight:2,fillOpacity:1})
+     .bindPopup(`<b>km ${m.km}</b><br>${m.sentido||''}<br><i>Mojón físico — datos internos DVBA</i>`)
+     .addTo(lyMojF);
+    L.marker([m.lat,m.lng],
+      {icon:L.divIcon({className:'mjl',html:`km ${m.km}`,iconAnchor:[-5,-3]})})
+     .addTo(lyMojF);
   });
 }
 
-let pasoActual=5;
-function buildMojS(paso){
+function buildMojS(paso) {
   lyMojS.clearLayers();
-  MOJONES_RP40_TODOS.filter(m=>m.sintetico&&m.km%paso===0).forEach(m=>{
-    const color=m.en_gap?'#e05050':'#888';
-    L.circleMarker([m.lat,m.lng],{radius:m.en_gap?5:4,fillColor:color,
-      color:'#fff',weight:1,fillOpacity:.85})
-     .bindPopup(`<b>km ${m.km}</b> (sintético)${m.en_gap?'<br>⚠ Posición en gap — aproximada':''}`)
-     .addTo(lyMojS);
-    if(m.km%20===0)
-      L.marker([m.lat,m.lng],{icon:L.divIcon({className:'mj-lbl',
-        html:`<span style="color:${m.en_gap?'#c00':'#555'}">${m.km}</span>`,
-        iconAnchor:[-4,-3]})}).addTo(lyMojS);
-  });
+  MOJONES_RP40_TODOS
+    .filter(m => m.sintetico && m.km % paso === 0)
+    .forEach(m => {
+      const color = m.en_gap ? '#e05050' : '#888';
+      L.circleMarker([m.lat,m.lng],
+        {radius:m.en_gap?5:4,fillColor:color,color:'#fff',weight:1,fillOpacity:.85})
+       .bindPopup(`<b>km ${m.km}</b> (sintético)${m.en_gap?'<br>⚠ Posición en gap':''}`)
+       .addTo(lyMojS);
+      if (m.km % 20 === 0)
+        L.marker([m.lat,m.lng],
+          {icon:L.divIcon({className:'mjl',
+            html:`<span style="color:${m.en_gap?'#c00':'#555'}">${m.km}</span>`,
+            iconAnchor:[-4,-3]})})
+         .addTo(lyMojS);
+    });
 }
 
-buildMojF(); buildMojS(5);
-[lyTraza,lyGaps,lyMojF,lyMojS].forEach(ly=>ly.addTo(map));
+buildMojF();
+buildMojS(5);
+[lyTraza, lyGaps, lyMojF, lyMojS].forEach(ly => ly.addTo(map));
 
 // ── Controles ────────────────────────────────────────────────────────────────
-const tog=(id,ly)=>document.getElementById(id).addEventListener('change',e=>
-  e.target.checked?ly.addTo(map):ly.remove());
-tog('c-traza',lyTraza); tog('c-gaps',lyGaps);
-tog('c-mf',lyMojF); tog('c-ms',lyMojS);
-document.getElementById('sel-paso').onchange=e=>{
-  pasoActual=+e.target.value; buildMojS(pasoActual);
-  if(document.getElementById('c-ms').checked) lyMojS.addTo(map);
-};
+[['c-traza',lyTraza],['c-gaps',lyGaps],['c-mf',lyMojF],['c-ms',lyMojS]]
+  .forEach(([id,ly]) =>
+    document.getElementById(id).addEventListener('change', e =>
+      e.target.checked ? ly.addTo(map) : ly.remove()));
 
-// ── Clic → progresiva ────────────────────────────────────────────────────────
-map.on('click',e=>{
-  const [clng,clat]=[e.latlng.lng,e.latlng.lat];
-  let bi=0,bd=1e9;
-  CHAIN_RP40.forEach((p,i)=>{
-    const d=Math.sqrt((p[0]-clng)**2+(p[1]-clat)**2);
-    if(d<bd){bd=d;bi=i;}
-  });
-  const prog=calcProg(ACUM[bi]);
-  const g=enGap(ACUM[bi]);
-  const box=document.getElementById('panel-prog');
-  box.style.display='block';
-  document.getElementById('prog-txt').innerHTML=
-    `<b>RP 40</b><br>Progresiva: <b>km ${prog.toFixed(2)}</b><br>`+
-    `Acum. local: ${ACUM[bi].toFixed(3)} km<br>`+
-    (g?`<span style="color:#f99">⚠ ${g.label}</span>`:'');
+document.getElementById('sel-paso').addEventListener('change', e => {
+  buildMojS(+e.target.value);
+  if (document.getElementById('c-ms').checked) lyMojS.addTo(map);
 });
 
-// Stats y fit
+// ── Clic → progresiva ─────────────────────────────────────────────────────────
+map.on('click', e => {
+  let bi=0, bd=1e9;
+  CHAIN_RP40.forEach((p,i) => {
+    const d = Math.sqrt((p[0]-e.latlng.lng)**2+(p[1]-e.latlng.lat)**2);
+    if (d < bd) { bd=d; bi=i; }
+  });
+  const prog = calcProg(ACUM[bi]);
+  const g = getGap(ACUM[bi]);
+  const box = document.getElementById('pnl-prog');
+  box.style.display = 'block';
+  document.getElementById('prog-txt').innerHTML =
+    `<b>RP 40</b><br>Progresiva: <b>km ${prog.toFixed(2)}</b><br>` +
+    `Acum. local: ${ACUM[bi].toFixed(3)} km` +
+    (g ? `<br><span style="color:#f99">⚠ ${g.label}</span>` : '');
+});
+
+// ── Fit y stats ──────────────────────────────────────────────────────────────
 map.fitBounds(L.latLngBounds(CHAIN_RP40.map(p=>[p[1],p[0]])).pad(.05));
-document.getElementById('stats').textContent=
-  `${CHAIN_RP40.length} pts | ${META_RP40.longGis} km | `+
-  `${META_RP40.mojonesF} físicos + ${META_RP40.mojonesS} sintéticos | `+
+document.getElementById('stats').textContent =
+  `${CHAIN_RP40.length} pts | ${META_RP40.longGis} km | ` +
+  `${META_RP40.mojonesF} mojones físicos + ${META_RP40.mojonesS} sintéticos | ` +
   `${GAPS_RP40.length} gaps`;
 </script>
 </body>
