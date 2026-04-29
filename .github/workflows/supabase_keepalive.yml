@@ -1,0 +1,43 @@
+# .github/workflows/supabase_keepalive.yml
+# Ejecuta un ping a Supabase cada 5 días desde GitHub Actions
+# No requiere que la PC esté encendida — corre en la nube de GitHub (gratis)
+#
+# SETUP:
+# 1. Subir este archivo al repositorio DVBA en .github/workflows/
+# 2. En GitHub → repositorio DVBA → Settings → Secrets and variables → Actions
+#    Agregar secret: SUPABASE_URL = https://txjlfpffyzuhdqtfhlmc.supabase.co
+#    Agregar secret: SUPABASE_KEY = (anon public key del proyecto)
+# 3. GitHub ejecuta el workflow automáticamente según el schedule
+
+name: Supabase Keepalive — DVBA GIS-Z6
+
+on:
+  schedule:
+    # Ejecutar cada 5 días a las 7:00 AM UTC (4:00 AM Argentina)
+    # Formato cron: minuto hora día mes día_semana
+    - cron: '0 7 */5 * *'
+  workflow_dispatch:  # permite ejecutarlo manualmente desde GitHub si hace falta
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          echo "Haciendo ping a Supabase proyecto GIS-Z6..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X HEAD \
+            -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/registros?select=count")
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" = "200" ] || [ "$STATUS" = "406" ]; then
+            echo "✓ Supabase activo — pausa evitada"
+          else
+            echo "⚠ Respuesta inesperada: $STATUS"
+            exit 1
+          fi
+
+      - name: Log resultado
+        run: |
+          echo "Keepalive ejecutado: $(date -u '+%Y-%m-%d %H:%M UTC')"
