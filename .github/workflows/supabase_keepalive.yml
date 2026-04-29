@@ -6,7 +6,7 @@
 # 1. Subir este archivo al repositorio DVBA en .github/workflows/
 # 2. En GitHub → repositorio DVBA → Settings → Secrets and variables → Actions
 #    Agregar secret: SUPABASE_URL = https://txjlfpffyzuhdqtfhlmc.supabase.co
-#    Agregar secret: SUPABASE_KEY = sb_secret_twx17bxrolnr4PCu2mtsFg_Sh0Nvbqd
+#    Agregar secret: SUPABASE_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjU0Njk4NCwiZXhwIjoyMDg4MTIyOTg0fQ.xlL1CYhVCrfQh1iIV7g2RR1FGH_U2CkbZMMnCZ0O6vU
 # 3. GitHub ejecuta el workflow automáticamente según el schedule
 
 name: Supabase Keepalive — DVBA GIS-Z6
