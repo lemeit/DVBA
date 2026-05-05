@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test RP91 — Zona VI DVBA</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#1a2a3a;color:#eee}
+#hdr{background:#003366;padding:8px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#hdr h1{font-size:.92rem;color:#fff;white-space:nowrap}
+#stats{font-size:.73rem;color:#adf;margin-left:auto}
+#map{width:100%;height:calc(100vh - 40px)}
+.ctrl{position:absolute;z-index:1000;background:rgba(255,255,255,.95);
+       padding:10px;border-radius:6px;font-size:.75rem;color:#333;
+       box-shadow:0 2px 8px rgba(0,0,0,.3)}
+#pnl-capa{top:52px;right:10px}
+#pnl-capa label{display:block;margin:3px 0;cursor:pointer}
+#pnl-capa hr{margin:5px 0}
+#pnl-prog{bottom:20px;left:10px;min-width:200px;
+           background:rgba(0,51,102,.93);color:#fff;display:none;padding:10px 14px;border-radius:6px}
+#pnl-ley{bottom:20px;right:10px}
+#pnl-ley h4{color:#003366;margin-bottom:5px;font-size:.78rem}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.mjl{background:transparent;border:none;font-size:.68rem;font-weight:bold;
+      white-space:nowrap;text-shadow:1px 1px 2px #fff,-1px -1px 2px #fff}
+</style>
+</head>
+<body>
+<div id="hdr">
+  <h1>🗺 RP91 — Test integración | DVBA Zona VI Saladillo</h1>
+  <div id="stats">cargando...</div>
+</div>
+<div id="map"></div>
+
+<div class="ctrl" id="pnl-capa">
+  <b>Capas</b>
+  <label><input type="checkbox" id="c-traza" checked> Traza RP91</label>
+  <label><input type="checkbox" id="c-mf" checked> Mojones físicos (km0, km50)</label>
+  <label><input type="checkbox" id="c-ms" checked> Mojones sintéticos</label>
+  <hr>
+  Paso: <select id="sel-paso" style="font-size:.75rem;width:100%;margin-top:3px">
+    <option value="5" selected>5 km</option>
+    <option value="10">10 km</option>
+    <option value="1">1 km</option>
+  </select>
+  <hr>
+  <div style="font-size:.7rem;color:#666">Clic en traza → progresiva</div>
+</div>
+
+<div class="ctrl" id="pnl-ley">
+  <h4>Referencias</h4>
+  <div><span class="dot" style="background:#6ab0cc"></span>Traza RP91</div>
+  <div><span class="dot" style="background:#003366;border:2px solid #fff"></span>Mojón físico</div>
+  <div><span class="dot" style="background:#888"></span>Mojón sintético 5km</div>
+  <div style="margin-top:6px;font-size:.68rem;color:#666">
+    144 pts · 51.583 km<br>
+    Dirección: Aumenta en direccion SE<br>
+    Sin gaps
+  </div>
+</div>
+
+<div id="pnl-prog"></div>
+
+<script src="datos/rutas_rp91.js"></script>
+<script src="datos/rutas.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Verificar carga ──────────────────────────────────────────────────────────
+(function(){
+  const falta = ['CHAIN_RP91','ANCHORS_RP91','MOJONES_RP91','MOJONES_RP91_TODOS','META_RP91']
+    .filter(v => typeof window[v] === 'undefined');
+  if (falta.length) {
+    document.getElementById('stats').textContent = '⚠ Falta: ' + falta.join(', ');
+    console.error('Variables faltantes:', falta);
+  }
+})();
+
+// ── Mapa ─────────────────────────────────────────────────────────────────────
+const map = L.map('map').setView([-35.81619,-59.55974], 10);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  {attribution:'© OpenStreetMap', maxZoom:18}).addTo(map);
+
+// ── Acumulado ────────────────────────────────────────────────────────────────
+function hav(a,b){
+  const R=6371,dL=(b[1]-a[1])*Math.PI/180,dl=(b[0]-a[0])*Math.PI/180;
+  const x=Math.sin(dL/2)**2+Math.cos(a[1]*Math.PI/180)*Math.cos(b[1]*Math.PI/180)*Math.sin(dl/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+const ACUM=[0];
+for(let i=1;i<CHAIN_RP91.length;i++) ACUM.push(ACUM[i-1]+hav(CHAIN_RP91[i-1],CHAIN_RP91[i]));
+
+function calcProg(acc){
+  // RP91 empieza en km0 — interpolación directa con anchors
+  if(!ANCHORS_RP91.length) return acc;
+  if(acc<=ANCHORS_RP91[0].acc) return acc;
+  for(let i=0;i<ANCHORS_RP91.length-1;i++){
+    const a=ANCHORS_RP91[i],b=ANCHORS_RP91[i+1];
+    if(acc>=a.acc&&acc<=b.acc) return a.km+(acc-a.acc)/(b.acc-a.acc)*(b.km-a.km);
+  }
+  return acc;
+}
+
+// ── Capas ────────────────────────────────────────────────────────────────────
+const lyT=L.layerGroup(), lyMF=L.layerGroup(), lyMS=L.layerGroup();
+
+L.polyline(CHAIN_RP91.map(p=>[p[1],p[0]]),
+  {color:'#6ab0cc',weight:5,opacity:.9}).addTo(lyT);
+
+function buildMF(){
+  lyMF.clearLayers();
+  MOJONES_RP91.forEach(m=>{
+    L.circleMarker([m.lat,m.lng],
+      {radius:9,fillColor:'#003366',color:'#fff',weight:2,fillOpacity:1})
+     .bindPopup(`<b>${m.km_label}</b><br>
+       ${m.sentido}<br>
+       <i>Tipo: ${m.tipo||'—'}</i><br>
+       Fuente: ${m.fuente||'—'}<br>
+       Resp: ${m.resp||'—'}<br>
+       Fecha: ${m.fecha||'—'}`)
+     .addTo(lyMF);
+    L.marker([m.lat,m.lng],{icon:L.divIcon({
+      className:'mjl',
+      html:`<b>${m.km_label}</b>`,
+      iconAnchor:[-6,-4]
+    })}).addTo(lyMF);
+  });
+}
+
+function buildMS(paso){
+  lyMS.clearLayers();
+  MOJONES_RP91_TODOS.filter(m=>m.sintetico&&m.km%paso===0).forEach(m=>{
+    L.circleMarker([m.lat,m.lng],
+      {radius:4,fillColor:'#6ab0cc',color:'#fff',weight:1,fillOpacity:.85})
+     .bindPopup(`<b>km ${m.km}</b> (sintético)<br>Acum. local: ${m.acc_local} km`)
+     .addTo(lyMS);
+    if(m.km%10===0)
+      L.marker([m.lat,m.lng],{icon:L.divIcon({
+        className:'mjl',
+        html:`<span style="color:#4488aa">${m.km}</span>`,
+        iconAnchor:[-4,-3]
+      })}).addTo(lyMS);
+  });
+}
+
+buildMF(); buildMS(5);
+[lyT,lyMF,lyMS].forEach(l=>l.addTo(map));
+
+// ── Controles ────────────────────────────────────────────────────────────────
+[['c-traza',lyT],['c-mf',lyMF],['c-ms',lyMS]]
+  .forEach(([id,l])=>document.getElementById(id).onchange=e=>e.target.checked?l.addTo(map):l.remove());
+document.getElementById('sel-paso').onchange=e=>{
+  buildMS(+e.target.value);
+  if(document.getElementById('c-ms').checked) lyMS.addTo(map);
+};
+
+// ── Clic → progresiva ────────────────────────────────────────────────────────
+map.on('click', e=>{
+  let bi=0, bd=1e9;
+  CHAIN_RP91.forEach((p,i)=>{
+    const d=Math.sqrt((p[0]-e.latlng.lng)**2+(p[1]-e.latlng.lat)**2);
+    if(d<bd){bd=d;bi=i;}
+  });
+  const prog=calcProg(ACUM[bi]);
+  document.getElementById('pnl-prog').style.display='block';
+  document.getElementById('pnl-prog').innerHTML=
+    `<b>RP 91</b><br>Progresiva: <b>km ${prog.toFixed(2)}</b><br>`+
+    `Acum. local: ${ACUM[bi].toFixed(3)} km<br>`+
+    `<span style="color:#adf;font-size:.75rem">Dirección: Aumenta en direccion SE</span>`;
+});
+
+// ── Fit y stats ──────────────────────────────────────────────────────────────
+map.fitBounds(L.latLngBounds(CHAIN_RP91.map(p=>[p[1],p[0]])).pad(.08));
+document.getElementById('stats').textContent=
+  `${CHAIN_RP91.length} pts | ${META_RP91.longGis} km | `+
+  `${META_RP91.mojonesF} físicos + ${META_RP91.mojonesS} sint. | `+
+  `sin gaps | ${META_RP91.sentido}`;
+</script>
+</body>
+</html>
