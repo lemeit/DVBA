@@ -4,7 +4,7 @@
    Credenciales embebidas del proyecto DVBA Zona VI
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v8';   /* ← bump aquí cada vez que actualices */
+const CACHE_NAME = 'dvba-campo-v9';   /* ← bump aquí cada vez que actualices */
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -41,17 +41,31 @@ self.addEventListener('activate', e => {
 // ── FETCH: servir desde caché (solo archivos propios, no Supabase) ──
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+
+  // Solo cacheamos schemes http/https. Ignoramos chrome-extension://, data:, blob:, file:, etc.
+  // (intentar cache.put() con esos schemes lanza TypeError).
+  let url;
+  try { url = new URL(e.request.url); } catch { return; }
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
+  // Dominios externos: no interceptamos (que vayan directo a la red)
   if (e.request.url.includes('supabase.co')) return;
   if (e.request.url.includes('fonts.googleapis')) return;
   if (e.request.url.includes('fonts.gstatic')) return;
   if (e.request.url.includes('nominatim.openstreetmap')) return;
+  if (e.request.url.includes('unpkg.com')) return;
+  if (e.request.url.includes('tile.openstreetmap')) return;
 
   e.respondWith(
     caches.match(e.request).then(cached => {
       const network = fetch(e.request).then(resp => {
-        if (resp && resp.status === 200) {
+        // Solo cacheamos respuestas válidas y de mismo origen (basic).
+        // Las "opaque" (CORS sin headers) o redirects rompen cache.put.
+        if (resp && resp.status === 200 && resp.type === 'basic') {
           const clone = resp.clone();
-          caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+          caches.open(CACHE_NAME)
+            .then(c => c.put(e.request, clone))
+            .catch(err => console.warn('[SW cache.put]', err.message));
         }
         return resp;
       }).catch(() => cached);

@@ -14,7 +14,7 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 |---|---|---|
 | https://lemeit.github.io/DVBA/ | `index.html` | App de escritorio: mapa Leaflet, progresivas, sidebar de registros, reportes PDF/CSV |
 | https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | App móvil PWA instalable: relevamiento GPS de campo (MSV 2017) |
-| https://lemeit.github.io/DVBA/docs/dvba_bitacora.html | bitácora pública | Historial de implementación |
+| https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes) |
 | https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html | guía de usuario | Manual de la app de campo |
 
 ## Estructura del repositorio
@@ -53,8 +53,7 @@ DVBA/
 │   ├── rp30_…  rp41_…  rp46_…  rp51_…  rp91_…
 │
 ├── docs/                   ← Documentación
-│   ├── dvba_bitacora.html              ← Bitácora pública
-│   ├── bitacora_global_dvba_zona6.html ← Bitácora global de sesiones
+│   ├── bitacora.html                   ← Bitácora unificada (tabs por temática)
 │   ├── guia_dvba_campo.html
 │   └── guia_dvba_campo.pdf
 │
