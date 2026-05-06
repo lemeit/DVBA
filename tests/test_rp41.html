@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test RP41 — Zona VI DVBA</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#1a2a3a;color:#eee}
+#hdr{background:#003366;padding:8px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#hdr h1{font-size:.92rem;color:#fff;white-space:nowrap}
+#stats{font-size:.73rem;color:#adf;margin-left:auto}
+#map{width:100%;height:calc(100vh - 40px)}
+.ctrl{position:absolute;z-index:1000;background:rgba(255,255,255,.95);
+       padding:10px;border-radius:6px;font-size:.75rem;color:#333;
+       box-shadow:0 2px 8px rgba(0,0,0,.3)}
+#pnl-capa{top:52px;right:10px}
+#pnl-capa label{display:block;margin:3px 0;cursor:pointer}
+#pnl-capa hr{margin:5px 0}
+#pnl-prog{bottom:20px;left:10px;min-width:190px;
+           background:rgba(0,51,102,.93);color:#fff;display:none}
+#pnl-ley{bottom:20px;right:10px}
+#pnl-ley h4{color:#003366;margin-bottom:5px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.mjl{background:transparent;border:none;font-size:.68rem;font-weight:bold;
+      white-space:nowrap;text-shadow:1px 1px 2px #fff,-1px -1px 2px #fff}
+</style>
+</head>
+<body>
+<div id="hdr">
+  <h1>🗺 RP41 — Test integración | DVBA Zona VI</h1>
+  <div id="stats">cargando...</div>
+</div>
+<div id="map"></div>
+<div class="ctrl" id="pnl-capa">
+  <b>Capas</b>
+  <label><input type="checkbox" id="c-traza" checked> Traza oficial</label>
+  <label><input type="checkbox" id="c-gaps"  checked> Gaps</label>
+  <label><input type="checkbox" id="c-mf"    checked> Mojones físicos</label>
+  <label><input type="checkbox" id="c-ms"    checked> Mojones sintéticos</label>
+  <hr>
+  Paso: <select id="sel-paso" style="font-size:.75rem;width:100%;margin-top:3px">
+    <option value="5" selected>5 km</option>
+    <option value="10">10 km</option>
+    <option value="1">1 km</option>
+  </select>
+</div>
+<div class="ctrl" id="pnl-ley">
+  <h4>Referencias</h4>
+  <div><span class="dot" style="background:#6ab0cc"></span>Traza RP41</div>
+  <div><span class="dot" style="background:#e05050;border-radius:0;width:18px;height:3px"></span>Gap</div>
+  <div><span class="dot" style="background:#003366;border:2px solid #fff"></span>Mojón físico</div>
+  <div><span class="dot" style="background:#888"></span>Mojón sintético</div>
+</div>
+<div class="ctrl" id="pnl-prog"><span id="prog-txt"></span></div>
+
+<script src="datos/rutas_rp41.js"></script>
+<script src="datos/rutas.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+function hav(a,b){
+  const R=6371,dL=(b[1]-a[1])*Math.PI/180,dl=(b[0]-a[0])*Math.PI/180;
+  const x=Math.sin(dL/2)**2+Math.cos(a[1]*Math.PI/180)*Math.cos(b[1]*Math.PI/180)*Math.sin(dl/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+const CHAIN=CHAIN_RP41, ANCHORS=ANCHORS_RP41, GAPS=GAPS_RP41||[];
+const META=META_RP41, MOJ_F=MOJONES_RP41, MOJ_T=MOJONES_RP41_TODOS;
+
+const map=L.map('map').setView([-34.9327,-58.6636],9);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  {attribution:'© OpenStreetMap',maxZoom:18}).addTo(map);
+
+const ACUM=[0];
+for(let i=1;i<CHAIN.length;i++) ACUM.push(ACUM[i-1]+hav(CHAIN[i-1],CHAIN[i]));
+
+function calcProg(acc){
+  if(!ANCHORS||!ANCHORS.length) return META.progIni+acc;
+  if(acc<=ANCHORS[0].acc) return META.progIni+acc*(ANCHORS[0].km-META.progIni)/ANCHORS[0].acc;
+  for(let i=0;i<ANCHORS.length-1;i++){
+    const a=ANCHORS[i],b=ANCHORS[i+1];
+    if(acc>=a.acc&&acc<=b.acc) return a.km+(acc-a.acc)/(b.acc-a.acc)*(b.km-a.km);
+  }
+  return META.progIni+acc;
+}
+function getGap(acc){return GAPS.find(g=>acc>=g.acc_desde-0.05&&acc<=g.acc_hasta+0.05)||null;}
+
+const segsN=[],segsG=[];
+let seg=[CHAIN[0]],esG=false;
+for(let i=1;i<CHAIN.length;i++){
+  const d=hav(CHAIN[i-1],CHAIN[i]),g=getGap(ACUM[i]),nuevo=d>2.0||!!g;
+  if(nuevo!==esG){(esG?segsG:segsN).push([...seg]);seg=[CHAIN[i-1]];esG=nuevo;}
+  seg.push(CHAIN[i]);
+}
+(esG?segsG:segsN).push(seg);
+
+const lyT=L.layerGroup(),lyG=L.layerGroup(),lyMF=L.layerGroup(),lyMS=L.layerGroup();
+segsN.forEach(s=>L.polyline(s.map(p=>[p[1],p[0]]),{color:'#6ab0cc',weight:5,opacity:.9}).addTo(lyT));
+segsG.forEach(s=>L.polyline(s.map(p=>[p[1],p[0]]),{color:'#e05050',weight:3,dashArray:'10,6'}).addTo(lyG));
+
+function buildMF(){
+  lyMF.clearLayers();
+  MOJ_F.filter(m=>m.km>0).forEach(m=>{
+    L.circleMarker([m.lat,m.lng],{radius:8,fillColor:'#003366',color:'#fff',weight:2,fillOpacity:1})
+     .bindPopup(`<b>km ${m.km}</b><br>${m.sentido||''}<br><i>Mojón físico — datos internos DVBA</i>`)
+     .addTo(lyMF);
+    L.marker([m.lat,m.lng],{icon:L.divIcon({className:'mjl',html:`km ${m.km}`,iconAnchor:[-5,-3]})}).addTo(lyMF);
+  });
+}
+function buildMS(paso){
+  lyMS.clearLayers();
+  MOJ_T.filter(m=>m.sintetico&&m.km%paso===0).forEach(m=>{
+    const c=m.en_gap?'#e05050':'#888';
+    L.circleMarker([m.lat,m.lng],{radius:4,fillColor:c,color:'#fff',weight:1,fillOpacity:.85})
+     .bindPopup(`<b>km ${m.km}</b> (sint.)${m.en_gap?'<br>⚠ en gap':''}`)
+     .addTo(lyMS);
+    if(m.km%20===0) L.marker([m.lat,m.lng],{icon:L.divIcon({className:'mjl',
+      html:`<span style="color:${m.en_gap?'#c00':'#555'}">${m.km}</span>`,
+      iconAnchor:[-4,-3]})}).addTo(lyMS);
+  });
+}
+buildMF(); buildMS(5);
+[lyT,lyG,lyMF,lyMS].forEach(l=>l.addTo(map));
+
+[['c-traza',lyT],['c-gaps',lyG],['c-mf',lyMF],['c-ms',lyMS]]
+  .forEach(([id,l])=>document.getElementById(id).onchange=e=>e.target.checked?l.addTo(map):l.remove());
+document.getElementById('sel-paso').onchange=e=>{buildMS(+e.target.value);
+  if(document.getElementById('c-ms').checked)lyMS.addTo(map);};
+
+map.on('click',e=>{
+  let bi=0,bd=1e9;
+  CHAIN.forEach((p,i)=>{const d=Math.sqrt((p[0]-e.latlng.lng)**2+(p[1]-e.latlng.lat)**2);if(d<bd){bd=d;bi=i;}});
+  const prog=calcProg(ACUM[bi]),g=getGap(ACUM[bi]);
+  const box=document.getElementById('pnl-prog');box.style.display='block';
+  document.getElementById('prog-txt').innerHTML=
+    `<b>RP 41</b><br>Progresiva: <b>km ${prog.toFixed(2)}</b><br>Acum. local: ${ACUM[bi].toFixed(3)} km`+
+    (g?`<br><span style="color:#f99">⚠ ${g.label}</span>`:'');
+});
+map.fitBounds(L.latLngBounds(CHAIN.map(p=>[p[1],p[0]])).pad(.05));
+document.getElementById('stats').textContent=
+  `${CHAIN.length} pts | ${META.longGis} km | ${META.mojonesF} físicos + ${META.mojonesS} sint. | ${GAPS.length} gaps`;
+</script>
+</body>
+</html>

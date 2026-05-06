@@ -1,0 +1,9 @@
+{
+"type": "FeatureCollection",
+"name": "mojones_rp46_final",
+"features": [
+{ "type": "Feature", "properties": { "id": 1, "rtn": 46, "ruta_numer": "RP 46", "name": "100 km", "km_value": 100.0, "sentido_prog": "NO", "tipo_mojon": "Cincuentakilométrico", "altitudeMo": "clampToSeaFloor", "tessellate": -1, "extrude": 0, "visibility": 0, "referencia": "DVBA - Zona VI Saladillo - Div. Técnica (Ing. Luciano Lamaita)" }, "geometry": { "type": "Point", "coordinates": [ -60.819483624141412, -34.819219102849502 ] } },
+{ "type": "Feature", "properties": { "id": 2, "rtn": 46, "ruta_numer": "RP 46", "name": "50 km", "km_value": 50.0, "sentido_prog": "NO", "tipo_mojon": "Cincuentakilométrico", "altitudeMo": "clampToSeaFloor", "tessellate": -1, "extrude": 0, "visibility": 0, "referencia": "DVBA - Zona VI Saladillo - Div. Técnica (Ing. Luciano Lamaita)" }, "geometry": { "type": "Point", "coordinates": [ -60.43685037431878, -35.130976755306243 ] } },
+{ "type": "Feature", "properties": { "id": 3, "rtn": 46, "ruta_numer": "RP 46", "name": "0 km", "km_value": 0.0, "sentido_prog": "NO", "tipo_mojon": "Cincuentakilométrico", "altitudeMo": "clampToSeaFloor", "tessellate": -1, "extrude": 0, "visibility": 0, "referencia": "DVBA - Zona VI Saladillo - Div. Técnica (Ing. Luciano Lamaita)" }, "geometry": { "type": "Point", "coordinates": [ -60.081578688653352, -35.457957632591558 ] } }
+]
+}

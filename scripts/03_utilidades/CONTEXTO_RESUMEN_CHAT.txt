@@ -1,0 +1,23 @@
+CONTINUACIÓN PROYECTO DVBA - ZONA VI
+
+FECHA: 2025-10-21 01:22:46
+RESPONSABLE: Ing. Luciano Lamaita
+
+ESTADO ACTUAL:
+✅ 74 mojones identificados en estructura individual
+❌ Problema: Mojones en formato KML (sin campos km, tipo_asignacion)
+✅ Solo RP-6 tiene geometría (7.90 km)
+❌ 14 rutas sin geometría
+
+ÚLTIMO SCRIPT EJECUTADO:
+DVBA_04_procesamiento_individual_rutas.py
+
+PRÓXIMO SCRIPT:
+DVBA_04b_corregir_mojones.py
+
+URGENTE: Corregir estructura KML de mojones, agregar campos km y tipo_asignacion
+
+ESTRUCTURA CONFIRMADA:
+- Mojones: .../mojones/shp/mojones_rpX/
+- Rutas: .../rutas_provinciales/rp_X/shapes/ (mayoría vacías)
+- RP-6: .../rp6/shapes/ (caso especial)

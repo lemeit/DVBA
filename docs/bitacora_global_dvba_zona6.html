@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Bitácora Global — Sistema DVBA Zona VI</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f4f6f9;color:#1a2a3a;line-height:1.65}
+.page{max-width:980px;margin:0 auto;padding:30px 24px}
+h1{color:#003366;border-bottom:4px solid #003366;padding-bottom:10px;font-size:1.5rem;margin-bottom:6px}
+h2{color:#003366;font-size:1.15rem;margin:28px 0 10px;padding-left:10px;border-left:4px solid #003366}
+h3{color:#1a5080;font-size:1rem;margin:16px 0 8px}
+p{margin-bottom:8px}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:.85rem}
+th{background:#003366;color:#fff;padding:7px 10px;text-align:left}
+td{padding:6px 10px;border-bottom:1px solid #cde}
+tr:nth-child(even){background:#eef4fb}
+.sesion{background:#fff;border-radius:8px;border:1px solid #cde;padding:18px;margin:14px 0;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.sesion-hdr{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.fecha{background:#003366;color:#fff;padding:3px 10px;border-radius:4px;font-size:.78rem;white-space:nowrap}
+.sesion-titulo{font-weight:bold;color:#003366;font-size:.95rem}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;font-weight:bold;margin:2px}
+.b-ok{background:#d4edda;color:#155724}
+.b-pend{background:#fff3cd;color:#856404}
+.b-arch{background:#e2e3e5;color:#383d41}
+.b-dec{background:#cce5ff;color:#004085}
+ul{margin:6px 0 10px 20px}
+li{margin:3px 0;font-size:.88rem}
+code{background:#eef;padding:1px 5px;border-radius:3px;font-size:.83rem}
+.timeline{border-left:3px solid #003366;padding-left:20px;margin:10px 0}
+.tl-dot{width:12px;height:12px;background:#003366;border-radius:50%;margin-left:-26px;float:left;margin-top:4px}
+.tl-item{margin-bottom:14px;overflow:hidden}
+.tl-fecha{font-size:.75rem;color:#666;margin-bottom:2px}
+.pendiente-box{background:#fff8e1;border:1px solid #f0c040;border-radius:6px;padding:12px 16px;margin:10px 0}
+.ok-box{background:#f0fff4;border:1px solid #28a745;border-radius:6px;padding:12px 16px;margin:10px 0}
+.warn-box{background:#fff3cd;border:1px solid #f0a500;border-radius:6px;padding:12px 16px;margin:10px 0}
+.arch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:10px 0}
+.arch-card{background:#fff;border:1px solid #cde;border-radius:6px;padding:10px 12px}
+.arch-card .nombre{font-weight:bold;font-size:.85rem;color:#003366}
+.arch-card .desc{font-size:.78rem;color:#555;margin-top:3px}
+.arch-card .size{font-size:.72rem;color:#999;margin-top:2px}
+hr{border:none;border-top:1px solid #cde;margin:20px 0}
+.subtag{font-size:.75rem;color:#888;font-style:italic}
+footer{text-align:center;font-size:.75rem;color:#888;margin-top:40px;padding-top:16px;border-top:1px solid #cde}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>📋 Bitácora Global del Proyecto<br><span style="font-size:.85rem;font-weight:normal;color:#555">Sistema de Relevamiento y Gestión Vial — DVBA Zona Departamental VI Saladillo</span></h1>
+<p style="margin:10px 0 6px"><strong>Responsable:</strong> Ing. Luciano Lamaita — División Técnica, DVBA Zona VI</p>
+<p><strong>Última actualización:</strong> 20 de abril de 2026 &nbsp;|&nbsp; <strong>Estado general:</strong> <span class="badge b-pend">En desarrollo activo</span></p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>1. Descripción del Proyecto</h2>
+<div class="sesion">
+<p>Sistema web de relevamiento, cartografía y gestión de la red vial provincial a cargo de la Zona Departamental VI de la DVBA (Dirección de Vialidad de la Provincia de Buenos Aires). Cubre <strong>8 partidos</strong>, <strong>15 rutas provinciales</strong> y la red de caminos secundarios no pavimentados.</p>
+<p style="margin-top:8px">El sistema está compuesto por dos aplicaciones complementarias:</p>
+<ul>
+  <li><strong>dvba_zona6.html</strong> — App de escritorio: mapa interactivo Leaflet, cálculo de progresivas, visualización de registros de campo, reportes descargables en PDF/CSV</li>
+  <li><strong>dvba_campo.html</strong> — App móvil PWA: toma de registros GPS en campo (tipo MSV 2017, fotos, estado, notas), sincronización con escritorio</li>
+</ul>
+<p style="margin-top:8px">La arquitectura objetivo es modular (datos separados del HTML) y alojada en <strong>GitHub Pages</strong> para acceso sin servidor.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>2. Contexto Institucional</h2>
+<table>
+<tr><th>Atributo</th><th>Detalle</th></tr>
+<tr><td>Organismo</td><td>DVBA — Dirección de Vialidad de la Provincia de Buenos Aires</td></tr>
+<tr><td>Zona</td><td>Zona Departamental VI — sede Saladillo</td></tr>
+<tr><td>Partidos cubiertos</td><td>Saladillo, Gral. Alvear, Gral. Las Heras, Lobos, Roque Pérez, Las Flores, Navarro, 25 de Mayo</td></tr>
+<tr><td>Red vial</td><td>15 rutas provinciales pavimentadas + red de caminos secundarios</td></tr>
+<tr><td>Nomenclatura oficial</td><td>Manual de Señalamiento Vertical MSV 2017 (DNV/AAC) — fuente primaria para tipos de registro</td></tr>
+<tr><td>Repositorio</td><td>GitHub: <code>DVBA</code> (rama main) — GitHub Pages habilitado</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>3. Línea de Tiempo del Proyecto</h2>
+<div class="timeline">
+
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-fecha">12 de abril de 2026 — Sesión 1</div>
+    <strong>Inicio del proyecto / Tipos MSV y UI de registro</strong>
+    <ul>
+      <li>Definición del alcance: mapa interactivo con progresivas + app de campo</li>
+      <li>Análisis del MSV 2017 (290 pp.) para extracción de nomenclatura oficial de señales viales</li>
+      <li>Rediseño del selector de tipos de registro: de dropdown único a selector jerárquico <code>Familia → Tipo → Código MSV</code></li>
+      <li>Armonización de <code>dvba_tipos.js</code> con las 3 familias MSV: Reglamentarias (R-), Preventivas (P-), Informativas (I-)</li>
+      <li>Corrección de progresivas RP40: bug en <code>proj()</code> y <code>acumEnCadena()</code> — búsqueda sin restricción de rango causaba proyecciones incorrectas en la curva del Salado</li>
+      <li>Decisión de arquitectura modular: datos separados del HTML en carpeta <code>datos/</code></li>
+    </ul>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-fecha">12–15 de abril de 2026 — Sesiones 2-3</div>
+    <strong>Sidebar, paginación y análisis inicial RP40</strong>
+    <ul>
+      <li>Fix sidebar <code>dvba_zona6.html</code>: <code>regs.slice(0,30)</code> cortaba la lista — implementado buscador de texto + paginación 30 por página</li>
+      <li>Botón ✏ Editar agregado al popup del marcador en el mapa</li>
+      <li>Descarga de la RP40 desde Overpass Turbo (query por bbox) como fuente auxiliar</li>
+      <li>Comparativa de fuentes: SHP Oficial Provincia (957 pts, 179.4 km) vs Overpass/OSM (561 pts, 173 km)</li>
+      <li>Análisis de gaps RP40: gap zona urbana 25 de Mayo (~16.3 km línea recta, ~22-24 km recorrido real)</li>
+      <li>Flujo QGIS documentado: Filtrar → Corregir geometrías → Multiparte a monoparte → Disolver</li>
+    </ul>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-fecha">15–18 de abril de 2026 — Sesiones 4-6</div>
+    <strong>Reconstrucción de cadena RP40 y generación de rutas_rp40.js</strong>
+    <ul>
+      <li>Identificación de features duplicadas en la capa original (14 features, 346 km — doble de lo esperado)</li>
+      <li>Diagnóstico: cada partido había registrado los mismos tramos por separado — features de distintos municipios con geometría idéntica</li>
+      <li>Reordenamiento geográfico de 4 features en orden correcto (F3→F2→F1→F0, este→oeste)</li>
+      <li>Generación de cadena zona VI: 957 puntos, 183.027 km, orientada este→oeste</li>
+      <li><strong>Anchors calibrados</strong> con mojones ajustados: km50 acc=22.953, km100 acc=73.079, km150 acc=132.667, km200 acc=180.720</li>
+      <li>Error sistemático de ~-27 km en verificación: <em>correcto y esperado</em> — la cadena comienza en progresiva ~29.4 km de la ruta completa</li>
+      <li>Generación de <code>rutas_rp40.js</code> (bundle completo: cadena + anchors + mojones + gaps)</li>
+      <li>Corrección del error de carga JS (<code>GAPS_RP40 is not defined</code>): refactoring a bundle único con orden de scripts corregido</li>
+    </ul>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-fecha">18–20 de abril de 2026 — Sesión actual</div>
+    <strong>Arquitectura modular + mojones sintéticos + test de integración</strong>
+    <ul>
+      <li>Recepción y análisis de <code>rp40_unificada_congaps.geojson</code> (1710 pts, traza completa con gaps digitalizados) y <code>mojones_rp40_ajustados.geojson</code> (5 mojones ajustados a la traza)</li>
+      <li>Clasificación correcta de 3 gaps: <code>gap_salado</code> (acum 104.6→110.4 km, cruce Río Salado sin puente) y dos tramos en zona urbana de 25 de Mayo</li>
+      <li>Generación de <strong>37 mojones sintéticos cada 5 km</strong> interpolados sobre la traza real (km30 a km210)</li>
+      <li>Arquitectura final definida: cada ruta = un bundle <code>datos/rutas_rpXX.js</code></li>
+      <li>Test de integración <code>test_rp40.html</code>: mapa funcional con capas toggle, clic → progresiva, selector de paso para sintéticos</li>
+      <li>Decisión: mojones físicos requieren verificación de campo con GPS real — los datos internos del organismo no fueron medidos con odómetro calibrado</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>4. Arquitectura del Sistema</h2>
+
+<h3>4.1 Estructura de archivos (objetivo GitHub Pages)</h3>
+<div class="arch-grid">
+  <div class="arch-card">
+    <div class="nombre">index.html</div>
+    <div class="desc">dvba_zona6.html — app desktop. Solo lógica. Sin datos embebidos.</div>
+    <div class="size"><span class="badge b-pend">pendiente migración</span></div>
+  </div>
+  <div class="arch-card">
+    <div class="nombre">dvba_campo.html</div>
+    <div class="desc">App móvil PWA de relevamiento en campo</div>
+    <div class="size"><span class="badge b-pend">pendiente revisión</span></div>
+  </div>
+  <div class="arch-card">
+    <div class="nombre">dvba_tipos.js</div>
+    <div class="desc">Tipos MSV 2017 — selector jerárquico Familia→Tipo→Código</div>
+    <div class="size"><span class="badge b-ok">✓ completado</span></div>
+  </div>
+  <div class="arch-card">
+    <div class="nombre">datos/rutas_rp40.js</div>
+    <div class="desc">Bundle completo RP40: cadena 1127 pts + anchors + 42 mojones + 3 gaps</div>
+    <div class="size">36.6 KB &nbsp; <span class="badge b-ok">✓ completado</span></div>
+  </div>
+  <div class="arch-card">
+    <div class="nombre">datos/rutas.js</div>
+    <div class="desc">Índice: inicializa CHAINS_DATA / ANCHORS_DATA / MOJONES_DATA</div>
+    <div class="size">0.8 KB &nbsp; <span class="badge b-ok">✓ completado</span></div>
+  </div>
+  <div class="arch-card">
+    <div class="nombre">datos/rutas_rpXX.js</div>
+    <div class="desc">Bundle por ruta (RP91, RP51, RP6, RP7, RP30, RP41, RP63, RP65, RP74, RP75, RP86, RP205, RP214, RP215)</div>
+    <div class="size"><span class="badge b-pend">14 rutas pendientes</span></div>
+  </div>
+</div>
+
+<h3>4.2 Flujo de trabajo por ruta</h3>
+<div class="ok-box">
+<strong>Proceso estándar para incorporar cada nueva ruta:</strong>
+<ol style="margin:8px 0 0 20px;font-size:.88rem">
+  <li>En QGIS: Filtrar → Corregir geometrías → Multiparte a monoparte → Disolver → Exportar GeoJSON</li>
+  <li>Digitalizar gaps (cruce de ríos sin puente, zonas urbanas) sobre imagen satelital con snap activado</li>
+  <li>Preparar capa de mojones ajustados (campo <code>Name</code>: "0KM", "50KM", etc.; campo <code>description</code>: sentido)</li>
+  <li>Subir ambos GeoJSON a Claude → genera bundle <code>datos/rutas_rpXX.js</code> automáticamente</li>
+  <li>Agregar <code>&lt;script src="datos/rutas_rpXX.js"&gt;</code> al HTML y una línea en <code>rutas.js</code></li>
+</ol>
+</div>
+
+<h3>4.3 Sistema de progresivas</h3>
+<table>
+<tr><th>Parámetro</th><th>Valor / Decisión</th></tr>
+<tr><td>Método de cálculo</td><td>Haversine 2D — terreno llano, error &lt;0.1%</td></tr>
+<tr><td>Convención</td><td>DVBA/DNVB — progresiva acumulada sobre traza oficial</td></tr>
+<tr><td>Mojón 0 RP40</td><td>Intersección RP40/RP7, calles Moreno y Libertad, partido de Merlo (FFCC)</td></tr>
+<tr><td>Inicio zona VI RP40</td><td>~29.4 km real — intersección con RP6, partido de General Las Heras</td></tr>
+<tr><td>Gaps</td><td>Progresiva continúa acumulándose por recorrido real del tramo (no por línea recta)</td></tr>
+<tr><td>Mojones físicos</td><td>Datos internos DVBA — posición GPS registrada desde escritorio, <em>no medidos con odómetro</em>. Requieren verificación de campo.</td></tr>
+<tr><td>Mojones sintéticos</td><td>Generados cada 5 km por interpolación sobre la cadena. <code>en_gap:true</code> = posición aproximada.</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>5. Estado por Ruta</h2>
+<table>
+<tr><th>Ruta</th><th>GeoJSON traza</th><th>Mojones</th><th>Bundle JS</th><th>Notas</th></tr>
+<tr><td><strong>RP 40</strong></td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">✓ 5 físicos + 37 sint.</span></td><td><span class="badge b-ok">✓ rutas_rp40.js</span></td><td>Gaps Salado (×2) + 25 de Mayo (×2)</td></tr>
+<tr><td>RP 91</td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td>Cadena trabajada en sesión anterior</td></tr>
+<tr><td>RP 51</td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td>En progreso en sesión anterior</td></tr>
+<tr><td>RP 6</td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td>—</td></tr>
+<tr><td>RP 7</td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td>—</td></tr>
+<tr><td>RP 30, 41, 63, 65, 74, 75, 86, 205, 214, 215</td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td>10 rutas sin iniciar</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>6. Decisiones Técnicas Clave</h2>
+
+<div class="sesion">
+<h3>6.1 Arquitectura modular (aprobada)</h3>
+<p>Cada ruta = un archivo <code>datos/rutas_rpXX.js</code> independiente. Permite editar una ruta sin tocar el HTML. GitHub Pages sirve todos los archivos estáticos. El HTML solo carga <code>&lt;script&gt;</code> tags.</p>
+<span class="badge b-dec">DECISIÓN TOMADA</span>
+</div>
+
+<div class="sesion">
+<h3>6.2 Fuente de datos adoptada para RP40</h3>
+<p>SHP Oficial Provincia de Buenos Aires (a través de DVP Buenos Aires / IGN), campo <code>fuente_geometria: "oficial_provincia"</code>. La fuente Overpass/OSM fue descartada para progresivas por peor alineación en km100 (error 3.4 km vs 0.07 km del oficial).</p>
+<span class="badge b-dec">DECISIÓN TOMADA</span>
+</div>
+
+<div class="sesion">
+<h3>6.3 Representación de gaps</h3>
+<p>Los gaps (cruce Salado, zona urbana 25 de Mayo) se digitalizan sobre imagen satelital y se incluyen en la cadena como tramos reales. La progresiva acumula por el recorrido real del gap (no por línea recta). Los tramos de gap se muestran en rojo punteado en el mapa.</p>
+<span class="badge b-dec">DECISIÓN TOMADA</span>
+</div>
+
+<div class="sesion">
+<h3>6.4 Mojones: físicos vs sintéticos</h3>
+<p>Los mojones físicos del organismo no fueron medidos con odómetro calibrado y algunos están fuera de la traza. Se mantienen como referencia interna pero requieren verificación de campo. Los mojones sintéticos (interpolados cada 5 km) son los que se usan para el cálculo de progresivas en la app. La generación de sintéticos reemplaza la fase de "Interpolate point on line" en QGIS.</p>
+<span class="badge b-dec">DECISIÓN TOMADA</span>
+</div>
+
+<div class="sesion">
+<h3>6.5 Denominación institucional</h3>
+<p>En todos los documentos y aplicaciones: <strong>"Zona Departamental VI Saladillo"</strong> o abreviado <strong>"Zona VI Saladillo"</strong>. Nunca "Delegación Saladillo" ni ninguna forma de "Delegación".</p>
+<span class="badge b-dec">DECISIÓN TOMADA</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>7. Pendientes Prioritarios</h2>
+
+<div class="pendiente-box">
+<strong>🔴 Alta prioridad</strong>
+<ul>
+  <li>Subir <code>datos/rutas_rp40.js</code> y <code>datos/rutas.js</code> a GitHub en carpeta <code>datos/</code></li>
+  <li>Integrar RP40 en <code>dvba_zona6.html</code>: reemplazar bloque embebido por <code>&lt;script src="datos/rutas_rp40.js"&gt;</code></li>
+  <li>Generar <code>datos/rutas_rp91.js</code> (cadena ya trabajada en sesión anterior)</li>
+</ul>
+</div>
+
+<div class="pendiente-box" style="border-color:#17a2b8;background:#e8f4f8">
+<strong>🔵 Media prioridad</strong>
+<ul>
+  <li>Completar las 14 rutas restantes siguiendo el flujo estándar (QGIS → GeoJSON → bundle JS)</li>
+  <li>Verificación de campo de mojones físicos con GPS calibrado</li>
+  <li>Migrar <code>dvba_zona6.html</code> al tema claro (pendiente desde sesión 1)</li>
+  <li>Finalizar guía de usuario <code>guia_dvba_campo.html</code> con mockups de pantallas</li>
+  <li>Incorporar caminos secundarios no pavimentados a la red</li>
+</ul>
+</div>
+
+<div class="pendiente-box" style="border-color:#6c757d;background:#f8f9fa">
+<strong>⚪ Baja prioridad / Futuro</strong>
+<ul>
+  <li>Piloto TMD (Tránsito Medio Diario) con cámara de video en rutas seleccionadas</li>
+  <li>Integración con acelerómetro RURAL IT para condición de pavimento</li>
+  <li>Medición V85 (velocidad percentil 85) con LIDAR del colega</li>
+  <li>Plataforma de monitoreo agro-ambiental Saladillo (INTA, municipio, cooperativas)</li>
+</ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>8. Stack Técnico</h2>
+<table>
+<tr><th>Herramienta</th><th>Versión</th><th>Rol</th></tr>
+<tr><td>QGIS</td><td>3.42.0-Münster</td><td>Edición, limpieza y análisis espacial de capas</td></tr>
+<tr><td>Leaflet.js</td><td>1.9.4</td><td>Mapa interactivo en dvba_zona6.html</td></tr>
+<tr><td>Python</td><td>3.12</td><td>Scripts de reconstrucción de cadenas y generación de bundles JS</td></tr>
+<tr><td>Overpass Turbo</td><td>—</td><td>Descarga auxiliar de trazas OSM para verificación</td></tr>
+<tr><td>GitHub Pages</td><td>—</td><td>Hosting estático del sistema</td></tr>
+<tr><td>QuickMapServices (QGIS)</td><td>—</td><td>Fondo Google Hybrid para digitalización de gaps</td></tr>
+<tr><td>dvba_tipos.js</td><td>v2</td><td>Tipos MSV 2017 — selector jerárquico</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>9. Notas Técnicas Importantes</h2>
+<div class="warn-box">
+<strong>⚠ Precaución al editar dvba_campo.html</strong><br>
+El archivo contiene ~133 KB de JavaScript. Hacer regex replacements cerca del bloque <code>LOGO_SELLO</code> (base64) puede truncar silenciosamente el código. Siempre partir del backup conocido-bueno: <code>dvba_campo_BKFUNCIONAL.html</code>.
+</div>
+<div class="warn-box" style="border-color:#6f42c1;background:#f8f0ff">
+<strong>⚠ Error sistemático en verificación de mojones</strong><br>
+El error de ~-27 km en todos los mojones es correcto y esperado. La cadena inicia en la progresiva real 29.4 km de la ruta RP40. El sistema <code>calcProg()</code> interpola correctamente entre pares (km_real, acc_local) y devuelve la progresiva correcta.
+</div>
+
+<hr>
+<footer>
+  Bitácora generada automáticamente — DVBA Zona Departamental VI Saladillo<br>
+  Ing. Luciano Lamaita | División Técnica | 20 de abril de 2026
+</footer>
+
+</div>
+</body>
+</html>

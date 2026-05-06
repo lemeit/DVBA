@@ -1,0 +1,202 @@
+import os
+import geopandas as gpd
+import pandas as pd
+import zipfile
+import tempfile
+from shapely.geometry import Point, LineString
+import glob
+
+def buscar_rp51_en_red_vial(base_path):
+    """
+    Buscar RP 51 en archivos de red vial existentes
+    """
+    print("🔍 Buscando RP 51 en archivos de red vial existentes...")
+    
+    # Probar diferentes archivos y formatos
+    archivos_a_probar = [
+        os.path.join(base_path, "02_BASES_VECTORES", "red_vial_pba", "shp", "red-vial-pba.shp"),
+        os.path.join(base_path, "02_BASES_VECTORES", "red_vial_pba", "red-vial-pba.geojson"),
+        os.path.join(base_path, "02_BASES_VECTORES", "red_vial_pba", "red-vial-pba.kml"),
+    ]
+    
+    for archivo in archivos_a_probar:
+        if os.path.exists(archivo):
+            print(f"   Probando: {os.path.basename(archivo)}")
+            try:
+                gdf = gpd.read_file(archivo)
+                print(f"   ✅ Archivo cargado: {len(gdf)} features")
+                print(f"   📋 Columnas disponibles: {list(gdf.columns)}")
+                
+                # Buscar RP 51 en diferentes columnas posibles
+                columnas_reales = gdf.columns
+                
+                for col in columnas_reales:
+                    if gdf[col].dtype == 'object':  # Columnas de texto
+                        # Buscar diferentes patrones de RP 51
+                        patrones = ['RP 51', '51', 'Ruta 51', 'RP51']
+                        for patron in patrones:
+                            try:
+                                mask = gdf[col].astype(str).str.contains(patron, case=False, na=False)
+                                if mask.any():
+                                    rp51_encontrada = gdf[mask].copy()
+                                    print(f"   ✅ RP 51 encontrada en {os.path.basename(archivo)} - columna: '{col}'")
+                                    print(f"   📊 Features encontrados: {len(rp51_encontrada)}")
+                                    
+                                    # Mostrar algunos valores encontrados
+                                    valores_unicos = rp51_encontrada[col].unique()[:3]
+                                    print(f"   📝 Valores encontrados: {list(valores_unicos)}")
+                                    
+                                    # Asegurar columnas estándar
+                                    if 'RPRUTA' not in rp51_encontrada.columns:
+                                        rp51_encontrada['RPRUTA'] = 'RP 51'
+                                    if 'CLASE' not in rp51_encontrada.columns:
+                                        rp51_encontrada['CLASE'] = 'PAVIMENTADO'
+                                    
+                                    return rp51_encontrada
+                            except Exception as e:
+                                print(f"      Error buscando en columna {col}: {e}")
+                                continue
+                                
+            except Exception as e:
+                print(f"   ❌ Error leyendo {archivo}: {e}")
+    
+    print("   ⚠️  RP 51 no encontrada en archivos de red vial existentes")
+    return None
+
+def extraer_mojones_kmz(kmz_path):
+    """
+    Extraer mojones del archivo KMZ
+    """
+    print("🗺️  Extrayendo mojones del KMZ...")
+    
+    try:
+        # Crear directorio temporal
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Descomprimir KMZ
+            with zipfile.ZipFile(kmz_path, 'r') as zip_ref:
+                zip_ref.extractall(temp_dir)
+            
+            # Buscar archivo KML
+            kml_files = [f for f in os.listdir(temp_dir) if f.endswith('.kml')]
+            if not kml_files:
+                print("   ❌ No se encontró archivo KML en el KMZ")
+                return None
+            
+            kml_path = os.path.join(temp_dir, kml_files[0])
+            gdf = gpd.read_file(kml_path, driver='KML')
+            
+            print(f"   ✅ Mojones extraídos: {len(gdf)} puntos")
+            print(f"   📋 Columnas de mojones: {list(gdf.columns)}")
+            
+            # Mostrar primeros mojones
+            if len(gdf) > 0:
+                print("   📝 Primeros 3 mojones:")
+                for i in range(min(3, len(gdf))):
+                    nombre = str(gdf.iloc[i].get('Name', '') or gdf.iloc[i].get('name', ''))
+                    print(f"      {i+1}. {nombre}")
+            
+            return gdf
+            
+    except Exception as e:
+        print(f"   ❌ Error extrayendo mojones: {e}")
+        return None
+
+def guardar_resultados(rp51, base_path, fuente):
+    """
+    Guardar la RP 51 generada en la estructura de carpetas
+    """
+    print(f"\n💾 Guardando resultados (fuente: {fuente})...")
+    
+    # Crear directorios si no existen
+    os.makedirs(os.path.join(base_path, "03_CAPAS_GENERADAS"), exist_ok=True)
+    os.makedirs(os.path.join(base_path, "06_EXPORTS"), exist_ok=True)
+    
+    # Guardar en diferentes formatos
+    formats = {
+        'shp': os.path.join(base_path, "03_CAPAS_GENERADAS", "RP_51.shp"),
+        'geojson': os.path.join(base_path, "06_EXPORTS", "RP_51.geojson"),
+        'kml': os.path.join(base_path, "06_EXPORTS", "RP_51.kml")
+    }
+    
+    for fmt, ruta in formats.items():
+        try:
+            rp51.to_file(ruta, driver=fmt.upper())
+            print(f"   ✅ Guardado como {fmt.upper()}: {os.path.basename(ruta)}")
+        except Exception as e:
+            print(f"   ❌ Error guardando {fmt}: {e}")
+    
+    # Generar reporte
+    generar_reporte_final(rp51, base_path, fuente)
+
+def generar_reporte_final(rp51, base_path, fuente):
+    """
+    Generar reporte detallado de la RP 51
+    """
+    reporte_path = os.path.join(base_path, "06_EXPORTS", "REPORTE_RP51.txt")
+    
+    with open(reporte_path, 'w', encoding='utf-8') as f:
+        f.write("REPORTE FINAL - RUTA PROVINCIAL 51\n")
+        f.write("=" * 50 + "\n")
+        f.write(f"Fuente de datos: {fuente}\n")
+        f.write(f"Total de segmentos: {len(rp51)}\n")
+        f.write(f"Sistema de coordenadas: {rp51.crs}\n")
+        f.write(f"Extensión: {rp51.total_bounds}\n")
+        
+        if 'length' in rp51.columns:
+            f.write(f"Longitud total: {rp51['length'].sum():.2f} metros\n")
+            f.write(f"Longitud total: {rp51['length'].sum()/1000:.2f} km\n")
+        
+        f.write(f"\nColumnas disponibles: {list(rp51.columns)}\n")
+        f.write(f"\nPrimeros 3 registros:\n")
+        f.write(rp51.head(3).to_string())
+    
+    print(f"📊 Reporte generado: {os.path.basename(reporte_path)}")
+
+def main():
+    # Configurar rutas base
+    base_path = r"C:\Users\Of. Técnica Z6\OneDrive\Documentos\QGIS FIles\Proyecto_Redes_Viales"
+    
+    print("🚀 INICIANDO GENERACIÓN DE RP 51")
+    print("=" * 60)
+    
+    # 1. Buscar RP 51 en archivos existentes (PRIMERA OPCIÓN)
+    rp51 = buscar_rp51_en_red_vial(base_path)
+    fuente = "RED_VIAL_EXISTENTE"
+    
+    # 2. Si no se encuentra, extraer mojones para análisis
+    if rp51 is None:
+        print("\n🔄 RP 51 no encontrada en archivos existentes. Extrayendo mojones...")
+        
+        # Extraer mojones del KMZ
+        kmz_path = os.path.join(base_path, "02_BASES_VECTORES", "mojones", "MOJONES CIENKILOMETRICOSperfilados.kmz")
+        mojones_rp51 = extraer_mojones_kmz(kmz_path)
+        
+        if mojones_rp51 is not None:
+            print("   📍 Usando mojones como referencia para análisis")
+            # Por ahora solo guardamos los mojones para análisis
+            mojones_rp51.to_file(os.path.join(base_path, "06_EXPORTS", "mojones_rp51.geojson"), driver='GeoJSON')
+            
+        # Crear un dataset simple para demostración
+        from shapely.geometry import LineString
+        print("   🛣️  Creando geometría de demostración...")
+        # Esto es temporal - en una siguiente iteración conectaremos con OSM
+        linea_demo = LineString([(-60.0, -35.5), (-59.5, -35.7), (-59.0, -35.9)])
+        rp51 = gpd.GeoDataFrame([{
+            'RPRUTA': 'RP 51',
+            'CLASE': 'PAVIMENTADO',
+            'FUENTE': 'DEMOSTRACION',
+            'geometry': linea_demo
+        }])
+        fuente = "GEOMETRIA_DEMOSTRACION"
+    
+    # 3. Guardar resultados
+    if rp51 is not None:
+        guardar_resultados(rp51, base_path, fuente)
+        print(f"\n✅ PROCESO COMPLETADO")
+        print(f"📍 Revisa los archivos en: {os.path.join(base_path, '03_CAPAS_GENERADAS')}")
+        print(f"📍 Y en: {os.path.join(base_path, '06_EXPORTS')}")
+    else:
+        print("\n❌ No se pudo generar RP 51 con ningún método")
+
+if __name__ == "__main__":
+    main()

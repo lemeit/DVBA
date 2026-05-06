@@ -1,0 +1,70 @@
+# ─────────────────────────────────────────────────────────────
+# .gitignore — Repo DVBA Zona VI Saladillo
+# ─────────────────────────────────────────────────────────────
+
+# OneDrive / Windows basura
+desktop.ini
+Thumbs.db
+ehthumbs.db
+*.lnk
+$RECYCLE.BIN/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Virtualenvs (NUNCA al repo — usar requirements.txt)
+venv/
+venv_*/
+.venv/
+env/
+ENV/
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# QGIS — proyectos y backups locales
+*.qgz~
+*.qgs~
+*.qgz.bak
+*.qgs.bak
+*.qmd
+
+# QGIS Auxiliary files
+*.gpkg-shm
+*.gpkg-wal
+
+# Datos crudos pesados (fuera del repo)
+*.pbf
+*.osm
+_fuentes/
+_fuentes_locales/
+
+# Archivos temporales del proyecto
+*.tmp
+*.temp
+*.log
+
+# Específicos del sistema antiguo (legacy)
+ngrok.exe
+ngrok-*.yml
+*.bat
+
+# OSM extracts
+OSM/
+osm/
+
+# Notas locales del usuario (no compartir)
+NOTAS_LOCALES.md
+TODO_PERSONAL.md
