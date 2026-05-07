@@ -98,7 +98,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <div class="sub">DVBA · Zona Departamental VI Saladillo</div>
   <div class="meta">
     <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">7 de mayo de 2026</span></div>
-    <div><span class="lbl">Versión bitácora</span><span class="val">v3.1 — apps v9.2</span></div>
+    <div><span class="lbl">Versión bitácora</span><span class="val">v3.2 — apps v9.2</span></div>
     <div><span class="lbl">Responsable</span><span class="val">Ing. Luciano Lamaita</span></div>
     <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></span></div>
     <div><span class="lbl">Estado general</span><span class="val">🟢 En desarrollo activo</span></div>
@@ -113,6 +113,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <button data-tab="infra"><span class="ico">🏗</span>Infraestructura</button>
   <button data-tab="decisiones"><span class="ico">📚</span>Decisiones</button>
   <button data-tab="pendientes"><span class="ico">📋</span>Pendientes</button>
+  <button data-tab="changelog"><span class="ico">📝</span>Changelog</button>
 </nav>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
@@ -169,7 +170,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
     <tr><td>RP 46</td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">rutas_rp46.js</span></td><td>—</td></tr>
     <tr><td>RP 51</td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">rutas_rp51.js</span></td><td>—</td></tr>
     <tr><td>RP 91</td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">rutas_rp91.js</span></td><td>—</td></tr>
-    <tr><td>RP 6, 7, 65, 74, 75, 86, 205, 214, 215</td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td>9 rutas restantes para completar Zona VI</td></tr>
+    <tr><td>RP 6, 20, 24, 42, 43, 44, 47, 48, 61</td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td>9 rutas restantes para completar las 15 de Zona VI</td></tr>
   </table>
 
 </section>
@@ -562,12 +563,12 @@ git push origin main
 
   <div class="card">
     <h3>9. Service Worker network-first <span class="badge b-dec">DECISIÓN · 6 may 2026</span></h3>
-    <p>La estrategia original del SW era <em>cache-first</em>, que servía contenido viejo aún después de eliminar archivos del repo (URLs fantasma como <code>/dvba_zona6</code>). Se cambió a <strong>network-first con offline fallback + auto-purge de 404</strong>: siempre se intenta la red primero; si responde 404 se borra la entrada del caché; si la red falla se sirve el caché o un mensaje 503 amigable. La PWA sigue funcionando offline porque el caché se sigue manteniendo, solo cambia la prioridad de lectura.</p>
+    <p>La estrategia original del SW era <em>cache-first</em>, que servía contenido viejo aún después dal del SW era <em>cache-first</em>, que servía contenido viejo aún después de eliminar archivos del repo (URLs fantasma como <code>/dvba_zona6</code>). Se cambió a <strong>network-first con offline fallback + auto-purge de 404</strong>: siempre se intenta la red primero; si responde 404 se borra la entrada del caché; si la red falla se sirve el caché o un mensaje 503 amigable. La PWA sigue funcionando offline porque el caché se sigue manteniendo, solo cambia la prioridad de lectura.</p>
   </div>
 
   <div class="card">
-    <h3>10. Versionado centralizado con script <span class="badge b-dec">DECISIÓN · 6 may 2026</span></h3>
-    <p>La versión de las apps vive en 5 lugares (footer visible del campo, var JS para sello, comentario JS, header del escritorio, CACHE_NAME del SW). Mantenerlos sincronizados a mano es propenso a error. Se creó <code>scripts/bump_version.py</code> que recibe la nueva versión y la propaga a los 5 lugares con un comando. Patrones definidos como tuplas regex en la lista <code>TARGETS</code>, fácil de extender si se agregan nuevos lugares.</p>
+    <h3>10. Versionado independiente por artefacto <span class="badge b-dec">DECISIÓN · 7 may 2026</span></h3>
+    <p>Cada artefacto del proyecto (app campo, app escritorio, guía, bitácora) tiene su propia versión y su propio ciclo de vida. La consistencia entre versiones <strong>no se fuerza</strong>. El script <code>scripts/bump_version.py</code> permite bumpear cada artefacto por separado: <code>python scripts/bump_version.py campo v9.3</code>. Para casos puntuales hay <code>todos vX.Y</code> que sincroniza todo.</p>
   </div>
 
 </section>
@@ -580,18 +581,16 @@ git push origin main
   <h2>🔴 Alta Prioridad</h2>
   <div class="box warn">
     <ul>
-      <li>Verificar que <strong>GitHub Pages</strong> cargue correctamente la nueva estructura tras el commit de reorganización (6 may 2026): <code>index.html</code>, <code>tests/*</code> con paths corregidos, <code>docs/bitacora.html</code> nueva.</li>
-      <li>Probar instalación PWA en <strong>celular Android</strong> con el manifest mejorado (íconos any/maskable separados, <code>display_override</code>, <code>id</code>).</li>
       <li>Mover físicamente <code>C:\DVBA\</code> y <code>C:\Users\…\OneDrive\…\QGIS Files\Proyecto_Redes_Viales\</code> a <code>C:\DVBA_fuentes\</code> para liberar OneDrive de los 530 MB y consolidar todo en C: raíz.</li>
+      <li>Diseñar el <strong>modo accesible</strong> de la app de campo (botones grandes, alto contraste, selección por categoría con iconos grandes) — propuesta del 7 may 2026.</li>
     </ul>
   </div>
 
   <h2>🔵 Media Prioridad</h2>
   <div class="box info">
     <ul>
-      <li>Completar las <strong>9 rutas restantes</strong> de Zona VI: RP 6, 7, 65, 74, 75, 86, 205, 214, 215.</li>
+      <li>Completar las <strong>9 rutas restantes</strong> de Zona VI: RP 6, 20, 24, 42, 43, 44, 47, 48, 61 (red total: 15 RPs).</li>
       <li><strong>Verificación de campo</strong> de mojones físicos con GPS calibrado (los actuales son datos internos no medidos con odómetro).</li>
-      <li>Finalizar guía de usuario <code>guia_dvba_campo.html</code> con mockups de pantallas.</li>
       <li>Incorporar caminos secundarios no pavimentados a la red.</li>
       <li>Documentar las <strong>políticas RLS de Supabase</strong> para confirmar que la <code>anon key</code> está limitada a INSERT.</li>
     </ul>
@@ -604,7 +603,130 @@ git push origin main
       <li>Integración con <strong>acelerómetro RURAL IT</strong> para condición de pavimento.</li>
       <li>Medición <strong>V85</strong> (velocidad percentil 85) con LIDAR del colega.</li>
       <li>Plataforma de monitoreo agro-ambiental Saladillo (INTA, municipio, cooperativas).</li>
-      <li>Botón explícito "Instalar app" en la PWA usando <code>beforeinstallprompt</code> (mejora UX en mobile).</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- TAB 7 · CHANGELOG                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="tab-pane" id="tab-changelog">
+
+  <h2>Versionado por Artefacto</h2>
+  <div class="card">
+    <p>Cada artefacto tiene ciclo de vida y versión <strong>independiente</strong>. El script <code>scripts/bump_version.py</code> permite bumpear cada uno por separado.</p>
+    <table>
+      <tr><th>Artefacto</th><th>Versión</th><th>Archivo(s)</th><th>Bumpear con</th></tr>
+      <tr><td><strong>📱 App Campo</strong></td><td><span class="badge b-ok">v9.2</span></td><td><code>dvba_campo.html</code> + <code>sw.js</code></td><td><code>bump_version.py campo v9.3</code></td></tr>
+      <tr><td><strong>🖥 App Escritorio</strong></td><td><span class="badge b-ok">v6.9</span></td><td><code>index.html</code></td><td><code>bump_version.py escritorio v7.0</code></td></tr>
+      <tr><td><strong>📖 Guía</strong></td><td><span class="badge b-ok">v1.0</span></td><td><code>docs/guia_dvba_campo.html</code></td><td><code>bump_version.py guia v1.1</code></td></tr>
+      <tr><td><strong>📋 Bitácora</strong></td><td><span class="badge b-ok">v3.2</span></td><td><code>docs/bitacora.html</code></td><td><code>bump_version.py bitacora v3.3</code></td></tr>
+    </table>
+    <p style="margin-top:10px"><code>python scripts/bump_version.py --show</code> muestra el estado actual de cada artefacto.</p>
+  </div>
+
+  <h2>📱 Changelog · App de Campo</h2>
+  <div class="card">
+    <h3>v9.2 · 7 mayo 2026</h3>
+    <ul>
+      <li>Botón flotante <strong>"📲 Instalar app"</strong> con detección de standalone (oculto si la app ya está instalada).</li>
+      <li>Soporte <code>beforeinstallprompt</code> para Android, fallback con instrucciones para iOS.</li>
+      <li>Footer: "Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · v9.2".</li>
+    </ul>
+    <h3>v9.1 · 6 mayo 2026</h3>
+    <ul>
+      <li>Footer ahora usa <code>&lt;span id="app-ver"&gt;</code> dinámico (antes hardcoded "v6.1").</li>
+      <li><code>APP_VER</code> en JS corregido: era placeholder <code>'v...'</code>, ahora muestra versión real en sello de fotos.</li>
+    </ul>
+    <h3>v6.1 → v9.0 · histórico (abril 2026)</h3>
+    <ul>
+      <li>Migración inicial a GitHub Pages.</li>
+      <li>Selector jerárquico de tipos MSV 2017 (11 categorías × ~90 tipos).</li>
+      <li>Wizard 4 pestañas (Ubicación → Tipo → Foto → Confirmar).</li>
+      <li>GPS continuo, cámara getUserMedia, sello con logo + datos.</li>
+      <li>Integración Supabase + cola IndexedDB + BackgroundSync.</li>
+    </ul>
+  </div>
+
+  <h2>🖥 Changelog · App de Escritorio</h2>
+  <div class="card">
+    <h3>v6.9 · 7 mayo 2026</h3>
+    <ul>
+      <li><strong>Fix bug menú hamburguesa mobile</strong>: JS usaba <code>mob-open</code>/<code>vis</code> pero CSS esperaba <code>visible</code>. Panel se abría pero overlay y × invisibles. Corregido en 4 lugares.</li>
+      <li>Header: agregado "<strong>Desarrollado por</strong> Ing. Luciano Lamaita · v6.9".</li>
+      <li>Bug visual del header (texto duplicado por replace recursivo) corregido.</li>
+    </ul>
+    <h3>v6.8.0 · histórico (abril 2026)</h3>
+    <ul>
+      <li>Renombrado <code>dvba_zona6.html → index.html</code>.</li>
+      <li>Variable <code>APP_VERSION</code> + display en header (<code>#app-ver</code>).</li>
+      <li>Migración a tema claro institucional.</li>
+      <li>Sidebar con buscador + paginación 30/página.</li>
+      <li>Reportes PDF/CSV con totales por partido y kilometraje.</li>
+    </ul>
+  </div>
+
+  <h2>📖 Changelog · Guía de uso</h2>
+  <div class="card">
+    <h3>v1.0 · 7 mayo 2026 — primer release de la guía nueva</h3>
+    <ul>
+      <li>Reescritura completa (~23 KB vs 434 KB de la versión vieja v6).</li>
+      <li>8 secciones: ¿qué es?, instalación, primer uso, flujo del wizard, tipos MSV, modo offline, actualizaciones, problemas frecuentes.</li>
+      <li>Versión vieja archivada en <code>archivo/guias_historicas/</code>.</li>
+    </ul>
+  </div>
+
+  <h2>📋 Changelog · Bitácora</h2>
+  <div class="card">
+    <h3>v3.2 · 7 mayo 2026</h3>
+    <ul>
+      <li>Nueva tab <strong>"📝 Changelog"</strong> con seguimiento por artefacto.</li>
+      <li>Corrección de la lista de rutas pendientes (las 9 reales: RP 6, 20, 24, 42, 43, 44, 47, 48, 61).</li>
+      <li>Decisión #10 sumada: versionado independiente por artefacto.</li>
+    </ul>
+    <h3>v3.1 · 6 mayo 2026</h3>
+    <ul>
+      <li>4 entradas nuevas en timeline (reorganización monorepo, fixes v9.0, versionado v9.1, UX v9.2).</li>
+      <li>Decisión #9 (SW network-first).</li>
+    </ul>
+    <h3>v3.0 · 6 mayo 2026 — bitácora unificada</h3>
+    <ul>
+      <li>Fusión de las dos bitácoras anteriores en una sola con tabs.</li>
+      <li>6 secciones temáticas (Resumen, Rutas&amp;QGIS, Apps Web, Infraestructura, Decisiones, Pendientes).</li>
+      <li>Versiones viejas archivadas en <code>archivo/bitacoras_historicas/</code>.</li>
+    </ul>
+  </div>
+
+  <h2>🔧 Changelog · Service Worker</h2>
+  <div class="card">
+    <h3>v3.1 · 6 mayo 2026</h3>
+    <ul>
+      <li>Estrategia <strong>cache-first → network-first</strong> con offline fallback.</li>
+      <li><strong>Auto-purge de 404</strong>: cuando red devuelve 404, se borra la entrada del caché. Resuelve URLs fantasma.</li>
+      <li>Filtro de schemes no cacheables (<code>chrome-extension://</code>, <code>data:</code>, <code>blob:</code>).</li>
+      <li>Mensaje 503 amigable cuando no hay red ni caché.</li>
+    </ul>
+    <h3>v3.0 · histórico (abril 2026)</h3>
+    <ul>
+      <li>Cache-first con BackgroundSync para cola offline.</li>
+      <li>Banner de actualización (sin <code>skipWaiting</code> automático).</li>
+    </ul>
+  </div>
+
+  <h2>📦 Changelog · Infraestructura del repo</h2>
+  <div class="card">
+    <h3>7 mayo 2026 — Versionado por artefacto (script v2)</h3>
+    <ul>
+      <li><code>bump_version.py</code> refactorizado: ahora es <code>bump_version.py &lt;artefacto&gt; &lt;vX.Y&gt;</code>.</li>
+      <li>Artefactos disponibles: <code>campo</code>, <code>escritorio</code>, <code>guia</code>, <code>bitacora</code>, <code>todos</code>.</li>
+    </ul>
+    <h3>6 mayo 2026 — Reorganización monorepo</h3>
+    <ul>
+      <li>Migración de <code>C:\DVBA\app\</code> a <code>C:\GitHub\DVBA\</code> (raíz limpia).</li>
+      <li>Estructura: <code>datos/ scripts/ docs/ tests/ archivo/ geojson_procesados/</code>.</li>
+      <li>Centralización de ~50 scripts QGIS en <code>scripts/</code>.</li>
+      <li>Fuentes pesadas (proyecto QGIS, OSM, venv) sacadas a <code>C:\DVBA_fuentes\</code>.</li>
     </ul>
   </div>
 
@@ -612,7 +734,7 @@ git push origin main
 
 <footer>
   Bitácora unificada — Sistema de Relevamiento y Gestión Vial DVBA Zona Departamental VI Saladillo<br>
-  Ing. Luciano Lamaita · División Técnica · Última actualización: 6 de mayo de 2026 · v3.0
+  Ing. Luciano Lamaita · División Técnica · Última actualización: 7 de mayo de 2026 · v3.2
 </footer>
 
 </div>
@@ -629,7 +751,6 @@ git push origin main
     window.scrollTo({top:0,behavior:'smooth'});
   }
   tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.tab)));
-  // Apertura por hash
   const h = location.hash.replace('#','');
   if (h && document.getElementById('tab-'+h)) show(h);
 })();
