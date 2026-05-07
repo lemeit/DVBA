@@ -1,10 +1,10 @@
 /* ══════════════════════════════════════════════════
-   DVBA Campo · Service Worker v3.0
-   Offline cache + Background Sync
+   DVBA Campo · Service Worker v3.1
+   Network-first + offline fallback + auto-purge de 404
    Credenciales embebidas del proyecto DVBA Zona VI
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.0';   /* ← bump aquí cada vez que actualices */
+const CACHE_NAME = 'dvba-campo-v9.1';   /* ← bump aquí cada vez que actualices */
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -38,7 +38,15 @@ self.addEventListener('activate', e => {
   );
 });
 
-// ── FETCH: servir desde caché (solo archivos propios, no Supabase) ──
+// ── FETCH: NETWORK-FIRST con offline fallback + auto-purge de 404 ──
+//
+// Estrategia v3.1:
+//   1. Siempre intentamos red primero (sirve siempre la versión más nueva)
+//   2. Si red OK (200) → devolvemos network y CACHEAMOS (para offline)
+//   3. Si red 404 → BORRAMOS la entrada del caché y devolvemos el 404
+//      (resuelve el problema de URLs fantasma cuando se borran archivos del repo)
+//   4. Si red FALLA (sin conexión) → devolvemos lo cacheado, o un offline simple
+//
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
 
@@ -57,19 +65,38 @@ self.addEventListener('fetch', e => {
   if (e.request.url.includes('tile.openstreetmap')) return;
 
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      const network = fetch(e.request).then(resp => {
-        // Solo cacheamos respuestas válidas y de mismo origen (basic).
-        // Las "opaque" (CORS sin headers) o redirects rompen cache.put.
-        if (resp && resp.status === 200 && resp.type === 'basic') {
-          const clone = resp.clone();
-          caches.open(CACHE_NAME)
-            .then(c => c.put(e.request, clone))
-            .catch(err => console.warn('[SW cache.put]', err.message));
-        }
+    fetch(e.request).then(resp => {
+      // Red respondió OK → cachear (solo respuestas mismo origen) y devolver
+      if (resp && resp.status === 200 && resp.type === 'basic') {
+        const clone = resp.clone();
+        caches.open(CACHE_NAME)
+          .then(c => c.put(e.request, clone))
+          .catch(err => console.warn('[SW cache.put]', err.message));
         return resp;
-      }).catch(() => cached);
-      return cached || network;
+      }
+      // Red respondió 404 → archivo eliminado del server: PURGAR del caché
+      // Esto resuelve URLs fantasma (ej: /dvba_zona6 que ya no existe en el repo)
+      if (resp && resp.status === 404) {
+        caches.open(CACHE_NAME)
+          .then(c => c.delete(e.request))
+          .then(deleted => {
+            if (deleted) console.log('[SW] Purgado de caché (404):', e.request.url);
+          })
+          .catch(() => {});
+        return resp;
+      }
+      // Otros (3xx, 5xx, etc.): devolver tal cual sin cachear
+      return resp;
+    }).catch(() => {
+      // Sin conexión: caer al caché si existe
+      return caches.match(e.request).then(cached => {
+        if (cached) return cached;
+        // Sin red y sin caché: respuesta offline mínima
+        return new Response(
+          'Sin conexión y sin caché disponible para este recurso.',
+          { status: 503, statusText: 'Offline', headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+        );
+      });
     })
   );
 });
@@ -129,37 +156,4 @@ async function procesarCola() {
 async function subirFoto(ruta, base64) {
   try {
     const [header, data] = base64.split(',');
-    const mime  = header.match(/:(.*?);/)[1];
-    const bytes = atob(data);
-    const arr   = new Uint8Array(bytes.length);
-    for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
-    const blob  = new Blob([arr], { type: mime });
-    const ext   = mime.includes('jpeg') ? 'jpg' : (mime.split('/')[1] || 'jpg');
-    const path  = `fotos/${Date.now()}_${ruta.replace(/\s/g,'')}.sello.${ext}`;
-
-    const resp = await fetch(`${SUPA_URL}/storage/v1/object/${BUCKET}/${path}`, {
-      method:  'POST',
-      headers: {
-        'apikey':        SUPA_KEY,
-        'Authorization': `Bearer ${SUPA_KEY}`,
-        'Content-Type':  mime,
-        'x-upsert':      'true'
-      },
-      body: blob
-    });
-    if (resp.ok) return `${SUPA_URL}/storage/v1/object/public/${BUCKET}/${path}`;
-  } catch(e) { console.warn('[SW foto]', e.message); }
-  return null;
-}
-
-function notificarClientes(msg) {
-  self.clients.matchAll().then(cs => cs.forEach(c => c.postMessage(msg)));
-}
-
-// ── IndexedDB helpers ──
-function abrirDB() {
-  return new Promise((res, rej) => {
-    const req = indexedDB.open('dvba_campo', 9);
-    req.onupgradeneeded = e => {
-      const d = e.target.result;
-      if (!d.objectStoreNames.contains('cola')) d.createObjectStore('cola', {k
+    const mime  = header.match(/:(.*?
