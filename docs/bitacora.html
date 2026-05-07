@@ -97,8 +97,8 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <h1>📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial</h1>
   <div class="sub">DVBA · Zona Departamental VI Saladillo</div>
   <div class="meta">
-    <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">6 de mayo de 2026</span></div>
-    <div><span class="lbl">Versión bitácora</span><span class="val">v3.0 — unificada</span></div>
+    <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">7 de mayo de 2026</span></div>
+    <div><span class="lbl">Versión bitácora</span><span class="val">v3.1 — apps v9.2</span></div>
     <div><span class="lbl">Responsable</span><span class="val">Ing. Luciano Lamaita</span></div>
     <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></span></div>
     <div><span class="lbl">Estado general</span><span class="val">🟢 En desarrollo activo</span></div>
@@ -245,14 +245,49 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
     </div>
 
     <div class="tl-item">
-      <div class="tl-fecha">6 mayo 2026 · Sesión actual</div>
-      <div class="tl-titulo">Reorganización del repositorio</div>
+      <div class="tl-fecha">6 mayo 2026 · Reorganización monorepo</div>
+      <div class="tl-titulo">Reestructuración del repositorio</div>
       <ul>
         <li>Migración de <code>C:\DVBA\app\</code> (clon antiguo) a <code>C:\GitHub\DVBA\</code>.</li>
         <li>Adopción de estructura monorepo: <code>datos/ scripts/ docs/ tests/ archivo/ geojson_procesados/</code>.</li>
         <li>Renombrado <code>dvba_zona6.html → index.html</code> para que GitHub Pages lo sirva como home.</li>
         <li>Centralización de ~50 scripts Python QGIS en <code>scripts/</code>.</li>
-        <li>Esta bitácora unificada reemplaza las dos versiones anteriores.</li>
+        <li>Bitácora unificada reemplaza las dos versiones anteriores (con tabs por temática).</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">6 mayo 2026 · Fixes técnicos · v9.0</div>
+      <div class="tl-titulo">Tests, manifest PWA, Service Worker</div>
+      <ul>
+        <li>Tests <code>test_rpXX.html</code>: paths corregidos a <code>../datos/</code> tras el cambio a subcarpeta <code>tests/</code>.</li>
+        <li><code>manifest.json</code> mejorado: íconos <code>any</code> y <code>maskable</code> separados (4 entradas), <code>display_override</code>, <code>id</code>, <code>categories</code> — soluciona instalación PWA en Android.</li>
+        <li><code>sw.js v3.0</code>: filtra schemes no cacheables (<code>chrome-extension://</code>, <code>data:</code>, <code>blob:</code>, <code>file:</code>) que rompían <code>cache.put()</code>.</li>
+        <li>Filtro de respuestas no-basic (opaque/redirects) en cache para evitar excepciones.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">6 mayo 2026 · Versionado centralizado · v9.1</div>
+      <div class="tl-titulo">Script bump_version + sw.js network-first</div>
+      <ul>
+        <li><code>scripts/bump_version.py</code>: nuevo script que sincroniza la versión en 5 ubicaciones (footer campo, var JS, comentario, header escritorio, CACHE_NAME del SW). Comando único: <code>python scripts/bump_version.py v9.X</code>.</li>
+        <li><code>dvba_campo.html</code> footer: reemplazado <code>v6.1</code> hardcoded por <code>&lt;span id="app-ver"&gt;</code> dinámico.</li>
+        <li><code>dvba_campo.html</code> JS: <code>APP_VER='v...'</code> (placeholder bug) corregido a versión real (sello de fotos).</li>
+        <li><code>index.html</code>: <code>APP_VERSION</code> de <code>'v6.8.0'</code> a <code>'v9.1'</code>.</li>
+        <li><code>sw.js v3.1</code>: estrategia cambiada de cache-first a <strong>network-first con offline fallback + auto-purge de 404</strong>. Resuelve URLs fantasma cuando se eliminan archivos del repo.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">7 mayo 2026 · UX y PWA · v9.2</div>
+      <div class="tl-titulo">Botón install, fix menú mobile, "Desarrollado por"</div>
+      <ul>
+        <li>Botón <strong>flotante "📲 Instalar app"</strong> en <code>dvba_campo.html</code> usando <code>beforeinstallprompt</code>. Detecta automáticamente si la app ya está instalada (display-mode standalone) y se oculta. En iOS muestra instrucciones manuales.</li>
+        <li><strong>Fix bug menú hamburguesa mobile</strong> en <code>index.html</code>: el JS agregaba la clase <code>mob-open</code> al overlay y <code>vis</code> al botón cerrar, pero el CSS esperaba <code>visible</code>. Resultado: el panel se abría pero no había forma de cerrarlo (overlay invisible, botón × oculto). Corregido el mismatch.</li>
+        <li>Header escritorio: agregado "<strong>Desarrollado por</strong> Ing. Luciano Lamaita · vX.Y".</li>
+        <li>Footer campo: agregado "<strong>Desarrollado por</strong> Ing. Luciano Lamaita · vX.Y" reemplazando el formato anterior.</li>
+        <li><strong>Guía de uso de la app de campo</strong> reescrita y actualizada (<code>docs/guia_dvba_campo.html</code>): incluye los 11 categorías × ~90 tipos MSV 2017, instrucciones de instalación Android/iOS/desktop, flujo del wizard de 4 pestañas, modo offline, problemas frecuentes. La versión vieja se archivó en <code>archivo/guias_historicas/</code>.</li>
       </ul>
     </div>
 
@@ -523,6 +558,16 @@ git push origin main
   <div class="card">
     <h3>8. Paths sin caracteres especiales <span class="badge b-dec">DECISIÓN OPERATIVA</span></h3>
     <p>El usuario tiene su carpeta de Windows como <code>C:\Users\Of. Técnica Z6\</code> — espacio + tilde + punto rompen scripts Python y herramientas. Por eso el repo vive en <code>C:\GitHub\DVBA\</code> y las fuentes pesadas en <code>C:\DVBA_fuentes\</code>, ambos en la raíz de C: con nombres limpios.</p>
+  </div>
+
+  <div class="card">
+    <h3>9. Service Worker network-first <span class="badge b-dec">DECISIÓN · 6 may 2026</span></h3>
+    <p>La estrategia original del SW era <em>cache-first</em>, que servía contenido viejo aún después de eliminar archivos del repo (URLs fantasma como <code>/dvba_zona6</code>). Se cambió a <strong>network-first con offline fallback + auto-purge de 404</strong>: siempre se intenta la red primero; si responde 404 se borra la entrada del caché; si la red falla se sirve el caché o un mensaje 503 amigable. La PWA sigue funcionando offline porque el caché se sigue manteniendo, solo cambia la prioridad de lectura.</p>
+  </div>
+
+  <div class="card">
+    <h3>10. Versionado centralizado con script <span class="badge b-dec">DECISIÓN · 6 may 2026</span></h3>
+    <p>La versión de las apps vive en 5 lugares (footer visible del campo, var JS para sello, comentario JS, header del escritorio, CACHE_NAME del SW). Mantenerlos sincronizados a mano es propenso a error. Se creó <code>scripts/bump_version.py</code> que recibe la nueva versión y la propaga a los 5 lugares con un comando. Patrones definidos como tuplas regex en la lista <code>TARGETS</code>, fácil de extender si se agregan nuevos lugares.</p>
   </div>
 
 </section>
