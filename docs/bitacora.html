@@ -21,7 +21,8 @@ header.hero h1{font-size:1.55rem;font-weight:600;margin-bottom:6px}
 header.hero .sub{opacity:.92;font-size:.95rem;margin-bottom:14px}
 header.hero .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;font-size:.82rem;background:rgba(255,255,255,.1);padding:12px 16px;border-radius:6px;backdrop-filter:blur(6px)}
 header.hero .meta .lbl{opacity:.78;display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
-header.hero .meta .val{font-weight:600}
+header.hero .meta .val{font-weight:600;overflow-wrap:anywhere;word-break:break-word}
+header.hero .meta>div{min-width:0;overflow:hidden}
 header.hero a{color:#bdf;text-decoration:none}
 header.hero a:hover{text-decoration:underline}
 
@@ -98,7 +99,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <div class="sub">DVBA · Zona Departamental VI Saladillo</div>
   <div class="meta">
     <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">7 de mayo de 2026</span></div>
-    <div><span class="lbl">Versión bitácora</span><span class="val">v3.2 — apps v9.2</span></div>
+    <div><span class="lbl">Versión bitácora</span><span class="val">v3.3 — apps v9.2</span></div>
     <div><span class="lbl">Responsable</span><span class="val">Ing. Luciano Lamaita</span></div>
     <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></span></div>
     <div><span class="lbl">Estado general</span><span class="val">🟢 En desarrollo activo</span></div>
@@ -481,7 +482,8 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
     <tr><td>App Escritorio (home)</td><td><a href="https://lemeit.github.io/DVBA/" target="_blank">lemeit.github.io/DVBA/</a></td></tr>
     <tr><td>App Móvil PWA</td><td><a href="https://lemeit.github.io/DVBA/dvba_campo.html" target="_blank">lemeit.github.io/DVBA/dvba_campo.html</a></td></tr>
     <tr><td>Bitácora (esta)</td><td><a href="https://lemeit.github.io/DVBA/docs/bitacora.html" target="_blank">lemeit.github.io/DVBA/docs/bitacora.html</a></td></tr>
-    <tr><td>Guía app de campo (HTML)</td><td><a href="https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html" target="_blank">lemeit.github.io/DVBA/docs/guia_dvba_campo.html</a></td></tr>
+    <tr><td>Guía app de campo (textual)</td><td><a href="https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html" target="_blank">lemeit.github.io/DVBA/docs/guia_dvba_campo.html</a></td></tr>
+    <tr><td>Guía visual (mockups)</td><td><a href="https://lemeit.github.io/DVBA/docs/guia_visual_dvba_campo.html" target="_blank">lemeit.github.io/DVBA/docs/guia_visual_dvba_campo.html</a></td></tr>
     <tr><td>Guía app de campo (PDF)</td><td><a href="https://lemeit.github.io/DVBA/docs/guia_dvba_campo.pdf" target="_blank">lemeit.github.io/DVBA/docs/guia_dvba_campo.pdf</a></td></tr>
     <tr><td>Tests por ruta</td><td><a href="https://lemeit.github.io/DVBA/tests/test_rp40.html" target="_blank">…/tests/test_rp40.html</a> (rp30, rp41, rp46, rp51, rp91 idem)</td></tr>
     <tr><td>Repositorio</td><td><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></td></tr>
@@ -620,7 +622,8 @@ git push origin main
       <tr><th>Artefacto</th><th>Versión</th><th>Archivo(s)</th><th>Bumpear con</th></tr>
       <tr><td><strong>📱 App Campo</strong></td><td><span class="badge b-ok">v9.2</span></td><td><code>dvba_campo.html</code> + <code>sw.js</code></td><td><code>bump_version.py campo v9.3</code></td></tr>
       <tr><td><strong>🖥 App Escritorio</strong></td><td><span class="badge b-ok">v6.9</span></td><td><code>index.html</code></td><td><code>bump_version.py escritorio v7.0</code></td></tr>
-      <tr><td><strong>📖 Guía</strong></td><td><span class="badge b-ok">v1.0</span></td><td><code>docs/guia_dvba_campo.html</code></td><td><code>bump_version.py guia v1.1</code></td></tr>
+      <tr><td><strong>📖 Guía textual</strong></td><td><span class="badge b-ok">v1.0</span></td><td><code>docs/guia_dvba_campo.html</code></td><td><code>bump_version.py guia v1.1</code></td></tr>
+      <tr><td><strong>🖼 Guía visual</strong></td><td><span class="badge b-ok">v1.0</span></td><td><code>docs/guia_visual_dvba_campo.html</code></td><td><code>bump_version.py guia_visual v1.1</code></td></tr>
       <tr><td><strong>📋 Bitácora</strong></td><td><span class="badge b-ok">v3.2</span></td><td><code>docs/bitacora.html</code></td><td><code>bump_version.py bitacora v3.3</code></td></tr>
     </table>
     <p style="margin-top:10px"><code>python scripts/bump_version.py --show</code> muestra el estado actual de cada artefacto.</p>
@@ -667,13 +670,24 @@ git push origin main
     </ul>
   </div>
 
-  <h2>📖 Changelog · Guía de uso</h2>
+  <h2>📖 Changelog · Guía de uso (textual)</h2>
   <div class="card">
     <h3>v1.0 · 7 mayo 2026 — primer release de la guía nueva</h3>
     <ul>
       <li>Reescritura completa (~23 KB vs 434 KB de la versión vieja v6).</li>
       <li>8 secciones: ¿qué es?, instalación, primer uso, flujo del wizard, tipos MSV, modo offline, actualizaciones, problemas frecuentes.</li>
       <li>Versión vieja archivada en <code>archivo/guias_historicas/</code>.</li>
+    </ul>
+  </div>
+
+  <h2>🖼 Changelog · Guía visual</h2>
+  <div class="card">
+    <h3>v1.0 · 7 mayo 2026 — primer release</h3>
+    <ul>
+      <li>Nueva guía visual paso a paso con <strong>mockups CSS de pantalla de celular</strong>.</li>
+      <li>8 pantallas mockeadas: pantalla inicial, wizard ubicación, selector categoría, selector tipo, cámara con sello, confirmar, lista "Hoy", banner de actualización.</li>
+      <li>Complementa la guía textual — para usuarios que prefieren ver antes que leer.</li>
+      <li>Acceso: <code>docs/guia_visual_dvba_campo.html</code>.</li>
     </ul>
   </div>
 
@@ -752,8 +766,4 @@ git push origin main
   }
   tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.tab)));
   const h = location.hash.replace('#','');
-  if (h && document.getElementById('tab-'+h)) show(h);
-})();
-</script>
-</body>
-</html>
+  if (h 

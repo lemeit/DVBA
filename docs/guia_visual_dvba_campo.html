@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía visual · App de Campo · DVBA Zona VI</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --azul:#003366; --teal:#009aae; --teal-cl:#26b3c8; --vd:#1a8a4a;
+  --bg:#f4f6f9; --card:#fff; --border:#cdd9e6;
+  --text:#1a2a3a; --muted:#5a6a7a;
+  --p:#009aae; --light:#e8f0f5; --mut:#9aa5b3;
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.page{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+
+header.hero{background:linear-gradient(135deg,var(--azul) 0%,var(--teal) 100%);color:#fff;border-radius:10px;padding:28px;margin-bottom:24px;box-shadow:0 4px 14px rgba(0,51,102,.18)}
+header.hero h1{font-size:1.55rem;font-weight:600;margin-bottom:6px}
+header.hero .sub{opacity:.92;font-size:.95rem;margin-bottom:14px}
+header.hero .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;font-size:.82rem;background:rgba(255,255,255,.1);padding:12px 16px;border-radius:6px}
+header.hero .meta .lbl{opacity:.78;display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+header.hero .meta .val{font-weight:600;overflow-wrap:anywhere;word-break:break-word}
+header.hero .meta>div{min-width:0;overflow:hidden}
+header.hero a{color:#bdf;text-decoration:none}
+
+nav.toc{background:#fff;padding:14px 18px;border-radius:8px;border:1px solid var(--border);margin-bottom:18px}
+nav.toc h3{color:var(--azul);font-size:.86rem;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+nav.toc ol{margin:0 0 0 18px;font-size:.92rem;columns:2}
+nav.toc a{color:var(--azul);text-decoration:none}
+
+.section{margin-top:36px}
+.section h2{color:var(--azul);font-size:1.25rem;font-weight:600;margin-bottom:8px;padding-bottom:6px;border-bottom:3px solid var(--azul);display:inline-block}
+.section .desc{margin:6px 0 16px;color:var(--muted);font-size:.94rem}
+
+/* ── Paso ─────────────────────────────────────────── */
+.paso{display:grid;grid-template-columns:280px 1fr;gap:28px;margin:18px 0;padding:18px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.paso .body strong.titulo{color:var(--azul);font-size:1.05rem;display:block;margin-bottom:6px}
+.paso .body p{margin-bottom:8px}
+.paso .body ul{margin:0 0 8px 22px;font-size:.92rem}
+.paso .body li{margin:3px 0}
+
+@media(max-width:720px){
+  .paso{grid-template-columns:1fr;gap:16px}
+  .paso .device{margin:0 auto}
+}
+
+/* ── Frame de celular ─────────────────────────────── */
+.device{
+  width:260px; height:520px;
+  background:#1a1a1a;
+  border-radius:32px;
+  padding:46px 10px 18px;
+  position:relative;
+  box-shadow:0 10px 30px rgba(0,0,0,.25), 0 2px 6px rgba(0,0,0,.15);
+}
+.device::before{
+  content:'';
+  position:absolute; top:14px; left:50%;
+  transform:translateX(-50%);
+  width:80px; height:18px;
+  background:#000; border-radius:0 0 12px 12px;
+}
+.device::after{
+  content:'';
+  position:absolute; bottom:6px; left:50%;
+  transform:translateX(-50%);
+  width:90px; height:4px;
+  background:#888; border-radius:2px;
+}
+.screen{
+  width:100%; height:100%;
+  background:#f0f0f0;
+  border-radius:18px;
+  overflow:hidden;
+  display:flex; flex-direction:column;
+  font-size:11px;
+  position:relative;
+}
+
+/* Barra superior tipo Android */
+.statusbar{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:3px 10px;
+  background:#009aae; color:#fff;
+  font-size:9px; font-weight:600;
+}
+
+/* Header de la app */
+.app-header{
+  background:#009aae; color:#fff;
+  padding:6px 10px;
+  display:flex; align-items:center; gap:8px;
+  border-bottom:1px solid rgba(0,0,0,.1);
+}
+.app-header .logo{
+  width:24px; height:24px; border-radius:50%;
+  background:#fff; color:#009aae;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:10px; flex-shrink:0;
+}
+.app-header .title{font-size:10px; font-weight:600; line-height:1.1}
+.app-header .title .sub{font-size:8px; opacity:.85; font-weight:400}
+
+/* Tabs del wizard */
+.tabs-wizard{
+  display:flex; background:#fff; border-bottom:1px solid #ddd;
+}
+.tab-w{
+  flex:1; padding:6px 2px; text-align:center;
+  font-size:8px; color:#888; border-bottom:2px solid transparent;
+}
+.tab-w.active{color:#009aae; border-bottom-color:#009aae; font-weight:600}
+
+/* Body */
+.body-wrap{flex:1; padding:8px; overflow:hidden; background:#f4f6f9}
+
+/* Píldoras GPS */
+.gps-card{
+  background:#fff; padding:8px; border-radius:6px;
+  margin-bottom:6px; border:1px solid #e0e0e0;
+  font-size:9px;
+}
+.gps-card .row{display:flex; justify-content:space-between; margin:2px 0}
+.gps-card .label{color:#888; font-size:8px}
+.gps-card .val{color:#1a2a3a; font-weight:600; font-size:9px}
+.gps-card .precision{color:#1a8a4a}
+
+.btn{
+  background:#009aae; color:#fff; border:none;
+  padding:8px 12px; border-radius:6px;
+  font-size:9px; font-weight:600; cursor:pointer;
+  width:100%; margin-top:4px;
+}
+.btn-sec{background:#fff;color:#009aae;border:1px solid #009aae}
+.btn-save{background:#1a8a4a}
+
+/* Categorías grid */
+.cat-grid{display:grid; grid-template-columns:1fr 1fr; gap:5px}
+.cat-card{
+  background:#fff; padding:6px 4px; border-radius:6px;
+  text-align:center; font-size:8px;
+  border:1px solid #e0e0e0;
+}
+.cat-card .ico{font-size:18px; display:block; margin-bottom:2px}
+.cat-card.sel{border-color:#009aae; background:#e6f4f8; color:#009aae; font-weight:600}
+
+/* Lista de tipos */
+.tipo-list{background:#fff; border-radius:6px; max-height:160px; overflow-y:auto}
+.tipo-item{
+  padding:6px 8px; font-size:9px;
+  border-bottom:1px solid #eee;
+}
+.tipo-item.sel{background:#e6f4f8; color:#009aae; font-weight:600}
+
+/* Camera mockup */
+.cam-frame{
+  background:#1a2a3a; border-radius:6px;
+  height:160px; position:relative;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:8px;
+  background-image:linear-gradient(135deg,#3a4a5a,#1a2a3a);
+}
+.cam-sello{
+  position:absolute; bottom:6px; left:6px; right:6px;
+  background:rgba(0,51,102,.85); color:#fff;
+  padding:4px 6px; border-radius:3px;
+  font-size:6px; line-height:1.3;
+}
+.cam-sello .marca{font-weight:700}
+.cam-sello .gps{opacity:.85; font-size:5.5px}
+.cam-btn{
+  position:absolute; bottom:80px; left:50%; transform:translateX(-50%);
+  width:40px; height:40px; background:#fff;
+  border-radius:50%; border:3px solid rgba(255,255,255,.5);
+}
+
+/* Notas / inputs */
+.input{
+  background:#fff; border:1px solid #ddd;
+  border-radius:4px; padding:5px 8px;
+  font-size:9px; width:100%; margin-bottom:5px;
+  color:#333;
+}
+.input.txtarea{height:40px; padding-top:6px}
+.label-input{font-size:8px; color:#888; margin-bottom:2px; display:block}
+
+/* Confirmar */
+.conf-row{
+  display:flex; justify-content:space-between;
+  padding:4px 0; border-bottom:1px dashed #ddd;
+  font-size:9px;
+}
+.conf-row .l{color:#888; font-size:8px}
+.conf-row .v{color:#1a2a3a; font-weight:600; max-width:55%; text-align:right}
+
+/* Toast / banner */
+.banner{
+  position:absolute; top:8px; left:8px; right:8px;
+  background:#fff8e6; border:1px solid #f0a500;
+  padding:6px 8px; border-radius:6px;
+  font-size:8px; color:#856404;
+  z-index:50; box-shadow:0 2px 6px rgba(0,0,0,.1);
+}
+.banner b{color:#003366}
+
+/* Botón install flotante */
+.install-fab{
+  position:absolute; right:8px; bottom:30px;
+  background:#1a8a4a; color:#fff;
+  padding:6px 10px; border-radius:14px;
+  font-size:8px; font-weight:600;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+  z-index:50;
+}
+
+/* FAB cámara/registro */
+.fab{
+  position:absolute; right:8px; bottom:8px;
+  width:32px; height:32px; background:#009aae;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:18px;
+  box-shadow:0 3px 8px rgba(0,154,174,.4);
+}
+
+/* Footer del device */
+.footer-app{
+  background:#1a2a3a; color:#fff;
+  padding:3px 6px; text-align:center;
+  font-size:6px;
+}
+
+/* Status indicators */
+.status-bar{
+  display:flex; justify-content:space-between;
+  background:#fff; padding:3px 8px;
+  font-size:8px; border-top:1px solid #eee;
+}
+.status-bar .ok{color:#1a8a4a}
+.status-bar .warn{color:#f0a500}
+
+/* Lista hoy */
+.hoy-item{
+  background:#fff; padding:6px 8px;
+  border-radius:5px; margin-bottom:4px;
+  border-left:3px solid #009aae;
+  font-size:9px;
+}
+.hoy-item .head{display:flex; justify-content:space-between; margin-bottom:2px}
+.hoy-item .ruta{font-weight:600; color:#003366; font-size:9px}
+.hoy-item .when{color:#888; font-size:8px}
+.hoy-item .tipo{color:#555; font-size:8.5px}
+.hoy-item .badge-pend{background:#fff3cd; color:#856404; font-size:7px; padding:1px 5px; border-radius:6px}
+.hoy-item .badge-ok{background:#d4edda; color:#155724; font-size:7px; padding:1px 5px; border-radius:6px}
+
+footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;padding-top:18px;border-top:1px solid var(--border)}
+
+@media(max-width:600px){
+  .page{padding:14px 12px}
+  header.hero{padding:20px 18px}
+  header.hero h1{font-size:1.2rem}
+  nav.toc ol{columns:1}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="hero">
+  <h1>📱 Guía visual paso a paso · App de Campo</h1>
+  <div class="sub">Mockups de cada pantalla del relevamiento vial — DVBA Zona VI Saladillo</div>
+  <div class="meta">
+    <div><span class="lbl">Versión guía visual</span><span class="val">v1.0</span></div>
+    <div><span class="lbl">Última actualización</span><span class="val">7 de mayo de 2026</span></div>
+    <div><span class="lbl">App referida</span><span class="val">v9.2</span></div>
+    <div><span class="lbl">Guía textual</span><span class="val"><a href="guia_dvba_campo.html">guia_dvba_campo.html</a></span></div>
+  </div>
+</header>
+
+<nav class="toc">
+  <h3>Pantallas</h3>
+  <ol>
+    <li><a href="#paso-0">0. Pantalla inicial al abrir</a></li>
+    <li><a href="#paso-1">1. Wizard · Ubicación (GPS)</a></li>
+    <li><a href="#paso-2">2. Wizard · Tipo · seleccionar categoría</a></li>
+    <li><a href="#paso-3">3. Wizard · Tipo · seleccionar tipo</a></li>
+    <li><a href="#paso-4">4. Wizard · Foto · cámara con sello</a></li>
+    <li><a href="#paso-5">5. Wizard · Confirmar</a></li>
+    <li><a href="#paso-6">6. Lista "Hoy" — registros del día</a></li>
+    <li><a href="#paso-7">7. Banner de actualización</a></li>
+  </ol>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="section" id="paso-0">
+<h2>0. Pantalla inicial al abrir</h2>
+<p class="desc">Al abrir la app desde el navegador o el ícono instalado, ves esto. Si la app aún no está instalada como PWA, aparece el botón verde "Instalar app" abajo a la derecha.</p>
+
+<div class="paso">
+  <div class="device">
+    <div class="screen">
+      <div class="statusbar"><span>9:24</span><span>📶 📡 🔋</span></div>
+      <div class="app-header">
+        <div class="logo">D</div>
+        <div class="title">Relevamiento Vial<div class="sub">DVBA · Zona VI · v9.2</div></div>
+      </div>
+      <div class="tabs-wizard">
+        <div class="tab-w active">📍 Ubicación</div>
+        <div class="tab-w">🗂 Tipo</div>
+        <div class="tab-w">📷 Foto</div>
+        <div class="tab-w">✓ Confirmar</div>
+      </div>
+      <div class="body-wrap">
+        <div class="gps-card">
+          <div class="row"><span class="label">Estado GPS</span><span class="val precision">● activo</span></div>
+          <div class="row"><span class="label">Lat</span><span class="val">−35.6403°</span></div>
+          <div class="row"><span class="label">Lng</span><span class="val">−59.7821°</span></div>
+          <div class="row"><span class="label">Precisión</span><span class="val precision">±5 m</span></div>
+        </div>
+        <button class="btn">↓ Usar esta posición</button>
+      </div>
+      <div class="status-bar">
+        <span class="ok">● en línea</span>
+        <span>Pendientes: 0</span>
+      </div>
+      <div class="footer-app">DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · v9.2</div>
+      <div class="install-fab">📲 Instalar app</div>
+    </div>
+  </div>
+  <div class="body">
+    <strong class="titulo">Qué ves</strong>
+    <ul>
+      <li><strong>Header teal</strong> con logo DVBA, título y versión actual.</li>
+      <li><strong>4 tabs</strong> del wizard: Ubicación → Tipo → Foto → Confirmar. La activa está subrayada en teal.</li>
+      <li><strong>Tarjeta GPS</strong> con tu posición actual, actualizándose en vivo.</li>
+      <li><strong>Botón verde "📲 Instalar app"</strong> abajo a la derecha — solo si la app NO está instalada todavía. Tocalo para instalarla en tu cajón.</li>
+      <li><strong>Status bar abajo:</strong> indicador de conexión y contador de registros pendientes de subir.</li>
+      <li><strong>Footer:</strong> "Desarrollado por Ing. Luciano Lamaita · v9.2".</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="section" id="paso-1">
+<h2>1. Wizard · Ubicación (GPS)</h2>
+<p class="desc">Primera pestaña del wizard. Tomás tu posición GPS para asociarla al registro.</p>
+
+<div class="paso">
+  <div class="device">
+    <div class="screen">
+      <div class="statusbar"><span>9:24</span><span>📶 📡 🔋</span></div>
+      <div class="app-header">
+        <div class="logo">D</div>
+        <div class="title">Nuevo registro<div class="sub">RP 40 · paso 1 de 4</div></div>
+      </div>
+      <div class="tabs-wizard">
+        <div class="tab-w active">📍</div>
+        <div class="tab-w">🗂</div>
+        <div class="tab-w">📷</div>
+        <div class="tab-w">✓</div>
+      </div>
+      <div class="body-wrap">
+        <span class="label-input">Ruta</span>
+        <select class="input"><option>RP 40</option></select>
+        <span class="label-input">Progresiva (km)</span>
+        <input class="input" value="142.350">
+        <div class="gps-card">
+          <div class="row"><span class="label">Lat</span><span class="val">−35.6403°</span></div>
+          <div class="row"><span class="label">Lng</span><span class="val">−59.7821°</span></div>
+          <div class="row"><span class="label">Precisión</span><span class="val precision">±5 m</span></div>
+        </div>
+        <button class="btn">↓ Usar GPS actual</button>
+        <button class="btn btn-sec" style="margin-top:4px">🔄 Reactivar GPS</button>
+      </div>
+    </div>
+  </div>
+  <div class="body">
+    <strong class="titulo">Cómo se usa</strong>
+    <ol>
+      <li>Elegí la <strong>Ruta</strong> (RP 40, RP 30, etc.).</li>
+      <li>La <strong>Progresiva (km)</strong> se calcula automáticamente desde el GPS — pero podés ajustarla manualmente si la querés exacta.</li>
+      <li>Tocá <strong>"↓ Usar GPS actual"</strong> para fijar las coordenadas del registro.</li>
+      <li>Si el GPS está perdido o no actualiza, tocá <strong>"🔄 Reactivar GPS"</strong>.</li>
+      <li>Al avanzar al siguiente tab, queda guardada la ubicación.</li>
+    </ol>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="section" id="paso-2">
+<h2>2. Wizard · Tipo · seleccionar categoría</h2>
+<p class="desc">Elegís primero la categoría general del incidente (Calzada, Drenaje, Señales, etc.).</p>
+
+<div class="paso">
+  <div class="device">
+    <div class="screen">
+      <div class="statusbar"><span>9:25</span><span>📶 📡 🔋</span></div>
+      <div class="app-header">
+        <div class="logo">D</div>
+        <div class="title">Nuevo registro<div class="sub">RP 40 · km 142.350</div></div>
+      </div>
+      <div class="tabs-wizard">
+        <div class="tab-w">📍</div>
+        <div class="tab-w active">🗂</div>
+        <div class="tab-w">📷</div>
+        <div class="tab-w">✓</div>
+      </div>
+      <div class="body-wrap">
+        <span class="label-input">Categoría</span>
+        <div class="cat-grid">
+          <div class="cat-card sel"><span class="ico">🛣️</span>Calzada</div>
+          <div class="cat-card"><span class="ico">💧</span>Drenaje</div>
+          <div class="cat-card"><span class="ico">⚠️</span>Señal P-</div>
+          <div class="cat-card"><span class="ico">🚫</span>Señal R-</div>
+          <div class="cat-card"><span class="ico">ℹ️</span>Señal I-</div>
+          <div class="cat-card"><span class="ico">🔧</span>Estado</div>
+          <div class="cat-card"><span class="ico">🌉</span>Estructura</div>
+          <div class="cat-card"><span class="ico">🌿</span>Entorno</div>
+          <div class="cat-card"><span class="ico">💡</span>Iluminación</div>
+          <div class="cat-card"><span class="ico">🚨</span>Seguridad</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="body">
+    <strong class="titulo">Cómo se usa</strong>
+    <ul>
+      <li>Las <strong>11 categorías</strong> aparecen en una grilla con su ícono.</li>
+      <li>Al tocar una, queda <strong>resaltada en teal</strong> (en el ejemplo: Calzada).</li>
+      <li>Las categorías corresponden a la nomenclatura del MSV 2017 (DNV/AAC).</li>
+      <li>Después de elegir categoría, se despliega abajo la lista de tipos específicos (ver paso siguiente).</li>
+    </ul>
+    <p style="font-size:.86rem;color:var(--muted);margin-top:8px">💡 En el modo accesible (próxima versión) estos botones serán más grandes y con más contraste para usar a pleno sol.</p>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="section" id="paso-3">
+<h2>3. Wizard · Tipo · seleccionar tipo específico</h2>
+<p class="desc">Una vez elegida la categoría, se muestra la lista de tipos disponibles en esa categoría.</p>
+
+<div class="paso">
+  <div class="device">
+    <div class="screen">
+      <div class="statusbar"><span>9:25</span><span>📶 📡 🔋</span></div>
+      <div class="app-header">
+        <div class="logo">D</div>
+        <div class="title">🛣 Calzada<div class="sub">elegí el tipo</div></div>
+      </div>
+      <div class="tabs-wizard">
+        <div class="tab-w">📍</div>
+        <div class="tab-w active">🗂</div>
+        <div class="tab-w">📷</div>
+        <div class="tab-w">✓</div>
+      </div>
+      <div class="body-wrap">
+        <input class="input" placeholder="🔍 Buscar tipo…">
+        <div class="tipo-list">
+          <div class="tipo-item">Bache</div>
+          <div class="tipo-item sel">✓ Bache crítico</div>
+          <div class="tipo-item">Calzada dañada</div>
+          <div class="tipo-item">Pavimento fisurado</div>
+          <div class="tipo-item">Pavimento ondulado</div>
+          <div class="tipo-item">Calzada de tierra deteriorada</div>
+          <div class="tipo-item">Borde de calzada deteriorado</div>
+          <div class="tipo-item">Pavimento asfáltico</div>
+          <div class="tipo-item">Calzada de hormigón</div>
+        </div>
+        <button class="btn" style="margin-top:6px">Continuar →</button>
+      </div>
+    </div>
+  </div>
+  <div class="body">
+    <strong class="titulo">Cómo se usa</strong>
+    <ul>
+      <li>Lista de <strong>tipos específicos</strong> de la categoría elegida (en el ejemplo, Calzada tiene 9 tipos).</li>
+      <li>Buscador arriba para filtrar rápidamente si la lista es larga.</li>
+      <li>Tocá el tipo → queda marcado con ✓ en teal.</li>
+      <li>Tocá <strong>"Continuar →"</strong> para pasar al siguiente paso (Foto).</li>
+    </ul>
+    <p style="font-size:.86rem;color:var(--muted);margin-top:8px">💡 En total hay <strong>~90 tipos</strong> en las 11 categorías. La categoría "📝 Otro" permite escribir un tipo libre en notas.</p>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="section" id="paso-4">
+<h2>4. Wizard · Foto · cámara con sello institucional</h2>
+<p class="desc">Sacás la foto del incidente. La app le agrega automáticamente el sello con datos institucionales.</p>
+
+<div class="paso">
+  <div class="device">
+    <div class="screen">
+      <div class="statusbar"><span>9:26</span><span>📶 📡 🔋</span></div>
+      <div class="app-header">
+        <div class="logo">D</div>
+        <div class="title">Sacar foto<div class="sub">paso 3 de 4</div></div>
+      </div>
+      <div class="tabs-wizard">
+        <div class="tab-w">📍</div>
+        <div class="tab-w">🗂</div>
+        <div class="tab-w active">📷</div>
+        <div class="tab-w">✓</div>
+      </div>
+      <div class="body-wrap" style="padding:6px">
+        <div class="cam-frame">
+          <span style="opacity:.4">🎥 vista previa cámara</span>
+          <div class="cam-btn"></div>
+          <div class="cam-sello">
+            <div class="marca">DVBA · Zona VI</div>
+            <div>RP 40 · km 142.350 · Bache crítico</div>
+            <div class="gps">−35.6403°, −59.7821° · 7-may-2026 09:26 · v9.2</div>
+          </div>
+        </div>
+        <button class="btn btn-sec" style="margin-top:6px">📷 Cambiar foto</button>
+      </div>
+    </div>
+  </div>
+  <div class="body">
+    <strong class="titulo">Cómo se usa</strong>
+    <ol>
+      <li>Encuadrá el incidente en la cámara.</li>
+      <li>Tocá el <strong>botón blanco</strong> (círculo grande abajo) para disparar.</li>
+      <li>La app procesa la foto y le agrega un <strong>sello institucional</strong> en la parte inferior con: logo DVBA + ruta y progresiva + tipo + GPS + fecha/hora + versión.</li>
+      <li>Si querés repetir, tocá <strong>"📷 Cambiar foto"</strong>.</li>
+    </ol>
+    <p style="font-size:.86rem;color:var(--muted);margin-top:8px">⚙ Técnico: usa <code>getUserMedia</code> directo a canvas (no <code>input file</code>) para evitar el crash de RAM en celulares con poca memoria.</p>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="section" id="paso-5">
+<h2>5. Wizard · Confirmar y guardar</h2>
+<p class="desc">Revisión de todos los datos antes de guardar. Acá podés agregar notas y confirmar.</p>
+
+<div class="paso">
+  <div class="device">
+    <div class="screen">
+      <div class="statusbar"><span>9:26</span><span>📶 📡 🔋</span></div>
+      <div class="app-header">
+        <div class="logo">D</div>
+        <div class="title">Confirmar registro<div class="sub">paso 4 de 4</div></div>
+      </div>
+      <div class="tabs-wizard">
+        <div class="tab-w">📍</div>
+        <div class="tab-w">🗂</div>
+        <div class="tab-w">📷</div>
+        <div class="tab-w active">✓</div>
+      </div>
+      <div class="body-wrap">
+        <div class="conf-row"><span class="l">Ruta</span><span class="v">RP 40</span></div>
+        <div class="conf-row"><span class="l">Progresiva</span><span class="v">km 142.350</span></div>
+        <div class="conf-row"><span class="l">Categoría</span><span class="v">🛣 Calzada</span></div>
+        <div class="conf-row"><span class="l">Tipo</span><span class="v">Bache crítico</span></div>
+        <div class="conf-row"><span class="l">GPS</span><span class="v" style="font-size:8px">−35.640, −59.782</span></div>
+        <div class="conf-row"><span class="l">Foto</span><span class="v">✓ Capturada</span></div>
+        <span class="label-input" style="margin-top:6px">Notas (opcional)</span>
+        <textarea class="input txtarea">Pegado a banquina, riesgo medio para vehículos.</textarea>
+        <button class="btn btn-save">💾 Guardar registro</button>
+      </div>
+    </div>
+  </div>
+  <div class="body">
+    <strong class="titulo">Cómo se usa</strong>
+    <ul>
+      <li>Revisá los datos del registro.</li>
+      <li>Agregá <strong>notas opcionales</strong> (descripción adicional, recomendaciones, contexto).</li>
+      <li>Tocá <strong>"💾 Guardar registro"</strong>.</li>
+      <li>Si tenés señal: se sube a Supabase y aparece en el escritorio en segundos.</li>
+      <li>Si no tenés señal: queda en la cola local. Se sube solo cuando recuperés conexión (BackgroundSync del Service Worker).</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="section" id="paso-6">
+<h2>6. Lista "Hoy" — registros del día</h2>
+<p class="desc">Ver los registros que cargaste recientemente, con su estado de sincronización.</p>
+
+<div class="paso">
+  <div class="device">
+    <div class="screen">
+      <div class="statusbar"><span>9:30</span><span>📶 📡 🔋</span></div>
+      <div class="app-header">
+        <div class="logo">D</div>
+        <div class="title">Hoy · 4 registros<div class="sub">7 mayo 2026</div></div>
+      </div>
+      <div class="body-wrap">
+        <div class="hoy-item">
+          <div class="head"><span class="ruta">RP 40 · km 142.350</span><span class="badge-ok">✓ enviado</span></div>
+          <div class="tipo">🛣 Bache crítico</div>
+          <div class="when">09:26</div>
+        </div>
+        <div class="hoy-item">
+          <div class="head"><span class="ruta">RP 40 · km 138.120</span><span class="badge-ok">✓ enviado</span></div>
+          <div class="tipo">⚠ Curva sin chevrones</div>
+          <div class="when">09:14</div>
+        </div>
+        <div class="hoy-item">
+          <div class="head"><span class="ruta">RP 30 · km 92.400</span><span class="badge-pend">⏳ pendiente</span></div>
+          <div class="tipo">💧 Cuneta obstruida</div>
+          <div class="when">08:55</div>
+        </div>
+        <div class="hoy-item">
+          <div class="head"><span class="ruta">RP 30 · km 88.200</span><span class="badge-ok">✓ enviado</span></div>
+          <div class="tipo">🔧 Señal caída</div>
+          <div class="when">08:42</div>
+        </div>
+      </div>
+      <div class="status-bar">
+        <span class="warn">● 1 pendiente</span>
+        <span>Sincr. al recuperar red</span>
+      </div>
+      <div class="fab">+</div>
+    </div>
+  </div>
+  <div class="body">
+    <strong class="titulo">Qué ves</strong>
+    <ul>
+      <li>Lista de los registros del día con: ruta, progresiva, tipo de incidente, hora.</li>
+      <li><span class="badge-ok" style="background:#d4edda;color:#155724;padding:1px 6px;border-radius:6px;font-size:.75rem">✓ enviado</span> = subido a Supabase ya está en la base central.</li>
+      <li><span class="badge-pend" style="background:#fff3cd;color:#856404;padding:1px 6px;border-radius:6px;font-size:.75rem">⏳ pendiente</span> = guardado local, aún no subido (sin conexión).</li>
+      <li>Status bar abajo muestra cuántos pendientes hay y cuándo intentará sincronizar.</li>
+      <li><strong>FAB "+"</strong> abajo a la derecha → arranca un nuevo relevamiento.</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="section" id="paso-7">
+<h2>7. Banner de actualización (al haber versión nueva)</h2>
+<p class="desc">Cuando subimos una nueva versión al servidor, los celulares con la app instalada ven este banner al reabrir la app.</p>
+
+<div class="paso">
+  <div class="device">
+    <div class="screen">
+      <div class="banner">
+        <b>🔄 Nueva versión disponible</b><br>
+        v9.1 → <b>v9.2</b>. Tocá para actualizar.
+      </div>
+      <div class="statusbar"><span>9:24</span><span>📶 📡 🔋</span></div>
+      <div class="app-header">
+        <div class="logo">D</div>
+        <div class="title">Relevamiento Vial<div class="sub">DVBA · Zona VI · v9.1</div></div>
+      </div>
+      <div class="tabs-wizard">
+        <div class="tab-w active">📍</div>
+        <div class="tab-w">🗂</div>
+        <div class="tab-w">📷</div>
+        <div class="tab-w">✓</div>
+      </div>
+      <div class="body-wrap"></div>
+      <div class="footer-app">DVBA · Zona VI · v9.1</div>
+    </div>
+  </div>
+  <div class="body">
+    <strong class="titulo">Cómo funciona</strong>
+    <ul>
+      <li>El Service Worker detecta una versión nueva en el server.</li>
+      <li>Aparece el <strong>banner amarillo arriba</strong> con el cambio de versión.</li>
+      <li>Al tocarlo, el SW envía <code>skipWaiting</code> a la nueva versión y la app se recarga con la última.</li>
+      <li>Después del refresh, el footer pasa a mostrar la nueva versión.</li>
+      <li>Si <strong>no aparece el banner</strong>, significa que ya tenés la última versión instalada — está todo al día.</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<footer>
+  Guía visual · App de Campo DVBA Zona VI Saladillo · v1.0 · 7 may 2026<br>
+  Ing. Luciano Lamaita · División Técnica<br>
+  ¿Necesitás más detalle? Mirá la <a href="guia_dvba_campo.html">guía textual completa</a> o la <a href="bitacora.html">bitácora del proyecto</a>.
+</footer>
+
+</div>
+</body>
+</html>
