@@ -84,9 +84,15 @@ def feat_to_segment(feat):
 def auto_order_segments(segments):
     """Reordena segmentos por proximidad de extremos para evitar saltos rectos.
 
-    Empieza con el primero. Para cada siguiente, busca el segmento con el extremo
-    (inicio o fin) mas cercano al final del anterior. Si el 'fin' del candidato
-    esta mas cerca que su 'inicio', invierte sus puntos.
+    Estrategia bidireccional:
+      - Empieza con el primer segmento como semilla.
+      - En cada iteracion busca el mejor candidato considerando los CUATRO casos:
+          1) candidato.inicio cerca del fin de la cadena → append directo
+          2) candidato.fin    cerca del fin de la cadena → append invertido
+          3) candidato.fin    cerca del inicio de la cadena → prepend directo
+          4) candidato.inicio cerca del inicio de la cadena → prepend invertido
+      - Esto permite construir la cadena en ambas direcciones desde la semilla,
+        evitando dejar segmentos "huérfanos" al final si su lugar natural era el inicio.
 
     Retorna (lista_ordenada, lista_saltos_detectados).
     """
@@ -98,23 +104,32 @@ def auto_order_segments(segments):
     saltos = []
 
     while remaining:
-        last_end = ordered[-1][0][-1]
-        best_idx, best_dist, best_invert = None, float('inf'), False
+        chain_start = ordered[0][0][0]
+        chain_end = ordered[-1][0][-1]
+        best_idx, best_dist = None, float('inf')
+        best_op = None  # 'append' / 'append_inv' / 'prepend' / 'prepend_inv'
         for i, (pts, eg) in enumerate(remaining):
-            d_start = hav(last_end, pts[0])
-            d_end = hav(last_end, pts[-1])
-            if d_start < best_dist:
-                best_dist, best_idx, best_invert = d_start, i, False
-            if d_end < best_dist:
-                best_dist, best_idx, best_invert = d_end, i, True
+            d1 = hav(chain_end, pts[0])     # append directo (fin->ini)
+            d2 = hav(chain_end, pts[-1])    # append invertido (fin->fin)
+            d3 = hav(chain_start, pts[-1])  # prepend directo (ini<-fin)
+            d4 = hav(chain_start, pts[0])   # prepend invertido (ini<-ini)
+            for d, op in [(d1, 'append'), (d2, 'append_inv'),
+                          (d3, 'prepend'), (d4, 'prepend_inv')]:
+                if d < best_dist:
+                    best_dist, best_idx, best_op = d, i, op
         chosen_pts, chosen_eg = remaining.pop(best_idx)
-        if best_invert:
-            chosen_pts = list(reversed(chosen_pts))
-        ordered.append((chosen_pts, chosen_eg))
+        if best_op == 'append':
+            ordered.append((chosen_pts, chosen_eg))
+        elif best_op == 'append_inv':
+            ordered.append((list(reversed(chosen_pts)), chosen_eg))
+        elif best_op == 'prepend':
+            ordered.insert(0, (chosen_pts, chosen_eg))
+        elif best_op == 'prepend_inv':
+            ordered.insert(0, (list(reversed(chosen_pts)), chosen_eg))
         if best_dist > 1.0:
             saltos.append({
                 'distancia_km': round(best_dist, 3),
-                'invertida': best_invert,
+                'op': best_op,
             })
     return ordered, saltos
 
@@ -132,8 +147,7 @@ def load_chain(path):
         if saltos:
             print('  [AUTO-ORDEN] Reordenadas ' + str(len(segments)) + ' features. Saltos detectados:')
             for s in saltos:
-                inv = ' (feature invertida)' if s['invertida'] else ''
-                print('    -> salto de ' + str(s['distancia_km']) + ' km' + inv)
+                print('    -> salto de ' + str(s['distancia_km']) + ' km (op=' + s['op'] + ')')
             big = [s for s in saltos if s['distancia_km'] > 5.0]
             if big:
                 print('  [!] Hay saltos > 5km — verificar continuidad real en QGIS,')
@@ -369,7 +383,7 @@ def main():
     js = (
         '// =================================================================\n'
         '// datos/rutas_rp' + rn + '.js  -  RP' + rn + ' DVBA Zona VI\n'
-        '// Generado por gen_ruta_bundle.py v2.2 (con auto-orden de features)\n'
+        '// Generado por gen_ruta_bundle.py v2.3 (auto-orden bidireccional)\n'
         '// ' + str(len(sub)) + ' pts | ' + str(round(total_km, 3)) + ' km | progIni:' + str(prog_ini) + ' | progFin:' + str(prog_fin) + '\n'
         '// Gaps: ' + str(len(gaps)) + ' | ' + gap_comment + '\n'
         '// =================================================================\n\n'

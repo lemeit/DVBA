@@ -1,6 +1,6 @@
 // =================================================================
 // datos/rutas_rp30.js  -  RP30 DVBA Zona VI
-// Generado por gen_ruta_bundle.py v2.2 (con auto-orden de features)
+// Generado por gen_ruta_bundle.py v2.3 (auto-orden bidireccional)
 // 905 pts | 172.687 km | progIni:245.96 | progFin:418.6
 // Gaps: 0 | umbral 15.0km
 // =================================================================
