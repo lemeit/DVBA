@@ -1,9 +1,55 @@
 {
-"type": "FeatureCollection",
-"name": "mojones_rp47_final",
-"xy_coordinate_resolution": 1e-06,
-"features": [
-{ "type": "Feature", "properties": { "id": 1, "rtn": 47, "ruta_numer": "RP 47", "name": "50 km", "km_value": 50.0, "sentido_prog": "N", "tipo_mojon": "Cincuentakilométrico", "altitudeMo": "clampToSeaFloor", "tessellate": -1, "extrude": 0, "visibility": 0, "referencia": "DVBA - Zona VI Saladillo - Div. Técnica (Ing. Luciano Lamaita)" }, "geometry": { "type": "Point", "coordinates": [ -59.105432, -34.598592 ] } },
-{ "type": "Feature", "properties": { "id": 2, "rtn": 47, "ruta_numer": "RP 47", "name": "0 km", "km_value": 0.0, "sentido_prog": "N", "tipo_mojon": "Cincuentakilométrico", "altitudeMo": "clampToSeaFloor", "tessellate": -1, "extrude": 0, "visibility": 0, "referencia": "DVBA - Zona VI Saladillo - Div. Técnica (Ing. Luciano Lamaita)" }, "geometry": { "type": "Point", "coordinates": [ -59.269341, -35.00686 ] } }
-]
+ "type": "FeatureCollection",
+ "name": "mojones_rp47_final",
+ "xy_coordinate_resolution": 1e-06,
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": 1,
+    "rtn": 47,
+    "ruta_numer": "RP 47",
+    "name": "50 km",
+    "km_value": 50.0,
+    "sentido_prog": "N",
+    "tipo_mojon": "Cincuentakilométrico",
+    "altitudeMo": "clampToSeaFloor",
+    "tessellate": -1,
+    "extrude": 0,
+    "visibility": 0,
+    "referencia": "DVBA - Zona VI Saladillo - Div. Técnica (Ing. Luciano Lamaita)"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.105432,
+     -34.598592
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": 2,
+    "rtn": 47,
+    "ruta_numer": "RP 47",
+    "name": "0 km",
+    "km_value": 0.0,
+    "sentido_prog": "N",
+    "tipo_mojon": "Cincuentakilométrico",
+    "altitudeMo": "clampToSeaFloor",
+    "tessellate": -1,
+    "extrude": 0,
+    "visibility": 0,
+    "referencia": "DVBA - Zona VI Saladillo - Div. Técnica (Ing. Luciano Lamaita)"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.269341,
+     -35.00686
+    ]
+   }
+  }
+ ]
 }

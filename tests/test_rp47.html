@@ -191,12 +191,90 @@ document.getElementById('sel-paso').addEventListener('change', e => {
 });
 
 // ── Clic → progresiva ─────────────────────────────────────────────────────────
-map.on('click', e => {
-  let bi=0, bd=1e9;
-  CHAIN_RP47.forEach((p,i) => {
-    const d = Math.sqrt((p[0]-e.latlng.lng)**2+(p[1]-e.latlng.lat)**2);
-    if (d < bd) { bd=d; bi=i; }
-  });
+
+// ── Proyección CONTINUA del cursor sobre la traza (no salto entre puntos) ──
+function _projOnSegment(p, a, b){
+  // Proyecta el punto p sobre el segmento ab. Devuelve {pt, t, dist}
+  const ax=a[0], ay=a[1], bx=b[0], by=b[1];
+  const dx=bx-ax, dy=by-ay;
+  const L2 = dx*dx + dy*dy;
+  if (L2 < 1e-12) return {pt:[ax,ay], t:0, dist:Math.hypot(p[0]-ax, p[1]-ay)};
+  let t = ((p[0]-ax)*dx + (p[1]-ay)*dy) / L2;
+  if (t < 0) t = 0; else if (t > 1) t = 1;
+  const px = ax + t*dx, py = ay + t*dy;
+  return {pt:[px,py], t:t, dist:Math.hypot(p[0]-px, p[1]-py)};
+}
+
+function _findClosestOnChain(CHAIN, ACUM, ll){
+  // Busca el segmento (i-1,i) más cercano al cursor [lng,lat]
+  // y devuelve {acc, lat, lng, idx}
+  const target=[ll.lng, ll.lat];
+  let best={d:1e9, acc:0, lat:ll.lat, lng:ll.lng, i:0};
+  for (let i=1; i<CHAIN.length; i++){
+    const r = _projOnSegment(target, CHAIN[i-1], CHAIN[i]);
+    if (r.dist < best.d){
+      // Acumulado interpolado entre ACUM[i-1] y ACUM[i]
+      const acc_seg = ACUM[i] - ACUM[i-1];
+      best = {
+        d: r.dist,
+        acc: ACUM[i-1] + r.t * acc_seg,
+        lat: r.pt[1], lng: r.pt[0],
+        i: i
+      };
+    }
+  }
+  return best;
+}
+
+function _formatProgresiva(km){
+  // Formato oficial: XX km + YYY m  (XX.XXX km)
+  if (km < 0){
+    return '-' + _formatProgresiva(-km).replace(/^-/,'');
+  }
+  const k = Math.floor(km);
+  const m = Math.round((km - k) * 1000);
+  // Manejar overflow (m=1000 → +1km)
+  if (m >= 1000) {
+    return (k+1).toString().padStart(2,'0') + ' km + 0 m';
+  }
+  return k.toString().padStart(2,'0') + ' km + ' + m.toString().padStart(3,'0') + ' m';
+}
+
+
+// Cursor móvil sobre la traza: proyecta y muestra progresiva continua
+let _hoverMarker = null;
+function _showProgEvent(e){
+  const closest = _findClosestOnChain(CHAIN_RP47, ACUM, e.latlng);
+  // Si el cursor está MUY lejos (>0.5 grados ~50km), no mostrar
+  if (closest.d > 0.5) {
+    if (_hoverMarker){ _hoverMarker.remove(); _hoverMarker = null; }
+    return;
+  }
+  const acc = closest.acc;
+  const prog = calcProg(acc);
+  const g = getGap(acc);
+  // Mover marker visible que sigue el cursor
+  if (!_hoverMarker){
+    _hoverMarker = L.circleMarker([closest.lat, closest.lng],
+      {radius:7, fillColor:'#ff6600', color:'#fff', weight:2, fillOpacity:.9}).addTo(map);
+  } else {
+    _hoverMarker.setLatLng([closest.lat, closest.lng]);
+  }
+  // Panel
+  const box = document.getElementById('pnl-prog');
+  if (!box) return;
+  box.style.display = 'block';
+  box.innerHTML =
+    '<b>RP 47</b> · progresiva<br>' +
+    '<span style="font-size:1.4rem;font-weight:700">' + _formatProgresiva(prog) + '</span><br>' +
+    '<span style="opacity:.85;font-size:.85rem">(' + prog.toFixed(3) + ' km)</span><br>' +
+    '<span style="opacity:.7;font-size:.75rem">acc local: ' + acc.toFixed(3) + ' km</span>' +
+    (g ? '<br><span style="color:#f99">⚠ ' + (g.label||'gap') + '</span>' : '');
+}
+
+map.on('mousemove', _showProgEvent);
+map.on('click', _showProgEvent);
+
   const prog = calcProg(ACUM[bi]);
   const g = getGap(ACUM[bi]);
   const box = document.getElementById('pnl-prog');
