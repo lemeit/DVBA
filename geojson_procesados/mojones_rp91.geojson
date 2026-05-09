@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "mojones_rp91_final",
+"features": [
+{ "type": "Feature", "properties": { "id": 1, "rtn": 91, "ruta_numer": "RP 91", "name": "0 km", "km_value": 0.0, "sentido_prog": "SE", "tipo_mojon": "Cincuentakilométrico", "altitudeMo": "clampToSeafloor", "tessellate": -1, "extrude": 0, "visibility": 0, "referencia": "DVBA - Zona VI Saladillo - Div. Técnica (Ing. Luciano Lamaita)" }, "geometry": { "type": "Point", "coordinates": [ -59.787031494363944, -35.693125474115426 ] } },
+{ "type": "Feature", "properties": { "id": 2, "rtn": 91, "ruta_numer": "RP 91", "name": "50 km", "km_value": 50.0, "sentido_prog": "SE", "tipo_mojon": "Cincuentakilométrico", "altitudeMo": "clampToSeafloor", "tessellate": -1, "extrude": 0, "visibility": 0, "referencia": "DVBA - Zona VI Saladillo - Div. Técnica (Ing. Luciano Lamaita)" }, "geometry": { "type": "Point", "coordinates": [ -59.346298058354655, -35.928639507192699 ] } }
+]
+}

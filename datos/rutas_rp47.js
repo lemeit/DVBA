@@ -1,0 +1,26 @@
+// =================================================================
+// datos/rutas_rp47.js  -  RP47 DVBA Zona VI
+// Generado por gen_ruta_bundle.py v2.4 (gaps reales vs auto separados)
+// 54 pts | 24.952 km | progIni:-24.95 | progFin:0.0
+// Gaps reales (es_gap=1): 0 [GAPS_RP47 - app principal]
+// Gaps auto-detectados:   0 [GAPS_AUTO_RP47 - dev/tests]
+// =================================================================
+
+const CHAIN_RP47=[[-59.182193,-34.806818],[-59.193797,-34.82835],[-59.194606,-34.829845],[-59.195904,-34.83127],[-59.206623,-34.841174],[-59.207331,-34.842018],[-59.20819,-34.843249],[-59.208696,-34.844314],[-59.209067,-34.845462],[-59.209269,-34.846693],[-59.209067,-34.850441],[-59.208881,-34.85235],[-59.209185,-34.85401],[-59.209893,-34.855628],[-59.216701,-34.86853],[-59.217696,-34.870493],[-59.2181,-34.8716],[-59.218201,-34.872595],[-59.220308,-34.896043],[-59.222145,-34.916346],[-59.222449,-34.918944],[-59.222853,-34.920589],[-59.223746,-34.922178],[-59.224859,-34.923422],[-59.240162,-34.936838],[-59.258701,-34.953016],[-59.26047,-34.954715],[-59.261212,-34.955709],[-59.262038,-34.957312],[-59.263521,-34.96064],[-59.269078,-34.972946],[-59.269282,-34.973397],[-59.269344,-34.973597],[-59.269422,-34.973834],[-59.269388,-34.973991],[-59.269245,-34.974274],[-59.269217,-34.974526],[-59.269304,-34.974716],[-59.269607,-34.974878],[-59.26987,-34.97504],[-59.27014,-34.97532],[-59.270319,-34.975601],[-59.272443,-34.980407],[-59.273622,-34.982975],[-59.277044,-34.988899],[-59.277244,-34.989241],[-59.277448,-34.989646],[-59.277553,-34.989947],[-59.277598,-34.990117],[-59.277665,-34.990594],[-59.277644,-34.990982],[-59.277416,-34.99159],[-59.276987,-34.99228],[-59.269341,-35.00686]];
+const ANCHORS_RP47=[{"km":0.0,"acc":24.9523},{"km":0.0,"acc":24.9523}];
+const MOJONES_RP47=[{"ruta":"47","km":0.0,"km_label":"km 0","lng":-59.269341,"lat":-35.00686,"sintetico":false,"en_gap":false,"gap_id":"","sentido":"N","tipo":"Cincuentakilométrico","fuente":"Base Oficial DVBA","resp":"Ing. Luciano Lamaita","fecha":"2026-05-08"}];
+const MOJONES_RP47_TODOS=[{"ruta":"47","km":0.0,"km_label":"km 0","lng":-59.269341,"lat":-35.00686,"sintetico":false,"en_gap":false,"gap_id":"","sentido":"N","tipo":"Cincuentakilométrico","fuente":"Base Oficial DVBA","resp":"Ing. Luciano Lamaita","fecha":"2026-05-08"},{"ruta":"47","km":0.0,"km_label":"km 0","acc_local":24.95,"lng":-59.2693511,"lat":-35.0068408,"sintetico":true,"en_gap":false,"gap_id":""}];
+// GAPS_RPxx: solo gaps reales marcados con es_gap=1 en QGIS.
+// La app principal (index.html) los renderiza como rojo punteado.
+const GAPS_RP47=[];
+// GAPS_AUTO_RPxx: saltos detectados por umbral (solo informativo).
+// Los tests pueden mostrarlos en otra capa para diagnostico.
+// La app principal los IGNORA.
+const GAPS_AUTO_RP47=[];
+const META_RP47={
+  ruta:'47',label:'RP 47',color:'#66cc88',weight:5,
+  clase:'Mixto',progIni:-24.95,progFin:0.0,
+  longGis:24.952,
+  mojonesF:1,mojonesS:1,
+  gapsReales:0,gapsAuto:0
+};

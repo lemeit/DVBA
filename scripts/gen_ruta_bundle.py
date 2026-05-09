@@ -291,18 +291,28 @@ def main():
     total_km = acum[-1]
     print('Subtramo: ' + str(len(sub)) + ' pts, ' + str(round(total_km, 3)) + ' km')
 
-    # Gaps
-    if has_gap_field and gap_ranges_sub:
-        gaps = gaps_from_field(sub, acum, gap_ranges_sub)
-        print('Gaps desde campo es_gap: ' + str(len(gaps)))
+    # Gaps - calcular AMBOS arrays separados:
+    #   gaps_real → solo es_gap=1 marcados por el usuario en QGIS (visible en app principal)
+    #   gaps_auto → detectados automaticamente por umbral (solo informativo, dev/tests)
+    gaps_real = gaps_from_field(sub, acum, gap_ranges_sub) if (has_gap_field and gap_ranges_sub) else []
+    gaps_auto = detect_gaps_auto(sub, acum, args.gap_threshold)
+
+    if gaps_real:
+        print('Gaps reales (es_gap=1): ' + str(len(gaps_real)) + ' [van al bundle como GAPS_RP' + rn + ']')
+        for g in gaps_real:
+            print('  ' + g['id'] + ': acc ' + str(g['acc_desde']) + ' -> ' + str(g['acc_hasta']) + ' km')
     else:
-        gaps = detect_gaps_auto(sub, acum, args.gap_threshold)
-        if gaps:
-            print('Gaps detectados (umbral ' + str(args.gap_threshold) + 'km): ' + str(len(gaps)))
-            for g in gaps:
-                print('  ' + g['id'] + ': ' + str(g['acc_desde']) + ' -> ' + str(g['acc_hasta']) + ' (' + str(g['dist_recta_km']) + 'km)')
-        else:
-            print('Sin gaps (umbral ' + str(args.gap_threshold) + 'km) OK')
+        print('Gaps reales: 0 [GAPS_RP' + rn + ' = []]')
+
+    if gaps_auto:
+        print('Gaps auto-detectados (umbral ' + str(args.gap_threshold) + 'km): ' + str(len(gaps_auto)) + ' [solo informativo, GAPS_AUTO_RP' + rn + ']')
+        for g in gaps_auto:
+            print('  ' + g['id'] + ': acc ' + str(g['acc_desde']) + ' -> ' + str(g['acc_hasta']) + ' km (' + str(g['dist_recta_km']) + 'km recta)')
+    else:
+        print('Sin saltos auto-detectados ✓')
+
+    # Para sintetic en gap, marcar usando los reales (no los auto)
+    gaps = gaps_real
 
     # Mojones y anchors
     mojs = load_mojones(args.mojones)
@@ -374,30 +384,35 @@ def main():
     anch_j = json.dumps(anchors, separators=(',', ':'))
     mf_j = json.dumps(moj_fis, separators=(',', ':'), ensure_ascii=False)
     tod_j = json.dumps(todos_moj, separators=(',', ':'), ensure_ascii=False)
-    gaps_j = json.dumps(gaps, separators=(',', ':'), ensure_ascii=False)
+    gaps_real_j = json.dumps(gaps_real, separators=(',', ':'), ensure_ascii=False)
+    gaps_auto_j = json.dumps(gaps_auto, separators=(',', ':'), ensure_ascii=False)
     prog_fin = round(prog_ini + total_km, 1)
-
-    gap_comment = 'desde campo es_gap' if has_gap_field else 'umbral ' + str(args.gap_threshold) + 'km'
-    gap_method = 'es_gap_field' if has_gap_field else 'auto_threshold'
 
     js = (
         '// =================================================================\n'
         '// datos/rutas_rp' + rn + '.js  -  RP' + rn + ' DVBA Zona VI\n'
-        '// Generado por gen_ruta_bundle.py v2.3 (auto-orden bidireccional)\n'
+        '// Generado por gen_ruta_bundle.py v2.4 (gaps reales vs auto separados)\n'
         '// ' + str(len(sub)) + ' pts | ' + str(round(total_km, 3)) + ' km | progIni:' + str(prog_ini) + ' | progFin:' + str(prog_fin) + '\n'
-        '// Gaps: ' + str(len(gaps)) + ' | ' + gap_comment + '\n'
+        '// Gaps reales (es_gap=1): ' + str(len(gaps_real)) + ' [GAPS_RP' + rn + ' - app principal]\n'
+        '// Gaps auto-detectados:   ' + str(len(gaps_auto)) + ' [GAPS_AUTO_RP' + rn + ' - dev/tests]\n'
         '// =================================================================\n\n'
         'const CHAIN_' + var + '=' + sub_j + ';\n'
         'const ANCHORS_' + var + '=' + anch_j + ';\n'
         'const MOJONES_' + var + '=' + mf_j + ';\n'
         'const MOJONES_' + var + '_TODOS=' + tod_j + ';\n'
-        'const GAPS_' + var + '=' + gaps_j + ';\n'
+        '// GAPS_RPxx: solo gaps reales marcados con es_gap=1 en QGIS.\n'
+        '// La app principal (index.html) los renderiza como rojo punteado.\n'
+        'const GAPS_' + var + '=' + gaps_real_j + ';\n'
+        '// GAPS_AUTO_RPxx: saltos detectados por umbral (solo informativo).\n'
+        '// Los tests pueden mostrarlos en otra capa para diagnostico.\n'
+        '// La app principal los IGNORA.\n'
+        'const GAPS_AUTO_' + var + '=' + gaps_auto_j + ';\n'
         'const META_' + var + '={\n'
         "  ruta:'" + rn + "',label:'RP " + rn + "',color:'" + args.color + "',weight:5,\n"
         "  clase:'Mixto',progIni:" + str(prog_ini) + ',progFin:' + str(prog_fin) + ',\n'
         '  longGis:' + str(round(total_km, 3)) + ',\n'
-        '  mojonesF:' + str(len(moj_fis)) + ',mojonesS:' + str(len(moj_sint)) + ',gaps:' + str(len(gaps)) + ',\n'
-        "  gapMethod:'" + gap_method + "'\n"
+        '  mojonesF:' + str(len(moj_fis)) + ',mojonesS:' + str(len(moj_sint)) + ',\n'
+        '  gapsReales:' + str(len(gaps_real)) + ',gapsAuto:' + str(len(gaps_auto)) + '\n'
         '};\n'
     )
 

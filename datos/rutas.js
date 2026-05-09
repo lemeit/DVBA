@@ -22,6 +22,7 @@
   if (typeof CHAIN_RP40 !== 'undefined') registrar('40', CHAIN_RP40, ANCHORS_RP40, MOJONES_RP40_TODOS);
   if (typeof CHAIN_RP41 !== 'undefined') registrar('41', CHAIN_RP41, ANCHORS_RP41, MOJONES_RP41_TODOS);
   if (typeof CHAIN_RP46 !== 'undefined') registrar('46', CHAIN_RP46, ANCHORS_RP46, MOJONES_RP46_TODOS);
+  if (typeof CHAIN_RP47 !== 'undefined') registrar('47', CHAIN_RP47, ANCHORS_RP47, MOJONES_RP47_TODOS);
   if (typeof CHAIN_RP51 !== 'undefined') registrar('51', CHAIN_RP51, ANCHORS_RP51, MOJONES_RP51_TODOS);
   if (typeof CHAIN_RP61 !== 'undefined') registrar('61', CHAIN_RP61, ANCHORS_RP61, MOJONES_RP61_TODOS);
   if (typeof CHAIN_RP91 !== 'undefined') registrar('91', CHAIN_RP91, ANCHORS_RP91, MOJONES_RP91_TODOS);
@@ -33,7 +34,6 @@
   // if (typeof CHAIN_RP42 !== 'undefined') registrar('42', CHAIN_RP42, ANCHORS_RP42, MOJONES_RP42_TODOS);
   // if (typeof CHAIN_RP43 !== 'undefined') registrar('43', CHAIN_RP43, ANCHORS_RP43, MOJONES_RP43_TODOS);
   // if (typeof CHAIN_RP44 !== 'undefined') registrar('44', CHAIN_RP44, ANCHORS_RP44, MOJONES_RP44_TODOS);
-  // if (typeof CHAIN_RP47 !== 'undefined') registrar('47', CHAIN_RP47, ANCHORS_RP47, MOJONES_RP47_TODOS);
   // if (typeof CHAIN_RP48 !== 'undefined') registrar('48', CHAIN_RP48, ANCHORS_RP48, MOJONES_RP48_TODOS);
 
   console.log('[rutas.js] Rutas cargadas:', Object.keys(CHAINS_DATA).sort((a,b)=>+a-+b));
