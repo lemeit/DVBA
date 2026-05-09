@@ -1,6 +1,6 @@
 // =================================================================
 // datos/rutas_rp47.js  -  RP47 DVBA Zona VI
-// Generado por gen_ruta_bundle.py v2.4 (gaps reales vs auto separados)
+// Generado por gen_ruta_bundle.py v2.5 (auto-orden por mojones)
 // 54 pts | 24.952 km | progIni:-24.95 | progFin:0.0
 // Gaps reales (es_gap=1): 0 [GAPS_RP47 - app principal]
 // Gaps auto-detectados:   0 [GAPS_AUTO_RP47 - dev/tests]
@@ -10,12 +10,9 @@ const CHAIN_RP47=[[-59.182193,-34.806818],[-59.193797,-34.82835],[-59.194606,-34
 const ANCHORS_RP47=[{"km":0.0,"acc":24.9523},{"km":0.0,"acc":24.9523}];
 const MOJONES_RP47=[{"ruta":"47","km":0.0,"km_label":"km 0","lng":-59.269341,"lat":-35.00686,"sintetico":false,"en_gap":false,"gap_id":"","sentido":"N","tipo":"Cincuentakilométrico","fuente":"Base Oficial DVBA","resp":"Ing. Luciano Lamaita","fecha":"2026-05-08"}];
 const MOJONES_RP47_TODOS=[{"ruta":"47","km":0.0,"km_label":"km 0","lng":-59.269341,"lat":-35.00686,"sintetico":false,"en_gap":false,"gap_id":"","sentido":"N","tipo":"Cincuentakilométrico","fuente":"Base Oficial DVBA","resp":"Ing. Luciano Lamaita","fecha":"2026-05-08"},{"ruta":"47","km":0.0,"km_label":"km 0","acc_local":24.95,"lng":-59.2693511,"lat":-35.0068408,"sintetico":true,"en_gap":false,"gap_id":""}];
-// GAPS_RPxx: solo gaps reales marcados con es_gap=1 en QGIS.
-// La app principal (index.html) los renderiza como rojo punteado.
+// GAPS_RPxx: solo gaps reales (es_gap=1 en QGIS) - app principal los renderiza
 const GAPS_RP47=[];
-// GAPS_AUTO_RPxx: saltos detectados por umbral (solo informativo).
-// Los tests pueden mostrarlos en otra capa para diagnostico.
-// La app principal los IGNORA.
+// GAPS_AUTO_RPxx: saltos auto-detectados, solo informativo (dev/tests)
 const GAPS_AUTO_RP47=[];
 const META_RP47={
   ruta:'47',label:'RP 47',color:'#66cc88',weight:5,

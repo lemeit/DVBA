@@ -1,6 +1,6 @@
 // =================================================================
 // datos/rutas_rp91.js  -  RP91 DVBA Zona VI
-// Generado por gen_ruta_bundle.py v2.4 (gaps reales vs auto separados)
+// Generado por gen_ruta_bundle.py v2.5 (auto-orden por mojones)
 // 144 pts | 51.583 km | progIni:-1.7 | progFin:49.9
 // Gaps reales (es_gap=1): 0 [GAPS_RP91 - app principal]
 // Gaps auto-detectados:   0 [GAPS_AUTO_RP91 - dev/tests]
@@ -10,12 +10,9 @@ const CHAIN_RP91=[[-59.332453,-35.939253],[-59.347022,-35.928085],[-59.353846,-3
 const ANCHORS_RP91=[{"km":0.0,"acc":51.5831},{"km":50.0,"acc":1.8063},{"km":49.9,"acc":51.5831}];
 const MOJONES_RP91=[{"ruta":"91","km":0.0,"km_label":"km 0","lng":-59.7870315,"lat":-35.6931255,"sintetico":false,"en_gap":false,"gap_id":"","sentido":"SE","tipo":"Cincuentakilométrico","fuente":"Base Oficial DVBA","resp":"Ing. Luciano Lamaita","fecha":"2026-05-08"},{"ruta":"91","km":50.0,"km_label":"km 50","lng":-59.3462981,"lat":-35.9286395,"sintetico":false,"en_gap":false,"gap_id":"","sentido":"SE","tipo":"Cincuentakilométrico","fuente":"Base Oficial DVBA","resp":"Ing. Luciano Lamaita","fecha":"2026-05-08"}];
 const MOJONES_RP91_TODOS=[{"ruta":"91","km":0.0,"km_label":"km 0","lng":-59.7870315,"lat":-35.6931255,"sintetico":false,"en_gap":false,"gap_id":"","sentido":"SE","tipo":"Cincuentakilométrico","fuente":"Base Oficial DVBA","resp":"Ing. Luciano Lamaita","fecha":"2026-05-08"},{"ruta":"91","km":0.0,"km_label":"km 0","acc_local":1.7,"lng":-59.3461646,"lat":-35.9287422,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"91","km":5.0,"km_label":"km 5","acc_local":6.7,"lng":-59.3821697,"lat":-35.8950369,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"91","km":10.0,"km_label":"km 10","acc_local":11.7,"lng":-59.4232107,"lat":-35.8665051,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"91","km":15.0,"km_label":"km 15","acc_local":16.7,"lng":-59.4716076,"lat":-35.8520711,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"91","km":20.0,"km_label":"km 20","acc_local":21.7,"lng":-59.5225555,"lat":-35.835783,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"91","km":25.0,"km_label":"km 25","acc_local":26.7,"lng":-59.5616626,"lat":-35.8056999,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"91","km":30.0,"km_label":"km 30","acc_local":31.7,"lng":-59.60285,"lat":-35.775604,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"91","km":35.0,"km_label":"km 35","acc_local":36.7,"lng":-59.6439871,"lat":-35.7454774,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"91","km":40.0,"km_label":"km 40","acc_local":41.7,"lng":-59.6850893,"lat":-35.7153328,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"91","km":45.0,"km_label":"km 45","acc_local":46.7,"lng":-59.7332577,"lat":-35.6971985,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"91","km":50.0,"km_label":"km 50","lng":-59.3462981,"lat":-35.9286395,"sintetico":false,"en_gap":false,"gap_id":"","sentido":"SE","tipo":"Cincuentakilométrico","fuente":"Base Oficial DVBA","resp":"Ing. Luciano Lamaita","fecha":"2026-05-08"}];
-// GAPS_RPxx: solo gaps reales marcados con es_gap=1 en QGIS.
-// La app principal (index.html) los renderiza como rojo punteado.
+// GAPS_RPxx: solo gaps reales (es_gap=1 en QGIS) - app principal los renderiza
 const GAPS_RP91=[];
-// GAPS_AUTO_RPxx: saltos detectados por umbral (solo informativo).
-// Los tests pueden mostrarlos en otra capa para diagnostico.
-// La app principal los IGNORA.
+// GAPS_AUTO_RPxx: saltos auto-detectados, solo informativo (dev/tests)
 const GAPS_AUTO_RP91=[];
 const META_RP91={
   ruta:'91',label:'RP 91',color:'#cc6688',weight:5,

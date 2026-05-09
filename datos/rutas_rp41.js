@@ -1,6 +1,6 @@
 // =================================================================
 // datos/rutas_rp41.js  -  RP41 DVBA Zona VI
-// Generado por gen_ruta_bundle.py v2.4 (gaps reales vs auto separados)
+// Generado por gen_ruta_bundle.py v2.5 (auto-orden por mojones)
 // 118 pts | 68.278 km | progIni:138.94 | progFin:207.2
 // Gaps reales (es_gap=1): 0 [GAPS_RP41 - app principal]
 // Gaps auto-detectados:   0 [GAPS_AUTO_RP41 - dev/tests]
@@ -10,12 +10,9 @@ const CHAIN_RP41=[[-58.90415,-35.323145],[-58.914569,-35.315574],[-58.920668,-35
 const ANCHORS_RP41=[{"km":150.0,"acc":11.6789},{"km":200.0,"acc":60.4402},{"km":207.2,"acc":68.2784}];
 const MOJONES_RP41=[{"ruta":"41","km":150.0,"km_label":"km 150","lng":-58.995794,"lat":-35.256845,"sintetico":false,"en_gap":false,"gap_id":"","sentido":"NO","tipo":"Cincuentakilométrico","fuente":"Base Oficial DVBA","resp":"Ing. Luciano Lamaita","fecha":"2026-05-08"},{"ruta":"41","km":200.0,"km_label":"km 200","lng":-59.323365,"lat":-34.933717,"sintetico":false,"en_gap":false,"gap_id":"","sentido":"N","tipo":"Cincuentakilométrico","fuente":"Base Oficial DVBA","resp":"Ing. Luciano Lamaita","fecha":"2026-05-08"}];
 const MOJONES_RP41_TODOS=[{"ruta":"41","km":140.0,"km_label":"km 140","acc_local":1.06,"lng":-58.9128748,"lat":-35.3168051,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":145.0,"km_label":"km 145","acc_local":6.06,"lng":-58.9542187,"lat":-35.287097,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":150.0,"km_label":"km 150","lng":-58.995794,"lat":-35.256845,"sintetico":false,"en_gap":false,"gap_id":"","sentido":"NO","tipo":"Cincuentakilométrico","fuente":"Base Oficial DVBA","resp":"Ing. Luciano Lamaita","fecha":"2026-05-08"},{"ruta":"41","km":150.0,"km_label":"km 150","acc_local":11.06,"lng":-58.9953378,"lat":-35.2571847,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":155.0,"km_label":"km 155","acc_local":16.06,"lng":-59.0409087,"lat":-35.2330034,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":160.0,"km_label":"km 160","acc_local":21.06,"lng":-59.0861956,"lat":-35.2097397,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":165.0,"km_label":"km 165","acc_local":26.06,"lng":-59.1281171,"lat":-35.1825814,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":170.0,"km_label":"km 170","acc_local":31.06,"lng":-59.1578471,"lat":-35.1450962,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":175.0,"km_label":"km 175","acc_local":36.06,"lng":-59.1960877,"lat":-35.1130349,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":180.0,"km_label":"km 180","acc_local":41.06,"lng":-59.2376629,"lat":-35.0837196,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":185.0,"km_label":"km 185","acc_local":46.06,"lng":-59.2796635,"lat":-35.0548423,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":190.0,"km_label":"km 190","acc_local":51.06,"lng":-59.3063431,"lat":-35.0158547,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":195.0,"km_label":"km 195","acc_local":56.06,"lng":-59.3171877,"lat":-34.9725353,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":200.0,"km_label":"km 200","lng":-59.323365,"lat":-34.933717,"sintetico":false,"en_gap":false,"gap_id":"","sentido":"N","tipo":"Cincuentakilométrico","fuente":"Base Oficial DVBA","resp":"Ing. Luciano Lamaita","fecha":"2026-05-08"},{"ruta":"41","km":200.0,"km_label":"km 200","acc_local":61.06,"lng":-59.3252086,"lat":-34.9281645,"sintetico":true,"en_gap":false,"gap_id":""},{"ruta":"41","km":205.0,"km_label":"km 205","acc_local":66.06,"lng":-59.3395623,"lat":-34.8847666,"sintetico":true,"en_gap":false,"gap_id":""}];
-// GAPS_RPxx: solo gaps reales marcados con es_gap=1 en QGIS.
-// La app principal (index.html) los renderiza como rojo punteado.
+// GAPS_RPxx: solo gaps reales (es_gap=1 en QGIS) - app principal los renderiza
 const GAPS_RP41=[];
-// GAPS_AUTO_RPxx: saltos detectados por umbral (solo informativo).
-// Los tests pueden mostrarlos en otra capa para diagnostico.
-// La app principal los IGNORA.
+// GAPS_AUTO_RPxx: saltos auto-detectados, solo informativo (dev/tests)
 const GAPS_AUTO_RP41=[];
 const META_RP41={
   ruta:'41',label:'RP 41',color:'#aa66cc',weight:5,
