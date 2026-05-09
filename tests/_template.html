@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Test RP51 — Zona VI DVBA</title>
+<title>Test RP{NUM} — Zona VI DVBA</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -31,7 +31,7 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
 </head>
 <body>
 <div id="hdr">
-  <h1>🗺 RP51 — Test integración modular | DVBA Zona VI</h1>
+  <h1>🗺 RP{NUM} — Test integración modular | DVBA Zona VI</h1>
   <div id="stats">cargando...</div>
 </div>
 <div id="map"></div>
@@ -52,8 +52,8 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
 </div>
 
 <div class="ctrl" id="pnl-ley">
-  <h4>RP51</h4>
-  <div><span class="dot" style="background:#66aacc"></span>Traza</div>
+  <h4>RP{NUM}</h4>
+  <div><span class="dot" style="background:{COLOR}"></span>Traza</div>
   <div><span class="dot" style="background:#e05050;border-radius:0;width:18px;height:2px;margin-right:4px"></span>Gap real</div>
   <div><span class="dot" style="background:#003366;border:2px solid #fff"></span>Mojón físico</div>
   <div><span class="dot" style="background:#888"></span>Mojón sintético</div>
@@ -62,23 +62,23 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
 
 <div class="ctrl" id="pnl-prog"></div>
 
-<script src="../datos/rutas_rp51.js"></script>
+<script src="../datos/rutas_rp{NUM}.js"></script>
 <script src="../datos/rutas.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // ── Verificar datos cargados ──────────────────────────────────────────
 (function(){
-  const falta=['CHAIN_RP51','ANCHORS_RP51','GAPS_RP51','MOJONES_RP51_TODOS','META_RP51']
+  const falta=['CHAIN_RP{NUM}','ANCHORS_RP{NUM}','GAPS_RP{NUM}','MOJONES_RP{NUM}_TODOS','META_RP{NUM}']
     .filter(v=>typeof window[v]==='undefined');
   if(falta.length) document.getElementById('stats').textContent='⚠ Falta: '+falta.join(', ');
 })();
 
-const CHAIN = CHAIN_RP51;
-const ANCHORS = ANCHORS_RP51;
-const META = META_RP51;
-const MOJ_F = (typeof MOJONES_RP51 !== 'undefined') ? MOJONES_RP51 : [];
-const MOJ_T = (typeof MOJONES_RP51_TODOS !== 'undefined') ? MOJONES_RP51_TODOS : [];
-const GAPS = (typeof GAPS_RP51 !== 'undefined') ? GAPS_RP51 : [];
+const CHAIN = CHAIN_RP{NUM};
+const ANCHORS = ANCHORS_RP{NUM};
+const META = META_RP{NUM};
+const MOJ_F = (typeof MOJONES_RP{NUM} !== 'undefined') ? MOJONES_RP{NUM} : [];
+const MOJ_T = (typeof MOJONES_RP{NUM}_TODOS !== 'undefined') ? MOJONES_RP{NUM}_TODOS : [];
+const GAPS = (typeof GAPS_RP{NUM} !== 'undefined') ? GAPS_RP{NUM} : [];
 
 // ── Helpers ──────────────────────────────────────────────────────────
 function hav(a,b){
@@ -156,7 +156,7 @@ for(let i=1;i<CHAIN.length;i++){
 (esG?segsG:segsN).push(seg);
 
 const lyT=L.layerGroup(), lyG=L.layerGroup(), lyMF=L.layerGroup(), lyMS=L.layerGroup();
-segsN.forEach(s=>L.polyline(s.map(p=>[p[1],p[0]]),{color:'#66aacc',weight:5,opacity:.9}).addTo(lyT));
+segsN.forEach(s=>L.polyline(s.map(p=>[p[1],p[0]]),{color:'{COLOR}',weight:5,opacity:.9}).addTo(lyT));
 segsG.forEach(s=>L.polyline(s.map(p=>[p[1],p[0]]),{color:'#e05050',weight:3,dashArray:'10,6'}).addTo(lyG));
 
 // Mojones físicos (incluye km 0)
@@ -211,7 +211,7 @@ function _showProg(e){
   const box=document.getElementById('pnl-prog');
   box.style.display='block';
   box.innerHTML =
-    '<b>RP 51</b> · progresiva' +
+    '<b>RP {NUM}</b> · progresiva' +
     '<div class="km-grande">'+_formatProg(prog)+'</div>' +
     '<div class="km-dec">('+prog.toFixed(3)+' km)</div>' +
     '<div class="acc">acc local: '+acc.toFixed(3)+' km</div>' +

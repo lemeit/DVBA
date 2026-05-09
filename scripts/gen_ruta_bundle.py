@@ -184,6 +184,8 @@ def load_chain(path, mojones=None):
     feats = gj['features']
 
     raw_segments = [feat_to_segment(f) for f in feats]
+    # Filtrar features vacías (pts vacío) que rompen auto_order
+    raw_segments = [(pts, eg) for pts, eg in raw_segments if pts and len(pts) >= 2]
 
     # Auto-ordenar (preferir guia por mojones si tenemos)
     if len(raw_segments) > 1:
@@ -469,6 +471,13 @@ def main():
     datos_dir.mkdir(exist_ok=True)
     js_path = datos_dir / ('rutas_rp' + rn + '.js')
     js_path.write_text(js, encoding='utf-8')
+
+    print('\nOK: ' + str(js_path) + ' (' + str(js_path.stat().st_size // 1024) + ' KB)')
+
+
+if __name__ == '__main__':
+    main()
+, encoding='utf-8')
 
     print('\nOK: ' + str(js_path) + ' (' + str(js_path.stat().st_size // 1024) + ' KB)')
 

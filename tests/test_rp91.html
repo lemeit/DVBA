@@ -7,21 +7,23 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial,sans-serif;background:#1a2a3a;color:#eee}
+body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
 #hdr{background:#003366;padding:8px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 #hdr h1{font-size:.92rem;color:#fff;white-space:nowrap}
-#stats{font-size:.73rem;color:#adf;margin-left:auto}
+#stats{font-size:.72rem;color:#adf;margin-left:auto}
 #map{width:100%;height:calc(100vh - 40px)}
-.ctrl{position:absolute;z-index:1000;background:rgba(255,255,255,.95);
-       padding:10px;border-radius:6px;font-size:.75rem;color:#333;
-       box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.ctrl{position:absolute;z-index:1000;background:rgba(255,255,255,.96);padding:10px;
+       border-radius:6px;font-size:.75rem;color:#1a2a3a;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 #pnl-capa{top:52px;right:10px}
 #pnl-capa label{display:block;margin:3px 0;cursor:pointer}
 #pnl-capa hr{margin:5px 0}
-#pnl-prog{bottom:20px;left:10px;min-width:200px;
-           background:rgba(0,51,102,.93);color:#fff;display:none;padding:10px 14px;border-radius:6px}
-#pnl-ley{bottom:20px;right:10px}
-#pnl-ley h4{color:#003366;margin-bottom:5px;font-size:.78rem}
+#pnl-prog{bottom:20px;left:10px;min-width:240px;background:rgba(0,51,102,.93);
+           color:#fff;display:none;padding:12px 16px;border-radius:8px;font-size:.85rem;line-height:1.6}
+#pnl-prog .km-grande{font-size:1.4rem;font-weight:700;color:#ffd700;margin:4px 0}
+#pnl-prog .km-dec{font-size:.85rem;opacity:.85}
+#pnl-prog .acc{font-size:.72rem;opacity:.7;margin-top:4px}
+#pnl-ley{bottom:20px;right:10px;font-size:.72rem}
+#pnl-ley h4{color:#003366;margin-bottom:5px}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
 .mjl{background:transparent;border:none;font-size:.68rem;font-weight:bold;
       white-space:nowrap;text-shadow:1px 1px 2px #fff,-1px -1px 2px #fff}
@@ -29,234 +31,201 @@ body{font-family:Arial,sans-serif;background:#1a2a3a;color:#eee}
 </head>
 <body>
 <div id="hdr">
-  <h1>🗺 RP91 — Test integración | DVBA Zona VI Saladillo</h1>
+  <h1>🗺 RP91 — Test integración modular | DVBA Zona VI</h1>
   <div id="stats">cargando...</div>
 </div>
 <div id="map"></div>
 
 <div class="ctrl" id="pnl-capa">
   <b>Capas</b>
-  <label><input type="checkbox" id="c-traza" checked> Traza RP91</label>
-  <label><input type="checkbox" id="c-mf" checked> Mojones físicos (km0, km50)</label>
-  <label><input type="checkbox" id="c-ms" checked> Mojones sintéticos</label>
+  <label><input type="checkbox" id="c-t" checked> Traza</label>
+  <label><input type="checkbox" id="c-g" checked> Gaps reales</label>
+  <label><input type="checkbox" id="c-mf" checked> Mojones físicos</label>
+  <label><input type="checkbox" id="c-ms" checked> Mojones sint.</label>
   <hr>
-  Paso: <select id="sel-paso" style="font-size:.75rem;width:100%;margin-top:3px">
+  Paso sint: <select id="sel-paso" style="font-size:.75rem;width:100%;margin-top:3px">
     <option value="5" selected>5 km</option>
     <option value="10">10 km</option>
     <option value="1">1 km</option>
   </select>
-  <hr>
-  <div style="font-size:.7rem;color:#666">Clic en traza → progresiva</div>
+  <hr><div style="color:#555;font-size:.7rem">Mové el mouse → progresiva</div>
 </div>
 
 <div class="ctrl" id="pnl-ley">
-  <h4>Referencias</h4>
-  <div><span class="dot" style="background:#6ab0cc"></span>Traza RP91</div>
+  <h4>RP91</h4>
+  <div><span class="dot" style="background:#cc6688"></span>Traza</div>
+  <div><span class="dot" style="background:#e05050;border-radius:0;width:18px;height:2px;margin-right:4px"></span>Gap real</div>
   <div><span class="dot" style="background:#003366;border:2px solid #fff"></span>Mojón físico</div>
-  <div><span class="dot" style="background:#888"></span>Mojón sintético 5km</div>
-  <div style="margin-top:6px;font-size:.68rem;color:#666">
-    144 pts · 51.583 km<br>
-    Dirección: Aumenta en direccion SE<br>
-    Sin gaps
-  </div>
+  <div><span class="dot" style="background:#888"></span>Mojón sintético</div>
+  <div><span class="dot" style="background:#ff6600"></span>Cursor</div>
 </div>
 
-<div id="pnl-prog"></div>
+<div class="ctrl" id="pnl-prog"></div>
 
 <script src="../datos/rutas_rp91.js"></script>
 <script src="../datos/rutas.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ── Verificar carga ──────────────────────────────────────────────────────────
+// ── Verificar datos cargados ──────────────────────────────────────────
 (function(){
-  const falta = ['CHAIN_RP91','ANCHORS_RP91','MOJONES_RP91','MOJONES_RP91_TODOS','META_RP91']
-    .filter(v => typeof window[v] === 'undefined');
-  if (falta.length) {
-    document.getElementById('stats').textContent = '⚠ Falta: ' + falta.join(', ');
-    console.error('Variables faltantes:', falta);
-  }
+  const falta=['CHAIN_RP91','ANCHORS_RP91','GAPS_RP91','MOJONES_RP91_TODOS','META_RP91']
+    .filter(v=>typeof window[v]==='undefined');
+  if(falta.length) document.getElementById('stats').textContent='⚠ Falta: '+falta.join(', ');
 })();
 
-// ── Mapa ─────────────────────────────────────────────────────────────────────
-const map = L.map('map').setView([-35.81619,-59.55974], 10);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  {attribution:'© OpenStreetMap', maxZoom:18}).addTo(map);
+const CHAIN = CHAIN_RP91;
+const ANCHORS = ANCHORS_RP91;
+const META = META_RP91;
+const MOJ_F = (typeof MOJONES_RP91 !== 'undefined') ? MOJONES_RP91 : [];
+const MOJ_T = (typeof MOJONES_RP91_TODOS !== 'undefined') ? MOJONES_RP91_TODOS : [];
+const GAPS = (typeof GAPS_RP91 !== 'undefined') ? GAPS_RP91 : [];
 
-// ── Acumulado ────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────
 function hav(a,b){
   const R=6371,dL=(b[1]-a[1])*Math.PI/180,dl=(b[0]-a[0])*Math.PI/180;
   const x=Math.sin(dL/2)**2+Math.cos(a[1]*Math.PI/180)*Math.cos(b[1]*Math.PI/180)*Math.sin(dl/2)**2;
   return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
 const ACUM=[0];
-for(let i=1;i<CHAIN_RP91.length;i++) ACUM.push(ACUM[i-1]+hav(CHAIN_RP91[i-1],CHAIN_RP91[i]));
+for(let i=1;i<CHAIN.length;i++) ACUM.push(ACUM[i-1]+hav(CHAIN[i-1],CHAIN[i]));
 
 function calcProg(acc){
-  // RP91 empieza en km0 — interpolación directa con anchors
-  if(!ANCHORS_RP91.length) return acc;
-  if(acc<=ANCHORS_RP91[0].acc) return acc;
-  for(let i=0;i<ANCHORS_RP91.length-1;i++){
-    const a=ANCHORS_RP91[i],b=ANCHORS_RP91[i+1];
-    if(acc>=a.acc&&acc<=b.acc) return a.km+(acc-a.acc)/(b.acc-a.acc)*(b.km-a.km);
+  const A=ANCHORS, pi=META.progIni;
+  if(!A||A.length<2) return pi+acc;
+  if(acc<=A[0].acc){
+    if(A[0].acc===0) return A[0].km;
+    return A[0].km-(A[0].acc-acc)*(A[0].km-pi)/A[0].acc;
   }
-  return acc;
+  for(let i=0;i<A.length-1;i++){
+    const a=A[i], b=A[i+1];
+    if(acc>=a.acc && acc<=b.acc) return a.km+(acc-a.acc)/(b.acc-a.acc)*(b.km-a.km);
+  }
+  const last=A[A.length-1], prev=A[A.length-2];
+  return last.km+(acc-last.acc)*(last.km-prev.km)/(last.acc-prev.acc);
+}
+function getGap(acc){
+  return (GAPS||[]).find(g=>acc>=g.acc_desde-0.1 && acc<=g.acc_hasta+0.1) || null;
 }
 
-// ── Capas ────────────────────────────────────────────────────────────────────
-const lyT=L.layerGroup(), lyMF=L.layerGroup(), lyMS=L.layerGroup();
+// ── Proyección continua del cursor sobre el segmento ─────────────────
+function _projOnSegment(p,a,b){
+  const ax=a[0],ay=a[1],bx=b[0],by=b[1];
+  const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;
+  if(L2<1e-12) return {pt:[ax,ay],t:0,dist:Math.hypot(p[0]-ax,p[1]-ay)};
+  let t=((p[0]-ax)*dx+(p[1]-ay)*dy)/L2;
+  if(t<0)t=0; else if(t>1)t=1;
+  const px=ax+t*dx, py=ay+t*dy;
+  return {pt:[px,py],t:t,dist:Math.hypot(p[0]-px,p[1]-py)};
+}
+function _findClosestOnChain(ll){
+  const target=[ll.lng,ll.lat];
+  let best={d:1e9,acc:0,lat:ll.lat,lng:ll.lng};
+  for(let i=1;i<CHAIN.length;i++){
+    const r=_projOnSegment(target,CHAIN[i-1],CHAIN[i]);
+    if(r.dist<best.d){
+      const seg=ACUM[i]-ACUM[i-1];
+      best={d:r.dist, acc:ACUM[i-1]+r.t*seg, lat:r.pt[1], lng:r.pt[0]};
+    }
+  }
+  return best;
+}
+function _formatProg(km){
+  // Formato oficial: XX km + YYY m
+  if(km<0) return '-'+_formatProg(-km).replace(/^-/,'');
+  const k=Math.floor(km), m=Math.round((km-k)*1000);
+  if(m>=1000) return (k+1).toString().padStart(2,'0')+' km + 0 m';
+  return k.toString().padStart(2,'0')+' km + '+m.toString().padStart(3,'0')+' m';
+}
 
-L.polyline(CHAIN_RP91.map(p=>[p[1],p[0]]),
-  {color:'#6ab0cc',weight:5,opacity:.9}).addTo(lyT);
+// ── Mapa ─────────────────────────────────────────────────────────────
+const clat=(CHAIN[0][1]+CHAIN[CHAIN.length-1][1])/2;
+const clng=(CHAIN[0][0]+CHAIN[CHAIN.length-1][0])/2;
+const map=L.map('map').setView([clat,clng],10);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  {attribution:'© OpenStreetMap',maxZoom:18}).addTo(map);
 
+// ── Segmentar traza: normal vs gap real ─────────────────────────────
+const segsN=[], segsG=[];
+let seg=[CHAIN[0]], esG=!!getGap(ACUM[0]);
+for(let i=1;i<CHAIN.length;i++){
+  const gk=!!getGap(ACUM[i]);
+  const nuevo = gk; // solo separamos por gaps reales (no por umbral)
+  if(nuevo!==esG){(esG?segsG:segsN).push([...seg]); seg=[CHAIN[i-1]]; esG=nuevo;}
+  seg.push(CHAIN[i]);
+}
+(esG?segsG:segsN).push(seg);
+
+const lyT=L.layerGroup(), lyG=L.layerGroup(), lyMF=L.layerGroup(), lyMS=L.layerGroup();
+segsN.forEach(s=>L.polyline(s.map(p=>[p[1],p[0]]),{color:'#cc6688',weight:5,opacity:.9}).addTo(lyT));
+segsG.forEach(s=>L.polyline(s.map(p=>[p[1],p[0]]),{color:'#e05050',weight:3,dashArray:'10,6'}).addTo(lyG));
+
+// Mojones físicos (incluye km 0)
 function buildMF(){
   lyMF.clearLayers();
-  MOJONES_RP91.forEach(m=>{
-    L.circleMarker([m.lat,m.lng],
-      {radius:9,fillColor:'#003366',color:'#fff',weight:2,fillOpacity:1})
-     .bindPopup(`<b>${m.km_label}</b><br>
-       ${m.sentido}<br>
-       <i>Tipo: ${m.tipo||'—'}</i><br>
-       Fuente: ${m.fuente||'—'}<br>
-       Resp: ${m.resp||'—'}<br>
-       Fecha: ${m.fecha||'—'}`)
-     .addTo(lyMF);
-    L.marker([m.lat,m.lng],{icon:L.divIcon({
-      className:'mjl',
-      html:`<b>${m.km_label}</b>`,
-      iconAnchor:[-6,-4]
-    })}).addTo(lyMF);
+  MOJ_F.filter(m=>m.km>=0).forEach(m=>{
+    L.circleMarker([m.lat,m.lng],{radius:10,fillColor:'#003366',color:'#fff',weight:2,fillOpacity:1})
+      .bindPopup(`<b>km ${m.km}</b><br>${m.sentido||''}<br><i>Mojón físico</i>`).addTo(lyMF);
+    L.marker([m.lat,m.lng],{icon:L.divIcon({className:'mjl',html:`km ${m.km}`,iconAnchor:[-6,-3]})}).addTo(lyMF);
   });
 }
-
+// Mojones sintéticos: NO dibujar si ya hay físico en ese km
 function buildMS(paso){
   lyMS.clearLayers();
-  const _kmFis = new Set((MOJONES_RP91||[]).map(m=>m.km));
-  MOJONES_RP91_TODOS.filter(m=>m.sintetico&&m.km%paso===0&&!_kmFis.has(m.km)).forEach(m=>{
-    L.circleMarker([m.lat,m.lng],
-      {radius:4,fillColor:'#6ab0cc',color:'#fff',weight:1,fillOpacity:.85})
-     .bindPopup(`<b>km ${m.km}</b> (sintético)<br>Acum. local: ${m.acc_local} km`)
-     .addTo(lyMS);
-    if(m.km%10===0)
-      L.marker([m.lat,m.lng],{icon:L.divIcon({
-        className:'mjl',
-        html:`<span style="color:#4488aa">${m.km}</span>`,
-        iconAnchor:[-4,-3]
-      })}).addTo(lyMS);
+  const kmFis=new Set(MOJ_F.map(m=>m.km));
+  MOJ_T.filter(m=>m.sintetico && m.km%paso===0 && !kmFis.has(m.km)).forEach(m=>{
+    const c=m.en_gap?'#e05050':'#888';
+    L.circleMarker([m.lat,m.lng],{radius:m.en_gap?5:4,fillColor:c,color:'#fff',weight:1,fillOpacity:.85})
+      .bindPopup(`km ${m.km} (sint.)${m.en_gap?'<br>⚠ en gap':''}`).addTo(lyMS);
+    if(m.km%20===0) L.marker([m.lat,m.lng],{icon:L.divIcon({className:'mjl',
+      html:`<span style="color:${m.en_gap?'#c00':'#555'}">${m.km}</span>`,iconAnchor:[-4,-3]})}).addTo(lyMS);
   });
 }
-
 buildMF(); buildMS(5);
-[lyT,lyG,lyMS,lyMF].forEach(l=>l&&l.bringToFront&&l.bringToFront());
-[lyT,lyMF,lyMS].forEach(l=>l.addTo(map));
+[lyT,lyG,lyMF,lyMS].forEach(l=>l.addTo(map));
+lyMF.bringToFront();
 
-// ── Controles ────────────────────────────────────────────────────────────────
-[['c-traza',lyT],['c-mf',lyMF],['c-ms',lyMS]]
-  .forEach(([id,l])=>document.getElementById(id).onchange=e=>e.target.checked?l.addTo(map):l.remove());
+// ── Toggles ──────────────────────────────────────────────────────────
+[['c-t',lyT],['c-g',lyG],['c-mf',lyMF],['c-ms',lyMS]].forEach(([id,l])=>{
+  document.getElementById(id).onchange=e=>e.target.checked?l.addTo(map):l.remove();
+});
 document.getElementById('sel-paso').onchange=e=>{
   buildMS(+e.target.value);
   if(document.getElementById('c-ms').checked) lyMS.addTo(map);
 };
 
-// ── Clic → progresiva ────────────────────────────────────────────────────────
-map.on('mousemove', e=>{ _showProg(e); });
-
-// ── Proyección CONTINUA del cursor sobre la traza (no salto entre puntos) ──
-function _projOnSegment(p, a, b){
-  // Proyecta el punto p sobre el segmento ab. Devuelve {pt, t, dist}
-  const ax=a[0], ay=a[1], bx=b[0], by=b[1];
-  const dx=bx-ax, dy=by-ay;
-  const L2 = dx*dx + dy*dy;
-  if (L2 < 1e-12) return {pt:[ax,ay], t:0, dist:Math.hypot(p[0]-ax, p[1]-ay)};
-  let t = ((p[0]-ax)*dx + (p[1]-ay)*dy) / L2;
-  if (t < 0) t = 0; else if (t > 1) t = 1;
-  const px = ax + t*dx, py = ay + t*dy;
-  return {pt:[px,py], t:t, dist:Math.hypot(p[0]-px, p[1]-py)};
-}
-
-function _findClosestOnChain(CHAIN, ACUM, ll){
-  // Busca el segmento (i-1,i) más cercano al cursor [lng,lat]
-  // y devuelve {acc, lat, lng, idx}
-  const target=[ll.lng, ll.lat];
-  let best={d:1e9, acc:0, lat:ll.lat, lng:ll.lng, i:0};
-  for (let i=1; i<CHAIN.length; i++){
-    const r = _projOnSegment(target, CHAIN[i-1], CHAIN[i]);
-    if (r.dist < best.d){
-      // Acumulado interpolado entre ACUM[i-1] y ACUM[i]
-      const acc_seg = ACUM[i] - ACUM[i-1];
-      best = {
-        d: r.dist,
-        acc: ACUM[i-1] + r.t * acc_seg,
-        lat: r.pt[1], lng: r.pt[0],
-        i: i
-      };
-    }
-  }
-  return best;
-}
-
-function _formatProgresiva(km){
-  // Formato oficial: XX km + YYY m  (XX.XXX km)
-  if (km < 0){
-    return '-' + _formatProgresiva(-km).replace(/^-/,'');
-  }
-  const k = Math.floor(km);
-  const m = Math.round((km - k) * 1000);
-  // Manejar overflow (m=1000 → +1km)
-  if (m >= 1000) {
-    return (k+1).toString().padStart(2,'0') + ' km + 0 m';
-  }
-  return k.toString().padStart(2,'0') + ' km + ' + m.toString().padStart(3,'0') + ' m';
-}
-
-
-// Cursor móvil sobre la traza: proyecta y muestra progresiva continua
-let _hoverMarker = null;
-function _showProgEvent(e){
-  const closest = _findClosestOnChain(CHAIN_RP91, ACUM, e.latlng);
-  // Si el cursor está MUY lejos (>0.5 grados ~50km), no mostrar
-  if (closest.d > 0.5) {
-    if (_hoverMarker){ _hoverMarker.remove(); _hoverMarker = null; }
+// ── Cursor móvil con progresiva continua ────────────────────────────
+let _hover=null;
+function _showProg(e){
+  const c=_findClosestOnChain(e.latlng);
+  if(c.d>0.5){
+    if(_hover){_hover.remove(); _hover=null;}
+    document.getElementById('pnl-prog').style.display='none';
     return;
   }
-  const acc = closest.acc;
-  const prog = calcProg(acc);
-  const g = getGap(acc);
-  // Mover marker visible que sigue el cursor
-  if (!_hoverMarker){
-    _hoverMarker = L.circleMarker([closest.lat, closest.lng],
-      {radius:7, fillColor:'#ff6600', color:'#fff', weight:2, fillOpacity:.9}).addTo(map);
+  const acc=c.acc, prog=calcProg(acc), g=getGap(acc);
+  if(!_hover){
+    _hover=L.circleMarker([c.lat,c.lng],{radius:7,fillColor:'#ff6600',color:'#fff',weight:2,fillOpacity:.95}).addTo(map);
   } else {
-    _hoverMarker.setLatLng([closest.lat, closest.lng]);
+    _hover.setLatLng([c.lat,c.lng]);
   }
-  // Panel
-  const box = document.getElementById('pnl-prog');
-  if (!box) return;
-  box.style.display = 'block';
+  const box=document.getElementById('pnl-prog');
+  box.style.display='block';
   box.innerHTML =
-    '<b>RP 91</b> · progresiva<br>' +
-    '<span style="font-size:1.4rem;font-weight:700">' + _formatProgresiva(prog) + '</span><br>' +
-    '<span style="opacity:.85;font-size:.85rem">(' + prog.toFixed(3) + ' km)</span><br>' +
-    '<span style="opacity:.7;font-size:.75rem">acc local: ' + acc.toFixed(3) + ' km</span>' +
-    (g ? '<br><span style="color:#f99">⚠ ' + (g.label||'gap') + '</span>' : '');
+    '<b>RP 91</b> · progresiva' +
+    '<div class="km-grande">'+_formatProg(prog)+'</div>' +
+    '<div class="km-dec">('+prog.toFixed(3)+' km)</div>' +
+    '<div class="acc">acc local: '+acc.toFixed(3)+' km</div>' +
+    (g?'<div style="color:#f99;margin-top:4px">⚠ '+(g.label||'gap')+'</div>':'');
 }
+map.on('mousemove', _showProg);
+map.on('click', _showProg);
 
-map.on('mousemove', _showProgEvent);
-map.on('click', _showProgEvent);
-
-  const prog=calcProg(ACUM[bi]);
-  document.getElementById('pnl-prog').style.display='block';
-  document.getElementById('pnl-prog').innerHTML=
-    `<b>RP 91</b><br>Progresiva: <b>km ${prog.toFixed(2)}</b><br>`+
-    `Acum. local: ${ACUM[bi].toFixed(3)} km<br>`+
-    `<span style="color:#adf;font-size:.75rem">Dirección: Aumenta en direccion SE</span>`;
-});
-
-// ── Fit y stats ──────────────────────────────────────────────────────────────
-map.fitBounds(L.latLngBounds(CHAIN_RP91.map(p=>[p[1],p[0]])).pad(.08));
-document.getElementById('stats').textContent=
-  `${CHAIN_RP91.length} pts | ${META_RP91.longGis} km | `+
-  `${META_RP91.mojonesF} físicos + ${META_RP91.mojonesS} sint. | `+
-  `sin gaps | ${META_RP91.sentido}`;
+// ── Fit y stats ─────────────────────────────────────────────────────
+map.fitBounds(L.latLngBounds(CHAIN.map(p=>[p[1],p[0]])).pad(.05));
+document.getElementById('stats').textContent =
+  CHAIN.length+' pts | '+META.longGis+' km | progIni:'+META.progIni+
+  ' | '+(META.mojonesF||MOJ_F.length)+' físicos + '+(META.mojonesS||0)+' sintéticos | '+
+  GAPS.length+' gaps reales';
 </script>
 </body>
 </html>
