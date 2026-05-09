@@ -100,8 +100,8 @@ segsG.forEach(s=>L.polyline(s.map(p=>[p[1],p[0]]),{color:'#e05050',weight:3,dash
 
 function buildMF(){
   lyMF.clearLayers();
-  MOJ_F.filter(m=>m.km>0).forEach(m=>{
-    L.circleMarker([m.lat,m.lng],{radius:8,fillColor:'#003366',color:'#fff',weight:2,fillOpacity:1})
+  MOJ_F.filter(m=>m.km>=0).forEach(m=>{
+    L.circleMarker([m.lat,m.lng],{radius:10,fillColor:'#003366',color:'#fff',weight:2,fillOpacity:1})
      .bindPopup(`<b>km ${m.km}</b><br>${m.sentido||''}<br><i>Mojón físico — datos internos DVBA</i>`)
      .addTo(lyMF);
     L.marker([m.lat,m.lng],{icon:L.divIcon({className:'mjl',html:`km ${m.km}`,iconAnchor:[-5,-3]})}).addTo(lyMF);
@@ -109,7 +109,8 @@ function buildMF(){
 }
 function buildMS(paso){
   lyMS.clearLayers();
-  MOJ_T.filter(m=>m.sintetico&&m.km%paso===0).forEach(m=>{
+  const _kmFis = new Set((MOJ_F||[]).map(m=>m.km));
+  MOJ_T.filter(m=>m.sintetico&&m.km%paso===0&&!_kmFis.has(m.km)).forEach(m=>{
     const c=m.en_gap?'#e05050':'#888';
     L.circleMarker([m.lat,m.lng],{radius:4,fillColor:c,color:'#fff',weight:1,fillOpacity:.85})
      .bindPopup(`<b>km ${m.km}</b> (sint.)${m.en_gap?'<br>⚠ en gap':''}`)
@@ -120,6 +121,7 @@ function buildMS(paso){
   });
 }
 buildMF(); buildMS(5);
+[lyT,lyG,lyMS,lyMF].forEach(l=>l&&l.bringToFront&&l.bringToFront());
 [lyT,lyG,lyMF,lyMS].forEach(l=>l.addTo(map));
 
 [['c-traza',lyT],['c-gaps',lyG],['c-mf',lyMF],['c-ms',lyMS]]

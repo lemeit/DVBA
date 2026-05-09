@@ -130,7 +130,8 @@ function buildMF(){
 
 function buildMS(paso){
   lyMS.clearLayers();
-  MOJONES_RP91_TODOS.filter(m=>m.sintetico&&m.km%paso===0).forEach(m=>{
+  const _kmFis = new Set((MOJONES_RP91||[]).map(m=>m.km));
+  MOJONES_RP91_TODOS.filter(m=>m.sintetico&&m.km%paso===0&&!_kmFis.has(m.km)).forEach(m=>{
     L.circleMarker([m.lat,m.lng],
       {radius:4,fillColor:'#6ab0cc',color:'#fff',weight:1,fillOpacity:.85})
      .bindPopup(`<b>km ${m.km}</b> (sintético)<br>Acum. local: ${m.acc_local} km`)
@@ -145,6 +146,7 @@ function buildMS(paso){
 }
 
 buildMF(); buildMS(5);
+[lyT,lyG,lyMS,lyMF].forEach(l=>l&&l.bringToFront&&l.bringToFront());
 [lyT,lyMF,lyMS].forEach(l=>l.addTo(map));
 
 // ── Controles ────────────────────────────────────────────────────────────────
@@ -156,6 +158,7 @@ document.getElementById('sel-paso').onchange=e=>{
 };
 
 // ── Clic → progresiva ────────────────────────────────────────────────────────
+map.on('mousemove', e=>{ _showProg(e); });
 map.on('click', e=>{
   let bi=0, bd=1e9;
   CHAIN_RP91.forEach((p,i)=>{

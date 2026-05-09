@@ -144,9 +144,9 @@ segsGap.forEach(s =>
 
 function buildMojF() {
   lyMojF.clearLayers();
-  MOJONES_RP40.filter(m => m.km > 0).forEach(m => {
+  MOJONES_RP40.filter(m => m.km >= 0).forEach(m => {
     L.circleMarker([m.lat,m.lng],
-      {radius:8,fillColor:'#003366',color:'#fff',weight:2,fillOpacity:1})
+      {radius:10,fillColor:'#003366',color:'#fff',weight:2,fillOpacity:1})
      .bindPopup(`<b>km ${m.km}</b><br>${m.sentido||''}<br><i>Mojón físico — datos internos DVBA</i>`)
      .addTo(lyMojF);
     L.marker([m.lat,m.lng],
@@ -157,8 +157,9 @@ function buildMojF() {
 
 function buildMojS(paso) {
   lyMojS.clearLayers();
+  const _kmFis = new Set((MOJONES_RP40||[]).map(m=>m.km));
   MOJONES_RP40_TODOS
-    .filter(m => m.sintetico && m.km % paso === 0)
+    .filter(m => m.sintetico && m.km % paso === 0 && !_kmFis.has(m.km))
     .forEach(m => {
       const color = m.en_gap ? '#e05050' : '#888';
       L.circleMarker([m.lat,m.lng],

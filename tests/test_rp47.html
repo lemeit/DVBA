@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Test RP61 — Zona VI DVBA</title>
+<title>Test RP47 — Zona VI DVBA</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -29,7 +29,7 @@ body{font-family:Arial,sans-serif;background:#1a2a3a;color:#eee}
 </head>
 <body>
 <div id="hdr">
-  <h1>🗺 RP61 — Test integración modular | DVBA Zona VI</h1>
+  <h1>🗺 RP47 — Test integración modular | DVBA Zona VI</h1>
   <div id="stats">cargando...</div>
 </div>
 <div id="map"></div>
@@ -50,7 +50,7 @@ body{font-family:Arial,sans-serif;background:#1a2a3a;color:#eee}
 
 <div class="ctrl" id="pnl-ley">
   <h4>Referencias</h4>
-  <div><span class="dot" style="background:#c8a820"></span>Traza RP61</div>
+  <div><span class="dot" style="background:#c8a820"></span>Traza RP47</div>
   <div><span class="dot" style="background:#e05050;border-radius:0;width:18px;height:3px"></span>Gap / tramo urbano</div>
   <div><span class="dot" style="background:#003366;border:2px solid #fff"></span>Mojón físico km50..200</div>
   <div><span class="dot" style="background:#888"></span>Mojón sintético</div>
@@ -60,7 +60,7 @@ body{font-family:Arial,sans-serif;background:#1a2a3a;color:#eee}
 <div class="ctrl" id="pnl-prog"><span id="prog-txt"></span></div>
 
 <!-- ORDEN CRÍTICO: primero los datos, luego rutas.js, luego Leaflet, luego el código de la app -->
-<script src="../datos/rutas_rp61.js"></script>
+<script src="../datos/rutas_rp47.js"></script>
 <script src="../datos/rutas.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -69,16 +69,16 @@ body{font-family:Arial,sans-serif;background:#1a2a3a;color:#eee}
 // ── Verificar que los datos están disponibles ────────────────────────────────
 (function checkDatos() {
   const faltantes = [];
-  if (typeof CHAIN_RP61       === 'undefined') faltantes.push('CHAIN_RP61');
-  if (typeof ANCHORS_RP61     === 'undefined') faltantes.push('ANCHORS_RP61');
-  if (typeof GAPS_RP61        === 'undefined') faltantes.push('GAPS_RP61');
-  if (typeof MOJONES_RP61_TODOS === 'undefined') faltantes.push('MOJONES_RP61_TODOS');
+  if (typeof CHAIN_RP47       === 'undefined') faltantes.push('CHAIN_RP47');
+  if (typeof ANCHORS_RP47     === 'undefined') faltantes.push('ANCHORS_RP47');
+  if (typeof GAPS_RP47        === 'undefined') faltantes.push('GAPS_RP47');
+  if (typeof MOJONES_RP47_TODOS === 'undefined') faltantes.push('MOJONES_RP47_TODOS');
   if (faltantes.length > 0) {
     document.getElementById('stats').textContent = '⚠ Falta: ' + faltantes.join(', ');
     console.error('Variables faltantes:', faltantes);
     return;
   }
-  console.log('✓ Datos OK:', CHAIN_RP61.length, 'pts,', GAPS_RP61.length, 'gaps');
+  console.log('✓ Datos OK:', CHAIN_RP47.length, 'pts,', GAPS_RP47.length, 'gaps');
 })();
 
 // ── Mapa ─────────────────────────────────────────────────────────────────────
@@ -94,37 +94,37 @@ function hav(a, b) {
 }
 
 const ACUM = [0];
-for (let i=1; i<CHAIN_RP61.length; i++)
-  ACUM.push(ACUM[i-1] + hav(CHAIN_RP61[i-1], CHAIN_RP61[i]));
+for (let i=1; i<CHAIN_RP47.length; i++)
+  ACUM.push(ACUM[i-1] + hav(CHAIN_RP47[i-1], CHAIN_RP47[i]));
 
 function calcProg(acc) {
-  if (acc <= ANCHORS_RP61[0].acc)
-    return META_RP61.progIni + acc * (ANCHORS_RP61[0].km - META_RP61.progIni) / ANCHORS_RP61[0].acc;
-  for (let i=0; i<ANCHORS_RP61.length-1; i++) {
-    const a=ANCHORS_RP61[i], b=ANCHORS_RP61[i+1];
+  if (acc <= ANCHORS_RP47[0].acc)
+    return META_RP47.progIni + acc * (ANCHORS_RP47[0].km - META_RP47.progIni) / ANCHORS_RP47[0].acc;
+  for (let i=0; i<ANCHORS_RP47.length-1; i++) {
+    const a=ANCHORS_RP47[i], b=ANCHORS_RP47[i+1];
     if (acc >= a.acc && acc <= b.acc)
       return a.km + (acc-a.acc)/(b.acc-a.acc)*(b.km-a.km);
   }
-  return META_RP61.progIni + acc;
+  return META_RP47.progIni + acc;
 }
 
 function getGap(acc) {
-  return GAPS_RP61.find(g => acc >= g.acc_desde-0.05 && acc <= g.acc_hasta+0.05) || null;
+  return GAPS_RP47.find(g => acc >= g.acc_desde-0.05 && acc <= g.acc_hasta+0.05) || null;
 }
 
 // ── Segmentar traza en normal / gap ──────────────────────────────────────────
 const segsNormal=[], segsGap=[];
-let seg=[CHAIN_RP61[0]], esGap=false;
-for (let i=1; i<CHAIN_RP61.length; i++) {
-  const d = hav(CHAIN_RP61[i-1], CHAIN_RP61[i]);
+let seg=[CHAIN_RP47[0]], esGap=false;
+for (let i=1; i<CHAIN_RP47.length; i++) {
+  const d = hav(CHAIN_RP47[i-1], CHAIN_RP47[i]);
   const g = getGap(ACUM[i]);
   const nuevoGap = d > 2.0 || !!g;
   if (nuevoGap !== esGap) {
     (esGap ? segsGap : segsNormal).push([...seg]);
-    seg = [CHAIN_RP61[i-1]];
+    seg = [CHAIN_RP47[i-1]];
     esGap = nuevoGap;
   }
-  seg.push(CHAIN_RP61[i]);
+  seg.push(CHAIN_RP47[i]);
 }
 (esGap ? segsGap : segsNormal).push(seg);
 console.log('Segmentos normales:', segsNormal.length, '| Gaps:', segsGap.length);
@@ -144,7 +144,7 @@ segsGap.forEach(s =>
 
 function buildMojF() {
   lyMojF.clearLayers();
-  MOJONES_RP61.filter(m => m.km >= 0).forEach(m => {
+  MOJONES_RP47.filter(m => m.km >= 0).forEach(m => {
     L.circleMarker([m.lat,m.lng],
       {radius:10,fillColor:'#003366',color:'#fff',weight:2,fillOpacity:1})
      .bindPopup(`<b>km ${m.km}</b><br>${m.sentido||''}<br><i>Mojón físico — datos internos DVBA</i>`)
@@ -157,8 +157,8 @@ function buildMojF() {
 
 function buildMojS(paso) {
   lyMojS.clearLayers();
-  const _kmFis = new Set((MOJONES_RP61||[]).map(m=>m.km));
-  MOJONES_RP61_TODOS
+  const _kmFis = new Set((MOJONES_RP47||[]).map(m=>m.km));
+  MOJONES_RP47_TODOS
     .filter(m => m.sintetico && m.km % paso === 0 && !_kmFis.has(m.km))
     .forEach(m => {
       const color = m.en_gap ? '#e05050' : '#888';
@@ -193,7 +193,7 @@ document.getElementById('sel-paso').addEventListener('change', e => {
 // ── Clic → progresiva ─────────────────────────────────────────────────────────
 map.on('click', e => {
   let bi=0, bd=1e9;
-  CHAIN_RP61.forEach((p,i) => {
+  CHAIN_RP47.forEach((p,i) => {
     const d = Math.sqrt((p[0]-e.latlng.lng)**2+(p[1]-e.latlng.lat)**2);
     if (d < bd) { bd=d; bi=i; }
   });
@@ -202,17 +202,17 @@ map.on('click', e => {
   const box = document.getElementById('pnl-prog');
   box.style.display = 'block';
   document.getElementById('prog-txt').innerHTML =
-    `<b>rp 61</b><br>Progresiva: <b>km ${prog.toFixed(2)}</b><br>` +
+    `<b>RP 47</b><br>Progresiva: <b>km ${prog.toFixed(2)}</b><br>` +
     `Acum. local: ${ACUM[bi].toFixed(3)} km` +
     (g ? `<br><span style="color:#f99">⚠ ${g.label}</span>` : '');
 });
 
 // ── Fit y stats ──────────────────────────────────────────────────────────────
-map.fitBounds(L.latLngBounds(CHAIN_RP61.map(p=>[p[1],p[0]])).pad(.05));
+map.fitBounds(L.latLngBounds(CHAIN_RP47.map(p=>[p[1],p[0]])).pad(.05));
 document.getElementById('stats').textContent =
-  `${CHAIN_RP61.length} pts | ${META_RP61.longGis} km | ` +
-  `${META_RP61.mojonesF} mojones físicos + ${META_RP61.mojonesS} sintéticos | ` +
-  `${GAPS_RP61.length} gaps`;
+  `${CHAIN_RP47.length} pts | ${META_RP47.longGis} km | ` +
+  `${META_RP47.mojonesF} mojones físicos + ${META_RP47.mojonesS} sintéticos | ` +
+  `${GAPS_RP47.length} gaps`;
 </script>
 </body>
 </html>
