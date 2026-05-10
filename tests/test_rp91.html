@@ -140,7 +140,7 @@ function _formatProg(km){
 // ── Mapa ─────────────────────────────────────────────────────────────
 const clat=(CHAIN[0][1]+CHAIN[CHAIN.length-1][1])/2;
 const clng=(CHAIN[0][0]+CHAIN[CHAIN.length-1][0])/2;
-const map=L.map('map').setView([-35.64,-59.78],8);  // Saladillo default
+const map=L.map('map').setView([clat,clng],10);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   {attribution:'© OpenStreetMap',maxZoom:18}).addTo(map);
 
@@ -182,7 +182,7 @@ function buildMS(paso){
 }
 buildMF(); buildMS(5);
 [lyT,lyG,lyMF,lyMS].forEach(l=>l.addTo(map));
-lyMF.eachLayer(l => { if (l.bringToFront) l.bringToFront(); });
+lyMF.bringToFront();
 
 // ── Toggles ──────────────────────────────────────────────────────────
 [['c-t',lyT],['c-g',lyG],['c-mf',lyMF],['c-ms',lyMS]].forEach(([id,l])=>{

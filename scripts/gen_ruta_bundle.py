@@ -386,7 +386,15 @@ def main():
         prog_ini = prog_ini or 0.0
     prog_ini = prog_ini or 0.0
 
-    if len(valid_mojs) > 1:
+    # Si hay mojon km=0 anclado al inicio de la traza (acc cercano a 0), forzar prog_ini=0.
+    # Esto evita que los anchors posteriores a gaps (cuya distancia recta != progresiva oficial)
+    # arrastren un desfasaje promedio que no representa nada real.
+    moj0_inicio = next(((m, bi, bd) for m, bi, bd in valid_mojs
+                        if abs(m['km']) < 0.01 and acum[bi] < 0.5), None)
+    if moj0_inicio is not None and args.prog_ini is None:
+        prog_ini = 0.0
+        print('prog_ini forzado a 0 (mojon km=0 anclado al inicio de la traza)')
+    elif len(valid_mojs) > 1 and args.prog_ini is None:
         estimaciones = [round(m['km'] - acum[bi], 2) for m, bi, bd in valid_mojs]
         prog_ini = round(sum(estimaciones) / len(estimaciones), 2)
         print('prog_ini refinado (promedio ' + str(len(estimaciones)) + ' mojones): km' + str(prog_ini))
@@ -454,6 +462,23 @@ def main():
     js_lines.append("  ruta:'" + rn + "',label:'RP " + rn + "',color:'" + args.color + "',weight:5,")
     js_lines.append("  clase:'Mixto',progIni:" + str(prog_ini) + ',progFin:' + str(prog_fin) + ',')
     js_lines.append('  longGis:' + str(tk_r) + ',')
+    js_lines.append('  mojonesF:' + str(n_mf) + ',mojonesS:' + str(n_ms) + ',')
+    js_lines.append('  gapsReales:' + str(n_real) + ',gapsAuto:' + str(n_auto))
+    js_lines.append('};')
+    js = '\n'.join(js_lines) + '\n'
+
+    out = Path(args.out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    datos_dir = out / 'datos'
+    datos_dir.mkdir(exist_ok=True)
+    js_path = datos_dir / ('rutas_rp' + rn + '.js')
+    js_path.write_text(js, encoding='utf-8')
+
+    print('\nOK: ' + str(js_path) + ' (' + str(js_path.stat().st_size // 1024) + ' KB)')
+
+
+if __name__ == '__main__':
+    main()
     js_lines.append('  mojonesF:' + str(n_mf) + ',mojonesS:' + str(n_ms) + ',')
     js_lines.append('  gapsReales:' + str(n_real) + ',gapsAuto:' + str(n_auto))
     js_lines.append('};')
