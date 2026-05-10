@@ -222,7 +222,7 @@ map.on('click', _showProg);
 
 // ── Fit y stats ─────────────────────────────────────────────────────
 map.fitBounds(L.latLngBounds(CHAIN.map(p=>[p[1],p[0]])).pad(.05));
-document.getElementById('stats').textContent =
-  CHAIN.length+' pts | '+META.longGis+' km | progIni:'+META.progIni+
-  ' | '+(META.mojonesF||MOJ_F.length)+' físicos + '+(META.mojonesS||0)+' sintéticos | '+
-  GAPS.length+' 
+    (GAPS.length || 0) + ' gaps';
+</script>
+</body>
+</html>
