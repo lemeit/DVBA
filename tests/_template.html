@@ -182,7 +182,7 @@ function buildMS(paso){
 }
 buildMF(); buildMS(5);
 [lyT,lyG,lyMF,lyMS].forEach(l=>l.addTo(map));
-lyMF.bringToFront();
+lyMF.eachLayer(l=>{ if(l.bringToFront) l.bringToFront(); });
 
 // ── Toggles ──────────────────────────────────────────────────────────
 [['c-t',lyT],['c-g',lyG],['c-mf',lyMF],['c-ms',lyMS]].forEach(([id,l])=>{

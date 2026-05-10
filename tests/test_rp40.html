@@ -182,7 +182,7 @@ function buildMS(paso){
 }
 buildMF(); buildMS(5);
 [lyT,lyG,lyMF,lyMS].forEach(l=>l.addTo(map));
-lyMF.bringToFront();
+lyMF.eachLayer(l=>{ if(l.bringToFront) l.bringToFront(); });
 
 // ── Toggles ──────────────────────────────────────────────────────────
 [['c-t',lyT],['c-g',lyG],['c-mf',lyMF],['c-ms',lyMS]].forEach(([id,l])=>{
@@ -225,7 +225,4 @@ map.fitBounds(L.latLngBounds(CHAIN.map(p=>[p[1],p[0]])).pad(.05));
 document.getElementById('stats').textContent =
   CHAIN.length+' pts | '+META.longGis+' km | progIni:'+META.progIni+
   ' | '+(META.mojonesF||MOJ_F.length)+' físicos + '+(META.mojonesS||0)+' sintéticos | '+
-  GAPS.length+' gaps reales';
-</script>
-</body>
-</html>
+  GAPS.length+' 

@@ -53,7 +53,7 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
 
 <div class="ctrl" id="pnl-ley">
   <h4>RP46</h4>
-  <div><span class="dot" style="background:#cc8866"></span>Traza</div>
+  <div><span class="dot" style="background:#33aa55"></span>Traza</div>
   <div><span class="dot" style="background:#e05050;border-radius:0;width:18px;height:2px;margin-right:4px"></span>Gap real</div>
   <div><span class="dot" style="background:#003366;border:2px solid #fff"></span>Mojón físico</div>
   <div><span class="dot" style="background:#888"></span>Mojón sintético</div>
@@ -140,7 +140,7 @@ function _formatProg(km){
 // ── Mapa ─────────────────────────────────────────────────────────────
 const clat=(CHAIN[0][1]+CHAIN[CHAIN.length-1][1])/2;
 const clng=(CHAIN[0][0]+CHAIN[CHAIN.length-1][0])/2;
-const map=L.map('map').setView([-35.64,-59.78],8);  // Saladillo default
+const map=L.map('map').setView([clat,clng],10);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   {attribution:'© OpenStreetMap',maxZoom:18}).addTo(map);
 
@@ -156,7 +156,7 @@ for(let i=1;i<CHAIN.length;i++){
 (esG?segsG:segsN).push(seg);
 
 const lyT=L.layerGroup(), lyG=L.layerGroup(), lyMF=L.layerGroup(), lyMS=L.layerGroup();
-segsN.forEach(s=>L.polyline(s.map(p=>[p[1],p[0]]),{color:'#cc8866',weight:5,opacity:.9}).addTo(lyT));
+segsN.forEach(s=>L.polyline(s.map(p=>[p[1],p[0]]),{color:'#33aa55',weight:5,opacity:.9}).addTo(lyT));
 segsG.forEach(s=>L.polyline(s.map(p=>[p[1],p[0]]),{color:'#e05050',weight:3,dashArray:'10,6'}).addTo(lyG));
 
 // Mojones físicos (incluye km 0)
@@ -182,7 +182,7 @@ function buildMS(paso){
 }
 buildMF(); buildMS(5);
 [lyT,lyG,lyMF,lyMS].forEach(l=>l.addTo(map));
-lyMF.eachLayer(l => { if (l.bringToFront) l.bringToFront(); });
+lyMF.eachLayer(l=>{ if(l.bringToFront) l.bringToFront(); });
 
 // ── Toggles ──────────────────────────────────────────────────────────
 [['c-t',lyT],['c-g',lyG],['c-mf',lyMF],['c-ms',lyMS]].forEach(([id,l])=>{
@@ -225,7 +225,4 @@ map.fitBounds(L.latLngBounds(CHAIN.map(p=>[p[1],p[0]])).pad(.05));
 document.getElementById('stats').textContent =
   CHAIN.length+' pts | '+META.longGis+' km | progIni:'+META.progIni+
   ' | '+(META.mojonesF||MOJ_F.length)+' físicos + '+(META.mojonesS||0)+' sintéticos | '+
-  GAPS.length+' gaps reales';
-</script>
-</body>
-</html>
+  GAPS.length+' 
