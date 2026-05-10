@@ -1,29 +1,33 @@
 #!/usr/bin/env python3
 """
-gen_ruta_bundle.py v2.1 - DVBA Zona VI Saladillo
+gen_ruta_bundle.py v2.6 - DVBA Zona VI Saladillo
 Genera datos/rutas_rpXX.js desde dos GeoJSON (traza + mojones).
 
 USO:
     python scripts/gen_ruta_bundle.py <traza.geojson> <mojones.geojson> --ruta XX [opciones]
 
 OPCIONES:
-    --ruta XX           Numero de ruta - REQUERIDO
-    --color #rrggbb     Color hex para el mapa (defecto: #6ab0cc)
-    --paso N            Intervalo mojones sinteticos en km (defecto: 5)
-    --gap-threshold N   Umbral km para gaps automaticos (defecto: 15)
-    --prog-ini N        Progresiva real del inicio (calcula desde mojones si no)
-    --ini-lng/lat       Coords del inicio zona VI (para subtramos)
-    --fin-lng/lat       Coords del fin zona VI (para subtramos)
-    --out-dir DIR       Carpeta salida (defecto: . - guarda en datos/rutas_rpXX.js)
+    --ruta XX            Numero de ruta - REQUERIDO
+    --color #rrggbb      Color hex para el mapa (defecto: #6ab0cc)
+    --paso N             Intervalo mojones sinteticos en km (defecto: 5)
+    --gap-threshold N    Umbral km para gaps automaticos (defecto: 15)
+    --prog-ini N         Progresiva real del inicio (calcula desde mojones si no)
+    --ini-lng/lat        Coords del inicio zona VI (para subtramos)
+    --fin-lng/lat        Coords del fin zona VI (para subtramos)
+    --out-dir DIR        Carpeta salida (defecto: . - guarda en datos/rutas_rpXX.js)
+    --order-by MODE      Estrategia de orden (defecto: fid)
+                           fid       -> orden estricto por columna 'fid' ascendente
+                           mojones   -> orden por mojones como guia geografica
+                           proximity -> orden por proximidad de extremos (legacy)
 
-CAMPO es_gap EN EL GEOJSON (recomendado):
-    Si el GeoJSON tiene un campo 'es_gap' a nivel feature, el script lo usa.
-    es_gap=1 -> gap fisico (rojo en mapa)
+CAMPO fid (modo por defecto):
+    Si el GeoJSON tiene 'fid' (o 'FID'), el script ordena los tramos por fid
+    ascendente. La traza nace en fid=1 y crece hacia fids mayores. NO se
+    invierten segmentos.
+
+CAMPO es_gap:
+    es_gap=1 -> tramo gap fisico (rojo en mapa). Su distancia SI suma al acumulado.
     es_gap=0 -> tramo normal continuo
-
-PARA CREAR EL TEST HTML (no lo hace el script):
-    cp tests/test_rp40.html tests/test_rpXX.html
-    sed -i "s|RP40|RPXX|g; s|rp40|rpXX|g" tests/test_rpXX.html
 """
 import json
 import math
@@ -64,44 +68,44 @@ def interp_point(pts, acum, target_acc):
     return pts[-1]
 
 
-def feat_to_segment(feat):
-    """Extrae geometria + es_gap de una feature: (puntos, es_gap)."""
+def feat_to_segment(feat, default_fid=0):
+    """Extrae geometria + es_gap + fid de una feature: (pts, es_gap, fid)."""
     geom = feat['geometry']
     props = feat.get('properties', {}) or {}
+
     es_gap_raw = props.get('es_gap', props.get('gap', 0))
     try:
         es_gap = int(float(str(es_gap_raw))) if es_gap_raw not in (None, '', 'NULL', 'null') else 0
     except Exception:
         es_gap = 0
+
+    fid_raw = props.get('fid', props.get('FID', props.get('id', default_fid)))
+    try:
+        fid = int(float(str(fid_raw))) if fid_raw not in (None, '', 'NULL', 'null') else default_fid
+    except Exception:
+        fid = default_fid
+
     if geom['type'] == 'LineString':
         coords = geom['coordinates']
-    else:  # MultiLineString -> aplanar
+    else:
         coords = [p for s in geom['coordinates'] for p in s]
     pts = [[round(p[0], 7), round(p[1], 7)] for p in coords]
-    return pts, es_gap
+    return pts, es_gap, fid
+
+
+def order_by_fid(segments_with_fid):
+    """Ordena por fid ascendente. NO invierte ni reordena puntos internos."""
+    sorted_segs = sorted(segments_with_fid, key=lambda s: s[2])
+    ordered = [(pts, eg) for pts, eg, _ in sorted_segs]
+    diag = [{'fid': fid, 'es_gap': eg, 'n_pts': len(pts)} for pts, eg, fid in sorted_segs]
+    return ordered, diag
 
 
 def auto_order_segments(segments, mojones=None):
-    """Reordena segmentos siguiendo la progresion de los mojones (km 0 -> 50 -> 100 ...).
-
-    Estrategia v3 (con mojones como guia):
-      - Si tenemos mojones ordenados por km, los usamos como referencia geografica.
-      - Para cada feature, calculamos:
-          * mojon mas cercano a su INICIO   → km_ini
-          * mojon mas cercano a su FIN      → km_fin
-        Si km_fin < km_ini → invertir la feature.
-        El "km representativo" de la feature es min(km_ini, km_fin) — donde arranca.
-      - Ordenamos features por km_representativo creciente.
-      - Las features con es_gap=1 mantienen su lugar (interpolan entre los anclajes).
-
-    Si no hay mojones, fallback a auto-orden por proximidad de extremos (estrategia v2).
-
-    Retorna (lista_ordenada, lista_diagnostico).
-    """
+    """Modo legacy: por mojones o proximidad (no se usa en --order-by fid)."""
     if len(segments) <= 1:
         return list(segments), []
 
-    # ── Si tenemos mojones, usarlos como guia ────────────────────────────
     if mojones and len(mojones) >= 2:
         mojones_ord = sorted(mojones, key=lambda m: m['km'])
 
@@ -113,12 +117,10 @@ def auto_order_segments(segments, mojones=None):
                     best_d, best_km = d, m['km']
             return best_km, best_d
 
-        # Para cada segmento: calcular km_ini, km_fin, decidir orientacion
         anotados = []
         for pts, eg in segments:
             km_ini, d_ini = km_mojon_cercano(pts[0])
             km_fin, d_fin = km_mojon_cercano(pts[-1])
-            # Si el fin esta en km menor que el inicio, invertir
             if km_fin < km_ini:
                 pts = list(reversed(pts))
                 km_ini, km_fin = km_fin, km_ini
@@ -126,42 +128,33 @@ def auto_order_segments(segments, mojones=None):
                 invertido = True
             else:
                 invertido = False
-            km_repr = km_ini  # km de inicio (post-orientacion)
             anotados.append({
                 'pts': pts, 'eg': eg,
-                'km_repr': km_repr, 'km_fin': km_fin,
+                'km_repr': km_ini, 'km_fin': km_fin,
                 'd_ini': d_ini, 'invertido': invertido,
             })
-
-        # Ordenar por km_repr creciente
         anotados.sort(key=lambda a: (a['km_repr'], a['km_fin']))
-
-        # Construir cadena ordenada y reporte
         ordered = [(a['pts'], a['eg']) for a in anotados]
         diag = [{
             'km_inicio': a['km_repr'], 'km_fin': a['km_fin'],
-            'invertido': a['invertido'],
-            'es_gap': a['eg'],
+            'invertido': a['invertido'], 'es_gap': a['eg'],
             'dist_a_mojon': round(a['d_ini'], 3),
         } for a in anotados]
         return ordered, diag
 
-    # ── Sin mojones: fallback a v2 (proximidad de extremos) ──────────────
     remaining = list(segments)
     ordered = [remaining.pop(0)]
     saltos = []
     while remaining:
         chain_start = ordered[0][0][0]
         chain_end = ordered[-1][0][-1]
-        best_idx, best_dist = None, float('inf')
-        best_op = None
+        best_idx, best_dist, best_op = None, float('inf'), None
         for i, (pts, eg) in enumerate(remaining):
             d1 = hav(chain_end, pts[0])
             d2 = hav(chain_end, pts[-1])
             d3 = hav(chain_start, pts[-1])
             d4 = hav(chain_start, pts[0])
-            for d, op in [(d1, 'append'), (d2, 'append_inv'),
-                          (d3, 'prepend'), (d4, 'prepend_inv')]:
+            for d, op in [(d1, 'append'), (d2, 'append_inv'), (d3, 'prepend'), (d4, 'prepend_inv')]:
                 if d < best_dist:
                     best_dist, best_idx, best_op = d, i, op
         chosen_pts, chosen_eg = remaining.pop(best_idx)
@@ -178,34 +171,36 @@ def auto_order_segments(segments, mojones=None):
     return ordered, saltos
 
 
-def load_chain(path, mojones=None):
-    """Carga la traza concatenando features con auto-orden guiado por mojones (si hay)."""
+def load_chain(path, mojones=None, order_mode='fid'):
     gj = json.loads(Path(path).read_text(encoding='utf-8'))
     feats = gj['features']
 
-    raw_segments = [feat_to_segment(f) for f in feats]
-    # Filtrar features vacías (pts vacío) que rompen auto_order
-    raw_segments = [(pts, eg) for pts, eg in raw_segments if pts and len(pts) >= 2]
+    raw_with_fid = []
+    for i, f in enumerate(feats):
+        pts, eg, fid = feat_to_segment(f, default_fid=i)
+        if pts and len(pts) >= 2:
+            raw_with_fid.append((pts, eg, fid))
 
-    # Auto-ordenar (preferir guia por mojones si tenemos)
-    if len(raw_segments) > 1:
-        segments, diag = auto_order_segments(raw_segments, mojones=mojones)
-        if mojones and len(mojones) >= 2:
-            print('  [AUTO-ORDEN por MOJONES] ' + str(len(segments)) + ' features ordenadas:')
-            for d in diag[:8]:
-                inv = ' (INVERTIDA)' if d.get('invertido') else ''
-                eg = ' [es_gap=1]' if d.get('es_gap') else ''
-                print(f'    feat km {d["km_inicio"]:.0f}->km {d["km_fin"]:.0f} dist_mojon={d["dist_a_mojon"]}km{inv}{eg}')
-            if len(diag) > 8:
-                print(f'    ... y {len(diag)-8} mas')
-        elif diag:
-            print('  [AUTO-ORDEN por proximidad] ' + str(len(segments)) + ' features. Saltos:')
-            for s in diag:
-                print(f'    -> salto de {s["distancia_km"]} km')
-        else:
-            print('  [AUTO-ORDEN] ' + str(len(segments)) + ' features ordenadas, sin saltos significativos')
+    fids_leidos = sorted([s[2] for s in raw_with_fid])
+    print('  [INPUT] ' + str(len(raw_with_fid)) + ' features. fids: ' + str(fids_leidos))
+
+    if len(raw_with_fid) <= 1:
+        segments = [(p, e) for p, e, _ in raw_with_fid]
+    elif order_mode == 'fid':
+        segments, diag = order_by_fid(raw_with_fid)
+        print('  [ORDEN: FID asc] ' + str(len(segments)) + ' tramos:')
+        for d in diag:
+            eg = ' [es_gap=1]' if d['es_gap'] else ''
+            print('    fid=' + str(d['fid']).rjust(3) + '  pts=' + str(d['n_pts']).rjust(4) + eg)
     else:
-        segments = raw_segments
+        raw_no_fid = [(p, e) for p, e, _ in raw_with_fid]
+        segments, diag = auto_order_segments(
+            raw_no_fid, mojones=mojones if order_mode == 'mojones' else None
+        )
+        if order_mode == 'mojones' and mojones and len(mojones) >= 2:
+            print('  [ORDEN: MOJONES] ' + str(len(segments)) + ' features ordenadas')
+        else:
+            print('  [ORDEN: PROXIMIDAD] ' + str(len(segments)) + ' features.')
 
     all_pts = []
     gap_ranges = []
@@ -293,19 +288,21 @@ def main():
     p.add_argument('--fin-lng', type=float, default=None, dest='fin_lng')
     p.add_argument('--fin-lat', type=float, default=None, dest='fin_lat')
     p.add_argument('--out-dir', default='.')
+    p.add_argument('--order-by', default='fid', choices=['fid', 'mojones', 'proximity'],
+                   dest='order_by',
+                   help='Estrategia de orden de features (defecto: fid)')
     args = p.parse_args()
 
     rn = args.ruta.lstrip('0') or args.ruta
     var = 'RP' + rn
     print('\n=== Generando bundle RP' + rn + ' ===')
+    print('Modo de orden: ' + args.order_by)
 
-    # Cargar mojones ANTES de la traza para usarlos como guia de orden
     mojones_pre = load_mojones(args.mojones)
-    pts_all, gap_ranges_field = load_chain(args.traza, mojones=mojones_pre)
+    pts_all, gap_ranges_field = load_chain(args.traza, mojones=mojones_pre, order_mode=args.order_by)
     print('Traza: ' + str(len(pts_all)) + ' puntos totales')
     has_gap_field = len(gap_ranges_field) > 0
 
-    # Subtramo si se dieron coords ini/fin
     if args.ini_lng and args.ini_lat:
         idx_ini, d_ini = nearest_idx(pts_all, [args.ini_lng, args.ini_lat])
         print('Inicio zona VI: idx=' + str(idx_ini) + ', dist=' + str(round(d_ini, 3)) + 'km')
@@ -327,47 +324,39 @@ def main():
         gap_ranges_sub = [(a-idx_ini, b-idx_ini) for a, b in gap_ranges_field
                           if idx_ini <= a <= idx_fin]
 
-    # Orientar de menor a mayor longitud (E->O en Argentina)
-    if sub[0][0] < sub[-1][0]:
+    if args.order_by != 'fid' and len(sub) > 1 and sub[0][0] < sub[-1][0]:
         sub = list(reversed(sub))
         n = len(sub) - 1
         gap_ranges_sub = [(n-b, n-a) for a, b in gap_ranges_sub]
-        print('Traza invertida para orientacion correcta')
+        print('Traza invertida (modo legacy)')
 
     sub = [[round(pt[0], 7), round(pt[1], 7)] for pt in sub]
 
-    # Acumulado
     acum = [0.0]
     for i in range(len(sub)-1):
         acum.append(acum[-1] + hav(sub[i], sub[i+1]))
     total_km = acum[-1]
-    print('Subtramo: ' + str(len(sub)) + ' pts, ' + str(round(total_km, 3)) + ' km')
+    print('Subtramo: ' + str(len(sub)) + ' pts, ' + str(round(total_km, 3)) + ' km (incluye gaps)')
 
-    # Gaps - calcular AMBOS arrays separados:
-    #   gaps_real → solo es_gap=1 marcados por el usuario en QGIS (visible en app principal)
-    #   gaps_auto → detectados automaticamente por umbral (solo informativo, dev/tests)
     gaps_real = gaps_from_field(sub, acum, gap_ranges_sub) if (has_gap_field and gap_ranges_sub) else []
     gaps_auto = detect_gaps_auto(sub, acum, args.gap_threshold)
 
     if gaps_real:
-        print('Gaps reales (es_gap=1): ' + str(len(gaps_real)) + ' [van al bundle como GAPS_RP' + rn + ']')
+        print('Gaps reales (es_gap=1): ' + str(len(gaps_real)))
         for g in gaps_real:
             print('  ' + g['id'] + ': acc ' + str(g['acc_desde']) + ' -> ' + str(g['acc_hasta']) + ' km')
     else:
-        print('Gaps reales: 0 [GAPS_RP' + rn + ' = []]')
+        print('Gaps reales: 0')
 
     if gaps_auto:
-        print('Gaps auto-detectados (umbral ' + str(args.gap_threshold) + 'km): ' + str(len(gaps_auto)) + ' [solo informativo, GAPS_AUTO_RP' + rn + ']')
+        print('Gaps auto (umbral ' + str(args.gap_threshold) + 'km): ' + str(len(gaps_auto)))
         for g in gaps_auto:
             print('  ' + g['id'] + ': acc ' + str(g['acc_desde']) + ' -> ' + str(g['acc_hasta']) + ' km (' + str(g['dist_recta_km']) + 'km recta)')
     else:
-        print('Sin saltos auto-detectados ✓')
+        print('Sin saltos auto-detectados')
 
-    # Para sintetic en gap, marcar usando los reales (no los auto)
     gaps = gaps_real
-
-    # Mojones y anchors
-    mojs = mojones_pre  # ya cargados antes para guiar auto-orden
+    mojs = mojones_pre
     print('Mojones cargados: ' + str([m['km'] for m in mojs]))
 
     anchors, moj_fis = [], []
@@ -393,9 +382,8 @@ def main():
             prog_ini = round(m['km'] - acum[bi], 2)
 
     if not valid_mojs:
-        print('  ! Sin mojones validos dentro de la cadena')
+        print('  ! Sin mojones validos')
         prog_ini = prog_ini or 0.0
-
     prog_ini = prog_ini or 0.0
 
     if len(valid_mojs) > 1:
@@ -408,7 +396,6 @@ def main():
     anchors.append({'km': round(prog_ini + total_km, 1), 'acc': round(total_km, 4)})
     moj_fis.sort(key=lambda m: m['km'])
 
-    # Mojones sinteticos
     paso = args.paso
     km_start = math.ceil(prog_ini / paso) * paso if prog_ini > 0 else 0.0
     moj_sint = []
@@ -431,7 +418,6 @@ def main():
 
     todos_moj = sorted(moj_fis + moj_sint, key=lambda m: m['km'])
 
-    # Serializar
     sub_j = json.dumps(sub, separators=(',', ':'))
     anch_j = json.dumps(anchors, separators=(',', ':'))
     mf_j = json.dumps(moj_fis, separators=(',', ':'), ensure_ascii=False)
@@ -440,30 +426,38 @@ def main():
     gaps_auto_j = json.dumps(gaps_auto, separators=(',', ':'), ensure_ascii=False)
     prog_fin = round(prog_ini + total_km, 1)
 
-    js = (
-        '// =================================================================\n'
-        '// datos/rutas_rp' + rn + '.js  -  RP' + rn + ' DVBA Zona VI\n'
-        '// Generado por gen_ruta_bundle.py v2.5 (auto-orden por mojones)\n'
-        '// ' + str(len(sub)) + ' pts | ' + str(round(total_km, 3)) + ' km | progIni:' + str(prog_ini) + ' | progFin:' + str(prog_fin) + '\n'
-        '// Gaps reales (es_gap=1): ' + str(len(gaps_real)) + ' [GAPS_RP' + rn + ' - app principal]\n'
-        '// Gaps auto-detectados:   ' + str(len(gaps_auto)) + ' [GAPS_AUTO_RP' + rn + ' - dev/tests]\n'
-        '// =================================================================\n\n'
-        'const CHAIN_' + var + '=' + sub_j + ';\n'
-        'const ANCHORS_' + var + '=' + anch_j + ';\n'
-        'const MOJONES_' + var + '=' + mf_j + ';\n'
-        'const MOJONES_' + var + '_TODOS=' + tod_j + ';\n'
-        '// GAPS_RPxx: solo gaps reales (es_gap=1 en QGIS) - app principal los renderiza\n'
-        'const GAPS_' + var + '=' + gaps_real_j + ';\n'
-        '// GAPS_AUTO_RPxx: saltos auto-detectados, solo informativo (dev/tests)\n'
-        'const GAPS_AUTO_' + var + '=' + gaps_auto_j + ';\n'
-        'const META_' + var + '={\n'
-        "  ruta:'" + rn + "',label:'RP " + rn + "',color:'" + args.color + "',weight:5,\n"
-        "  clase:'Mixto',progIni:" + str(prog_ini) + ',progFin:' + str(prog_fin) + ',\n'
-        '  longGis:' + str(round(total_km, 3)) + ',\n'
-        '  mojonesF:' + str(len(moj_fis)) + ',mojonesS:' + str(len(moj_sint)) + ',\n'
-        '  gapsReales:' + str(len(gaps_real)) + ',gapsAuto:' + str(len(gaps_auto)) + '\n'
-        '};\n'
-    )
+    n_sub = len(sub)
+    tk_r = round(total_km, 3)
+    n_real = len(gaps_real)
+    n_auto = len(gaps_auto)
+    n_mf = len(moj_fis)
+    n_ms = len(moj_sint)
+
+    js_lines = []
+    js_lines.append('// =================================================================')
+    js_lines.append('// datos/rutas_rp' + rn + '.js  -  RP' + rn + ' DVBA Zona VI')
+    js_lines.append('// Generado por gen_ruta_bundle.py v2.6 (orden=' + args.order_by + ')')
+    js_lines.append('// ' + str(n_sub) + ' pts | ' + str(tk_r) + ' km | progIni:' + str(prog_ini) + ' | progFin:' + str(prog_fin))
+    js_lines.append('// Gaps reales (es_gap=1): ' + str(n_real) + ' [GAPS_RP' + rn + ']')
+    js_lines.append('// Gaps auto-detectados:   ' + str(n_auto) + ' [GAPS_AUTO_RP' + rn + ']')
+    js_lines.append('// =================================================================')
+    js_lines.append('')
+    js_lines.append('const CHAIN_' + var + '=' + sub_j + ';')
+    js_lines.append('const ANCHORS_' + var + '=' + anch_j + ';')
+    js_lines.append('const MOJONES_' + var + '=' + mf_j + ';')
+    js_lines.append('const MOJONES_' + var + '_TODOS=' + tod_j + ';')
+    js_lines.append('// GAPS_RPxx: solo gaps reales (es_gap=1 en QGIS)')
+    js_lines.append('const GAPS_' + var + '=' + gaps_real_j + ';')
+    js_lines.append('// GAPS_AUTO_RPxx: saltos auto-detectados, solo informativo (dev/tests)')
+    js_lines.append('const GAPS_AUTO_' + var + '=' + gaps_auto_j + ';')
+    js_lines.append('const META_' + var + '={')
+    js_lines.append("  ruta:'" + rn + "',label:'RP " + rn + "',color:'" + args.color + "',weight:5,")
+    js_lines.append("  clase:'Mixto',progIni:" + str(prog_ini) + ',progFin:' + str(prog_fin) + ',')
+    js_lines.append('  longGis:' + str(tk_r) + ',')
+    js_lines.append('  mojonesF:' + str(n_mf) + ',mojonesS:' + str(n_ms) + ',')
+    js_lines.append('  gapsReales:' + str(n_real) + ',gapsAuto:' + str(n_auto))
+    js_lines.append('};')
+    js = '\n'.join(js_lines) + '\n'
 
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -471,13 +465,6 @@ def main():
     datos_dir.mkdir(exist_ok=True)
     js_path = datos_dir / ('rutas_rp' + rn + '.js')
     js_path.write_text(js, encoding='utf-8')
-
-    print('\nOK: ' + str(js_path) + ' (' + str(js_path.stat().st_size // 1024) + ' KB)')
-
-
-if __name__ == '__main__':
-    main()
-, encoding='utf-8')
 
     print('\nOK: ' + str(js_path) + ' (' + str(js_path.stat().st_size // 1024) + ' KB)')
 
