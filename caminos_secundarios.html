@@ -14,21 +14,16 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
 #hdr a.back:hover{background:#adf;color:#003366}
 #stats{font-size:.72rem;color:#adf;margin-left:auto}
 #map{width:100%;height:calc(100vh - 40px)}
-
-.ctrl{position:absolute;z-index:1000;background:rgba(255,255,255,.97);padding:10px 12px;
-       border-radius:6px;font-size:.78rem;color:#1a2a3a;box-shadow:0 2px 8px rgba(0,0,0,.2)}
-#pnl-partido{top:52px;left:10px;min-width:260px}
+.ctrl{position:absolute;z-index:1000;background:rgba(255,255,255,.97);padding:10px 12px;border-radius:6px;font-size:.78rem;color:#1a2a3a;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+#pnl-partido{top:52px;left:10px;min-width:280px}
 #pnl-partido h3{font-size:.85rem;color:#003366;margin-bottom:6px}
 #pnl-partido select{width:100%;padding:5px;font-size:.8rem;border:1px solid #ccc;border-radius:4px;background:#fff}
 #pnl-partido .resumen{margin-top:8px;line-height:1.5;font-size:.72rem;color:#445}
 #pnl-partido .km-grande{font-size:1.1rem;color:#003366;font-weight:700}
-#pnl-partido .badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:.65rem;margin-right:3px;color:#fff}
-.badge-tierra{background:#a07842}
-.badge-pavi{background:#3a7bd5}
-.badge-sinabrir{background:#888}
-.badge-temp{background:#f0ad4e;color:#222}
-.badge-perm{background:#5cb85c}
-
+.badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:.65rem;margin-right:3px;color:#fff}
+.badge-tierra{background:#a07842}.badge-pavi{background:#3a7bd5}.badge-sinabrir{background:#888}
+.badge-temp{background:#f0ad4e;color:#222}.badge-perm{background:#5cb85c}
+.badge-rev{background:#28a745}.badge-pre{background:#f0ad4e;color:#222}
 #pnl-tabla{top:52px;right:10px;width:340px;max-height:calc(100vh - 80px);overflow:auto;padding:0}
 #pnl-tabla .th{background:#003366;color:#fff;padding:8px 12px;font-weight:700;font-size:.78rem;position:sticky;top:0}
 #pnl-tabla .row{padding:8px 12px;border-bottom:1px solid #e8edf3;cursor:pointer;transition:background .15s}
@@ -37,56 +32,46 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
 #pnl-tabla .nm{font-weight:700;color:#003366;font-size:.78rem}
 #pnl-tabla .dn{font-size:.7rem;color:#555;margin-top:2px}
 #pnl-tabla .km{font-size:.7rem;color:#003366;float:right}
-
-#pnl-detalle{bottom:20px;left:10px;width:340px;max-width:calc(100vw - 380px);
-             background:rgba(0,51,102,.95);color:#fff;padding:14px 18px;border-radius:8px;
-             font-size:.82rem;line-height:1.5;display:none}
+#pnl-tabla .sub{font-size:.65rem;color:#888;font-style:italic;margin-top:2px}
+#pnl-detalle{bottom:20px;left:10px;width:340px;max-width:calc(100vw - 380px);background:rgba(0,51,102,.95);color:#fff;padding:14px 18px;border-radius:8px;font-size:.82rem;line-height:1.5;display:none}
 #pnl-detalle h4{color:#ffd700;font-size:.95rem;margin-bottom:6px}
 #pnl-detalle .row-d{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.1)}
 #pnl-detalle .row-d:last-child{border:none}
 #pnl-detalle .lbl{opacity:.7;font-size:.72rem}
 #pnl-detalle .val{font-weight:600;font-size:.78rem;text-align:right;max-width:55%}
+#pnl-detalle .tramo-hdr{margin-top:8px;padding-top:6px;border-top:1px dashed rgba(255,255,255,.3);font-size:.7rem;color:#ffd700}
 #pnl-detalle .alerta{background:rgba(255,150,150,.2);padding:5px 8px;border-radius:4px;margin-top:8px;font-size:.7rem;color:#fcc}
 #pnl-detalle .close{position:absolute;top:6px;right:10px;color:#ffd700;cursor:pointer;font-size:1.2rem;line-height:1}
-
 #pnl-leyenda{bottom:20px;right:10px;font-size:.72rem}
 #pnl-leyenda h4{color:#003366;margin-bottom:5px;font-size:.78rem}
 .lg-item{display:flex;align-items:center;gap:6px;margin:3px 0}
 .lg-line{display:inline-block;width:18px;height:3px;border-radius:1px}
+#estado-fuentes{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.95);padding:5px 12px;border-radius:6px;font-size:.68rem;color:#445;box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:1000}
+#estado-fuentes .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 3px;vertical-align:middle}
+.dot-rev{background:#28a745}.dot-pre{background:#f0ad4e}
 </style>
 </head>
 <body>
-
 <div id="hdr">
   <h1>🛣 Caminos Secundarios — DVBA Zona VI</h1>
   <a class="back" href="./index.html">← Volver al mapa</a>
-  <div id="stats">128 segmentos · 1.742,9 km · 8 partidos</div>
+  <div id="stats">cargando…</div>
 </div>
 <div id="map"></div>
-
-<!-- Panel: selector de partido -->
 <div class="ctrl" id="pnl-partido">
   <h3>Filtrar por partido</h3>
-  <select id="sel-partido">
-    <option value="">— Todos —</option>
-  </select>
+  <select id="sel-partido"><option value="">— Todos —</option></select>
   <div class="resumen" id="resumen-partido"></div>
 </div>
-
-<!-- Panel: tabla de caminos -->
 <div class="ctrl" id="pnl-tabla">
   <div class="th">Caminos <span id="ct-count" style="font-weight:400;opacity:.8"></span></div>
   <div id="lista-caminos"></div>
 </div>
-
-<!-- Panel: detalle de camino seleccionado -->
 <div class="ctrl" id="pnl-detalle">
   <span class="close" onclick="cerrarDetalle()">×</span>
   <h4 id="d-nm"></h4>
   <div id="d-body"></div>
 </div>
-
-<!-- Panel: leyenda -->
 <div class="ctrl" id="pnl-leyenda">
   <h4>Leyenda</h4>
   <div class="lg-item"><span class="lg-line" style="background:#a07842"></span>De tierra</div>
@@ -94,205 +79,267 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
   <div class="lg-item"><span class="lg-line" style="background:#888"></span>Sin abrir</div>
   <div class="lg-item"><span class="lg-line" style="background:#ff6600;height:5px"></span>Seleccionado</div>
 </div>
-
+<div id="estado-fuentes"></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ── Estado global ─────────────────────────────────────────────────
-let DATA = null;            // FeatureCollection completa
-let CAPA = null;            // L.geoJSON layer
-let LAYERS_BY_NM = {};      // NOMEMCLATURA → leaflet layer
-let SELECCIONADO = null;    // NOMEMCLATURA seleccionado
-const ESTILO_BASE = (cl) => ({
-  color: cl === 'PAVIMENTADO' ? '#3a7bd5' : cl === 'SIN ABRIR' ? '#888' : '#a07842',
-  weight: 3, opacity: .85
-});
-const ESTILO_SEL = { color: '#ff6600', weight: 6, opacity: 1 };
-const ESTILO_DIM = (cl) => ({ ...ESTILO_BASE(cl), opacity: .15 });
+const PARTIDOS = {
+  '034': 'General Alvear', '041': 'General Las Heras', '058': 'Las Flores',
+  '062': 'Lobos', '075': 'Navarro', '091': 'Roque Pérez',
+  '093': 'Saladillo', '109': 'Veinticinco de Mayo'
+};
+const PATRONES = [
+  'geojson_procesados/red_secundaria/caminos_secundarios_{cod}_corregidos_final.geojson',
+  'geojson_procesados/red_secundaria/caminos_secundarios_{cod}_final.geojson',
+  'geojson_procesados/red_secundaria/caminos_secundarios_{cod}.geojson'
+];
 
-// ── Mapa ───────────────────────────────────────────────────────────
+let DATA=null, CAPA=null, SELECCIONADO_NM=null;
+const LAYERS_BY_NM = {};
+const LAYERS_BY_FID = {};
+const FUENTES = {};
+
+const ESTILO_BASE = cl => ({ color: cl==='PAVIMENTADO'?'#3a7bd5': cl==='SIN ABRIR'?'#888':'#a07842', weight:3, opacity:.85 });
+const ESTILO_SEL = { color:'#ff6600', weight:6, opacity:1 };
+const ESTILO_DIM = cl => ({ ...ESTILO_BASE(cl), opacity:.15 });
+
 const map = L.map('map').setView([-35.50, -59.78], 9);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap', maxZoom: 18
-}).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap', maxZoom:18 }).addTo(map);
 
-// ── Cargar GeoJSON ────────────────────────────────────────────────
-fetch('datos/zona_vi/red_secundaria_zonaVI_final.geojson')
-  .then(r => r.json())
-  .then(gj => {
-    DATA = gj;
-    renderMapa();
-    poblarSelector();
-    renderTabla(null);
-  })
-  .catch(err => {
-    document.getElementById('stats').textContent = '⚠ Error cargando datos: ' + err.message;
+async function cargarDatos(){
+  const features = []; const pendientes = [];
+  for (const [cod, nombre] of Object.entries(PARTIDOS)){
+    let ok = false;
+    for (const pat of PATRONES){
+      try{
+        const r = await fetch(pat.replace('{cod}', cod), {cache:'no-cache'});
+        if (!r.ok) continue;
+        const gj = await r.json();
+        if (!gj.features || !gj.features.length) continue;
+        gj.features.forEach(f => {
+          f.properties = f.properties || {};
+          if (!f.properties.PARTIDO_NOMBRE) f.properties.PARTIDO_NOMBRE = nombre;
+          if (!f.properties.PARTIDO) f.properties.PARTIDO = parseInt(cod);
+          f.properties._fuente = 'partido';
+          features.push(f);
+        });
+        FUENTES[cod] = 'partido'; ok = true;
+        console.log('  ✓ '+cod+' '+nombre+': '+gj.features.length+' features');
+        break;
+      } catch(e){}
+    }
+    if (!ok) pendientes.push(cod);
+  }
+  if (pendientes.length){
+    try{
+      const r = await fetch('datos/zona_vi/red_secundaria_zonaVI_final.geojson', {cache:'no-cache'});
+      if (r.ok){
+        const gj = await r.json();
+        const set = new Set(pendientes);
+        gj.features.forEach(f => {
+          const cod = String(f.properties.PARTIDO).padStart(3,'0');
+          if (set.has(cod)){
+            f.properties._fuente = 'fallback';
+            features.push(f);
+          }
+        });
+        pendientes.forEach(c => { if (!FUENTES[c]) FUENTES[c]='fallback'; });
+      }
+    } catch(e){ console.warn('Fallback off:', e.message); }
+  }
+  // Asignar _fid único
+  const seq = {};
+  features.forEach(f => {
+    const nm = f.properties.NOMEMCLATURA || '???';
+    seq[nm] = (seq[nm]||0) + 1;
+    f.properties._fid = nm + '#' + seq[nm];
   });
+  DATA = { type:'FeatureCollection', features };
+  return features.length;
+}
 
-function renderMapa() {
+function renderMapa(){
   CAPA = L.geoJSON(DATA, {
     style: f => ESTILO_BASE(f.properties.CLASE),
     onEachFeature: (f, layer) => {
       const nm = f.properties.NOMEMCLATURA;
-      LAYERS_BY_NM[nm] = layer;
+      const fid = f.properties._fid;
+      if (!LAYERS_BY_NM[nm]) LAYERS_BY_NM[nm] = [];
+      LAYERS_BY_NM[nm].push(layer);
+      LAYERS_BY_FID[fid] = layer;
       layer.on('click', () => seleccionarCamino(nm));
-      layer.on('mouseover', () => { if (SELECCIONADO !== nm) layer.setStyle({ weight: 5 }); });
-      layer.on('mouseout', () => { if (SELECCIONADO !== nm) layer.setStyle(ESTILO_BASE(f.properties.CLASE)); });
+      layer.on('mouseover', () => { if (SELECCIONADO_NM !== nm) LAYERS_BY_NM[nm].forEach(l => l.setStyle({weight:5})); });
+      layer.on('mouseout',  () => { if (SELECCIONADO_NM !== nm) LAYERS_BY_NM[nm].forEach(l => l.setStyle(ESTILO_BASE(f.properties.CLASE))); });
     }
   }).addTo(map);
   map.fitBounds(CAPA.getBounds().pad(0.05));
 }
 
-// ── Selector de partido ───────────────────────────────────────────
-function poblarSelector() {
-  const partidos = [...new Set(DATA.features.map(f => f.properties.PARTIDO_NOMBRE))].sort();
+function actualizarStats(){
+  const total = DATA.features.length;
+  const km = DATA.features.reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
+  const nRev = Object.values(FUENTES).filter(v => v==='partido').length;
+  document.getElementById('stats').textContent =
+    total + ' segmentos · ' + km.toFixed(1) + ' km · ' + nRev + '/' + Object.keys(PARTIDOS).length + ' partidos revisados';
+}
+
+function actualizarEstadoFuentes(){
+  const html = Object.entries(PARTIDOS).map(([cod, n]) => {
+    const ok = FUENTES[cod] === 'partido';
+    return '<span title="'+(ok?'Revisado':'Preliminar (PBA)')+'"><span class="dot '+(ok?'dot-rev':'dot-pre')+'"></span>'+cod+'</span>';
+  }).join(' ');
+  document.getElementById('estado-fuentes').innerHTML =
+    '<b>Fuentes:</b> '+html+' <span style="margin-left:8px;color:#888">●verde=revisado · ●naranja=preliminar</span>';
+}
+
+function poblarSelector(){
   const sel = document.getElementById('sel-partido');
-  partidos.forEach(p => {
+  Object.entries(PARTIDOS).forEach(([cod, n]) => {
+    const tiene = DATA.features.some(f => f.properties.PARTIDO_NOMBRE === n);
+    if (!tiene) return;
+    const ok = FUENTES[cod] === 'partido';
     const opt = document.createElement('option');
-    opt.value = p; opt.textContent = p;
+    opt.value = n; opt.textContent = (ok?'✓ ':'◌ ') + n;
     sel.appendChild(opt);
   });
   sel.addEventListener('change', e => filtrarPorPartido(e.target.value));
 }
 
-function filtrarPorPartido(partido) {
+function filtrarPorPartido(partido){
   cerrarDetalle();
-  if (!partido) {
-    // Mostrar todo
-    DATA.features.forEach(f => {
-      LAYERS_BY_NM[f.properties.NOMEMCLATURA].setStyle(ESTILO_BASE(f.properties.CLASE));
-    });
+  if (!partido){
+    DATA.features.forEach(f => LAYERS_BY_FID[f.properties._fid].setStyle(ESTILO_BASE(f.properties.CLASE)));
     map.fitBounds(CAPA.getBounds().pad(0.05));
     document.getElementById('resumen-partido').innerHTML = '';
     renderTabla(null);
     return;
   }
-  // Atenuar otros, resaltar del partido
   const filtrados = [];
   DATA.features.forEach(f => {
     const p = f.properties;
-    if (p.PARTIDO_NOMBRE === partido) {
-      LAYERS_BY_NM[p.NOMEMCLATURA].setStyle(ESTILO_BASE(p.CLASE));
-      filtrados.push(f);
-    } else {
-      LAYERS_BY_NM[p.NOMEMCLATURA].setStyle(ESTILO_DIM(p.CLASE));
-    }
+    const layer = LAYERS_BY_FID[p._fid];
+    if (p.PARTIDO_NOMBRE === partido){ layer.setStyle(ESTILO_BASE(p.CLASE)); filtrados.push(f); }
+    else { layer.setStyle(ESTILO_DIM(p.CLASE)); }
   });
-  // Calcular totales del partido
-  const totalKm = filtrados.reduce((s, f) => s + (f.properties.LONGITUD_KM_WGS84 || 0), 0);
-  const n_tierra = filtrados.filter(f => f.properties.CLASE === 'DE TIERRA').length;
-  const n_pavi   = filtrados.filter(f => f.properties.CLASE === 'PAVIMENTADO').length;
-  const n_sinabrir = filtrados.filter(f => f.properties.CLASE === 'SIN ABRIR').length;
-  const n_temp = filtrados.filter(f => (f.properties.TRANSITABIlIDAD || '').toUpperCase() === 'TEMPORARIO').length;
-  const n_perm = filtrados.filter(f => (f.properties.TRANSITABIlIDAD || '').toUpperCase() === 'PERMANENTE').length;
-  const n_rev  = filtrados.filter(f => f.properties.ALERTA === 'REVISAR').length;
+  const km = filtrados.reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
+  const nm_u = new Set(filtrados.map(f => f.properties.NOMEMCLATURA)).size;
+  const n_t = filtrados.filter(f => f.properties.CLASE === 'DE TIERRA').length;
+  const n_p = filtrados.filter(f => f.properties.CLASE === 'PAVIMENTADO').length;
+  const n_s = filtrados.filter(f => f.properties.CLASE === 'SIN ABRIR').length;
+  const n_tem = filtrados.filter(f => (f.properties.TRANSITABIlIDAD||'').toUpperCase() === 'TEMPORARIO').length;
+  const n_per = filtrados.filter(f => (f.properties.TRANSITABIlIDAD||'').toUpperCase() === 'PERMANENTE').length;
+  const n_rev = filtrados.filter(f => f.properties.ALERTA === 'REVISAR').length;
+  const codE = Object.entries(PARTIDOS).find(([c,n]) => n === partido);
+  const cod = codE ? codE[0] : '';
+  const ok = FUENTES[cod] === 'partido';
   document.getElementById('resumen-partido').innerHTML =
-    '<div><b>' + filtrados.length + '</b> caminos · <span class="km-grande">' + totalKm.toFixed(1) + ' km</span></div>' +
-    '<div style="margin-top:6px">' +
-      (n_tierra    ? '<span class="badge badge-tierra">' + n_tierra + ' tierra</span>'   : '') +
-      (n_pavi      ? '<span class="badge badge-pavi">'   + n_pavi   + ' pav.</span>'      : '') +
-      (n_sinabrir  ? '<span class="badge badge-sinabrir">'+ n_sinabrir + ' s/abrir</span>': '') +
-    '</div>' +
-    '<div style="margin-top:4px">' +
-      (n_perm      ? '<span class="badge badge-perm">' + n_perm + ' permanente</span>'  : '') +
-      (n_temp      ? '<span class="badge badge-temp">' + n_temp + ' temporario</span>'  : '') +
-    '</div>' +
-    (n_rev ? '<div style="margin-top:6px;color:#c00;font-size:.7rem">⚠ ' + n_rev + ' a revisar</div>' : '');
-
-  // Zoom al partido
-  const bounds = L.featureGroup(filtrados.map(f => LAYERS_BY_NM[f.properties.NOMEMCLATURA])).getBounds();
-  if (bounds.isValid()) map.fitBounds(bounds.pad(0.1));
-
-  // Actualizar tabla
+    '<div><b>'+nm_u+'</b> caminos / '+filtrados.length+' tramos · <span class="km-grande">'+km.toFixed(1)+' km</span></div>'+
+    '<div style="margin-top:6px">'+
+      (n_t?'<span class="badge badge-tierra">'+n_t+' tierra</span>':'')+
+      (n_p?'<span class="badge badge-pavi">'+n_p+' pav.</span>':'')+
+      (n_s?'<span class="badge badge-sinabrir">'+n_s+' s/abrir</span>':'')+
+    '</div>'+
+    '<div style="margin-top:4px">'+
+      (n_per?'<span class="badge badge-perm">'+n_per+' permanente</span>':'')+
+      (n_tem?'<span class="badge badge-temp">'+n_tem+' temporario</span>':'')+
+    '</div>'+
+    '<div style="margin-top:6px">'+
+      (ok?'<span class="badge badge-rev">✓ revisado QGIS</span>':'<span class="badge badge-pre">◌ preliminar (sin corregir)</span>')+
+      (n_rev?' <span style="color:#c00;font-size:.7rem">· '+n_rev+' con alerta visual</span>':'')+
+    '</div>';
+  const layers = filtrados.map(f => LAYERS_BY_FID[f.properties._fid]).filter(Boolean);
+  if (layers.length){ const b = L.featureGroup(layers).getBounds(); if (b.isValid()) map.fitBounds(b.pad(0.1)); }
   renderTabla(partido);
 }
 
-// ── Tabla de caminos ──────────────────────────────────────────────
-function renderTabla(partido) {
+function renderTabla(partido){
   const lista = document.getElementById('lista-caminos');
-  const ctCount = document.getElementById('ct-count');
-  const items = partido
-    ? DATA.features.filter(f => f.properties.PARTIDO_NOMBRE === partido)
-    : DATA.features;
-  ctCount.textContent = '(' + items.length + ')';
-  // Ordenar por NOMEMCLATURA
-  items.sort((a, b) => a.properties.NOMEMCLATURA.localeCompare(b.properties.NOMEMCLATURA));
-  lista.innerHTML = items.map(f => {
-    const p = f.properties;
-    const km = (p.LONGITUD_KM_WGS84 || 0).toFixed(2);
-    const cl = p.CLASE === 'PAVIMENTADO' ? '🛣' : p.CLASE === 'SIN ABRIR' ? '⚠' : '🌾';
-    const rev = p.ALERTA === 'REVISAR' ? ' ⚠' : '';
-    return '<div class="row" data-nm="' + p.NOMEMCLATURA + '">' +
-             '<div class="nm">' + cl + ' ' + p.NOMEMCLATURA + rev + '<span class="km">' + km + ' km</span></div>' +
-             '<div class="dn">' + (p.DENOMINACION || '—') + '</div>' +
-           '</div>';
+  const items = partido ? DATA.features.filter(f => f.properties.PARTIDO_NOMBRE === partido) : DATA.features;
+  const grupos = {};
+  items.forEach(f => { const nm = f.properties.NOMEMCLATURA; (grupos[nm] = grupos[nm] || []).push(f); });
+  document.getElementById('ct-count').textContent = '('+Object.keys(grupos).length+' caminos / '+items.length+' tramos)';
+  const ord = Object.entries(grupos).sort(([a],[b]) => a.localeCompare(b));
+  lista.innerHTML = ord.map(([nm, fs]) => {
+    const km = fs.reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
+    const dn = fs[0].properties.DENOMINACION || '—';
+    const cl = fs[0].properties.CLASE;
+    const ic = cl === 'PAVIMENTADO' ? '🛣' : cl === 'SIN ABRIR' ? '⚠' : '🌾';
+    const rv = fs.some(f => f.properties.ALERTA === 'REVISAR') ? ' ⚠' : '';
+    const sub = fs.length > 1 ? '<div class="sub">'+fs.length+' tramos</div>' : '';
+    return '<div class="row" data-nm="'+nm+'"><div class="nm">'+ic+' '+nm+rv+'<span class="km">'+km.toFixed(2)+' km</span></div><div class="dn">'+dn+'</div>'+sub+'</div>';
   }).join('');
-  // Bind click
-  lista.querySelectorAll('.row').forEach(r => {
-    r.addEventListener('click', () => seleccionarCamino(r.dataset.nm));
-  });
+  lista.querySelectorAll('.row').forEach(r => r.addEventListener('click', () => seleccionarCamino(r.dataset.nm)));
 }
 
-// ── Seleccionar un camino (desde mapa o tabla) ────────────────────
-function seleccionarCamino(nm) {
-  // Reset previo
-  if (SELECCIONADO && LAYERS_BY_NM[SELECCIONADO]) {
-    const feat = DATA.features.find(f => f.properties.NOMEMCLATURA === SELECCIONADO);
-    if (feat) LAYERS_BY_NM[SELECCIONADO].setStyle(ESTILO_BASE(feat.properties.CLASE));
-    const rprev = document.querySelector('.row[data-nm="' + SELECCIONADO + '"]');
-    if (rprev) rprev.classList.remove('activo');
+function seleccionarCamino(nm){
+  if (SELECCIONADO_NM && LAYERS_BY_NM[SELECCIONADO_NM]){
+    const fs = DATA.features.filter(f => f.properties.NOMEMCLATURA === SELECCIONADO_NM);
+    LAYERS_BY_NM[SELECCIONADO_NM].forEach((l, i) => l.setStyle(ESTILO_BASE(fs[i] ? fs[i].properties.CLASE : 'DE TIERRA')));
+    const r0 = document.querySelector('.row[data-nm="'+SELECCIONADO_NM+'"]'); if (r0) r0.classList.remove('activo');
   }
-  // Aplicar nuevo
-  SELECCIONADO = nm;
-  const layer = LAYERS_BY_NM[nm];
-  if (!layer) return;
-  layer.setStyle(ESTILO_SEL); layer.bringToFront();
-  const row = document.querySelector('.row[data-nm="' + nm + '"]');
-  if (row) {
-    row.classList.add('activo');
-    row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-  // Centrar el camino en el mapa
-  map.fitBounds(layer.getBounds().pad(0.3));
-  // Mostrar detalle
+  SELECCIONADO_NM = nm;
+  const layers = LAYERS_BY_NM[nm] || [];
+  if (!layers.length) return;
+  layers.forEach(l => { l.setStyle(ESTILO_SEL); l.bringToFront(); });
+  const r = document.querySelector('.row[data-nm="'+nm+'"]');
+  if (r){ r.classList.add('activo'); r.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+  const b = L.featureGroup(layers).getBounds();
+  if (b.isValid()) map.fitBounds(b.pad(0.25));
   mostrarDetalle(nm);
 }
 
-function mostrarDetalle(nm) {
-  const feat = DATA.features.find(f => f.properties.NOMEMCLATURA === nm);
-  if (!feat) return;
-  const p = feat.properties;
-  document.getElementById('d-nm').textContent = '🛣 ' + nm + ' · ' + (p.DENOMINACION || '');
-  const filas = [
-    ['Partido', p.PARTIDO_NOMBRE + ' (' + p.PARTIDO + ')'],
-    ['Clase', p.CLASE],
-    ['Transitabilidad', p.TRANSITABIlIDAD],
-    ['Longitud (WGS84)', (p.LONGITUD_KM_WGS84 || 0).toFixed(3) + ' km'],
-    ['Longitud original', (p.LONGITUD_KM_ORIG || 0).toFixed(3) + ' km'],
-    ['Diff %', (p.DIFF_PCT || 0).toFixed(2) + ' %'],
-    ['Vértices', p.N_VERTICES],
-    ['Líneas', p.N_LINEAS],
+function mostrarDetalle(nm){
+  const fs = DATA.features.filter(f => f.properties.NOMEMCLATURA === nm);
+  if (!fs.length) return;
+  const p0 = fs[0].properties;
+  const km = fs.reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
+  const kmo = fs.reduce((s,f) => s + (f.properties.LONGITUD_KM_ORIG||0), 0);
+  const n = fs.length;
+  const ok = p0._fuente === 'partido';
+  document.getElementById('d-nm').textContent = '🛣 '+nm+' · '+(p0.DENOMINACION||'')+(n>1?' ('+n+' tramos)':'');
+  const fc = [
+    ['Partido', p0.PARTIDO_NOMBRE+' ('+p0.PARTIDO+')'],
+    ['Clase', p0.CLASE],
+    ['Transitabilidad', p0.TRANSITABIlIDAD],
+    ['Longitud total WGS84', km.toFixed(3)+' km'],
+    ['Longitud original', kmo.toFixed(3)+' km'],
+    ['Fuente', ok ? '✓ Revisado en QGIS' : '◌ Preliminar (PBA)']
   ];
-  const body = filas.map(([l, v]) =>
-    '<div class="row-d"><span class="lbl">' + l + '</span><span class="val">' + (v ?? '—') + '</span></div>'
-  ).join('');
-  let html = body;
-  if (p.ALERTA === 'REVISAR') {
-    html += '<div class="alerta">⚠ Segmento marcado para revisión: la longitud declarada difiere significativamente de la geodésica.</div>';
+  let body = fc.map(([l,v]) => '<div class="row-d"><span class="lbl">'+l+'</span><span class="val">'+(v==null?'—':v)+'</span></div>').join('');
+  if (n > 1){
+    fs.forEach((f, i) => {
+      const p = f.properties;
+      body += '<div class="tramo-hdr">Tramo '+(i+1)+' ('+(p._fid||'')+')</div>';
+      body += '<div class="row-d"><span class="lbl">Longitud WGS84</span><span class="val">'+(p.LONGITUD_KM_WGS84||0).toFixed(3)+' km</span></div>';
+      body += '<div class="row-d"><span class="lbl">Long. original</span><span class="val">'+(p.LONGITUD_KM_ORIG||0).toFixed(3)+' km</span></div>';
+      body += '<div class="row-d"><span class="lbl">Diff %</span><span class="val">'+(p.DIFF_PCT||0).toFixed(2)+' %</span></div>';
+      body += '<div class="row-d"><span class="lbl">Vértices</span><span class="val">'+p.N_VERTICES+'</span></div>';
+      body += '<div class="row-d"><span class="lbl">Líneas</span><span class="val">'+p.N_LINEAS+'</span></div>';
+      if (p.ALERTA === 'REVISAR') body += '<div class="alerta" style="margin-top:4px">⚠ Tramo con diff > 10%</div>';
+    });
+  } else {
+    body += '<div class="row-d"><span class="lbl">Diff %</span><span class="val">'+(p0.DIFF_PCT||0).toFixed(2)+' %</span></div>';
+    body += '<div class="row-d"><span class="lbl">Vértices</span><span class="val">'+p0.N_VERTICES+'</span></div>';
+    body += '<div class="row-d"><span class="lbl">Líneas</span><span class="val">'+p0.N_LINEAS+'</span></div>';
+    if (p0.ALERTA === 'REVISAR') body += '<div class="alerta">⚠ Segmento marcado para revisión.</div>';
   }
-  document.getElementById('d-body').innerHTML = html;
+  document.getElementById('d-body').innerHTML = body;
   document.getElementById('pnl-detalle').style.display = 'block';
 }
 
-function cerrarDetalle() {
+function cerrarDetalle(){
   document.getElementById('pnl-detalle').style.display = 'none';
-  if (SELECCIONADO && LAYERS_BY_NM[SELECCIONADO]) {
-    const feat = DATA.features.find(f => f.properties.NOMEMCLATURA === SELECCIONADO);
-    if (feat) LAYERS_BY_NM[SELECCIONADO].setStyle(ESTILO_BASE(feat.properties.CLASE));
-    const row = document.querySelector('.row[data-nm="' + SELECCIONADO + '"]');
-    if (row) row.classList.remove('activo');
+  if (SELECCIONADO_NM && LAYERS_BY_NM[SELECCIONADO_NM]){
+    const fs = DATA.features.filter(f => f.properties.NOMEMCLATURA === SELECCIONADO_NM);
+    LAYERS_BY_NM[SELECCIONADO_NM].forEach((l, i) => l.setStyle(ESTILO_BASE(fs[i] ? fs[i].properties.CLASE : 'DE TIERRA')));
+    const r = document.querySelector('.row[data-nm="'+SELECCIONADO_NM+'"]'); if (r) r.classList.remove('activo');
   }
-  SELECCIONADO = null;
+  SELECCIONADO_NM = null;
 }
+
+cargarDatos().then(n => {
+  if (!n){ document.getElementById('stats').textContent = '⚠ Sin datos.'; return; }
+  renderMapa(); poblarSelector(); renderTabla(null); actualizarStats(); actualizarEstadoFuentes();
+});
 </script>
 </body>
 </html>

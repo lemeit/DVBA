@@ -7,6 +7,8 @@ de caminos provinciales DVBA.
 Soporta dos modos de entrada:
   A) GeoJSON completo PBA  → filtra por zona y procesa
   B) GeoPackage de zona    → procesa directamente
+     (acepta tanto el GeoPackage original del KMZ como el _final.gpkg
+      generado por este mismo script — detección automática de columnas)
 
 Uso modo A (recomendado — fuente canónica):
     python calcular_longitudes_red_vial.py
@@ -161,25 +163,71 @@ def cargar_geojson(path: str, partidos_zona: list, lookup: dict) -> pd.DataFrame
 
 
 def cargar_gpkg(path: str, lookup: dict) -> pd.DataFrame:
-    """Carga un GeoPackage de zona ya filtrado."""
-    gdf = gpd.read_file(path)
+    """
+    Carga un GeoPackage de zona ya filtrado.
 
+    Acepta dos variantes:
+      - GeoPackage original del KMZ: tiene columna 'LONGITUD' (texto corrupto)
+        y opcionalmente 'Coordenadas_Trayectoria'.
+      - GeoPackage _final.gpkg generado por este script: ya tiene
+        'LONGITUD_KM_ORIG' y 'LONGITUD_KM_WGS84' calculadas; la geometría
+        corregida es la fuente de verdad para el recálculo.
+    """
+    gdf = gpd.read_file(path)
+    cols = set(gdf.columns)
+
+    # ── Detección de variante ─────────────────────────────────────────────────
+    es_output_propio = 'LONGITUD_KM_ORIG' in cols and 'LONGITUD' not in cols
+    if es_output_propio:
+        print("  [INFO] GeoPackage generado por este script detectado "
+              "(sin columna LONGITUD original).")
+        print("         LONGITUD_KM_ORIG se conserva; LONGITUD_KM_WGS84 se recalcula "
+              "desde la geometría corregida.\n")
+
+    # ── Longitud original ─────────────────────────────────────────────────────
+    if 'LONGITUD' in cols:
+        # GeoPackage original del KMZ
+        gdf['LONGITUD_KM_ORIG'] = gdf['LONGITUD'].apply(decode_longitud_corrupta)
+    elif 'LONGITUD_KM_ORIG' in cols:
+        # Ya viene calculada, la dejamos tal cual (puede ser float o None)
+        gdf['LONGITUD_KM_ORIG'] = pd.to_numeric(gdf['LONGITUD_KM_ORIG'], errors='coerce')
+    else:
+        print("  [AVISO] No se encontró columna LONGITUD ni LONGITUD_KM_ORIG. "
+              "LONGITUD_KM_ORIG quedará vacía.")
+        gdf['LONGITUD_KM_ORIG'] = None
+
+    # ── Longitud geodésica (siempre recalculada desde geometría) ──────────────
     def calc_long(row):
         geom = row['geometry']
-        attr = str(row.get('Coordenadas_Trayectoria','')) if pd.notna(
-            row.get('Coordenadas_Trayectoria','')) else ''
-        if geom is not None and len(list(geom.coords)) > 1:
-            return geodesic_linestring(geom)
+        if geom is not None:
+            try:
+                return geodesic_linestring(geom)
+            except Exception:
+                pass
+        # Fallback por atributo de texto (solo presente en GeoPackage original)
+        attr = ''
+        if 'Coordenadas_Trayectoria' in row.index:
+            v = row['Coordenadas_Trayectoria']
+            attr = str(v) if pd.notna(v) else ''
         if 'LINESTRING' in attr:
             return longitud_desde_wkt_multiline(attr)
         return longitud_desde_attr_texto(attr)
 
-    gdf['PARTIDO_NOMBRE']    = gdf['PARTIDO'].map(lookup).fillna('Desconocido')
-    gdf['LONGITUD_KM_ORIG']  = gdf['LONGITUD'].apply(decode_longitud_corrupta)
     gdf['LONGITUD_KM_WGS84'] = gdf.apply(calc_long, axis=1)
-    gdf['N_VERTICES']        = gdf['geometry'].apply(
-        lambda g: len(list(g.coords)) if g is not None and len(list(g.coords)) > 0 else 0)
-    gdf['N_LINEAS']          = 1
+
+    # ── Campos auxiliares ─────────────────────────────────────────────────────
+    gdf['PARTIDO_NOMBRE'] = gdf['PARTIDO'].map(lookup).fillna('Desconocido')
+
+    gdf['N_VERTICES'] = gdf['geometry'].apply(
+        lambda g: sum(len(list(part.coords)) for part in g.geoms)
+                  if g is not None and g.geom_type == 'MultiLineString'
+                  else (len(list(g.coords)) if g is not None else 0)
+    )
+    gdf['N_LINEAS'] = gdf['geometry'].apply(
+        lambda g: len(list(g.geoms)) if g is not None and g.geom_type == 'MultiLineString'
+                  else (1 if g is not None else 0)
+    )
+
     return pd.DataFrame(gdf)
 
 
@@ -214,8 +262,22 @@ def procesar(input_path: str, output_dir: str, zona_id: str, ref_path: str) -> N
         fuente = 'GeoJSON-PBA'
     else:
         df = cargar_gpkg(input_path, lookup)
-        fuente = 'GeoPackage-KMZ'
+        fuente = 'GeoPackage'
     print(f"  {len(df)} segmentos cargados [{fuente}]\n")
+
+    # ── Normalizar nombre de columna nomenclatura (typo histórico del dato oficial) ──
+    # El dato provincial original usa 'NOMEMCLATURA' (con M doble, typo).
+    # Si el GeoPackage de entrada tiene 'NOMENCLATURA' (correcto), lo renombramos
+    # internamente para que el resto del script funcione igual en todos los casos.
+    if 'NOMENCLATURA' in df.columns and 'NOMEMCLATURA' not in df.columns:
+        print("  [INFO] Columna 'NOMENCLATURA' renombrada a 'NOMEMCLATURA' "
+              "para consistencia interna.\n")
+        df = df.rename(columns={'NOMENCLATURA': 'NOMEMCLATURA'})
+
+    if 'NOMEMCLATURA' not in df.columns:
+        print("  [AVISO] No se encontró columna NOMEMCLATURA ni NOMENCLATURA. "
+              "Se agrega vacía.")
+        df['NOMEMCLATURA'] = ''
 
     df['DIFF_PCT'] = (
         (df['LONGITUD_KM_WGS84'] - df['LONGITUD_KM_ORIG']) /
@@ -304,7 +366,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Longitudes geodésicas WGS84 — Red Vial Secundaria DVBA')
     parser.add_argument('--input',  required=True,
-                        help='.geojson (PBA completo) o .gpkg (zona)')
+                        help='.geojson (PBA completo) o .gpkg (zona, original o _final)')
     parser.add_argument('--output', default='output',
                         help='Carpeta de salida')
     parser.add_argument('--zona',   default='VI',
