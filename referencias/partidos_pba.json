@@ -1,0 +1,554 @@
+{
+  "_fuente": "ARBA - Agencia de Recaudación Provincia de Buenos Aires",
+  "_url": "https://www.arba.gov.ar",
+  "_nota": "Listado oficial de partidos PBA. Usar como referencia cruzada en todos los scripts del proyecto DVBA Zona VI.",
+  "partidos": [
+    {
+      "numero": 1,
+      "nombre": "Adolfo Alsina"
+    },
+    {
+      "numero": 51,
+      "nombre": "Adolfo Gonzales Chaves"
+    },
+    {
+      "numero": 2,
+      "nombre": "Alberti"
+    },
+    {
+      "numero": 3,
+      "nombre": "Almirante Brown"
+    },
+    {
+      "numero": 10,
+      "nombre": "Arrecifes"
+    },
+    {
+      "numero": 4,
+      "nombre": "Avellaneda"
+    },
+    {
+      "numero": 5,
+      "nombre": "Ayacucho"
+    },
+    {
+      "numero": 6,
+      "nombre": "Azul"
+    },
+    {
+      "numero": 7,
+      "nombre": "Bahía Blanca"
+    },
+    {
+      "numero": 8,
+      "nombre": "Balcarce"
+    },
+    {
+      "numero": 9,
+      "nombre": "Baradero"
+    },
+    {
+      "numero": 53,
+      "nombre": "Benito Juárez"
+    },
+    {
+      "numero": 120,
+      "nombre": "Berazategui"
+    },
+    {
+      "numero": 114,
+      "nombre": "Berisso"
+    },
+    {
+      "numero": 11,
+      "nombre": "Bolívar"
+    },
+    {
+      "numero": 12,
+      "nombre": "Bragado"
+    },
+    {
+      "numero": 13,
+      "nombre": "Brandsen"
+    },
+    {
+      "numero": 14,
+      "nombre": "Campana"
+    },
+    {
+      "numero": 15,
+      "nombre": "Cañuelas"
+    },
+    {
+      "numero": 121,
+      "nombre": "Capitán Sarmiento"
+    },
+    {
+      "numero": 16,
+      "nombre": "Carlos Casares"
+    },
+    {
+      "numero": 17,
+      "nombre": "Carlos Tejedor"
+    },
+    {
+      "numero": 18,
+      "nombre": "Carmen de Areco"
+    },
+    {
+      "numero": 20,
+      "nombre": "Castelli"
+    },
+    {
+      "numero": 26,
+      "nombre": "Chacabuco"
+    },
+    {
+      "numero": 27,
+      "nombre": "Chascomús"
+    },
+    {
+      "numero": 28,
+      "nombre": "Chivilcoy"
+    },
+    {
+      "numero": 21,
+      "nombre": "Colón"
+    },
+    {
+      "numero": 22,
+      "nombre": "Coronel Dorrego"
+    },
+    {
+      "numero": 23,
+      "nombre": "Coronel Pringles"
+    },
+    {
+      "numero": 113,
+      "nombre": "Coronel Rosales"
+    },
+    {
+      "numero": 24,
+      "nombre": "Coronel Suárez"
+    },
+    {
+      "numero": 19,
+      "nombre": "Daireaux"
+    },
+    {
+      "numero": 29,
+      "nombre": "Dolores"
+    },
+    {
+      "numero": 115,
+      "nombre": "Ensenada"
+    },
+    {
+      "numero": 118,
+      "nombre": "Escobar"
+    },
+    {
+      "numero": 30,
+      "nombre": "Esteban Echeverría"
+    },
+    {
+      "numero": 31,
+      "nombre": "Exaltación de la Cruz"
+    },
+    {
+      "numero": 130,
+      "nombre": "Ezeiza"
+    },
+    {
+      "numero": 32,
+      "nombre": "Florencio Varela"
+    },
+    {
+      "numero": 128,
+      "nombre": "Florentino Ameghino"
+    },
+    {
+      "numero": 33,
+      "nombre": "General Alvarado"
+    },
+    {
+      "numero": 34,
+      "nombre": "General Alvear"
+    },
+    {
+      "numero": 35,
+      "nombre": "General Arenales"
+    },
+    {
+      "numero": 36,
+      "nombre": "General Belgrano"
+    },
+    {
+      "numero": 37,
+      "nombre": "General Guido"
+    },
+    {
+      "numero": 40,
+      "nombre": "General La Madrid"
+    },
+    {
+      "numero": 41,
+      "nombre": "General Las Heras"
+    },
+    {
+      "numero": 42,
+      "nombre": "General Lavalle"
+    },
+    {
+      "numero": 39,
+      "nombre": "General Madariaga"
+    },
+    {
+      "numero": 43,
+      "nombre": "General Paz"
+    },
+    {
+      "numero": 44,
+      "nombre": "General Pinto"
+    },
+    {
+      "numero": 45,
+      "nombre": "General Pueyrredón"
+    },
+    {
+      "numero": 46,
+      "nombre": "General Rodríguez"
+    },
+    {
+      "numero": 47,
+      "nombre": "General San Martín"
+    },
+    {
+      "numero": 49,
+      "nombre": "General Viamonte"
+    },
+    {
+      "numero": 50,
+      "nombre": "General Villegas"
+    },
+    {
+      "numero": 52,
+      "nombre": "Guaminí"
+    },
+    {
+      "numero": 119,
+      "nombre": "Hipólito Yrigoyen"
+    },
+    {
+      "numero": 135,
+      "nombre": "Hurlingham"
+    },
+    {
+      "numero": 54,
+      "nombre": "Junín"
+    },
+    {
+      "numero": 123,
+      "nombre": "La Costa"
+    },
+    {
+      "numero": 70,
+      "nombre": "La Matanza"
+    },
+    {
+      "numero": 55,
+      "nombre": "La Plata"
+    },
+    {
+      "numero": 25,
+      "nombre": "Lanús"
+    },
+    {
+      "numero": 56,
+      "nombre": "Laprida"
+    },
+    {
+      "numero": 58,
+      "nombre": "Las Flores"
+    },
+    {
+      "numero": 59,
+      "nombre": "Leandro N. Alem"
+    },
+    {
+      "numero": 137,
+      "nombre": "Lezama"
+    },
+    {
+      "numero": 60,
+      "nombre": "Lincoln"
+    },
+    {
+      "numero": 61,
+      "nombre": "Lobería"
+    },
+    {
+      "numero": 62,
+      "nombre": "Lobos"
+    },
+    {
+      "numero": 63,
+      "nombre": "Lomas de Zamora"
+    },
+    {
+      "numero": 64,
+      "nombre": "Luján"
+    },
+    {
+      "numero": 65,
+      "nombre": "Magdalena"
+    },
+    {
+      "numero": 66,
+      "nombre": "Maipú"
+    },
+    {
+      "numero": 133,
+      "nombre": "Malvinas Argentinas"
+    },
+    {
+      "numero": 69,
+      "nombre": "Mar Chiquita"
+    },
+    {
+      "numero": 68,
+      "nombre": "Marcos Paz"
+    },
+    {
+      "numero": 71,
+      "nombre": "Mercedes"
+    },
+    {
+      "numero": 72,
+      "nombre": "Merlo"
+    },
+    {
+      "numero": 73,
+      "nombre": "Monte"
+    },
+    {
+      "numero": 126,
+      "nombre": "Monte Hermoso"
+    },
+    {
+      "numero": 74,
+      "nombre": "Moreno"
+    },
+    {
+      "numero": 101,
+      "nombre": "Morón"
+    },
+    {
+      "numero": 75,
+      "nombre": "Navarro"
+    },
+    {
+      "numero": 76,
+      "nombre": "Necochea"
+    },
+    {
+      "numero": 77,
+      "nombre": "Nueve de Julio"
+    },
+    {
+      "numero": 78,
+      "nombre": "Olavarría"
+    },
+    {
+      "numero": 79,
+      "nombre": "Patagones"
+    },
+    {
+      "numero": 80,
+      "nombre": "Pehuajó"
+    },
+    {
+      "numero": 81,
+      "nombre": "Pellegrini"
+    },
+    {
+      "numero": 82,
+      "nombre": "Pergamino"
+    },
+    {
+      "numero": 83,
+      "nombre": "Pila"
+    },
+    {
+      "numero": 84,
+      "nombre": "Pilar"
+    },
+    {
+      "numero": 124,
+      "nombre": "Pinamar"
+    },
+    {
+      "numero": 129,
+      "nombre": "Presidente Perón"
+    },
+    {
+      "numero": 85,
+      "nombre": "Puan"
+    },
+    {
+      "numero": 134,
+      "nombre": "Punta Indio"
+    },
+    {
+      "numero": 86,
+      "nombre": "Quilmes"
+    },
+    {
+      "numero": 87,
+      "nombre": "Ramallo"
+    },
+    {
+      "numero": 88,
+      "nombre": "Rauch"
+    },
+    {
+      "numero": 89,
+      "nombre": "Rivadavia"
+    },
+    {
+      "numero": 90,
+      "nombre": "Rojas"
+    },
+    {
+      "numero": 91,
+      "nombre": "Roque Pérez"
+    },
+    {
+      "numero": 92,
+      "nombre": "Saavedra"
+    },
+    {
+      "numero": 93,
+      "nombre": "Saladillo"
+    },
+    {
+      "numero": 122,
+      "nombre": "Salliqueló"
+    },
+    {
+      "numero": 67,
+      "nombre": "Salto"
+    },
+    {
+      "numero": 94,
+      "nombre": "San Andrés de Giles"
+    },
+    {
+      "numero": 95,
+      "nombre": "San Antonio de Areco"
+    },
+    {
+      "numero": 116,
+      "nombre": "San Cayetano"
+    },
+    {
+      "numero": 96,
+      "nombre": "San Fernando"
+    },
+    {
+      "numero": 97,
+      "nombre": "San Isidro"
+    },
+    {
+      "numero": 131,
+      "nombre": "San Miguel"
+    },
+    {
+      "numero": 98,
+      "nombre": "San Nicolás"
+    },
+    {
+      "numero": 99,
+      "nombre": "San Pedro"
+    },
+    {
+      "numero": 100,
+      "nombre": "San Vicente"
+    },
+    {
+      "numero": 102,
+      "nombre": "Suipacha"
+    },
+    {
+      "numero": 103,
+      "nombre": "Tandil"
+    },
+    {
+      "numero": 104,
+      "nombre": "Tapalqué"
+    },
+    {
+      "numero": 57,
+      "nombre": "Tigre"
+    },
+    {
+      "numero": 105,
+      "nombre": "Tordillo"
+    },
+    {
+      "numero": 106,
+      "nombre": "Tornquist"
+    },
+    {
+      "numero": 107,
+      "nombre": "Trenque Lauquen"
+    },
+    {
+      "numero": 108,
+      "nombre": "Tres Arroyos"
+    },
+    {
+      "numero": 117,
+      "nombre": "Tres de Febrero"
+    },
+    {
+      "numero": 127,
+      "nombre": "Tres Lomas"
+    },
+    {
+      "numero": 109,
+      "nombre": "Veinticinco de Mayo"
+    },
+    {
+      "numero": 110,
+      "nombre": "Vicente López"
+    },
+    {
+      "numero": 125,
+      "nombre": "Villa Gesell"
+    },
+    {
+      "numero": 111,
+      "nombre": "Villarino"
+    },
+    {
+      "numero": 38,
+      "nombre": "Zárate"
+    }
+  ],
+  "zonas_dvba": {
+    "VI": {
+      "nombre": "Zona Departamental VI Saladillo",
+      "partidos": [
+        34,
+        41,
+        58,
+        62,
+        75,
+        91,
+        93,
+        109
+      ]
+    }
+  }
+}
