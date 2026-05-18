@@ -25,30 +25,40 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
 .badge-temp{background:#f0ad4e;color:#222}.badge-perm{background:#5cb85c}
 .badge-rev{background:#28a745}.badge-pre{background:#f0ad4e;color:#222}
 #pnl-tabla{top:52px;right:10px;width:340px;max-height:calc(100vh - 80px);overflow:auto;padding:0}
-#pnl-tabla .th{background:#003366;color:#fff;padding:8px 12px;font-weight:700;font-size:.78rem;position:sticky;top:0}
+#pnl-tabla{top:52px;right:10px;width:360px;max-height:calc(100vh - 80px);overflow:auto;padding:0}
+#pnl-tabla .th{background:#003366;color:#fff;padding:8px 12px;font-weight:700;font-size:.78rem;position:sticky;top:0;z-index:1}
 #pnl-tabla .row{padding:8px 12px;border-bottom:1px solid #e8edf3;cursor:pointer;transition:background .15s}
 #pnl-tabla .row:hover{background:#eef5ff}
-#pnl-tabla .row.activo{background:#fff5d6;border-left:4px solid #ffb800}
+#pnl-tabla .row.activo-camino{background:#fff5d6;border-left:4px solid #ffb800}
 #pnl-tabla .nm{font-weight:700;color:#003366;font-size:.78rem}
 #pnl-tabla .dn{font-size:.7rem;color:#555;margin-top:2px}
 #pnl-tabla .km{font-size:.7rem;color:#003366;float:right}
-#pnl-tabla .sub{font-size:.65rem;color:#888;font-style:italic;margin-top:2px}
-#pnl-detalle{bottom:20px;left:10px;width:340px;max-width:calc(100vw - 380px);background:rgba(0,51,102,.95);color:#fff;padding:14px 18px;border-radius:8px;font-size:.82rem;line-height:1.5;display:none}
+#pnl-tabla .tramos{background:#f7f9fc;padding:0}
+#pnl-tabla .tramo{padding:5px 12px 5px 28px;font-size:.7rem;color:#445;border-bottom:1px solid #eef2f7;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+#pnl-tabla .tramo:hover{background:#eef5ff}
+#pnl-tabla .tramo.activo-tramo{background:#ffe9aa;border-left:4px solid #ff6600;padding-left:24px}
+#pnl-tabla .tramo .tinfo{display:flex;align-items:center;gap:6px}
+#pnl-tabla .tramo .tklass{font-weight:600;font-size:.62rem;padding:1px 5px;border-radius:6px;color:#fff}
+#pnl-detalle{bottom:20px;left:10px;width:340px;max-width:calc(100vw - 400px);background:rgba(0,51,102,.95);color:#fff;padding:14px 18px;border-radius:8px;font-size:.82rem;line-height:1.5;display:none}
 #pnl-detalle h4{color:#ffd700;font-size:.95rem;margin-bottom:6px}
 #pnl-detalle .row-d{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.1)}
 #pnl-detalle .row-d:last-child{border:none}
 #pnl-detalle .lbl{opacity:.7;font-size:.72rem}
 #pnl-detalle .val{font-weight:600;font-size:.78rem;text-align:right;max-width:55%}
-#pnl-detalle .tramo-hdr{margin-top:8px;padding-top:6px;border-top:1px dashed rgba(255,255,255,.3);font-size:.7rem;color:#ffd700}
+#pnl-detalle .tramo-hdr{margin-top:8px;padding-top:6px;border-top:1px dashed rgba(255,255,255,.3);font-size:.7rem;color:#ffd700;cursor:pointer}
+#pnl-detalle .tramo-hdr:hover{color:#fff}
 #pnl-detalle .alerta{background:rgba(255,150,150,.2);padding:5px 8px;border-radius:4px;margin-top:8px;font-size:.7rem;color:#fcc}
 #pnl-detalle .close{position:absolute;top:6px;right:10px;color:#ffd700;cursor:pointer;font-size:1.2rem;line-height:1}
+#pnl-detalle .ver-camino{background:rgba(255,215,0,.2);color:#ffd700;padding:6px 10px;border-radius:4px;font-size:.7rem;cursor:pointer;text-align:center;margin-top:8px;border:1px dashed #ffd700}
+#pnl-detalle .ver-camino:hover{background:rgba(255,215,0,.3)}
 #pnl-leyenda{bottom:20px;right:10px;font-size:.72rem}
 #pnl-leyenda h4{color:#003366;margin-bottom:5px;font-size:.78rem}
 .lg-item{display:flex;align-items:center;gap:6px;margin:3px 0}
 .lg-line{display:inline-block;width:18px;height:3px;border-radius:1px}
-#estado-fuentes{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.95);padding:5px 12px;border-radius:6px;font-size:.68rem;color:#445;box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:1000}
+#estado-fuentes{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.95);padding:5px 12px;border-radius:6px;font-size:.68rem;color:#445;box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:1000;white-space:nowrap}
 #estado-fuentes .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 3px;vertical-align:middle}
 .dot-rev{background:#28a745}.dot-pre{background:#f0ad4e}
+.k-tierra{background:#a07842}.k-pavi{background:#3a7bd5}.k-sinabrir{background:#888}
 </style>
 </head>
 <body>
@@ -93,9 +103,12 @@ const PATRONES = [
   'geojson_procesados/red_secundaria/caminos_secundarios_{cod}.geojson'
 ];
 
-let DATA=null, CAPA=null, SELECCIONADO_NM=null;
+let DATA=null, CAPA=null;
+let SEL_NM=null;    // selección por NOMEMCLATURA (click en tabla header)
+let SEL_FID=null;   // selección por tramo individual (click en mapa o sub-fila)
 const LAYERS_BY_NM = {};
 const LAYERS_BY_FID = {};
+const FEAT_BY_FID = {};
 const FUENTES = {};
 
 const ESTILO_BASE = cl => ({ color: cl==='PAVIMENTADO'?'#3a7bd5': cl==='SIN ABRIR'?'#888':'#a07842', weight:3, opacity:.85 });
@@ -104,6 +117,27 @@ const ESTILO_DIM = cl => ({ ...ESTILO_BASE(cl), opacity:.15 });
 
 const map = L.map('map').setView([-35.50, -59.78], 9);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap', maxZoom:18 }).addTo(map);
+
+function normalizarFeature(f, codPartido, nombrePartido) {
+  const p = f.properties = f.properties || {};
+  // PARTIDO → int
+  const pInt = parseInt(p.PARTIDO);
+  if (!isNaN(pInt)) p.PARTIDO = pInt;
+  else p.PARTIDO = parseInt(codPartido);
+  // PARTIDO_NOMBRE → usar el del lookup si está vacío o Desconocido
+  if (!p.PARTIDO_NOMBRE || p.PARTIDO_NOMBRE === 'Desconocido' || p.PARTIDO_NOMBRE === '') {
+    p.PARTIDO_NOMBRE = nombrePartido;
+  }
+  // NOMEMCLATURA → trim, fallback a (DENOMINACION) o placeholder
+  let nm = (p.NOMEMCLATURA || '').toString().trim();
+  if (!nm) {
+    // Generar placeholder usando DENOMINACION o índice
+    const denom = (p.DENOMINACION || '').toString().trim();
+    nm = denom ? '⚪ ' + denom : '⚪ s/código';
+  }
+  p.NOMEMCLATURA = nm;
+  return f;
+}
 
 async function cargarDatos(){
   const features = []; const pendientes = [];
@@ -116,9 +150,7 @@ async function cargarDatos(){
         const gj = await r.json();
         if (!gj.features || !gj.features.length) continue;
         gj.features.forEach(f => {
-          f.properties = f.properties || {};
-          if (!f.properties.PARTIDO_NOMBRE) f.properties.PARTIDO_NOMBRE = nombre;
-          if (!f.properties.PARTIDO) f.properties.PARTIDO = parseInt(cod);
+          normalizarFeature(f, cod, nombre);
           f.properties._fuente = 'partido';
           features.push(f);
         });
@@ -136,8 +168,10 @@ async function cargarDatos(){
         const gj = await r.json();
         const set = new Set(pendientes);
         gj.features.forEach(f => {
-          const cod = String(f.properties.PARTIDO).padStart(3,'0');
+          const codInt = parseInt(f.properties.PARTIDO);
+          const cod = String(codInt).padStart(3,'0');
           if (set.has(cod)){
+            normalizarFeature(f, cod, PARTIDOS[cod]);
             f.properties._fuente = 'fallback';
             features.push(f);
           }
@@ -146,10 +180,10 @@ async function cargarDatos(){
       }
     } catch(e){ console.warn('Fallback off:', e.message); }
   }
-  // Asignar _fid único
+  // Asignar _fid único: NOMEMCLATURA + secuencia
   const seq = {};
   features.forEach(f => {
-    const nm = f.properties.NOMEMCLATURA || '???';
+    const nm = f.properties.NOMEMCLATURA;
     seq[nm] = (seq[nm]||0) + 1;
     f.properties._fid = nm + '#' + seq[nm];
   });
@@ -166,9 +200,14 @@ function renderMapa(){
       if (!LAYERS_BY_NM[nm]) LAYERS_BY_NM[nm] = [];
       LAYERS_BY_NM[nm].push(layer);
       LAYERS_BY_FID[fid] = layer;
-      layer.on('click', () => seleccionarCamino(nm));
-      layer.on('mouseover', () => { if (SELECCIONADO_NM !== nm) LAYERS_BY_NM[nm].forEach(l => l.setStyle({weight:5})); });
-      layer.on('mouseout',  () => { if (SELECCIONADO_NM !== nm) LAYERS_BY_NM[nm].forEach(l => l.setStyle(ESTILO_BASE(f.properties.CLASE))); });
+      FEAT_BY_FID[fid] = f;
+      layer.on('click', e => { seleccionarTramo(fid); L.DomEvent.stopPropagation(e); });
+      layer.on('mouseover', () => {
+        if (SEL_FID !== fid && SEL_NM !== nm) layer.setStyle({weight:5});
+      });
+      layer.on('mouseout', () => {
+        if (SEL_FID !== fid && SEL_NM !== nm) layer.setStyle(ESTILO_BASE(f.properties.CLASE));
+      });
     }
   }).addTo(map);
   map.fitBounds(CAPA.getBounds().pad(0.05));
@@ -185,7 +224,7 @@ function actualizarStats(){
 function actualizarEstadoFuentes(){
   const html = Object.entries(PARTIDOS).map(([cod, n]) => {
     const ok = FUENTES[cod] === 'partido';
-    return '<span title="'+(ok?'Revisado':'Preliminar (PBA)')+'"><span class="dot '+(ok?'dot-rev':'dot-pre')+'"></span>'+cod+'</span>';
+    return '<span title="'+n+' — '+(ok?'Revisado':'Preliminar (PBA)')+'"><span class="dot '+(ok?'dot-rev':'dot-pre')+'"></span>'+cod+'</span>';
   }).join(' ');
   document.getElementById('estado-fuentes').innerHTML =
     '<b>Fuentes:</b> '+html+' <span style="margin-left:8px;color:#888">●verde=revisado · ●naranja=preliminar</span>';
@@ -193,12 +232,23 @@ function actualizarEstadoFuentes(){
 
 function poblarSelector(){
   const sel = document.getElementById('sel-partido');
-  Object.entries(PARTIDOS).forEach(([cod, n]) => {
-    const tiene = DATA.features.some(f => f.properties.PARTIDO_NOMBRE === n);
-    if (!tiene) return;
+  // Limpiar opciones (excepto "Todos")
+  while (sel.options.length > 1) sel.remove(1);
+  // Determinar partidos que tienen features
+  const partidosPresentes = new Map();
+  DATA.features.forEach(f => {
+    const nombre = f.properties.PARTIDO_NOMBRE;
+    if (!partidosPresentes.has(nombre)) {
+      const cod = Object.entries(PARTIDOS).find(([c,n]) => n === nombre)?.[0] || '';
+      partidosPresentes.set(nombre, cod);
+    }
+  });
+  // Ordenar por nombre y poblar
+  const ordenados = [...partidosPresentes.entries()].sort(([a],[b]) => a.localeCompare(b));
+  ordenados.forEach(([nombre, cod]) => {
     const ok = FUENTES[cod] === 'partido';
     const opt = document.createElement('option');
-    opt.value = n; opt.textContent = (ok?'✓ ':'◌ ') + n;
+    opt.value = nombre; opt.textContent = (ok?'✓ ':'◌ ') + nombre;
     sel.appendChild(opt);
   });
   sel.addEventListener('change', e => filtrarPorPartido(e.target.value));
@@ -221,6 +271,9 @@ function filtrarPorPartido(partido){
     else { layer.setStyle(ESTILO_DIM(p.CLASE)); }
   });
   const km = filtrados.reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
+  const km_t = filtrados.filter(f => f.properties.CLASE === 'DE TIERRA').reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
+  const km_p = filtrados.filter(f => f.properties.CLASE === 'PAVIMENTADO').reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
+  const km_s = filtrados.filter(f => f.properties.CLASE === 'SIN ABRIR').reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
   const nm_u = new Set(filtrados.map(f => f.properties.NOMEMCLATURA)).size;
   const n_t = filtrados.filter(f => f.properties.CLASE === 'DE TIERRA').length;
   const n_p = filtrados.filter(f => f.properties.CLASE === 'PAVIMENTADO').length;
@@ -234,9 +287,9 @@ function filtrarPorPartido(partido){
   document.getElementById('resumen-partido').innerHTML =
     '<div><b>'+nm_u+'</b> caminos / '+filtrados.length+' tramos · <span class="km-grande">'+km.toFixed(1)+' km</span></div>'+
     '<div style="margin-top:6px">'+
-      (n_t?'<span class="badge badge-tierra">'+n_t+' tierra</span>':'')+
-      (n_p?'<span class="badge badge-pavi">'+n_p+' pav.</span>':'')+
-      (n_s?'<span class="badge badge-sinabrir">'+n_s+' s/abrir</span>':'')+
+      (n_t?'<span class="badge badge-tierra">'+n_t+' tierra · '+km_t.toFixed(1)+' km</span>':'')+
+      (n_p?'<span class="badge badge-pavi">'+n_p+' pav. · '+km_p.toFixed(1)+' km</span>':'')+
+      (n_s?'<span class="badge badge-sinabrir">'+n_s+' s/abr · '+km_s.toFixed(1)+' km</span>':'')+
     '</div>'+
     '<div style="margin-top:4px">'+
       (n_per?'<span class="badge badge-perm">'+n_per+' permanente</span>':'')+
@@ -251,6 +304,12 @@ function filtrarPorPartido(partido){
   renderTabla(partido);
 }
 
+function claseTag(cl) {
+  if (cl === 'PAVIMENTADO') return '<span class="tklass k-pavi">PAV</span>';
+  if (cl === 'SIN ABRIR') return '<span class="tklass k-sinabrir">S/A</span>';
+  return '<span class="tklass k-tierra">TIE</span>';
+}
+
 function renderTabla(partido){
   const lista = document.getElementById('lista-caminos');
   const items = partido ? DATA.features.filter(f => f.properties.PARTIDO_NOMBRE === partido) : DATA.features;
@@ -261,33 +320,89 @@ function renderTabla(partido){
   lista.innerHTML = ord.map(([nm, fs]) => {
     const km = fs.reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
     const dn = fs[0].properties.DENOMINACION || '—';
-    const cl = fs[0].properties.CLASE;
-    const ic = cl === 'PAVIMENTADO' ? '🛣' : cl === 'SIN ABRIR' ? '⚠' : '🌾';
+    // CLASE dominante (mayor km)
+    const claseKm = {};
+    fs.forEach(f => { const c = f.properties.CLASE || 'DE TIERRA'; claseKm[c] = (claseKm[c]||0) + (f.properties.LONGITUD_KM_WGS84||0); });
+    const claseDom = Object.entries(claseKm).sort(([,a],[,b]) => b-a)[0][0];
+    const ic = claseDom === 'PAVIMENTADO' ? '🛣' : claseDom === 'SIN ABRIR' ? '⚠' : '🌾';
     const rv = fs.some(f => f.properties.ALERTA === 'REVISAR') ? ' ⚠' : '';
-    const sub = fs.length > 1 ? '<div class="sub">'+fs.length+' tramos</div>' : '';
-    return '<div class="row" data-nm="'+nm+'"><div class="nm">'+ic+' '+nm+rv+'<span class="km">'+km.toFixed(2)+' km</span></div><div class="dn">'+dn+'</div>'+sub+'</div>';
+    const nTramos = fs.length;
+    let html = '<div class="row" data-nm="'+nm+'"><div class="nm">'+ic+' '+nm+rv+'<span class="km">'+km.toFixed(2)+' km</span></div><div class="dn">'+dn+'</div>';
+    if (nTramos > 1) html += '<div class="dn" style="color:#888;font-size:.65rem">'+nTramos+' tramos →</div>';
+    html += '</div>';
+    if (nTramos > 1) {
+      html += '<div class="tramos">';
+      fs.forEach((f, i) => {
+        const p = f.properties;
+        const fid = p._fid;
+        const tkm = (p.LONGITUD_KM_WGS84||0).toFixed(2);
+        const tcl = p.CLASE || 'DE TIERRA';
+        const tr = (p.TRANSITABIlIDAD || '').toLowerCase().substring(0,4);
+        html += '<div class="tramo" data-fid="'+fid+'">'+
+                  '<div class="tinfo">'+claseTag(tcl)+' <span>Tramo '+(i+1)+'</span> <span style="color:#888">· '+tr+'</span></div>'+
+                  '<span style="color:#003366;font-weight:600">'+tkm+' km</span>'+
+                '</div>';
+      });
+      html += '</div>';
+    }
+    return html;
   }).join('');
   lista.querySelectorAll('.row').forEach(r => r.addEventListener('click', () => seleccionarCamino(r.dataset.nm)));
+  lista.querySelectorAll('.tramo').forEach(t => t.addEventListener('click', e => { e.stopPropagation(); seleccionarTramo(t.dataset.fid); }));
 }
 
-function seleccionarCamino(nm){
-  if (SELECCIONADO_NM && LAYERS_BY_NM[SELECCIONADO_NM]){
-    const fs = DATA.features.filter(f => f.properties.NOMEMCLATURA === SELECCIONADO_NM);
-    LAYERS_BY_NM[SELECCIONADO_NM].forEach((l, i) => l.setStyle(ESTILO_BASE(fs[i] ? fs[i].properties.CLASE : 'DE TIERRA')));
-    const r0 = document.querySelector('.row[data-nm="'+SELECCIONADO_NM+'"]'); if (r0) r0.classList.remove('activo');
+// ── Limpieza visual ───────────────────────────────────────────────
+function resetEstilos(){
+  if (SEL_NM && LAYERS_BY_NM[SEL_NM]){
+    LAYERS_BY_NM[SEL_NM].forEach((l, i) => {
+      const f = DATA.features.filter(x => x.properties.NOMEMCLATURA === SEL_NM)[i];
+      l.setStyle(ESTILO_BASE(f ? f.properties.CLASE : 'DE TIERRA'));
+    });
   }
-  SELECCIONADO_NM = nm;
+  if (SEL_FID && LAYERS_BY_FID[SEL_FID]){
+    const f = FEAT_BY_FID[SEL_FID];
+    LAYERS_BY_FID[SEL_FID].setStyle(ESTILO_BASE(f.properties.CLASE));
+  }
+  document.querySelectorAll('.row.activo-camino').forEach(r => r.classList.remove('activo-camino'));
+  document.querySelectorAll('.tramo.activo-tramo').forEach(t => t.classList.remove('activo-tramo'));
+}
+
+// ── Seleccionar TODO el camino (click en fila header de tabla) ────
+function seleccionarCamino(nm){
+  resetEstilos();
+  SEL_NM = nm; SEL_FID = null;
   const layers = LAYERS_BY_NM[nm] || [];
   if (!layers.length) return;
   layers.forEach(l => { l.setStyle(ESTILO_SEL); l.bringToFront(); });
-  const r = document.querySelector('.row[data-nm="'+nm+'"]');
-  if (r){ r.classList.add('activo'); r.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+  const row = document.querySelector('.row[data-nm="'+CSS.escape(nm)+'"]');
+  if (row){ row.classList.add('activo-camino'); row.scrollIntoView({behavior:'smooth', block:'nearest'}); }
   const b = L.featureGroup(layers).getBounds();
   if (b.isValid()) map.fitBounds(b.pad(0.25));
-  mostrarDetalle(nm);
+  mostrarDetalleCamino(nm);
 }
 
-function mostrarDetalle(nm){
+// ── Seleccionar UN TRAMO (click en mapa o sub-fila de tramo) ──────
+function seleccionarTramo(fid){
+  resetEstilos();
+  SEL_FID = fid; SEL_NM = null;
+  const layer = LAYERS_BY_FID[fid];
+  if (!layer) return;
+  layer.setStyle(ESTILO_SEL); layer.bringToFront();
+  const tramoEl = document.querySelector('.tramo[data-fid="'+CSS.escape(fid)+'"]');
+  if (tramoEl){ tramoEl.classList.add('activo-tramo'); tramoEl.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+  else {
+    // si no hay sub-tramo (camino con 1 solo tramo), marcar la fila header
+    const f = FEAT_BY_FID[fid];
+    const row = document.querySelector('.row[data-nm="'+CSS.escape(f.properties.NOMEMCLATURA)+'"]');
+    if (row){ row.classList.add('activo-camino'); row.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+  }
+  if (layer.getBounds) map.fitBounds(layer.getBounds().pad(0.3));
+  mostrarDetalleTramo(fid);
+}
+
+function filaProp(l, v){ return '<div class="row-d"><span class="lbl">'+l+'</span><span class="val">'+(v==null?'—':v)+'</span></div>'; }
+
+function mostrarDetalleCamino(nm){
   const fs = DATA.features.filter(f => f.properties.NOMEMCLATURA === nm);
   if (!fs.length) return;
   const p0 = fs[0].properties;
@@ -295,32 +410,55 @@ function mostrarDetalle(nm){
   const kmo = fs.reduce((s,f) => s + (f.properties.LONGITUD_KM_ORIG||0), 0);
   const n = fs.length;
   const ok = p0._fuente === 'partido';
-  document.getElementById('d-nm').textContent = '🛣 '+nm+' · '+(p0.DENOMINACION||'')+(n>1?' ('+n+' tramos)':'');
-  const fc = [
-    ['Partido', p0.PARTIDO_NOMBRE+' ('+p0.PARTIDO+')'],
-    ['Clase', p0.CLASE],
-    ['Transitabilidad', p0.TRANSITABIlIDAD],
-    ['Longitud total WGS84', km.toFixed(3)+' km'],
-    ['Longitud original', kmo.toFixed(3)+' km'],
-    ['Fuente', ok ? '✓ Revisado en QGIS' : '◌ Preliminar (PBA)']
-  ];
-  let body = fc.map(([l,v]) => '<div class="row-d"><span class="lbl">'+l+'</span><span class="val">'+(v==null?'—':v)+'</span></div>').join('');
+  // Desglose por clase
+  const claseKm = {};
+  fs.forEach(f => { const c = f.properties.CLASE || 'DE TIERRA'; claseKm[c] = (claseKm[c]||0) + (f.properties.LONGITUD_KM_WGS84||0); });
+  document.getElementById('d-nm').textContent = '🛣 ' + nm + (n>1?' · '+n+' tramos':'');
+  let body = filaProp('Denominación', p0.DENOMINACION || '—');
+  body += filaProp('Partido', p0.PARTIDO_NOMBRE + ' (' + p0.PARTIDO + ')');
+  body += filaProp('Longitud total WGS84', km.toFixed(3) + ' km');
+  body += filaProp('Longitud original',    kmo.toFixed(3) + ' km');
+  body += filaProp('Fuente', ok ? '✓ Revisado en QGIS' : '◌ Preliminar (PBA)');
+  // Desglose por clase
+  Object.entries(claseKm).forEach(([cl, k]) => {
+    body += filaProp('  · '+cl, k.toFixed(3) + ' km');
+  });
+  // Lista de tramos individuales clickeables
   if (n > 1){
+    body += '<div style="margin-top:8px;font-size:.7rem;color:#ffd700;opacity:.85">Ver tramo individual:</div>';
     fs.forEach((f, i) => {
       const p = f.properties;
-      body += '<div class="tramo-hdr">Tramo '+(i+1)+' ('+(p._fid||'')+')</div>';
-      body += '<div class="row-d"><span class="lbl">Longitud WGS84</span><span class="val">'+(p.LONGITUD_KM_WGS84||0).toFixed(3)+' km</span></div>';
-      body += '<div class="row-d"><span class="lbl">Long. original</span><span class="val">'+(p.LONGITUD_KM_ORIG||0).toFixed(3)+' km</span></div>';
-      body += '<div class="row-d"><span class="lbl">Diff %</span><span class="val">'+(p.DIFF_PCT||0).toFixed(2)+' %</span></div>';
-      body += '<div class="row-d"><span class="lbl">Vértices</span><span class="val">'+p.N_VERTICES+'</span></div>';
-      body += '<div class="row-d"><span class="lbl">Líneas</span><span class="val">'+p.N_LINEAS+'</span></div>';
-      if (p.ALERTA === 'REVISAR') body += '<div class="alerta" style="margin-top:4px">⚠ Tramo con diff > 10%</div>';
+      body += '<div class="tramo-hdr" onclick="seleccionarTramo(\''+p._fid+'\')">'+
+                '▶ Tramo '+(i+1)+' · '+(p.CLASE||'')+' · '+(p.LONGITUD_KM_WGS84||0).toFixed(3)+' km'+
+                (p.ALERTA==='REVISAR'?' ⚠':'')+
+              '</div>';
     });
-  } else {
-    body += '<div class="row-d"><span class="lbl">Diff %</span><span class="val">'+(p0.DIFF_PCT||0).toFixed(2)+' %</span></div>';
-    body += '<div class="row-d"><span class="lbl">Vértices</span><span class="val">'+p0.N_VERTICES+'</span></div>';
-    body += '<div class="row-d"><span class="lbl">Líneas</span><span class="val">'+p0.N_LINEAS+'</span></div>';
-    if (p0.ALERTA === 'REVISAR') body += '<div class="alerta">⚠ Segmento marcado para revisión.</div>';
+  }
+  document.getElementById('d-body').innerHTML = body;
+  document.getElementById('pnl-detalle').style.display = 'block';
+}
+
+function mostrarDetalleTramo(fid){
+  const f = FEAT_BY_FID[fid];
+  if (!f) return;
+  const p = f.properties;
+  const ok = p._fuente === 'partido';
+  // Cuántos tramos totales tiene este camino
+  const totalTramos = (LAYERS_BY_NM[p.NOMEMCLATURA] || []).length;
+  document.getElementById('d-nm').textContent = '🛣 ' + p.NOMEMCLATURA + (totalTramos>1?' · tramo '+p._fid.split('#')[1]+'/'+totalTramos:'');
+  let body = filaProp('Denominación', p.DENOMINACION || '—');
+  body += filaProp('Partido', p.PARTIDO_NOMBRE + ' (' + p.PARTIDO + ')');
+  body += filaProp('Clase', p.CLASE);
+  body += filaProp('Transitabilidad', p.TRANSITABIlIDAD);
+  body += filaProp('Longitud WGS84', (p.LONGITUD_KM_WGS84||0).toFixed(3) + ' km');
+  body += filaProp('Longitud original', (p.LONGITUD_KM_ORIG||0).toFixed(3) + ' km');
+  body += filaProp('Diff %', (p.DIFF_PCT||0).toFixed(2) + ' %');
+  body += filaProp('Vértices', p.N_VERTICES);
+  body += filaProp('Líneas', p.N_LINEAS);
+  body += filaProp('Fuente', ok ? '✓ Revisado en QGIS' : '◌ Preliminar (PBA)');
+  if (p.ALERTA === 'REVISAR') body += '<div class="alerta">⚠ Tramo con diff > 10% — revisar geometría</div>';
+  if (totalTramos > 1) {
+    body += '<div class="ver-camino" onclick="seleccionarCamino(\''+p.NOMEMCLATURA.replace(/'/g,"\\'")+'\')">🛣 Ver camino completo ('+totalTramos+' tramos)</div>';
   }
   document.getElementById('d-body').innerHTML = body;
   document.getElementById('pnl-detalle').style.display = 'block';
@@ -328,12 +466,8 @@ function mostrarDetalle(nm){
 
 function cerrarDetalle(){
   document.getElementById('pnl-detalle').style.display = 'none';
-  if (SELECCIONADO_NM && LAYERS_BY_NM[SELECCIONADO_NM]){
-    const fs = DATA.features.filter(f => f.properties.NOMEMCLATURA === SELECCIONADO_NM);
-    LAYERS_BY_NM[SELECCIONADO_NM].forEach((l, i) => l.setStyle(ESTILO_BASE(fs[i] ? fs[i].properties.CLASE : 'DE TIERRA')));
-    const r = document.querySelector('.row[data-nm="'+SELECCIONADO_NM+'"]'); if (r) r.classList.remove('activo');
-  }
-  SELECCIONADO_NM = null;
+  resetEstilos();
+  SEL_NM = null; SEL_FID = null;
 }
 
 cargarDatos().then(n => {
