@@ -172,10 +172,10 @@ const PARTIDOS = {
   '062':'Lobos','075':'Navarro','091':'Roque Pérez',
   '093':'Saladillo','109':'Veinticinco de Mayo'
 };
+// Solo un patrón estable. Los partidos pendientes (sin archivo propio) se
+// resuelven por fallback al dataset general más abajo, en cargarDatos().
 const PATRONES = [
-  'geojson_procesados/red_secundaria/caminos_secundarios_{cod}_corregidos_final.geojson',
-  'geojson_procesados/red_secundaria/caminos_secundarios_{cod}_final.geojson',
-  'geojson_procesados/red_secundaria/caminos_secundarios_{cod}.geojson'
+  'geojson_procesados/red_secundaria/caminos_secundarios_{cod}_final.geojson'
 ];
 
 let DATA=null, CAPA=null;
