@@ -115,7 +115,12 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
     <div class="chip" id="chip-filtros" onclick="togglePanel('pnl-filtros')">🎛 Filtros <span class="arrow">▾</span></div>
   </div>
   <div class="ctrl" id="pnl-partido">
-    <select id="sel-partido"><option value="">— Todos —</option></select>
+    <h4 style="font-size:.72rem;color:#003366;margin-bottom:6px">Partidos · multi-select</h4>
+    <div id="cks-partidos" style="display:flex;flex-direction:column;gap:3px;max-height:280px;overflow:auto"></div>
+    <div style="display:flex;gap:5px;margin-top:6px">
+      <button onclick="setTodosPartidos(true)" style="flex:1;font-size:.62rem;padding:3px;border:1px solid #003366;background:#fff;color:#003366;border-radius:3px;cursor:pointer">Todos</button>
+      <button onclick="setTodosPartidos(false)" style="flex:1;font-size:.62rem;padding:3px;border:1px solid #999;background:#fff;color:#666;border-radius:3px;cursor:pointer">Ninguno</button>
+    </div>
     <div class="resumen" id="resumen-partido"></div>
   </div>
   <div class="ctrl" id="pnl-filtros">
@@ -174,7 +179,7 @@ const PATRONES = [
 ];
 
 let DATA=null, CAPA=null;
-let PARTIDO_FILTRO = '';
+let PARTIDO_FILTRO = new Set();   // vacío = todos los partidos
 let CLASE_FILTROS = new Set(['DE TIERRA','PAVIMENTADO','SIN ABRIR']); // todos activos por defecto
 const SELECCION = new Set();
 const LAYERS_BY_NM = {};
@@ -265,7 +270,7 @@ async function cargarDatos(){
 
 function visible(f){
   const p = f.properties;
-  if (PARTIDO_FILTRO && p.PARTIDO_NOMBRE !== PARTIDO_FILTRO) return false;
+  if (PARTIDO_FILTRO.size > 0 && !PARTIDO_FILTRO.has(p.PARTIDO_NOMBRE)) return false;
   if (!CLASE_FILTROS.has(p.CLASE || 'DE TIERRA')) return false;
   return true;
 }
@@ -323,8 +328,8 @@ function actualizarEstadoFuentes(){
 }
 
 function poblarSelector(){
-  const sel = document.getElementById('sel-partido');
-  while (sel.options.length > 1) sel.remove(1);
+  const cont = document.getElementById('cks-partidos');
+  cont.innerHTML = '';
   const presentes = new Map();
   DATA.features.forEach(f => {
     const nombre = f.properties.PARTIDO_NOMBRE;
@@ -335,47 +340,80 @@ function poblarSelector(){
   });
   [...presentes.entries()].sort(([a],[b]) => a.localeCompare(b)).forEach(([nombre, cod]) => {
     const ok = FUENTES[cod] === 'partido';
-    const opt = document.createElement('option');
-    opt.value = nombre; opt.textContent = (ok?'✓ ':'◌ ') + nombre;
-    sel.appendChild(opt);
+    const id = 'ck-p-' + cod;
+    const label = document.createElement('label');
+    label.style.cssText = 'display:flex;align-items:center;gap:5px;font-size:.72rem;cursor:pointer;padding:2px 4px;border-radius:3px';
+    label.innerHTML = `<input type="checkbox" id="${id}" data-nombre="${nombre}"> <span>${ok?'✓ ':'◌ '}${nombre}</span>`;
+    cont.appendChild(label);
+    label.querySelector('input').addEventListener('change', e => togglePartido(nombre, e.target.checked));
   });
-  sel.addEventListener('change', e => filtrarPorPartido(e.target.value));
 }
 
-function filtrarPorPartido(partido){
-  limpiarSeleccion(false);
-  PARTIDO_FILTRO = partido;
-  document.getElementById('chip-partido-txt').textContent = partido || 'Todos los partidos';
+function togglePartido(nombre, on){
+  if (on) PARTIDO_FILTRO.add(nombre);
+  else PARTIDO_FILTRO.delete(nombre);
+  actualizarChipPartido();
   aplicarFiltrosAlMapa();
-  if (partido){
-    const filtrados = DATA.features.filter(f => f.properties.PARTIDO_NOMBRE === partido);
-    const layers = filtrados.map(f => LAYERS_BY_FID[f.properties._fid]).filter(Boolean);
-    if (layers.length){ const b = L.featureGroup(layers).getBounds(); if (b.isValid()) map.fitBounds(b.pad(0.1)); }
-    renderResumenPartido(partido, filtrados);
+  renderTabla();
+  // Zoom a los visibles
+  const visibles = DATA.features.filter(visible).map(f => LAYERS_BY_FID[f.properties._fid]).filter(Boolean);
+  if (visibles.length && PARTIDO_FILTRO.size > 0){
+    const b = L.featureGroup(visibles).getBounds();
+    if (b.isValid()) map.fitBounds(b.pad(0.1));
+  } else if (PARTIDO_FILTRO.size === 0){
+    map.fitBounds(CAPA.getBounds().pad(0.05));
+  }
+  renderResumenSelMulti();
+}
+
+function setTodosPartidos(on){
+  document.querySelectorAll('#cks-partidos input').forEach(ck => {
+    ck.checked = on;
+    const nombre = ck.dataset.nombre;
+    if (on) PARTIDO_FILTRO.add(nombre); else PARTIDO_FILTRO.delete(nombre);
+  });
+  actualizarChipPartido();
+  aplicarFiltrosAlMapa();
+  renderTabla();
+  if (on){
+    const layers = DATA.features.filter(visible).map(f => LAYERS_BY_FID[f.properties._fid]).filter(Boolean);
+    if (layers.length){ const b = L.featureGroup(layers).getBounds(); if (b.isValid()) map.fitBounds(b.pad(0.05)); }
   } else {
     map.fitBounds(CAPA.getBounds().pad(0.05));
-    document.getElementById('resumen-partido').innerHTML = '';
   }
-  renderTabla();
+  renderResumenSelMulti();
 }
 
-function renderResumenPartido(partido, filtrados){
+function actualizarChipPartido(){
+  const n = PARTIDO_FILTRO.size;
+  const el = document.getElementById('chip-partido-txt');
+  if (n === 0) el.textContent = 'Todos los partidos';
+  else if (n === 1) el.textContent = [...PARTIDO_FILTRO][0];
+  else el.textContent = n + ' partidos';
+  document.getElementById('chip-partido').classList.toggle('activo', n > 0);
+}
+
+function renderResumenSelMulti(){
+  const filtrados = DATA.features.filter(f => PARTIDO_FILTRO.size === 0 || PARTIDO_FILTRO.has(f.properties.PARTIDO_NOMBRE));
+  if (filtrados.length === 0 || PARTIDO_FILTRO.size === 0){
+    document.getElementById('resumen-partido').innerHTML = '';
+    return;
+  }
   const km = filtrados.reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
   const km_t = filtrados.filter(f => f.properties.CLASE === 'DE TIERRA').reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
   const km_p = filtrados.filter(f => f.properties.CLASE === 'PAVIMENTADO').reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
   const km_s = filtrados.filter(f => f.properties.CLASE === 'SIN ABRIR').reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
   const nm_u = new Set(filtrados.map(f => f.properties.NOMEMCLATURA)).size;
-  const cod = Object.entries(PARTIDOS).find(([c,n]) => n === partido)?.[0] || '';
-  const ok = FUENTES[cod] === 'partido';
   document.getElementById('resumen-partido').innerHTML =
-    '<div><b>'+nm_u+'</b> caminos / '+filtrados.length+' tramos · <span class="km-grande">'+km.toFixed(1)+' km</span></div>'+
-    '<div style="margin-top:4px">'+
-      (km_t>0?'<span class="badge badge-tierra">'+km_t.toFixed(1)+' km tierra</span>':'')+
-      (km_p>0?'<span class="badge badge-pavi">'+km_p.toFixed(1)+' km pav.</span>':'')+
-      (km_s>0?'<span class="badge badge-sinabrir">'+km_s.toFixed(1)+' km s/abr</span>':'')+
-    '</div>'+
-    '<div style="margin-top:4px">'+(ok?'<span class="badge badge-rev">✓ revisado</span>':'<span class="badge badge-pre">◌ preliminar</span>')+'</div>';
+    '<div style="margin-top:8px;padding-top:6px;border-top:1px solid #eee"><b>'+nm_u+'</b> caminos / '+filtrados.length+' tramos · <span class="km-grande">'+km.toFixed(1)+' km</span></div>'+
+    '<div style="margin-top:3px">'+
+      (km_t>0?'<span class="badge badge-tierra">'+km_t.toFixed(1)+' tierra</span>':'')+
+      (km_p>0?'<span class="badge badge-pavi">'+km_p.toFixed(1)+' pav.</span>':'')+
+      (km_s>0?'<span class="badge badge-sinabrir">'+km_s.toFixed(1)+' s/abr</span>':'')+
+    '</div>';
 }
+
+// renderResumenPartido removida — reemplazada por renderResumenSelMulti (multi-select)
 
 // ── Filtros por CLASE ─────────────────────────────────────────────
 document.querySelectorAll('.filt-chip').forEach(c => {
@@ -577,10 +615,11 @@ h3{color:#003366;margin-top:16px;font-size:.95rem}
 .meta{font-size:.8rem;color:#666;margin:8px 0 16px 0}
 .tot{background:#f0f4f8;padding:10px 14px;border-left:4px solid #003366;margin:10px 0;font-size:.85rem}
 table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.78rem}
-th{background:#003366;color:#fff;text-align:left;padding:5px 8px}
+th{background:#003366;color:#fff !important;text-align:left;padding:5px 8px}
+th.km{text-align:right;color:#fff !important}
 td{padding:4px 8px;border-bottom:1px solid #e0e0e0}
 tr:nth-child(even) td{background:#f7f9fc}
-.km{text-align:right;font-weight:600;color:#003366}
+td.km{text-align:right;font-weight:600;color:#003366}
 .alerta{color:#c00}
 .firma{margin-top:40px;padding-top:20px;border-top:1px solid #ccc;font-size:.78rem;color:#666;display:flex;justify-content:space-between}
 .btn-imp{display:inline-block;background:#003366;color:#fff;padding:8px 16px;border-radius:4px;text-decoration:none;font-size:.8rem;border:none;cursor:pointer}
