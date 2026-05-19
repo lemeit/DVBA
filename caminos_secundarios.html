@@ -209,6 +209,18 @@ function togglePanel(id){
   if (id === 'pnl-filtros') document.getElementById('chip-filtros').classList.toggle('activo', open);
 }
 
+function normalizarClase(c){
+  if (!c) return 'DE TIERRA';
+  const s = c.toString().trim().toUpperCase().replace(/\s+/g, ' ');
+  // Tierra: acepta variantes con 1, 2, 3+ R y "TIERRA" suelto
+  if (/^DE\s+TIERR+A$/.test(s) || s === 'TIERRA') return 'DE TIERRA';
+  // Pavimentado: acepta abreviaciones
+  if (/^PAV(IMENTAD[OA])?\.?$/.test(s)) return 'PAVIMENTADO';
+  // Sin abrir
+  if (/^SIN\s+ABR(IR)?$/.test(s) || s === 'S/ABRIR' || s === 'S/A') return 'SIN ABRIR';
+  return s;
+}
+
 function normalizarFeature(f, codPartido, nombrePartido){
   const p = f.properties = f.properties || {};
   if (p.NOMENCLATURA && !p.NOMEMCLATURA) p.NOMEMCLATURA = p.NOMENCLATURA;
@@ -223,6 +235,8 @@ function normalizarFeature(f, codPartido, nombrePartido){
     nm = denom ? '⚪ ' + denom : '⚪ s/código';
   }
   p.NOMEMCLATURA = nm;
+  // Normalizar CLASE (corrige typos como "DE TIERRRA")
+  p.CLASE = normalizarClase(p.CLASE);
   return f;
 }
 
