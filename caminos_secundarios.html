@@ -39,9 +39,7 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
 .badge-temp{background:#f0ad4e;color:#222}.badge-perm{background:#5cb85c}
 .badge-rev{background:#28a745}.badge-pre{background:#f0ad4e;color:#222}
 
-#pnl-filtros{padding:8px 10px;min-width:200px;display:none}
-#pnl-filtros.open{display:block}
-#pnl-filtros h4{font-size:.72rem;color:#003366;margin-bottom:4px}
+#pnl-partido h4{font-size:.72rem;color:#003366;margin-bottom:4px}
 .filt-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
 .filt-chip{padding:3px 8px;border-radius:10px;font-size:.62rem;cursor:pointer;border:1px solid;user-select:none}
 .filt-chip.off{background:#fff;color:#888;border-color:#ccc;opacity:.6}
@@ -112,33 +110,27 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
 </div>
 <div id="map"></div>
 
-<!-- Chips esquina sup. izquierda -->
+<!-- Chip único de filtros (partidos + clase + mapa) en sup. izquierda -->
 <div id="pnl-top">
-  <div style="display:flex;gap:6px">
-    <div class="chip" id="chip-partido" onclick="togglePanel('pnl-partido')">📍 <span id="chip-partido-txt">Todos los partidos</span> <span class="arrow">▾</span></div>
-    <div class="chip" id="chip-filtros" onclick="togglePanel('pnl-filtros')">🎛 Filtros <span class="arrow">▾</span></div>
-  </div>
+  <div class="chip" id="chip-partido" onclick="togglePanel('pnl-partido')">🎛 <span id="chip-partido-txt">Todos los partidos</span> <span class="arrow">▾</span></div>
   <div class="ctrl" id="pnl-partido">
-    <h4 style="font-size:.72rem;color:#003366;margin-bottom:6px">Partidos · multi-select</h4>
-    <div id="cks-partidos" style="display:flex;flex-direction:column;gap:3px;max-height:280px;overflow:auto"></div>
+    <h4 style="font-size:.72rem;color:#003366;margin-bottom:4px">Partidos</h4>
+    <div id="cks-partidos"></div>
     <div style="display:flex;gap:5px;margin-top:6px">
       <button onclick="setTodosPartidos(true)" style="flex:1;font-size:.62rem;padding:3px;border:1px solid #003366;background:#fff;color:#003366;border-radius:3px;cursor:pointer">Todos</button>
       <button onclick="setTodosPartidos(false)" style="flex:1;font-size:.62rem;padding:3px;border:1px solid #999;background:#fff;color:#666;border-radius:3px;cursor:pointer">Ninguno</button>
     </div>
-    <div class="resumen" id="resumen-partido"></div>
-  </div>
-  <div class="ctrl" id="pnl-filtros">
-    <h4>Clase</h4>
+    <h4 style="font-size:.72rem;color:#003366;margin:10px 0 4px 0;border-top:1px solid #eee;padding-top:8px">Clase de camino</h4>
     <div class="filt-row">
       <span class="filt-chip" data-f="clase" data-v="DE TIERRA" style="background:#a07842;color:#fff;border-color:#a07842">Tierra</span>
       <span class="filt-chip" data-f="clase" data-v="PAVIMENTADO" style="background:#3a7bd5;color:#fff;border-color:#3a7bd5">Pav.</span>
       <span class="filt-chip" data-f="clase" data-v="SIN ABRIR" style="background:#888;color:#fff;border-color:#888">S/abrir</span>
     </div>
-    <h4 style="margin-top:8px">Mapa</h4>
+    <h4 style="font-size:.72rem;color:#003366;margin:10px 0 4px 0;border-top:1px solid #eee;padding-top:8px">Mapa</h4>
     <label style="display:flex;align-items:center;gap:5px;font-size:.68rem;cursor:pointer">
       <input type="checkbox" id="ck-poligonos" checked> Mostrar límites de partidos
     </label>
-    <div style="font-size:.6rem;color:#888;margin-top:6px">Click sobre un chip de clase para alternar</div>
+    <div class="resumen" id="resumen-partido"></div>
   </div>
 </div>
 
@@ -229,9 +221,7 @@ map.on('click', () => { if (SELECCION.size > 0) limpiarSeleccion(); });
 function togglePanel(id){
   const el = document.getElementById(id);
   const open = el.classList.toggle('open');
-  // Chip activo (cada panel es independiente, no cierra a los otros)
   if (id === 'pnl-partido') document.getElementById('chip-partido').classList.toggle('activo', open);
-  if (id === 'pnl-filtros') document.getElementById('chip-filtros').classList.toggle('activo', open);
 }
 
 function normalizarClase(c){
