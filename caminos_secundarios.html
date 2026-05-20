@@ -192,8 +192,27 @@ const ESTILO_SEL  = {color:'#ff6600', weight:6, opacity:1};
 const ESTILO_DIM  = cl => ({...ESTILO_BASE(cl), opacity:.12});
 const ESTILO_HIDE = {opacity:0, weight:0};
 
-const map = L.map('map').setView([-35.50, -59.78], 9);
+const map = L.map('map', { zoomControl: false }).setView([-35.50, -59.78], 9);
+L.control.zoom({ position: 'bottomleft' }).addTo(map);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap', maxZoom:18}).addTo(map);
+
+// Cargar polígonos de partidos (capa siempre visible para contexto)
+let LY_PARTIDOS = null;
+fetch('datos/partidos_zona_vi.geojson', {cache:'no-cache'})
+  .then(r => r.ok ? r.json() : null)
+  .then(gj => {
+    if (!gj) return;
+    LY_PARTIDOS = L.geoJSON(gj, {
+      style: f => ({
+        color: '#003366', weight: 1.2, opacity: .55,
+        fillColor: '#003366', fillOpacity: .04,
+        dashArray: '3,3'
+      }),
+      interactive: false  // que no robe clicks a los caminos
+    }).addTo(map);
+    LY_PARTIDOS.bringToBack();
+  })
+  .catch(() => {});
 
 // Click fuera de tramos: limpia selección
 map.on('click', () => { if (SELECCION.size > 0) limpiarSeleccion(); });
@@ -202,9 +221,7 @@ map.on('click', () => { if (SELECCION.size > 0) limpiarSeleccion(); });
 function togglePanel(id){
   const el = document.getElementById(id);
   const open = el.classList.toggle('open');
-  // cerrar otros del mismo grupo
-  ['pnl-partido','pnl-filtros'].forEach(x => { if (x !== id) document.getElementById(x).classList.remove('open'); });
-  // chip activo
+  // Chip activo (cada panel es independiente, no cierra a los otros)
   if (id === 'pnl-partido') document.getElementById('chip-partido').classList.toggle('activo', open);
   if (id === 'pnl-filtros') document.getElementById('chip-filtros').classList.toggle('activo', open);
 }
@@ -318,10 +335,9 @@ function aplicarFiltrosAlMapa(){
   DATA.features.forEach(f => {
     const l = LAYERS_BY_FID[f.properties._fid];
     if (!l) return;
-    if (SELECCION.has(f.properties._fid)) { l.setStyle(ESTILO_SEL); return; }
-    if (!visible(f)) { l.setStyle(ESTILO_HIDE); return; }
-    if (PARTIDO_FILTRO && f.properties.PARTIDO_NOMBRE !== PARTIDO_FILTRO) l.setStyle(ESTILO_DIM(f.properties.CLASE));
-    else l.setStyle(ESTILO_BASE(f.properties.CLASE));
+    if (SELECCION.has(f.properties._fid)) { l.setStyle(ESTILO_SEL); l.bringToFront(); return; }
+    if (visible(f)) l.setStyle(ESTILO_BASE(f.properties.CLASE));
+    else l.setStyle(ESTILO_HIDE);
   });
 }
 
