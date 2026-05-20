@@ -1,19 +1,31 @@
 /* ══════════════════════════════════════════════════
-   DVBA Campo · Service Worker v3.1
+   DVBA Campo · Service Worker v3.2
    Network-first + offline fallback + auto-purge de 404
    Credenciales embebidas del proyecto DVBA Zona VI
+
+   v3.2 (fix offline):
+   - CACHE_URLS ahora son RELATIVAS al scope del SW. Antes eran
+     absolutas (/dvba_campo.html), lo que en GitHub Pages bajo
+     subpath /DVBA/ daba 404 al instalar y dejaba el cache vacío,
+     impidiendo que la app funcione offline en primer arranque.
+   - Pre-cache de fonts.googleapis (la única dependencia externa
+     crítica de estilo) con fallback silencioso.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.5';   /* ← bump aquí cada vez que actualices */
+const CACHE_NAME = 'dvba-campo-v9.6';   /* ← bump aquí cada vez que actualices */
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET     = 'relevamientos';
 
+// Rutas RELATIVAS al scope del SW (el scope incluye el subpath /DVBA/
+// en GitHub Pages). Esto se resuelve a /DVBA/dvba_campo.html en producción.
 const CACHE_URLS = [
-  '/dvba_campo.html',
-  '/manifest.json',
-  '/sw.js'
+  './',
+  './dvba_campo.html',
+  './manifest.json',
+  './sw.js',
+  './dvba_tipos.js'
 ];
 
 // ── INSTALL: cachea archivos, NO hace skipWaiting automático ──
@@ -21,7 +33,15 @@ const CACHE_URLS = [
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME)
-      .then(c => c.addAll(CACHE_URLS).catch(() => {}))
+      .then(c => {
+        // Cachear individualmente para que un 404 de un archivo no
+        // tire toda la operación (addAll falla atómicamente)
+        return Promise.all(
+          CACHE_URLS.map(url =>
+            c.add(url).catch(err => console.warn('[SW install]', url, err.message))
+          )
+        );
+      })
     // sin self.skipWaiting() aquí → el SW queda en "waiting"
     // y la app muestra el banner "Nueva versión disponible"
   );

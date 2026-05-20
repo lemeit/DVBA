@@ -987,6 +987,8 @@ async function guardarRegistro(){
       else{const t=await resp.text();console.warn('[SUPA]',resp.status,t);showOv('Error '+resp.status);await new Promise(r=>setTimeout(r,1800));}
     }catch(e){console.warn('[SUPA]',e.message);}
   }
+  // ── Guardar en historial visible (localStorage) ──
+  let lsOk=false;
   try{
     const prev=JSON.parse(localStorage.getItem(LS_KEY)||'[]');
     prev.unshift({id:reg.id||tempId,ruta,partido,prog:reg.progresiva,tipo,estado,
@@ -994,22 +996,35 @@ async function guardarRegistro(){
       fecha:new Date(fecha).toLocaleString('es-AR'),fechaISO:fecha,lat,lng});
     if(prev.length>200)prev.splice(200);
     localStorage.setItem(LS_KEY,JSON.stringify(prev));
-  }catch(e){}
+    lsOk=true;
+    console.log('[GUARDAR] historial localStorage OK');
+  }catch(e){console.warn('[GUARDAR] localStorage falló:', e.message);}
+  // ── Cola offline para sincronizar después ──
+  let colaOk=false;
   if(!cloud){
     const pend=getPendientes();
     pend.push({id:'local_'+tempId,...reg,fotoBase64:fotoFinal||null,ts:tempId});
-    try{localStorage.setItem(OFFLINE_KEY,JSON.stringify(pend));}
-    catch(e){pend[pend.length-1].fotoBase64=null;try{localStorage.setItem(OFFLINE_KEY,JSON.stringify(pend));}catch(e2){}}
+    try{localStorage.setItem(OFFLINE_KEY,JSON.stringify(pend));colaOk=true;}
+    catch(e){
+      // Si falla por cuota de storage (típico con foto grande), intentar sin foto
+      console.warn('[GUARDAR] cola con foto falló:', e.message);
+      pend[pend.length-1].fotoBase64=null;
+      try{localStorage.setItem(OFFLINE_KEY,JSON.stringify(pend));colaOk=true;}
+      catch(e2){console.error('[GUARDAR] cola SIN foto también falló:', e2.message);}
+    }
     actualizarBadge();
+    if(colaOk) console.log('[GUARDAR] cola offline OK ('+pend.length+' pendientes)');
     if('serviceWorker' in navigator&&'SyncManager' in window){
       try{const sw=await navigator.serviceWorker.ready;await sw.sync.register('dvba-sync-registros');}catch(e){}
     }
   }
+  // ── IndexedDB respaldo ──
   const thumb=fotoFinal?await hacerThumb(fotoFinal):null;
-  if(db)await dbPut('hoy',{id:reg.id||tempId,...reg,fotoThumb:thumb,synced:cloud}).catch(()=>{});
+  if(db)await dbPut('hoy',{id:reg.id||tempId,...reg,fotoThumb:thumb,synced:cloud}).catch(e=>console.warn('[GUARDAR] IndexedDB:',e.message));
   hideOv();
   if(cloud)toast('✓ Guardado en la nube','ok');
-  else toast('⚠ Sin conexión — guardado localmente','warn');
+  else if(colaOk||lsOk)toast('⚠ Sin conexión — guardado localmente, se sincroniza al volver','warn');
+  else toast('❌ Error: no se pudo guardar en ningún lado','err');
   limpiarForm();
 }
 
