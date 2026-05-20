@@ -25,10 +25,14 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
 .chip.activo{background:#003366;color:#fff;border-color:#003366}
 .chip .arrow{font-size:.6rem;opacity:.6}
 
-#pnl-partido{padding:8px 10px;min-width:220px;display:none}
+#pnl-partido{padding:8px 10px;width:280px;display:none}
 #pnl-partido.open{display:block}
 #pnl-partido select{width:100%;padding:4px;font-size:.75rem;border:1px solid #ccc;border-radius:3px;background:#fff}
 #pnl-partido .resumen{margin-top:6px;line-height:1.4;font-size:.68rem;color:#445}
+#cks-partidos label.ck-chip{display:inline-flex !important;align-items:center;gap:3px;font-size:.68rem;cursor:pointer;padding:3px 7px;border-radius:10px;border:1px solid #ccc;background:#fff;margin:0 !important;flex-direction:row !important}
+#cks-partidos label.ck-chip.on{background:#003366;color:#fff;border-color:#003366}
+#cks-partidos label.ck-chip input{display:none}
+#cks-partidos{display:flex !important;flex-direction:row !important;flex-wrap:wrap;gap:4px;max-height:none !important;overflow:visible !important}
 .km-grande{font-size:1rem;color:#003366;font-weight:700}
 .badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:.62rem;margin-right:2px;color:#fff}
 .badge-tierra{background:#a07842}.badge-pavi{background:#3a7bd5}.badge-sinabrir{background:#888}
@@ -130,7 +134,11 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
       <span class="filt-chip" data-f="clase" data-v="PAVIMENTADO" style="background:#3a7bd5;color:#fff;border-color:#3a7bd5">Pav.</span>
       <span class="filt-chip" data-f="clase" data-v="SIN ABRIR" style="background:#888;color:#fff;border-color:#888">S/abrir</span>
     </div>
-    <div style="font-size:.62rem;color:#888;margin-top:4px">Click sobre un chip para alternar</div>
+    <h4 style="margin-top:8px">Mapa</h4>
+    <label style="display:flex;align-items:center;gap:5px;font-size:.68rem;cursor:pointer">
+      <input type="checkbox" id="ck-poligonos" checked> Mostrar límites de partidos
+    </label>
+    <div style="font-size:.6rem;color:#888;margin-top:6px">Click sobre un chip de clase para alternar</div>
   </div>
 </div>
 
@@ -301,7 +309,9 @@ async function cargarDatos(){
 
 function visible(f){
   const p = f.properties;
-  if (PARTIDO_FILTRO.size > 0 && !PARTIDO_FILTRO.has(p.PARTIDO_NOMBRE)) return false;
+  // Si PARTIDO_FILTRO está vacío, asumir que ningún partido está visible.
+  // Por defecto cargarDatos lo llena con TODOS los partidos presentes.
+  if (!PARTIDO_FILTRO.has(p.PARTIDO_NOMBRE)) return false;
   if (!CLASE_FILTROS.has(p.CLASE || 'DE TIERRA')) return false;
   return true;
 }
@@ -368,15 +378,22 @@ function poblarSelector(){
       presentes.set(nombre, cod);
     }
   });
+  // Default: TODOS los partidos seleccionados al inicio
+  PARTIDO_FILTRO = new Set(presentes.keys());
   [...presentes.entries()].sort(([a],[b]) => a.localeCompare(b)).forEach(([nombre, cod]) => {
     const ok = FUENTES[cod] === 'partido';
     const id = 'ck-p-' + cod;
     const label = document.createElement('label');
-    label.style.cssText = 'display:flex;align-items:center;gap:5px;font-size:.72rem;cursor:pointer;padding:2px 4px;border-radius:3px';
-    label.innerHTML = `<input type="checkbox" id="${id}" data-nombre="${nombre}"> <span>${ok?'✓ ':'◌ '}${nombre}</span>`;
+    label.className = 'ck-chip on';
+    label.innerHTML = `<input type="checkbox" id="${id}" data-nombre="${nombre}" checked> <span>${ok?'✓':'◌'} ${nombre}</span>`;
     cont.appendChild(label);
-    label.querySelector('input').addEventListener('change', e => togglePartido(nombre, e.target.checked));
+    const input = label.querySelector('input');
+    input.addEventListener('change', e => {
+      label.classList.toggle('on', e.target.checked);
+      togglePartido(nombre, e.target.checked);
+    });
   });
+  actualizarChipPartido();
 }
 
 function togglePartido(nombre, on){
@@ -397,8 +414,10 @@ function togglePartido(nombre, on){
 }
 
 function setTodosPartidos(on){
-  document.querySelectorAll('#cks-partidos input').forEach(ck => {
+  document.querySelectorAll('#cks-partidos label.ck-chip').forEach(label => {
+    const ck = label.querySelector('input');
     ck.checked = on;
+    label.classList.toggle('on', on);
     const nombre = ck.dataset.nombre;
     if (on) PARTIDO_FILTRO.add(nombre); else PARTIDO_FILTRO.delete(nombre);
   });
@@ -416,11 +435,14 @@ function setTodosPartidos(on){
 
 function actualizarChipPartido(){
   const n = PARTIDO_FILTRO.size;
+  const total = document.querySelectorAll('#cks-partidos label.ck-chip').length || 8;
   const el = document.getElementById('chip-partido-txt');
-  if (n === 0) el.textContent = 'Todos los partidos';
+  if (n === 0) el.textContent = '0 partidos · sin caminos';
+  else if (n === total) el.textContent = 'Todos los partidos ('+n+')';
   else if (n === 1) el.textContent = [...PARTIDO_FILTRO][0];
   else el.textContent = n + ' partidos';
-  document.getElementById('chip-partido').classList.toggle('activo', n > 0);
+  // El chip está "activo" (azul) solo si NO están todos seleccionados (hay filtro real aplicado)
+  document.getElementById('chip-partido').classList.toggle('activo', n > 0 && n < total);
 }
 
 function renderResumenSelMulti(){
@@ -455,6 +477,16 @@ document.querySelectorAll('.filt-chip').forEach(c => {
     renderTabla();
   });
 });
+
+// Toggle límites de partidos
+const ckPol = document.getElementById('ck-poligonos');
+if (ckPol) {
+  ckPol.addEventListener('change', e => {
+    if (!LY_PARTIDOS) return;
+    if (e.target.checked) LY_PARTIDOS.addTo(map);
+    else LY_PARTIDOS.remove();
+  });
+}
 
 function claseTag(cl){
   if (cl === 'PAVIMENTADO') return '<span class="tklass k-pavi">PAV</span>';
