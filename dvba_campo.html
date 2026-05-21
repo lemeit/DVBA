@@ -391,27 +391,39 @@ body.accesible #btn-accesible-fab{
 #login-box button:disabled{background:#888;cursor:default}
 #login-box button:hover:not(:disabled){background:#004488}
 #login-box .footer{font-size:.66rem;color:#888;margin-top:14px;text-align:center}
-/* Badge usuario logueado: chip pequeño abajo, no estorba flujo principal.
-   En móvil queda a la izquierda del botón ☀ accesible.
-   En escritorio queda discreto en la esquina inferior izquierda. */
+/* Badge usuario logueado integrado al header (línea inline debajo del subtitle) */
 #user-info{
-  position:fixed;bottom:8px;left:8px;font-size:.6rem;color:#fff;
-  background:rgba(0,51,102,.92);padding:3px 8px 3px 10px;border-radius:14px;
-  z-index:50;display:none;align-items:center;gap:5px;max-width:60%;
-  box-shadow:0 1px 4px rgba(0,0,0,.25);
+  display:none;align-items:center;gap:5px;
+  font-size:.62rem;color:rgba(255,255,255,.85);
+  margin-top:2px;
 }
-#user-info.show{display:flex}
+#user-info.show{display:inline-flex}
 #user-info #user-email{
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;
+  opacity:.9;
 }
 #user-info button{
   background:transparent;color:#ffd700;border:1px solid rgba(255,215,0,.55);
-  font-size:.55rem;padding:0 5px;border-radius:7px;cursor:pointer;line-height:1.5;
+  font-size:.54rem;padding:0 5px;border-radius:7px;cursor:pointer;line-height:1.4;
   font-weight:600;
 }
 #user-info button:hover{background:rgba(255,215,0,.15)}
-/* En modo accesible (SOL): mantener visibilidad */
-body.accesible #user-info{background:#000;color:#ffd700;border:2px solid #ffd700}
+body.accesible #user-info{color:#ffd700}
+
+/* Banner de nueva versión disponible (persistente, no toast efímero) */
+#update-banner{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#28a745;color:#fff;padding:10px 14px;
+  font-size:.78rem;display:none;align-items:center;justify-content:space-between;
+  gap:10px;z-index:9000;box-shadow:0 -2px 8px rgba(0,0,0,.2);
+}
+#update-banner.show{display:flex}
+#update-banner span{flex:1}
+#update-banner button{
+  background:#fff;color:#28a745;border:none;padding:6px 14px;
+  border-radius:5px;font-weight:700;font-size:.78rem;cursor:pointer;
+}
+#update-banner button:hover{background:#f0fff4}
 </style>
 </head>
 <body>
@@ -433,10 +445,10 @@ body.accesible #user-info{background:#000;color:#ffd700;border:2px solid #ffd700
   </div>
 </div>
 
-<!-- Badge usuario logueado -->
-<div id="user-info">
-  <span id="user-email">—</span>
-  <button onclick="hacerLogout()">salir</button>
+<!-- Banner de actualización (aparece cuando hay SW nuevo en waiting) -->
+<div id="update-banner">
+  <span>🔄 Hay una versión nueva disponible</span>
+  <button onclick="aplicarUpdate()">Actualizar</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -455,6 +467,10 @@ body.accesible #user-info{background:#000;color:#ffd700;border:2px solid #ffd700
   <div class="hdr-t">
     <h1>Relevamiento de Campo · Zona VI</h1>
     <p>Dirección de Vialidad de la Prov. de Buenos Aires</p>
+    <div id="user-info" title="Usuario autenticado">
+      <span id="user-email">—</span>
+      <button onclick="hacerLogout()">salir</button>
+    </div>
   </div>
   <div class="hdr-r">
     <div class="net net-on" id="net-badge">● ONLINE</div>
@@ -615,7 +631,7 @@ body.accesible #user-info{background:#000;color:#ffd700;border:2px solid #ffd700
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.8</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.9</span>
 </div>
 
 
@@ -659,13 +675,27 @@ document.addEventListener('DOMContentLoaded',async()=>{
   if('serviceWorker' in navigator){
     try{
       const reg=await navigator.serviceWorker.register('sw.js');
+      window._swReg = reg;
       navigator.serviceWorker.addEventListener('message',onSWMsg);
+      // Si ya hay un SW en estado "waiting" al cargar la app, mostrar banner
+      if(reg.waiting && navigator.serviceWorker.controller){
+        mostrarBannerUpdate();
+      }
       reg.addEventListener('updatefound',()=>{
         const sw=reg.installing;
+        if(!sw) return;
         sw.addEventListener('statechange',()=>{
-          if(sw.state==='installed'&&navigator.serviceWorker.controller)
-            toast('Nueva versión disponible — recargá','warn');
+          if(sw.state==='installed' && navigator.serviceWorker.controller){
+            mostrarBannerUpdate();
+          }
         });
+      });
+      // Recargar cuando el SW nuevo tome control
+      let recargando=false;
+      navigator.serviceWorker.addEventListener('controllerchange',()=>{
+        if(recargando) return;
+        recargando=true;
+        window.location.reload();
       });
     }catch(e){console.warn('[SW]',e.message);}
   }
@@ -749,6 +779,22 @@ async function authHeaders(extras){
     'apikey': SUPA_KEY,
     'Authorization': 'Bearer ' + (token || SUPA_KEY)
   }, extras || {});
+}
+
+// ── Update del Service Worker ──
+function mostrarBannerUpdate(){
+  document.getElementById('update-banner').classList.add('show');
+}
+function aplicarUpdate(){
+  const reg = window._swReg;
+  if (!reg) { window.location.reload(); return; }
+  const waiting = reg.waiting || reg.installing;
+  if (waiting) {
+    waiting.postMessage('skipWaiting');
+    // El controllerchange listener se encarga de recargar cuando el nuevo SW tome control
+  } else {
+    window.location.reload();
+  }
 }
 
 function precargarLogo(){
