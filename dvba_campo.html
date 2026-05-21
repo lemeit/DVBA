@@ -631,7 +631,7 @@ body.accesible #user-info{color:#ffd700}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.9</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.10</span>
 </div>
 
 
@@ -872,7 +872,12 @@ async function estaOnline(){
   }catch(e){return false;}
 }
 
-/* ── GPS — watchPosition directo, sin async, sin permissions API ── */
+/* ── GPS — watchPosition directo, sin async, sin permissions API ──
+   Tolerante a fix lento sin A-GPS:
+   - maximumAge:60000 → acepta posiciones cacheadas de hasta 60s
+   - timeout:120000   → espera hasta 2 min antes de tirar error 3 (timeout)
+   - enableHighAccuracy:true → usar satélites GPS reales
+   En arranque sin A-GPS, el primer fix puede tardar varios minutos. */
 function iniciarGPS(){
   if(!('geolocation' in navigator)){
     setGpsUI('err','GPS no disponible');
@@ -884,8 +889,13 @@ function iniciarGPS(){
   document.getElementById('gps-coords-bar').textContent='Buscando señal GPS…';
   document.getElementById('gps-coords-bar').className='gps-coords buscando';
   if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}
+  // Intentar primero getCurrentPosition con tolerancia alta para fix inicial rápido
+  // (puede aceptar fix de baja precisión si el GPS aún no tiene satélites)
+  navigator.geolocation.getCurrentPosition(onGPSok, () => {/*silenciar*/},
+    {enableHighAccuracy:false, timeout:8000, maximumAge:300000});
+  // Luego arrancar watch para tracking continuo de alta precisión
   gpsWatchId=navigator.geolocation.watchPosition(onGPSok,onGPSerr,
-    {enableHighAccuracy:true,timeout:30000,maximumAge:3000});
+    {enableHighAccuracy:true,timeout:120000,maximumAge:60000});
 }
 
 function toggleGPS(){
