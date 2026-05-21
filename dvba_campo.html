@@ -376,9 +376,51 @@ body.accesible #btn-accesible-fab{
   box-shadow:0 4px 0 #000
 }
 
+/* ── Modal de Login ─────────────────────────────────────── */
+#login-ov{position:fixed;inset:0;background:linear-gradient(135deg,#003366 0%,#001a33 100%);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
+#login-ov.show{display:flex}
+#login-box{background:#fff;border-radius:12px;padding:24px 22px;max-width:340px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+#login-box h2{color:#003366;font-size:1.1rem;margin-bottom:6px}
+#login-box .sub{font-size:.78rem;color:#666;margin-bottom:18px;line-height:1.4}
+#login-box label{display:block;font-size:.72rem;color:#445;margin:8px 0 3px 2px;font-weight:600}
+#login-box input{width:100%;padding:10px 12px;font-size:.92rem;border:1px solid #ccc;border-radius:6px;outline:none;transition:border-color .15s}
+#login-box input:focus{border-color:#003366}
+#login-box .err{color:#c00;font-size:.72rem;margin-top:8px;display:none}
+#login-box .err.show{display:block}
+#login-box button{width:100%;padding:11px;background:#003366;color:#fff;border:none;border-radius:6px;font-size:.92rem;font-weight:700;cursor:pointer;margin-top:14px}
+#login-box button:disabled{background:#888;cursor:default}
+#login-box button:hover:not(:disabled){background:#004488}
+#login-box .footer{font-size:.66rem;color:#888;margin-top:14px;text-align:center}
+#user-info{position:fixed;top:8px;right:130px;font-size:.66rem;color:#fff;background:rgba(0,0,0,.25);padding:3px 8px;border-radius:10px;z-index:8;display:none;align-items:center;gap:6px}
+#user-info.show{display:flex}
+#user-info button{background:transparent;color:#ffd700;border:1px solid rgba(255,215,0,.6);font-size:.6rem;padding:1px 6px;border-radius:8px;cursor:pointer}
+#user-info button:hover{background:rgba(255,215,0,.15)}
 </style>
 </head>
 <body>
+
+<!-- Modal de login (se muestra al inicio si no hay sesión) -->
+<div id="login-ov">
+  <div id="login-box">
+    <h2>🔐 DVBA Campo · Acceso</h2>
+    <p class="sub">Ingresá con tu cuenta autorizada para crear, editar o sincronizar relevamientos. La lectura del mapa principal sigue siendo pública.</p>
+    <form id="login-form" onsubmit="return false">
+      <label>Email</label>
+      <input type="email" id="login-email" autocomplete="username" required>
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" autocomplete="current-password" required>
+      <div class="err" id="login-err"></div>
+      <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
+    </form>
+    <div class="footer">DVBA Zona VI Saladillo</div>
+  </div>
+</div>
+
+<!-- Badge usuario logueado -->
+<div id="user-info">
+  <span id="user-email">—</span>
+  <button onclick="hacerLogout()">salir</button>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -610,7 +652,84 @@ document.addEventListener('DOMContentLoaded',async()=>{
       });
     }catch(e){console.warn('[SW]',e.message);}
   }
+  // ── Auth gate: mostrar login si no hay sesión ──
+  initAuthGate();
 });
+
+// ════════════════════════════════════════════════════════════════
+// Autenticación (Supabase Auth)
+// ════════════════════════════════════════════════════════════════
+function initAuthGate(){
+  if (!window.dvbaAuth) {
+    console.warn('[auth] dvbaAuth no disponible');
+    return;
+  }
+  if (dvbaAuth.estaLogueado()) {
+    mostrarUsuario();
+  } else {
+    document.getElementById('login-ov').classList.add('show');
+    setTimeout(() => document.getElementById('login-email').focus(), 100);
+  }
+  // Permitir submit con Enter
+  document.getElementById('login-pass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') hacerLogin();
+  });
+}
+
+async function hacerLogin(){
+  const btn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-err');
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) {
+    errEl.textContent = 'Completá email y contraseña.';
+    errEl.classList.add('show');
+    return;
+  }
+  errEl.classList.remove('show');
+  btn.disabled = true;
+  btn.textContent = 'Verificando…';
+  try {
+    await dvbaAuth.login(email, pass);
+    document.getElementById('login-ov').classList.remove('show');
+    document.getElementById('login-pass').value = '';
+    mostrarUsuario();
+    toast('✓ Sesión iniciada', 'ok');
+  } catch (e) {
+    errEl.textContent = e.message || 'Error al iniciar sesión.';
+    errEl.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Iniciar sesión';
+  }
+}
+
+async function hacerLogout(){
+  if (!confirm('¿Cerrar sesión? Los registros pendientes quedan guardados localmente.')) return;
+  await dvbaAuth.logout();
+  document.getElementById('user-info').classList.remove('show');
+  document.getElementById('login-ov').classList.add('show');
+  setTimeout(() => document.getElementById('login-email').focus(), 100);
+  toast('Sesión cerrada', 'warn');
+}
+
+function mostrarUsuario(){
+  const u = dvbaAuth.user();
+  if (!u) return;
+  const el = document.getElementById('user-info');
+  document.getElementById('user-email').textContent = '👤 ' + (u.email || '?');
+  el.classList.add('show');
+}
+
+// Helper: headers de auth para fetch a Supabase.
+// Usa el access_token del usuario logueado si está disponible, sino la anon key.
+async function authHeaders(extras){
+  const token = window.dvbaAuth ? (await dvbaAuth.token()) : null;
+  return Object.assign({
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer ' + (token || SUPA_KEY)
+  }, extras || {});
+}
 
 function precargarLogo(){
   logoImg=new Image();
@@ -980,7 +1099,7 @@ async function guardarRegistro(){
       showOv('Guardando en la nube…');
       const resp=await fetch(SUPA_URL+'/rest/v1/relevamientos',{
         method:'POST',
-        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+        headers: await authHeaders({'Content-Type':'application/json','Prefer':'return=representation'}),
         body:JSON.stringify(reg), signal:AbortSignal.timeout(12000)
       });
       if(resp.ok){const rows=await resp.json();reg.id=(rows[0]&&rows[0].id)||tempId;cloud=true;}
@@ -1038,7 +1157,7 @@ async function subirFoto(b64,ruta){
     const path='fotos/'+Date.now()+'_'+ruta.replace(/\s/g,'')+'.sello.'+ext;
     const resp=await fetch(SUPA_URL+'/storage/v1/object/'+BUCKET+'/'+path,{
       method:'POST',
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':mime,'x-upsert':'true'},
+      headers: await authHeaders({'Content-Type':mime,'x-upsert':'true'}),
       body:blob, signal:AbortSignal.timeout(30000)
     });
     if(resp.ok)return SUPA_URL+'/storage/v1/object/public/'+BUCKET+'/'+path;
@@ -1121,7 +1240,7 @@ async function syncManual(){
       console.log('[SYNC] enviando:', JSON.stringify(payload));
       const resp=await fetch(SUPA_URL+'/rest/v1/relevamientos',{
         method:'POST',
-        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        headers: await authHeaders({'Content-Type':'application/json','Prefer':'return=minimal'}),
         body:JSON.stringify(payload), signal:AbortSignal.timeout(12000)
       });
       const respTxt = await resp.text();
@@ -1261,6 +1380,7 @@ function hacerThumb(b64){
   });
 }
 </script>
+<script src="datos/auth.js"></script>
 <script src="dvba_tipos.js"></script>
 <script>
 /* ── Inicializar selector jerárquico de tipo ── */
