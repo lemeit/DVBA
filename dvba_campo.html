@@ -674,6 +674,10 @@ document.addEventListener('DOMContentLoaded',async()=>{
   initPWA(); precargarLogo(); iniciarGPS(); irPaso(0);
   if('serviceWorker' in navigator){
     try{
+      // Capturar si había controller ANTES del registro.
+      // En primer install no había → NO recargar al primer controllerchange
+      // (eso interrumpe el GPS que recién arranca).
+      const hadController = !!navigator.serviceWorker.controller;
       const reg=await navigator.serviceWorker.register('sw.js');
       window._swReg = reg;
       navigator.serviceWorker.addEventListener('message',onSWMsg);
@@ -690,9 +694,12 @@ document.addEventListener('DOMContentLoaded',async()=>{
           }
         });
       });
-      // Recargar cuando el SW nuevo tome control
+      // Solo recargar en controllerchange si era una ACTUALIZACIÓN real
+      // (había controller antes). En el primer install no recargamos porque
+      // eso interrumpe el flujo de GPS, formulario, etc.
       let recargando=false;
       navigator.serviceWorker.addEventListener('controllerchange',()=>{
+        if(!hadController) return;     // primer install: ignorar
         if(recargando) return;
         recargando=true;
         window.location.reload();
