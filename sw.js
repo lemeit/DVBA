@@ -1,23 +1,24 @@
 /* ══════════════════════════════════════════════════
-   DVBA Campo · Service Worker v3.3
+   DVBA Campo · Service Worker v3.4
    Network-first + offline fallback + auto-purge de 404
 
-   v3.3 (fix sintaxis): el archivo previo había quedado truncado en
-   la función procesarCola, lo que rompía la registración del SW
-   (script evaluation failed). Reconstruido completo.
-
-   v3.2: CACHE_URLS relativas para que funcione en /DVBA/ subpath.
+   v3.4: cachea URL principal con y sin .html, fallback offline al HTML.
+   v3.3: reconstruido completo tras truncado previo.
+   v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.7';
+const CACHE_NAME = 'dvba-campo-v9.8';
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET     = 'relevamientos';
 
-// Rutas RELATIVAS al scope del SW (que en GitHub Pages incluye /DVBA/)
+// Rutas RELATIVAS al scope del SW (que en GitHub Pages incluye /DVBA/).
+// Incluimos variantes de la URL principal porque el usuario puede acceder
+// con o sin .html, y con o sin trailing slash.
 const CACHE_URLS = [
   './',
+  './dvba_campo',
   './dvba_campo.html',
   './manifest.json',
   './sw.js',
@@ -76,8 +77,22 @@ self.addEventListener('fetch', e => {
       }
       return resp;
     }).catch(() => {
+      // Offline: cache exacto, sino variantes del HTML principal
       return caches.match(e.request).then(cached => {
         if (cached) return cached;
+        const path = url.pathname;
+        // Si la URL es la app principal sin .html o solo el directorio,
+        // devolver el .html cacheado
+        if (/\/dvba_campo\/?$/.test(path) ||
+            path.endsWith('/DVBA/') || path.endsWith('/DVBA') ||
+            path.endsWith('/')) {
+          return caches.match('./dvba_campo.html')
+            .then(c => c || caches.match('./'))
+            .then(c => c || new Response('Sin caché del HTML principal.', {
+              status: 503,
+              headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+            }));
+        }
         return new Response(
           'Sin conexión y sin caché disponible para este recurso.',
           { status: 503, statusText: 'Offline',
@@ -99,7 +114,6 @@ self.addEventListener('sync', e => {
   if (e.tag === SYNC_TAG) e.waitUntil(procesarCola());
 });
 
-// ── Procesar cola offline ──
 async function procesarCola(){
   let db;
   try {
@@ -154,7 +168,6 @@ async function subirFoto(ruta, base64){
   return null;
 }
 
-// ── IndexedDB helpers ──
 function abrirDB(){
   return new Promise((res, rej) => {
     const req = indexedDB.open('dvba_campo', 9);
@@ -162,11 +175,12 @@ function abrirDB(){
     req.onsuccess = () => res(req.result);
     req.onupgradeneeded = () => {
       const db = req.result;
-      if (!db.objectStoreNames.contains('cola'))  db.createObjectStore('cola',  { keyPath: 'id' });
-      if (!db.objectStoreNames.contains('hoy'))   db.createObjectStore('hoy',   { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('cola')) db.createObjectStore('cola', { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('hoy'))  db.createObjectStore('hoy',  { keyPath: 'id' });
     };
   });
 }
+
 function getAll(db, store){
   return new Promise((res, rej) => {
     const req = db.transaction(store, 'readonly').objectStore(store).getAll();
@@ -174,6 +188,7 @@ function getAll(db, store){
     req.onerror   = () => rej(req.error);
   });
 }
+
 function del(db, store, key){
   return new Promise((res, rej) => {
     const req = db.transaction(store, 'readwrite').objectStore(store).delete(key);
