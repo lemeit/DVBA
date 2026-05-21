@@ -391,9 +391,16 @@ body.accesible #btn-accesible-fab{
 #login-box button:disabled{background:#888;cursor:default}
 #login-box button:hover:not(:disabled){background:#004488}
 #login-box .footer{font-size:.66rem;color:#888;margin-top:14px;text-align:center}
-#user-info{position:fixed;top:8px;right:130px;font-size:.66rem;color:#fff;background:rgba(0,0,0,.25);padding:3px 8px;border-radius:10px;z-index:8;display:none;align-items:center;gap:6px}
+/* Badge usuario logueado: barra delgada DEBAJO del header, no encima */
+#user-info{
+  position:fixed;top:auto;right:8px;font-size:.6rem;color:#fff;
+  background:rgba(0,40,80,.85);padding:2px 8px;border-radius:0 0 8px 8px;
+  z-index:7;display:none;align-items:center;gap:6px;
+  box-shadow:0 2px 4px rgba(0,0,0,.15);
+  /* posicionado mediante JS según altura del header */
+}
 #user-info.show{display:flex}
-#user-info button{background:transparent;color:#ffd700;border:1px solid rgba(255,215,0,.6);font-size:.6rem;padding:1px 6px;border-radius:8px;cursor:pointer}
+#user-info button{background:transparent;color:#ffd700;border:1px solid rgba(255,215,0,.6);font-size:.58rem;padding:0 5px;border-radius:6px;cursor:pointer;line-height:1.4}
 #user-info button:hover{background:rgba(255,215,0,.15)}
 </style>
 </head>
@@ -598,7 +605,7 @@ body.accesible #btn-accesible-fab{
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.5</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.7</span>
 </div>
 
 
@@ -718,6 +725,9 @@ function mostrarUsuario(){
   if (!u) return;
   const el = document.getElementById('user-info');
   document.getElementById('user-email').textContent = '👤 ' + (u.email || '?');
+  // Posicionar debajo del header (sin tapar título)
+  const hdr = document.querySelector('.hdr');
+  if (hdr) el.style.top = (hdr.offsetHeight - 2) + 'px';
   el.classList.add('show');
 }
 

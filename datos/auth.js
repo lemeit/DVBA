@@ -89,19 +89,38 @@
     borrarSesion();
   }
 
-  // Devuelve la sesión vigente, refrescando si está por expirar (<60s)
+  // Devuelve la sesión vigente, refrescando si está por expirar (<60s).
+  // OFFLINE-tolerante: si no hay red, devuelve la sesión local aunque el
+  // access_token esté vencido. El refresh se intenta sólo cuando hay red.
+  // El refresh_token de Supabase tiene vida larga (típicamente 30 días o
+  // configurable hasta 1 año), así que la app sigue funcionando offline
+  // por mucho tiempo después del último uso online.
   async function session(){
     const s = leerSesion();
     if (!s || !s.access_token) return null;
     const expira = (s.expires_at || 0) * 1000;
-    if (Date.now() < expira - 60000) return s;
-    // Está cerca de expirar o expirado: intentar refresh
-    if (!s.refresh_token) { borrarSesion(); return null; }
+    if (Date.now() < expira - 60000) return s;   // token todavía vigente
+    // Token cerca de expirar o expirado:
+    //   - si NO hay red → devolver la sesión local (modo offline tolerante)
+    //   - si hay red → intentar refresh
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      console.log('[auth] sin red, usando sesión local con token vencido');
+      return s;
+    }
+    if (!s.refresh_token) {
+      // Sin refresh_token y vencido — pero si está offline, devolvemos igual
+      if (typeof navigator !== 'undefined' && !navigator.onLine) return s;
+      borrarSesion();
+      return null;
+    }
     try {
       const nuevo = await refresh(s.refresh_token);
       return nuevo;
     } catch (e) {
       console.warn('[auth] refresh falló:', e.message);
+      // Si el refresh falla por estar offline (TypeError de fetch),
+      // conservamos la sesión local para seguir trabajando offline.
+      if (typeof navigator !== 'undefined' && !navigator.onLine) return s;
       borrarSesion();
       return null;
     }
@@ -117,12 +136,13 @@
     return (s && s.user) ? s.user : null;
   }
 
+  // Logueado si hay sesión local con refresh_token (vida larga, días/meses).
+  // No exigimos que el access_token esté vigente — eso se renueva on-demand
+  // o se respeta como "ok offline" si no hay red.
   function estaLogueado(){
     const s = leerSesion();
     if (!s || !s.access_token) return false;
-    const expira = (s.expires_at || 0) * 1000;
-    // Considerar logueado si tiene refresh_token aunque access esté vencido
-    return !!s.refresh_token || Date.now() < expira;
+    return !!s.refresh_token;
   }
 
   // Wrapper para fetch con auth automático (refresca si hace falta)

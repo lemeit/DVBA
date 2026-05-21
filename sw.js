@@ -1,53 +1,40 @@
 /* ══════════════════════════════════════════════════
-   DVBA Campo · Service Worker v3.2
+   DVBA Campo · Service Worker v3.3
    Network-first + offline fallback + auto-purge de 404
-   Credenciales embebidas del proyecto DVBA Zona VI
 
-   v3.2 (fix offline):
-   - CACHE_URLS ahora son RELATIVAS al scope del SW. Antes eran
-     absolutas (/dvba_campo.html), lo que en GitHub Pages bajo
-     subpath /DVBA/ daba 404 al instalar y dejaba el cache vacío,
-     impidiendo que la app funcione offline en primer arranque.
-   - Pre-cache de fonts.googleapis (la única dependencia externa
-     crítica de estilo) con fallback silencioso.
+   v3.3 (fix sintaxis): el archivo previo había quedado truncado en
+   la función procesarCola, lo que rompía la registración del SW
+   (script evaluation failed). Reconstruido completo.
+
+   v3.2: CACHE_URLS relativas para que funcione en /DVBA/ subpath.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.6';   /* ← bump aquí cada vez que actualices */
+const CACHE_NAME = 'dvba-campo-v9.7';
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET     = 'relevamientos';
 
-// Rutas RELATIVAS al scope del SW (el scope incluye el subpath /DVBA/
-// en GitHub Pages). Esto se resuelve a /DVBA/dvba_campo.html en producción.
+// Rutas RELATIVAS al scope del SW (que en GitHub Pages incluye /DVBA/)
 const CACHE_URLS = [
   './',
   './dvba_campo.html',
   './manifest.json',
   './sw.js',
-  './dvba_tipos.js'
+  './dvba_tipos.js',
+  './datos/auth.js'
 ];
 
-// ── INSTALL: cachea archivos, NO hace skipWaiting automático ──
-// El skipWaiting lo dispara el usuario desde el banner de actualización
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(c => {
-        // Cachear individualmente para que un 404 de un archivo no
-        // tire toda la operación (addAll falla atómicamente)
-        return Promise.all(
-          CACHE_URLS.map(url =>
-            c.add(url).catch(err => console.warn('[SW install]', url, err.message))
-          )
-        );
-      })
-    // sin self.skipWaiting() aquí → el SW queda en "waiting"
-    // y la app muestra el banner "Nueva versión disponible"
+    caches.open(CACHE_NAME).then(c =>
+      Promise.all(CACHE_URLS.map(url =>
+        c.add(url).catch(err => console.warn('[SW install]', url, err.message))
+      ))
+    )
   );
 });
 
-// ── ACTIVATE: limpia cachés viejos ──
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
@@ -58,25 +45,13 @@ self.addEventListener('activate', e => {
   );
 });
 
-// ── FETCH: NETWORK-FIRST con offline fallback + auto-purge de 404 ──
-//
-// Estrategia v3.1:
-//   1. Siempre intentamos red primero (sirve siempre la versión más nueva)
-//   2. Si red OK (200) → devolvemos network y CACHEAMOS (para offline)
-//   3. Si red 404 → BORRAMOS la entrada del caché y devolvemos el 404
-//      (resuelve el problema de URLs fantasma cuando se borran archivos del repo)
-//   4. Si red FALLA (sin conexión) → devolvemos lo cacheado, o un offline simple
-//
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-
-  // Solo cacheamos schemes http/https. Ignoramos chrome-extension://, data:, blob:, file:, etc.
-  // (intentar cache.put() con esos schemes lanza TypeError).
   let url;
   try { url = new URL(e.request.url); } catch { return; }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
 
-  // Dominios externos: no interceptamos (que vayan directo a la red)
+  // Dominios externos: no interceptamos
   if (e.request.url.includes('supabase.co')) return;
   if (e.request.url.includes('fonts.googleapis')) return;
   if (e.request.url.includes('fonts.gstatic')) return;
@@ -86,7 +61,6 @@ self.addEventListener('fetch', e => {
 
   e.respondWith(
     fetch(e.request).then(resp => {
-      // Red respondió OK → cachear (solo respuestas mismo origen) y devolver
       if (resp && resp.status === 200 && resp.type === 'basic') {
         const clone = resp.clone();
         caches.open(CACHE_NAME)
@@ -94,60 +68,44 @@ self.addEventListener('fetch', e => {
           .catch(err => console.warn('[SW cache.put]', err.message));
         return resp;
       }
-      // Red respondió 404 → archivo eliminado del server: PURGAR del caché
-      // Esto resuelve URLs fantasma (ej: /dvba_zona6 que ya no existe en el repo)
       if (resp && resp.status === 404) {
         caches.open(CACHE_NAME)
           .then(c => c.delete(e.request))
-          .then(deleted => {
-            if (deleted) console.log('[SW] Purgado de caché (404):', e.request.url);
-          })
           .catch(() => {});
         return resp;
       }
-      // Otros (3xx, 5xx, etc.): devolver tal cual sin cachear
       return resp;
     }).catch(() => {
-      // Sin conexión: caer al caché si existe
       return caches.match(e.request).then(cached => {
         if (cached) return cached;
-        // Sin red y sin caché: respuesta offline mínima
         return new Response(
           'Sin conexión y sin caché disponible para este recurso.',
-          { status: 503, statusText: 'Offline', headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+          { status: 503, statusText: 'Offline',
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
         );
       });
     })
   );
 });
 
-// ── MENSAJE desde la app ──
-// La app envía 'skipWaiting' para activar la nueva versión
 self.addEventListener('message', e => {
-  if (e.data === 'skipWaiting') {
-    self.skipWaiting();
-    return;
-  }
+  if (e.data === 'skipWaiting') { self.skipWaiting(); return; }
   if (e.data === 'SYNC_NOW') {
-    procesarCola().then(() => {
-      notificarClientes({ tipo: 'SYNC_COMPLETO' });
-    });
+    procesarCola().then(() => notificarClientes({ tipo: 'SYNC_COMPLETO' }));
   }
 });
 
-// ── BACKGROUND SYNC ──
 self.addEventListener('sync', e => {
   if (e.tag === SYNC_TAG) e.waitUntil(procesarCola());
 });
 
 // ── Procesar cola offline ──
-async function procesarCola() {
+async function procesarCola(){
   let db;
   try {
     db = await abrirDB();
     const pendientes = await getAll(db, 'cola');
     if (!pendientes.length) return;
-
     let ok = 0;
     for (const item of pendientes) {
       try {
@@ -155,11 +113,11 @@ async function procesarCola() {
         if (!foto_url && item.fotoBase64) {
           foto_url = await subirFoto(item.reg.ruta || 'campo', item.fotoBase64);
         }
-        const resp = await fetch(`${SUPA_URL}/rest/v1/relevamientos`, {
+        const resp = await fetch(SUPA_URL + '/rest/v1/relevamientos', {
           method:  'POST',
           headers: {
             'apikey':        SUPA_KEY,
-            'Authorization': `Bearer ${SUPA_KEY}`,
+            'Authorization': 'Bearer ' + SUPA_KEY,
             'Content-Type':  'application/json',
             'Prefer':        'return=minimal'
           },
@@ -172,8 +130,59 @@ async function procesarCola() {
   } catch(e) { console.error('[SW cola]', e); }
 }
 
-// ── Subir foto ──
-async function subirFoto(ruta, base64) {
+async function subirFoto(ruta, base64){
   try {
     const [header, data] = base64.split(',');
-    const mime  = header.match(/:(.*?
+    const mime  = header.match(/:(.*?);/)[1];
+    const ext   = mime.includes('jpeg') ? 'jpg' : (mime.split('/')[1] || 'jpg');
+    const bytes = atob(data), arr = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    const blob = new Blob([arr], { type: mime });
+    const path = 'fotos/' + Date.now() + '_' + ruta.replace(/\s/g, '') + '.sello.' + ext;
+    const r = await fetch(SUPA_URL + '/storage/v1/object/' + BUCKET + '/' + path, {
+      method: 'POST',
+      headers: {
+        'apikey':        SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type':  mime,
+        'x-upsert':      'true'
+      },
+      body: blob
+    });
+    if (r.ok) return SUPA_URL + '/storage/v1/object/public/' + BUCKET + '/' + path;
+  } catch(e) { console.warn('[SW subirFoto]', e.message); }
+  return null;
+}
+
+// ── IndexedDB helpers ──
+function abrirDB(){
+  return new Promise((res, rej) => {
+    const req = indexedDB.open('dvba_campo', 9);
+    req.onerror   = () => rej(req.error);
+    req.onsuccess = () => res(req.result);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains('cola'))  db.createObjectStore('cola',  { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('hoy'))   db.createObjectStore('hoy',   { keyPath: 'id' });
+    };
+  });
+}
+function getAll(db, store){
+  return new Promise((res, rej) => {
+    const req = db.transaction(store, 'readonly').objectStore(store).getAll();
+    req.onsuccess = () => res(req.result || []);
+    req.onerror   = () => rej(req.error);
+  });
+}
+function del(db, store, key){
+  return new Promise((res, rej) => {
+    const req = db.transaction(store, 'readwrite').objectStore(store).delete(key);
+    req.onsuccess = () => res();
+    req.onerror   = () => rej(req.error);
+  });
+}
+
+function notificarClientes(msg){
+  self.clients.matchAll({ includeUncontrolled: true })
+    .then(cs => cs.forEach(c => c.postMessage(msg)));
+}
