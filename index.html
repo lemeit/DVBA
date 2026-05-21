@@ -516,17 +516,54 @@ async function sincronizarSupaConSesion(){
   } catch(e){ console.warn('[auth] setSession:', e.message); return false; }
 }
 
+// En la app de escritorio el login es OPCIONAL.
+// Cualquiera puede VER el mapa con la anon key (lectura libre).
+// El modal de login solo aparece cuando el usuario intenta una acción que
+// requiere autenticación (insertar, editar, borrar). Si ya hay sesión
+// guardada, se restaura y se sincroniza con _supa transparentemente.
 function initAuthGate(){
   if (!window.dvbaAuth) return;
   if (dvbaAuth.estaLogueado()){
     sincronizarSupaConSesion();
     mostrarUsuario();
   } else {
-    document.getElementById('login-ov').classList.add('show');
-    setTimeout(() => document.getElementById('login-email').focus(), 100);
+    // Sin sesión: NO mostrar modal. Mostrar botón "Iniciar sesión" en lugar
+    // del badge user — vide mostrarBotonLogin().
+    mostrarBotonLogin();
   }
   const pass = document.getElementById('login-pass');
   if (pass) pass.addEventListener('keydown', e => { if (e.key === 'Enter') hacerLogin(); });
+}
+
+// Botón "Iniciar sesión" visible cuando no hay sesión (en lugar del badge user)
+function mostrarBotonLogin(){
+  const el = document.getElementById('user-info');
+  if (!el) return;
+  el.innerHTML = '<button onclick="abrirLogin()" style="border-color:rgba(255,215,0,.7);color:#ffd700">🔐 Iniciar sesión</button>';
+  el.classList.add('show');
+  el.title = 'Para crear, editar o borrar registros';
+}
+function abrirLogin(){
+  document.getElementById('login-ov').classList.add('show');
+  setTimeout(() => document.getElementById('login-email').focus(), 100);
+}
+
+// Helper: chequea sesión antes de una operación de escritura.
+// Si no hay sesión, abre el modal y devuelve false (la operación se aborta).
+// Si hay sesión, devuelve true y se puede proceder.
+async function requireAuth(mensaje){
+  if (!window.dvbaAuth || !dvbaAuth.estaLogueado()){
+    abrirLogin();
+    const err = document.getElementById('login-err');
+    if (err && mensaje){
+      err.textContent = mensaje;
+      err.classList.add('show');
+    }
+    return false;
+  }
+  // Re-sincronizar con _supa por las dudas (si la sesión cambió o el cliente perdió el token)
+  await sincronizarSupaConSesion();
+  return true;
 }
 
 async function hacerLogin(){
@@ -555,20 +592,21 @@ async function hacerLogin(){
 }
 
 async function hacerLogout(){
-  if (!confirm('¿Cerrar sesión?')) return;
+  if (!confirm('¿Cerrar sesión? Vas a poder seguir consultando el mapa pero no editar.')) return;
   try { if (_supa) await _supa.auth.signOut(); } catch(e){}
   await dvbaAuth.logout();
-  document.getElementById('user-info').classList.remove('show');
-  document.getElementById('login-ov').classList.add('show');
-  setTimeout(() => document.getElementById('login-email').focus(), 100);
+  // En lugar de forzar login, volver al modo lectura pública con el botón "Iniciar sesión"
+  mostrarBotonLogin();
 }
 
 function mostrarUsuario(){
   const u = dvbaAuth.user();
   if (!u) return;
   const corto = (u.email || '?').split('@')[0];
-  document.getElementById('user-email').textContent = '👤 ' + corto;
   const el = document.getElementById('user-info');
+  // Restaurar el contenido del badge (puede haber sido reemplazado por el botón "Iniciar sesión")
+  el.innerHTML = '<span id="user-email">👤 ' + corto + '</span>' +
+                 '<button onclick="hacerLogout()">salir</button>';
   el.title = u.email || '';
   el.classList.add('show');
 }
@@ -983,6 +1021,8 @@ function prevFoto(input){
 
 // GUARDAR
 async function guardar(){
+  // Gate de auth: si no hay sesión, abrir login y abortar
+  if (!(await requireAuth('Iniciá sesión para guardar registros.'))) return;
   const ruta    = document.getElementById('fruta').value;
   const partido = document.getElementById('fpartido').value;
   const prog    = document.getElementById('fprog').value;
@@ -1234,6 +1274,8 @@ function renderRegs(){
 }
 
 async function delReg(id){
+  // Gate de auth: si no hay sesión, abrir login y abortar
+  if (!(await requireAuth('Iniciá sesión para borrar registros.'))) return;
   if (!confirm('Eliminar este registro?')) return;
   if (_supa) {
     const { error } = await _supa.from('relevamientos').delete().eq('id', id);

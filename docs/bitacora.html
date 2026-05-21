@@ -682,6 +682,132 @@ git push origin main
       <li><strong>Piloto TMD</strong> (Tránsito Medio Diario) con cámara de video en rutas seleccionadas.</li>
       <li>Integración con <strong>acelerómetro RURAL IT</strong> para condición de pavimento.</li>
       <li>Medición <strong>V85</strong> (velocidad percentil 85) con LIDAR del colega.</li>
+      <li>Dashboard de reportes mensuales agregados desde Supabase.</li>
+      <li>Integración con sistema de despacho de cuadrillas.</li>
+    </ul>
+  </div>
+
+</section>
+
+<section class="tab-pane" id="tab-changelog">
+
+  <h2>📋 Changelog · Apps</h2>
+  <div class="card">
+    <table>
+      <tr><th>Artefacto</th><th>Versión</th><th>Archivo(s)</th><th>Bumpear con</th></tr>
+      <tr><td><strong>📱 App Campo</strong></td><td><span class="badge b-ok">v9.10</span></td><td><code>dvba_campo.html</code> + <code>sw.js</code> + <code>datos/auth.js</code></td><td><code>bump_version.py campo v9.11</code></td></tr>
+      <tr><td><strong>🖥 App Escritorio</strong></td><td><span class="badge b-ok">v7.1</span></td><td><code>index.html</code> + <code>datos/auth.js</code></td><td><code>bump_version.py escritorio v7.2</code></td></tr>
+      <tr><td><strong>🛣 Caminos Secundarios</strong></td><td><span class="badge b-ok">v1.0</span></td><td><code>caminos_secundarios.html</code> + <code>scripts/calcular_longitudes_red_vial.py</code></td><td>—</td></tr>
+    </table>
+
+    <h3>v9.10 · 20 mayo 2026 — App de campo</h3>
+    <ul>
+      <li><strong>Login Supabase Auth</strong> con email/password. Modal al iniciar si no hay sesión. Badge usuario en header. Sesión persiste 30+ días, tolerante offline.</li>
+      <li>Helper <code>authHeaders()</code> que devuelve Bearer token del usuario en lugar de la anon key.</li>
+      <li>SW v3.4: <code>CACHE_URLS</code> relativas, cachea variantes con/sin <code>.html</code>, fallback inteligente offline.</li>
+      <li>Fix crítico: <code>controllerchange</code> ya no recarga la app en primer install (rompía el GPS).</li>
+      <li>GPS tolerante a fix lento (maximumAge 60s, timeout 2 min, getCurrentPosition inicial sin alta precisión).</li>
+      <li>Banner de actualización funcional con botón <strong>Actualizar</strong> que dispara skipWaiting + reload automático.</li>
+      <li>Toast más claro cuando se guarda offline: "Sin conexión — guardado localmente, se sincroniza al volver".</li>
+    </ul>
+
+    <h3>v7.1 · 20 mayo 2026 — App de escritorio</h3>
+    <ul>
+      <li>Login Supabase Auth con el mismo módulo <code>datos/auth.js</code> compartido con la app de campo.</li>
+      <li><code>_supa.auth.setSession()</code> propaga el token al cliente Supabase SDK → todas las queries (insert/update/delete/storage) usan el token del usuario.</li>
+      <li><strong>Login opcional</strong>: el mapa carga sin login con la anon key (lectura libre). Botón "🔐 Iniciar sesión" en el header. El modal aparece solo al intentar crear/editar/borrar registros (helper <code>requireAuth()</code>).</li>
+    </ul>
+
+    <h3>v1.0 · 17-19 mayo 2026 — Caminos Secundarios</h3>
+    <ul>
+      <li>Nueva subruta <code>caminos_secundarios.html</code> con mapa interactivo de los caminos secundarios provinciales de Zona VI.</li>
+      <li>Script <code>scripts/calcular_longitudes_red_vial.py</code> que recalcula longitudes WGS84 con pyproj. Acepta GeoPackage original del KMZ o output propio re-procesado.</li>
+      <li>Filtros multi-select por partido + por CLASE. Toggle de polígonos. Selección acumulativa con popups. Export CSV + reporte HTML imprimible.</li>
+      <li>5/8 partidos revisados en QGIS: 034, 058, 091, 093, 109. Pendientes: 041, 062, 075.</li>
+      <li>Polígonos de partidos extraídos a <code>datos/partidos_zona_vi.geojson</code> para compartir entre apps.</li>
+    </ul>
+
+    <h3>v9.2 · 7 mayo 2026</h3>
+    <ul>
+      <li>Botón flotante "📲 Instalar app" en dvba_campo.</li>
+      <li>Fix menú hamburguesa mobile en escritorio.</li>
+      <li>Footer "Desarrollado por Ing. Luciano Lamaita · vX.Y".</li>
+    </ul>
+
+    <h3>v9.1 · 6 mayo 2026</h3>
+    <ul>
+      <li>Centralización de versionado con <code>bump_version.py</code>.</li>
+    </ul>
+
+    <h3>v6.1 → v9.0 · histórico (abril 2026)</h3>
+    <ul>
+      <li>Migración de C:\DVBA\app\ a C:\GitHub\DVBA\ (monorepo).</li>
+      <li>Bundles JS por ruta, panel de progresivas, modo accesible, etc.</li>
+    </ul>
+  </div>
+
+  <h2>🔧 Changelog · Service Worker</h2>
+  <div class="card">
+    <h3>v3.4 · 20 mayo 2026</h3>
+    <ul>
+      <li>CACHE_URLS relativas (compatibles con subpath /DVBA/ de GitHub Pages).</li>
+      <li>Cachea variantes con/sin <code>.html</code>. Fallback offline inteligente al HTML.</li>
+      <li>Reconstruido completo tras truncado previo que rompía la registración.</li>
+    </ul>
+    <h3>v3.1 · 6 mayo 2026</h3>
+    <ul>
+      <li>Estrategia network-first con offline fallback + auto-purge de 404.</li>
+    </ul>
+  </div>
+
+  <h2>📦 Changelog · Infraestructura</h2>
+  <div class="card">
+    <h3>20 mayo 2026 — Seguridad: Supabase Auth + RLS</h3>
+    <ul>
+      <li>Nuevo módulo <code>datos/auth.js</code> compartido entre apps.</li>
+      <li>SQL de políticas RLS documentado en <code>docs/SETUP_AUTH.md</code>.</li>
+      <li>Usuarios creados manualmente desde dashboard Supabase. Signup libre deshabilitado.</li>
+    </ul>
+    <h3>17-19 mayo 2026 — Caminos Secundarios</h3>
+    <ul>
+      <li>Nueva carpeta <code>referencias/</code> con <code>partidos_pba.json</code> (ARBA).</li>
+      <li>Script <code>calcular_longitudes_red_vial.py</code> con pyproj.</li>
+      <li>Estructura <code>geojson_procesados/red_secundaria/caminos_secundarios_NNN_final.geojson</code> por partido.</li>
+    </ul>
+    <h3>7 mayo 2026 — Versionado por artefacto</h3>
+    <ul>
+      <li><code>bump_version.py</code>: cada artefacto bumpea independiente.</li>
+    </ul>
+  </div>
+
+</section>
+
+<footer>
+  Bitácora unificada — Sistema de Relevamiento y Gestión Vial DVBA Zona Departamental VI Saladillo<br>
+  Ing. Luciano Lamaita · División Técnica · Última actualización: 20 de mayo de 2026 · v4.0
+</footer>
+
+</div>
+
+<script>
+// ── Tabs ────────────────────────────────────────────────────────────────
+(function(){
+  const tabs  = document.querySelectorAll('#nav-tabs button');
+  const panes = document.querySelectorAll('section.tab-pane');
+  function show(id){
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+    panes.forEach(p => p.classList.toggle('active', p.id === 'tab-'+id));
+    if (location.hash !== '#'+id) history.replaceState(null,'','#'+id);
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.tab)));
+  const h = location.hash.replace('#','');
+  if (h) show(h);
+})();
+</script>
+
+</body>
+</html>
       <li>Plataforma de monitoreo agro-ambiental Saladillo (INTA, municipio, cooperativas).</li>
     </ul>
   </div>
