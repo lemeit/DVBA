@@ -755,7 +755,17 @@ td.km{text-align:right;font-weight:600;color:#003366}
       const km = ts.reduce((s,f) => s + (f.properties.LONGITUD_KM_WGS84||0), 0);
       const cls = [...new Set(ts.map(f => f.properties.CLASE||''))].join(' / ');
       const tr  = [...new Set(ts.map(f => f.properties.TRANSITABIlIDAD||''))].join(' / ');
-      const denom = ts[0].properties.DENOMINACION || '—';
+      // Limpiar prefijo "Tramo N:" de la denominación y juntar los sufijos si hay varios tramos
+      const limpiarDenom = (s) => (s || '').replace(/^\s*Tramo\s+\d+\s*:\s*/i, '').trim();
+      let denom;
+      if (ts.length === 1) {
+        denom = limpiarDenom(ts[0].properties.DENOMINACION) || (ts[0].properties.DENOMINACION || '—');
+      } else {
+        // ordenar por TRAMO_NUM si existe
+        const ordenados = [...ts].sort((a,b) => (a.properties.TRAMO_NUM||999) - (b.properties.TRAMO_NUM||999));
+        const partes = ordenados.map(f => limpiarDenom(f.properties.DENOMINACION)).filter(x => x);
+        denom = partes.length ? partes.join(' / ') : '—';
+      }
       const al = ts.some(f => f.properties.ALERTA==='REVISAR') ? ' <span class="alerta">⚠</span>' : '';
       body += `<tr><td>${nm}${al}</td><td>${denom}${ts.length>1?' <em>('+ts.length+' tramos)</em>':''}</td><td>${cls}</td><td>${tr}</td><td class="km">${km.toFixed(3)}</td></tr>`;
     });
