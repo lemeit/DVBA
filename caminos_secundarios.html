@@ -287,6 +287,21 @@ async function cargarDatos(){
       }
     } catch(e){}
   }
+  // Orden estable por (PARTIDO, NOMEMCLATURA, TRAMO_NUM). Si un feature no
+  // tiene TRAMO_NUM, va al final del grupo (TRAMO_NUM=999). Esto asegura que
+  // el tramo 1 aparezca antes que el tramo 2 dentro de un mismo NOMEMCLATURA.
+  features.sort((a, b) => {
+    const pa = (a.properties.PARTIDO || '').toString();
+    const pb = (b.properties.PARTIDO || '').toString();
+    if (pa !== pb) return pa.localeCompare(pb);
+    const na = a.properties.NOMEMCLATURA || '';
+    const nb = b.properties.NOMEMCLATURA || '';
+    if (na !== nb) return na.localeCompare(nb);
+    const ta = Number(a.properties.TRAMO_NUM);
+    const tb = Number(b.properties.TRAMO_NUM);
+    return (isNaN(ta) ? 999 : ta) - (isNaN(tb) ? 999 : tb);
+  });
+
   const seq = {};
   features.forEach(f => {
     const nm = f.properties.NOMEMCLATURA;
@@ -508,8 +523,11 @@ function renderTabla(){
       fs.forEach((f, i) => {
         const p = f.properties;
         const tkm = (p.LONGITUD_KM_WGS84||0).toFixed(2);
+        // Si el feature tiene TRAMO_NUM, lo usamos como número de tramo real;
+        // sino caemos al índice del array como antes.
+        const numT = (p.TRAMO_NUM != null && p.TRAMO_NUM !== '') ? p.TRAMO_NUM : (i+1);
         html += '<div class="tramo" data-fid="'+p._fid+'">'+
-                  '<div>'+claseTag(p.CLASE||'')+' Tramo '+(i+1)+'</div>'+
+                  '<div>'+claseTag(p.CLASE||'')+' Tramo '+numT+'</div>'+
                   '<span style="color:#003366;font-weight:600">'+tkm+' km</span>'+
                 '</div>';
       });
@@ -537,6 +555,16 @@ function abrirPopup(fid, e){
     '<div class="pop-row"><span class="pop-lbl">Long. WGS84</span><span class="pop-val">'+(p.LONGITUD_KM_WGS84||0).toFixed(3)+' km</span></div>'+
     '<div class="pop-row"><span class="pop-lbl">Long. orig.</span><span class="pop-val">'+(p.LONGITUD_KM_ORIG||0).toFixed(3)+' km</span></div>'+
     '<div class="pop-row"><span class="pop-lbl">Diff %</span><span class="pop-val">'+(p.DIFF_PCT||0).toFixed(2)+' %</span></div>'+
+    (p.TRAMO_NUM != null && p.TRAMO_NUM !== '' ?
+       '<div class="pop-row"><span class="pop-lbl">Tramo n°</span><span class="pop-val">'+p.TRAMO_NUM+'</span></div>' : '')+
+    (p.LAT_INI != null && p.LON_INI != null && p.LAT_FIN != null && p.LON_FIN != null ?
+       '<div class="pop-row" style="flex-direction:column;align-items:stretch">'+
+         '<span class="pop-lbl" style="margin-bottom:2px">Sentido</span>'+
+         '<span class="pop-val" style="font-family:monospace;font-size:.62rem;line-height:1.3">'+
+           Number(p.LAT_INI).toFixed(5)+', '+Number(p.LON_INI).toFixed(5)+'<br>→ '+
+           Number(p.LAT_FIN).toFixed(5)+', '+Number(p.LON_FIN).toFixed(5)+
+         '</span>'+
+       '</div>' : '')+
     (p.ALERTA==='REVISAR' ? '<div class="alerta">⚠ Diff > 10% — revisar geometría</div>' : '')+
     '<button class="pop-action '+(yaSel?'quitar':'')+'" onclick="toggleTramo(\''+fid+'\'); map.closePopup()">'+
       (yaSel ? '✕ Quitar de selección' : '+ Agregar a selección')+

@@ -144,8 +144,16 @@ def cargar_geojson(path: str, partidos_zona: list, lookup: dict) -> pd.DataFrame
     for f in features:
         p      = f['properties']
         coords = f['geometry']['coordinates']
+        # Campos opcionales de orden/sentido: aceptamos los nombres del GPKG
+        # (temporal, long_inicial, ...) y también los renombrados del script
+        # (TRAMO_NUM, LON_INI, ...).
+        def _get(key1, key2):
+            v = p.get(key1)
+            if v is None:
+                v = p.get(key2)
+            return v
         rows.append({
-            'NOMEMCLATURA':     p.get('NOMEMCLATURA', ''),
+            'NOMEMCLATURA':     p.get('NOMEMCLATURA', '') or p.get('NOMENCLATURA', ''),
             'PARTIDO':          p.get('PARTIDO'),
             'PARTIDO_NOMBRE':   lookup.get(p.get('PARTIDO'), 'Desconocido'),
             'ZONA':             p.get('ZONA'),
@@ -157,6 +165,11 @@ def cargar_geojson(path: str, partidos_zona: list, lookup: dict) -> pd.DataFrame
             'LONGITUD_KM_WGS84':geodesic_multilinestring(coords),
             'N_VERTICES':       sum(len(l) for l in coords),
             'N_LINEAS':         len(coords),
+            'TRAMO_NUM':        _get('TRAMO_NUM', 'temporal'),
+            'LON_INI':          _get('LON_INI', 'long_inicial'),
+            'LAT_INI':          _get('LAT_INI', 'lat_inicial'),
+            'LON_FIN':          _get('LON_FIN', 'long_final'),
+            'LAT_FIN':          _get('LAT_FIN', 'lat_final'),
             'geometry':         shape(f['geometry']),
         })
     return pd.DataFrame(rows)
@@ -228,6 +241,30 @@ def cargar_gpkg(path: str, lookup: dict) -> pd.DataFrame:
                   else (1 if g is not None else 0)
     )
 
+    # ── Campos opcionales de orden y sentido del tramo ────────────────────────
+    # En el GeoPackage el usuario puede cargar (vía QGIS) los siguientes campos
+    # para distinguir y ordenar tramos dentro de un mismo NOMENCLATURA y
+    # documentar el sentido (cabecera → cola) de cada tramo:
+    #   temporal      → número de orden del tramo (1, 2, 3...)  → TRAMO_NUM
+    #   long_inicial  → longitud del punto inicial               → LON_INI
+    #   lat_inicial   → latitud  del punto inicial               → LAT_INI
+    #   long_final    → longitud del punto final                 → LON_FIN
+    #   lat_final     → latitud  del punto final                 → LAT_FIN
+    # Si no existen, se completan con valores neutros (TRAMO_NUM=999 → al final
+    # del grupo en el sort; coordenadas en None).
+    rename_map = {
+        'temporal':     'TRAMO_NUM',
+        'long_inicial': 'LON_INI',
+        'lat_inicial':  'LAT_INI',
+        'long_final':   'LON_FIN',
+        'lat_final':    'LAT_FIN',
+    }
+    presentes = [k for k in rename_map if k in gdf.columns]
+    if presentes:
+        gdf = gdf.rename(columns={k: rename_map[k] for k in presentes})
+        print(f"  [INFO] Campos de orden/sentido detectados y renombrados: "
+              f"{', '.join(rename_map[k] for k in presentes)}\n")
+
     return pd.DataFrame(gdf)
 
 
@@ -284,7 +321,18 @@ def procesar(input_path: str, output_dir: str, zona_id: str, ref_path: str) -> N
         df['LONGITUD_KM_ORIG'] * 100
     ).round(1)
     df['ALERTA'] = df['DIFF_PCT'].abs().apply(lambda d: 'REVISAR' if d > 10 else '')
-    df = df.sort_values(['PARTIDO','NOMEMCLATURA']).reset_index(drop=True)
+
+    # ── Orden de tramos ───────────────────────────────────────────────────────
+    # Si existe TRAMO_NUM lo usamos como criterio terciario para mantener el
+    # orden topológico de los tramos dentro de un mismo NOMEMCLATURA. Los
+    # registros sin TRAMO_NUM van al final del grupo (sort por NaN como 999).
+    if 'TRAMO_NUM' not in df.columns:
+        df['TRAMO_NUM'] = None
+    df['TRAMO_NUM'] = pd.to_numeric(df['TRAMO_NUM'], errors='coerce')
+    df['_tramo_sort'] = df['TRAMO_NUM'].fillna(999).astype(int)
+    df = (df.sort_values(['PARTIDO', 'NOMEMCLATURA', '_tramo_sort'])
+            .drop(columns=['_tramo_sort'])
+            .reset_index(drop=True))
 
     # ── Consola ───────────────────────────────────────────────────────────────
     print(f"  {'PDO':>4}  {'PARTIDO':<26} {'SEG':>4} {'KM_ORIG':>9} {'KM_WGS84':>9} {'ALERTA':>7}")
@@ -314,8 +362,14 @@ def procesar(input_path: str, output_dir: str, zona_id: str, ref_path: str) -> N
         print()
 
     # ── Exportar ──────────────────────────────────────────────────────────────
+    # Asegurar presencia de columnas de orden/sentido (con None si no existen)
+    for col in ('TRAMO_NUM', 'LON_INI', 'LAT_INI', 'LON_FIN', 'LAT_FIN'):
+        if col not in df.columns:
+            df[col] = None
+
     cols_csv = ['NOMEMCLATURA','PARTIDO','PARTIDO_NOMBRE','DENOMINACION',
                 'CLASE','TRANSITABIlIDAD','TIPO',
+                'TRAMO_NUM','LON_INI','LAT_INI','LON_FIN','LAT_FIN',
                 'LONGITUD_KM_ORIG','LONGITUD_KM_WGS84','N_VERTICES','N_LINEAS',
                 'DIFF_PCT','ALERTA']
 
@@ -360,7 +414,7 @@ def procesar(input_path: str, output_dir: str, zona_id: str, ref_path: str) -> N
     print()
 
 
-# ─── Entry point ──────────────────────────────────────────────────────────────
+# ─── Entry point ─────────────────────────────────────────────────────────────
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
