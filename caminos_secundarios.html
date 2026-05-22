@@ -499,6 +499,29 @@ function claseTag(cl){
   return '<span class="tklass k-tierra">TIE</span>';
 }
 
+// Calcula la dirección cardinal del tramo desde (latI,lonI) hasta (latF,lonF).
+// En Argentina las longitudes son negativas — comparamos directamente:
+//   dLat > 0  → vamos hacia el Norte ; dLat < 0  → hacia el Sur
+//   dLon > 0  → vamos hacia el Este  ; dLon < 0  → hacia el Oeste
+// Si una componente domina (>2.5x la otra), devolvemos solo esa dirección;
+// si son comparables, devolvemos la diagonal (NE, SO, NO, SE).
+function direccionCardinal(latI, lonI, latF, lonF){
+  const dLat = Number(latF) - Number(latI);
+  const dLon = Number(lonF) - Number(lonI);
+  const aLat = Math.abs(dLat), aLon = Math.abs(dLon);
+  if (aLat < 1e-6 && aLon < 1e-6) return '—';
+  const ns = dLat > 0 ? 'Norte' : 'Sur';
+  const eo = dLon > 0 ? 'Este'  : 'Oeste';
+  const desdeNS = dLat > 0 ? 'Sur'  : 'Norte';
+  const desdeEO = dLon > 0 ? 'Oeste': 'Este';
+  if (aLat > 2.5 * aLon) return desdeNS + ' → ' + ns;   // tramo casi N-S
+  if (aLon > 2.5 * aLat) return desdeEO + ' → ' + eo;   // tramo casi E-O
+  // Diagonal: combinamos las dos componentes (ej: "SO → NE")
+  const ini = (dLat > 0 ? 'S' : 'N') + (dLon > 0 ? 'O' : 'E');
+  const fin = (dLat > 0 ? 'N' : 'S') + (dLon > 0 ? 'E' : 'O');
+  return ini + ' → ' + fin;
+}
+
 function renderTabla(){
   const lista = document.getElementById('lista-caminos');
   const items = DATA.features.filter(visible);
@@ -523,11 +546,14 @@ function renderTabla(){
       fs.forEach((f, i) => {
         const p = f.properties;
         const tkm = (p.LONGITUD_KM_WGS84||0).toFixed(2);
-        // Si el feature tiene TRAMO_NUM, lo usamos como número de tramo real;
-        // sino caemos al índice del array como antes.
+        // "Tramo N" solo tiene sentido cuando el camino tiene >1 tramos.
+        // Si es uno solo, mostramos solo la clase (ej "PAVIMENTADO 12.5 km").
+        // Cuando hay TRAMO_NUM en el dato, lo usamos como número real
+        // (respeta tu orden topológico); sino caemos al índice del array.
         const numT = (p.TRAMO_NUM != null && p.TRAMO_NUM !== '') ? p.TRAMO_NUM : (i+1);
+        const etiqueta = (fs.length > 1) ? ('Tramo '+numT) : '';
         html += '<div class="tramo" data-fid="'+p._fid+'">'+
-                  '<div>'+claseTag(p.CLASE||'')+' Tramo '+numT+'</div>'+
+                  '<div>'+claseTag(p.CLASE||'')+(etiqueta?' '+etiqueta:'')+'</div>'+
                   '<span style="color:#003366;font-weight:600">'+tkm+' km</span>'+
                 '</div>';
       });
@@ -555,16 +581,12 @@ function abrirPopup(fid, e){
     '<div class="pop-row"><span class="pop-lbl">Long. WGS84</span><span class="pop-val">'+(p.LONGITUD_KM_WGS84||0).toFixed(3)+' km</span></div>'+
     '<div class="pop-row"><span class="pop-lbl">Long. orig.</span><span class="pop-val">'+(p.LONGITUD_KM_ORIG||0).toFixed(3)+' km</span></div>'+
     '<div class="pop-row"><span class="pop-lbl">Diff %</span><span class="pop-val">'+(p.DIFF_PCT||0).toFixed(2)+' %</span></div>'+
-    (p.TRAMO_NUM != null && p.TRAMO_NUM !== '' ?
-       '<div class="pop-row"><span class="pop-lbl">Tramo n°</span><span class="pop-val">'+p.TRAMO_NUM+'</span></div>' : '')+
+    (totalT > 1 && p.TRAMO_NUM != null && p.TRAMO_NUM !== '' ?
+       '<div class="pop-row"><span class="pop-lbl">Tramo n°</span><span class="pop-val">'+p.TRAMO_NUM+' de '+totalT+'</span></div>' : '')+
     (p.LAT_INI != null && p.LON_INI != null && p.LAT_FIN != null && p.LON_FIN != null ?
-       '<div class="pop-row" style="flex-direction:column;align-items:stretch">'+
-         '<span class="pop-lbl" style="margin-bottom:2px">Sentido</span>'+
-         '<span class="pop-val" style="font-family:monospace;font-size:.62rem;line-height:1.3">'+
-           Number(p.LAT_INI).toFixed(5)+', '+Number(p.LON_INI).toFixed(5)+'<br>→ '+
-           Number(p.LAT_FIN).toFixed(5)+', '+Number(p.LON_FIN).toFixed(5)+
-         '</span>'+
-       '</div>' : '')+
+       '<div class="pop-row"><span class="pop-lbl">Sentido</span><span class="pop-val">'+
+         direccionCardinal(p.LAT_INI, p.LON_INI, p.LAT_FIN, p.LON_FIN)+
+       '</span></div>' : '')+
     (p.ALERTA==='REVISAR' ? '<div class="alerta">⚠ Diff > 10% — revisar geometría</div>' : '')+
     '<button class="pop-action '+(yaSel?'quitar':'')+'" onclick="toggleTramo(\''+fid+'\'); map.closePopup()">'+
       (yaSel ? '✕ Quitar de selección' : '+ Agregar a selección')+

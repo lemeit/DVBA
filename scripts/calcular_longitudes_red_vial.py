@@ -71,7 +71,16 @@ REF_DEFAULT = Path(__file__).parent / 'referencias' / 'partidos_pba.json'
 def cargar_referencia(ref_path: str) -> tuple:
     with open(ref_path, encoding='utf-8') as f:
         data = json.load(f)
-    lookup     = {p['numero']: p['nombre'] for p in data['partidos']}
+    # El JSON ARBA usa 'numero' como int (ej: 41) pero los GeoPackages del
+    # KMZ guardan PARTIDO como string padeado a 3 dígitos (ej: '041').
+    # Para que el lookup matchee desde cualquier formato, indexamos por
+    # ambas variantes (int y string a 3 dígitos).
+    lookup = {}
+    for p in data['partidos']:
+        n = p['numero']
+        lookup[n]              = p['nombre']           # int → nombre
+        lookup[str(n)]         = p['nombre']           # '41' → nombre
+        lookup[f"{int(n):03d}"] = p['nombre']           # '041' → nombre
     zonas_dvba = data.get('zonas_dvba', {})
     return lookup, zonas_dvba
 
