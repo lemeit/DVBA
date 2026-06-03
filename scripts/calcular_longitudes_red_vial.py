@@ -254,25 +254,49 @@ def cargar_gpkg(path: str, lookup: dict) -> pd.DataFrame:
     # En el GeoPackage el usuario puede cargar (vía QGIS) los siguientes campos
     # para distinguir y ordenar tramos dentro de un mismo NOMENCLATURA y
     # documentar el sentido (cabecera → cola) de cada tramo:
-    #   temporal      → número de orden del tramo (1, 2, 3...)  → TRAMO_NUM
-    #   long_inicial  → longitud del punto inicial               → LON_INI
-    #   lat_inicial   → latitud  del punto inicial               → LAT_INI
-    #   long_final    → longitud del punto final                 → LON_FIN
-    #   lat_final     → latitud  del punto final                 → LAT_FIN
+    #   TRAMO_NUM  → número de orden del tramo (1, 2, 3...)
+    #   LON_INI    → longitud del punto inicial
+    #   LAT_INI    → latitud  del punto inicial
+    #   LON_FIN    → longitud del punto final
+    #   LAT_FIN    → latitud  del punto final
+    # Como los GeoPackages fueron generados en distintos momentos del
+    # proyecto, aceptamos varias variantes case-insensitive del nombre:
+    #   - temporal / Temporal / TEMPORAL / TRAMO_NUM / tramo_num
+    #   - long_inicial / lon_ini / LON_INI / longitud_inicial / Long_Inicial
+    #   - (idem para las otras 3 coords)
     # Si no existen, se completan con valores neutros (TRAMO_NUM=999 → al final
     # del grupo en el sort; coordenadas en None).
-    rename_map = {
-        'temporal':     'TRAMO_NUM',
-        'long_inicial': 'LON_INI',
-        'lat_inicial':  'LAT_INI',
-        'long_final':   'LON_FIN',
-        'lat_final':    'LAT_FIN',
+    aliases = {
+        'TRAMO_NUM': ['tramo_num', 'temporal'],
+        'LON_INI':   ['lon_ini',   'long_inicial', 'longitud_inicial'],
+        'LAT_INI':   ['lat_ini',   'lat_inicial',  'latitud_inicial'],
+        'LON_FIN':   ['lon_fin',   'long_final',   'longitud_final'],
+        'LAT_FIN':   ['lat_fin',   'lat_final',    'latitud_final'],
     }
-    presentes = [k for k in rename_map if k in gdf.columns]
-    if presentes:
-        gdf = gdf.rename(columns={k: rename_map[k] for k in presentes})
+    # Mapa de columnas reales del GPKG en minúsculas → nombre real
+    cols_lower = {c.lower(): c for c in gdf.columns}
+    rename_real = {}
+    for destino, lista_alias in aliases.items():
+        # Si la columna destino YA existe con el nombre canónico (en cualquier caja), respeta
+        if destino.lower() in cols_lower:
+            real = cols_lower[destino.lower()]
+            if real != destino:
+                rename_real[real] = destino
+            continue
+        # Si no, buscar el primer alias presente (case-insensitive)
+        for a in lista_alias:
+            if a.lower() in cols_lower:
+                rename_real[cols_lower[a.lower()]] = destino
+                break
+    if rename_real:
+        gdf = gdf.rename(columns=rename_real)
         print(f"  [INFO] Campos de orden/sentido detectados y renombrados: "
-              f"{', '.join(rename_map[k] for k in presentes)}\n")
+              f"{', '.join(f'{k} → {v}' for k, v in rename_real.items())}\n")
+    faltantes = [d for d in aliases if d not in gdf.columns]
+    if faltantes:
+        print(f"  [AVISO] Faltan estos campos en el GPKG: {', '.join(faltantes)}\n"
+              f"          Quedarán en NULL/999. Cargalos en QGIS si los necesitás "
+              f"para el ordenamiento de tramos del HTML.\n")
 
     return pd.DataFrame(gdf)
 
