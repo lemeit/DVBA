@@ -307,6 +307,12 @@ def procesar(input_path: str, output_dir: str, zona_id: str, ref_path: str) -> N
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
     nombre_base = Path(input_path).stem
+    # Si el input ya es un *_final.{gpkg,geojson} (el usuario lo re-cargó después
+    # de editar TRAMO_NUM en QGIS), quitamos el sufijo "_final" para no terminar
+    # generando "*_final_final.gpkg".
+    if nombre_base.endswith('_final'):
+        nombre_base = nombre_base[:-len('_final')]
+        print(f"  [INFO] Input es un '_final' — base normalizada a '{nombre_base}'")
     ext         = Path(input_path).suffix.lower()
 
     lookup, zonas_dvba = cargar_referencia(ref_path)

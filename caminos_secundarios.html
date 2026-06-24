@@ -131,6 +131,17 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
     <label style="display:flex;align-items:center;gap:5px;font-size:.68rem;cursor:pointer">
       <input type="checkbox" id="ck-poligonos" checked> Mostrar límites de partidos
     </label>
+    <label style="display:flex;align-items:center;gap:5px;font-size:.68rem;cursor:pointer;margin-top:3px">
+      <input type="checkbox" id="ck-progresivas" checked> Progresivas (km) al seleccionar
+    </label>
+    <div style="display:flex;align-items:center;gap:5px;font-size:.66rem;margin-top:3px;padding-left:18px">
+      <span>cada</span>
+      <select id="sl-prog-paso" style="font-size:.66rem;padding:1px 3px;border:1px solid #ccc;border-radius:3px">
+        <option value="1">1 km</option>
+        <option value="5" selected>5 km</option>
+        <option value="10">10 km</option>
+      </select>
+    </div>
     <div class="resumen" id="resumen-partido"></div>
   </div>
 </div>
@@ -185,10 +196,18 @@ let CLASE_FILTROS = new Set(['DE TIERRA','PAVIMENTADO','MIXTO','SIN ABRIR']); //
 const SELECCION = new Set();
 const LAYERS_BY_NM = {};
 const LAYERS_BY_FID = {};
+const HALO_BY_FID = {};
 const FEAT_BY_FID = {};
 const FUENTES = {};
+let CAPA_HALO = null;
+let CAPA_PROG = null;          // capa de markers de progresivas
+let PROG_ACTIVO = true;
+let PROG_PASO_KM = 5;          // 1, 5, 10
 
-const ESTILO_BASE = cl => ({color: cl==='PAVIMENTADO'?'#3a7bd5':cl==='SIN ABRIR'?'#888':cl==='MIXTO'?'#7050b0':'#a07842', weight:3, opacity:.85});
+const COLOR_CLASE = cl => cl==='PAVIMENTADO'?'#3a7bd5':cl==='SIN ABRIR'?'#888':cl==='MIXTO'?'#7050b0':'#a07842';
+const ESTILO_BASE = cl => ({color: COLOR_CLASE(cl), weight:3, opacity:.9});
+const ESTILO_HALO = cl => ({color: COLOR_CLASE(cl), weight:11, opacity:.22, lineCap:'round', lineJoin:'round'});
+const ESTILO_HALO_SEL = {color:'#ff6600', weight:14, opacity:.30, lineCap:'round', lineJoin:'round'};
 const ESTILO_SEL  = {color:'#ff6600', weight:6, opacity:1};
 const ESTILO_DIM  = cl => ({...ESTILO_BASE(cl), opacity:.12});
 const ESTILO_HIDE = {opacity:0, weight:0};
@@ -323,7 +342,135 @@ function visible(f){
   return true;
 }
 
+// ── Cálculo geodésico (haversine) ────────────────────────────────────────────
+function haversineMeters(lon1, lat1, lon2, lat2){
+  const R = 6371000;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(a)));
+}
+
+// Obtiene array unificado de coords [lon,lat] de un feature (LineString o MultiLineString)
+function coordsDeFeature(f){
+  const g = f.geometry;
+  if (!g) return [];
+  if (g.type === 'LineString') return g.coordinates.slice();
+  if (g.type === 'MultiLineString') return g.coordinates.flat();
+  return [];
+}
+
+// Concatena las coords de todos los tramos de un camino (mismo NOMEMCLATURA),
+// ordenados por TRAMO_NUM (los None van al final). Si un tramo arranca en
+// el sentido inverso al final del anterior, lo invierte para mantener
+// continuidad de la progresiva.
+function concatenarCamino(nm){
+  const tramos = DATA.features
+    .filter(f => f.properties.NOMEMCLATURA === nm)
+    .slice()
+    .sort((a,b) => {
+      const ta = Number(a.properties.TRAMO_NUM);
+      const tb = Number(b.properties.TRAMO_NUM);
+      return (isNaN(ta)?999:ta) - (isNaN(tb)?999:tb);
+    });
+  if (!tramos.length) return [];
+  let coords = coordsDeFeature(tramos[0]);
+  for (let i = 1; i < tramos.length; i++){
+    const next = coordsDeFeature(tramos[i]);
+    if (!next.length) continue;
+    const ultimo = coords[coords.length-1];
+    // Distancias del último punto al inicio y al fin del siguiente tramo
+    const dIni = haversineMeters(ultimo[0], ultimo[1], next[0][0], next[0][1]);
+    const dFin = haversineMeters(ultimo[0], ultimo[1], next[next.length-1][0], next[next.length-1][1]);
+    // Si está más cerca el fin del siguiente, lo invierto antes de pegar
+    if (dFin < dIni) next.reverse();
+    coords = coords.concat(next.slice(1));  // sin duplicar el punto de empalme
+  }
+  return coords;
+}
+
+// Interpola puntos cada `pasoKm` desde km 0 a lo largo de la polilínea coords.
+// Devuelve [{km, lon, lat}, ...] incluyendo km 0 al inicio.
+function progresivas(coords, pasoKm){
+  if (!coords || coords.length < 2 || !pasoKm || pasoKm <= 0) return [];
+  const pasoM = pasoKm * 1000;
+  const out = [{ km: 0, lon: coords[0][0], lat: coords[0][1] }];
+  let acumM = 0;
+  let proxM = pasoM;
+  for (let i = 1; i < coords.length; i++){
+    const a = coords[i-1], b = coords[i];
+    const segM = haversineMeters(a[0], a[1], b[0], b[1]);
+    if (segM === 0) continue;
+    while (acumM + segM >= proxM){
+      const t = (proxM - acumM) / segM;
+      const lon = a[0] + t * (b[0] - a[0]);
+      const lat = a[1] + t * (b[1] - a[1]);
+      out.push({ km: Math.round(proxM / 1000), lon, lat });
+      proxM += pasoM;
+    }
+    acumM += segM;
+  }
+  return out;
+}
+
+// Limpia la capa de progresivas
+function limpiarProgresivas(){
+  if (CAPA_PROG){ map.removeLayer(CAPA_PROG); CAPA_PROG = null; }
+}
+
+// Si hay un camino seleccionado y progresivas activadas, las dibuja
+function actualizarProgresivas(){
+  limpiarProgresivas();
+  if (!PROG_ACTIVO || SELECCION.size === 0) return;
+  // Obtener el NOMEMCLATURA del primer seleccionado (todos deberían ser del mismo)
+  const fid = [...SELECCION][0];
+  const f = FEAT_BY_FID[fid];
+  if (!f) return;
+  const nm = f.properties.NOMEMCLATURA;
+  const coords = concatenarCamino(nm);
+  if (coords.length < 2) return;
+  const puntos = progresivas(coords, PROG_PASO_KM);
+  if (!puntos.length) return;
+
+  CAPA_PROG = L.layerGroup();
+  puntos.forEach(pt => {
+    const esMultiplo10 = pt.km % 10 === 0;
+    const esMultiplo5  = pt.km % 5 === 0;
+    const radio = esMultiplo10 ? 5 : (esMultiplo5 ? 4 : 3);
+    const colorFill = pt.km === 0 ? '#ff6600' : '#003366';
+    const marker = L.circleMarker([pt.lat, pt.lon], {
+      radius: radio,
+      color: '#fff', weight: 1.5,
+      fillColor: colorFill, fillOpacity: 1,
+      pane: 'markerPane'
+    });
+    // Etiqueta al lado del marker para km 0, 5, 10, 20, ... (no en cada km si paso=1)
+    const mostrarTexto = (PROG_PASO_KM <= 1) ? (pt.km % 5 === 0) : true;
+    if (mostrarTexto){
+      const lbl = L.divIcon({
+        className: 'prog-lbl',
+        html: `<div style="font-size:.62rem;color:#fff;background:rgba(0,51,102,.85);padding:1px 4px;border-radius:3px;font-weight:600;white-space:nowrap;transform:translate(8px,-50%)">km ${pt.km}</div>`,
+        iconSize: [0, 0],
+        iconAnchor: [0, 0]
+      });
+      L.marker([pt.lat, pt.lon], { icon: lbl, interactive: false }).addTo(CAPA_PROG);
+    }
+    marker.addTo(CAPA_PROG);
+  });
+  CAPA_PROG.addTo(map);
+}
+
 function renderMapa(){
+  // Capa de HALO (sombreado más ancho y suave) — se dibuja PRIMERO para que quede debajo
+  CAPA_HALO = L.geoJSON(DATA, {
+    style: f => visible(f) ? ESTILO_HALO(f.properties.CLASE) : ESTILO_HIDE,
+    interactive: false,  // los clicks van a la capa principal
+    onEachFeature: (f, layer) => {
+      HALO_BY_FID[f.properties._fid] = layer;
+    }
+  }).addTo(map);
+
+  // Capa principal — colores saturados, click + hover + popup
   CAPA = L.geoJSON(DATA, {
     style: f => visible(f) ? ESTILO_BASE(f.properties.CLASE) : ESTILO_HIDE,
     onEachFeature: (f, layer) => {
@@ -335,7 +482,6 @@ function renderMapa(){
       FEAT_BY_FID[fid] = f;
       layer.on('click', e => { abrirPopup(fid, e); L.DomEvent.stopPropagation(e); });
       layer.on('mouseover', () => {
-        // Solo destacar si el tramo es VISIBLE (no oculto/dim por filtro)
         if (!visible(f)) return;
         if (!SELECCION.has(fid)) layer.setStyle({weight:5});
       });
@@ -350,12 +496,23 @@ function renderMapa(){
 
 function aplicarFiltrosAlMapa(){
   DATA.features.forEach(f => {
-    const l = LAYERS_BY_FID[f.properties._fid];
+    const fid = f.properties._fid;
+    const l  = LAYERS_BY_FID[fid];
+    const h  = HALO_BY_FID[fid];
     if (!l) return;
-    if (SELECCION.has(f.properties._fid)) { l.setStyle(ESTILO_SEL); l.bringToFront(); return; }
-    if (visible(f)) l.setStyle(ESTILO_BASE(f.properties.CLASE));
-    else l.setStyle(ESTILO_HIDE);
+    const sel = SELECCION.has(fid);
+    if (sel) {
+      l.setStyle(ESTILO_SEL); l.bringToFront();
+      if (h) h.setStyle(ESTILO_HALO_SEL);
+    } else if (visible(f)) {
+      l.setStyle(ESTILO_BASE(f.properties.CLASE));
+      if (h) h.setStyle(ESTILO_HALO(f.properties.CLASE));
+    } else {
+      l.setStyle(ESTILO_HIDE);
+      if (h) h.setStyle(ESTILO_HIDE);
+    }
   });
+  actualizarProgresivas();
 }
 
 function actualizarStats(){
@@ -492,6 +649,22 @@ if (ckPol) {
     if (!LY_PARTIDOS) return;
     if (e.target.checked) LY_PARTIDOS.addTo(map);
     else LY_PARTIDOS.remove();
+  });
+}
+
+// Toggle progresivas + selector de paso
+const ckProg = document.getElementById('ck-progresivas');
+if (ckProg) {
+  ckProg.addEventListener('change', e => {
+    PROG_ACTIVO = e.target.checked;
+    actualizarProgresivas();
+  });
+}
+const slProgPaso = document.getElementById('sl-prog-paso');
+if (slProgPaso) {
+  slProgPaso.addEventListener('change', e => {
+    PROG_PASO_KM = Number(e.target.value) || 5;
+    actualizarProgresivas();
   });
 }
 
