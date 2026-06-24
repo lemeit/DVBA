@@ -487,7 +487,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.6';
+const APP_VERSION = 'v7.7';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -610,8 +610,8 @@ function aplicarSelloDVBA(base64, datos){
         ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0);
         // Banda inferior: cap con max para no comerse fotos panorámicas
-        // Menor entre 18% del alto y 14% del ancho, mín 105, máx 220
-        const bH = Math.max(105, Math.min(Math.round(H*0.18), Math.round(W*0.14), 220));
+        // Menor entre 20% del alto y 16% del ancho, mín 120, máx 240 (6 líneas)
+        const bH = Math.max(120, Math.min(Math.round(H*0.20), Math.round(W*0.16), 240));
         const y0 = H - bH;
         // Fondo NEGRO sólido para máxima legibilidad
         const grad = ctx.createLinearGradient(0, y0, 0, H);
@@ -689,6 +689,7 @@ function aplicarSelloDVBA(base64, datos){
           txtFit('Plus Code: ' + datos.pluscode, tx, yB, maxW, fS, '#8aaec0', false, true);
           yB += Math.round(fS*1.32);
         }
+        // Línea 5: fecha · hora · tipo
         const partes = [];
         if (datos.fecha){
           const m = datos.fecha.match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -700,8 +701,17 @@ function aplicarSelloDVBA(base64, datos){
           partes.push(hm[0]+':'+(hm[1]||'00')+' hs');
         }
         if (datos.tipo) partes.push(datos.tipo);
-        partes.push('Sist. Relev. Vial · DVBA Zona VI · ' + APP_VERSION);
-        txtFit(partes.join(' · '), tx, yB, maxW, fS, '#8aaec0', false);
+        if (partes.length) txtFit(partes.join(' · '), tx, yB, maxW, fS, '#8aaec0', false);
+        // Gap visual antes de la firma institucional
+        yB += Math.round(fS*1.55);
+        // Línea 6 (firma): Sist. Relev. Vial · DVBA Zona VI · vX.X (italic dorado tenue)
+        const fF = Math.max(9, Math.round(fS*0.92));
+        ctx.font = '500 italic '+fF+"px Arial,Helvetica,sans-serif";
+        ctx.fillStyle = 'rgba(212,168,32,0.85)';
+        ctx.textBaseline = 'top';
+        ctx.shadowColor = 'rgba(0,0,0,0.85)'; ctx.shadowBlur = 2; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
+        ctx.fillText('Sist. Relev. Vial  ·  DVBA Zona VI  ·  '+APP_VERSION, tx, yB);
+        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
         res(C.toDataURL('image/jpeg', 0.95));
       } catch(e){ rej(e); }
     };

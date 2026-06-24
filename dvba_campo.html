@@ -654,7 +654,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.14</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.15</span>
 </div>
 
 
@@ -1263,8 +1263,8 @@ function agregarSello(base64,datos){
         ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
         ctx.drawImage(img,0,0);
         // Banda inferior: cap con max para no comerse fotos panorámicas
-        // Menor entre 18% del alto y 14% del ancho, mín 105, máx 220
-        const bH=Math.max(105, Math.min(Math.round(H*0.18), Math.round(W*0.14), 220));
+        // Menor entre 20% del alto y 16% del ancho, mín 120, máx 240 (6 líneas)
+        const bH=Math.max(120, Math.min(Math.round(H*0.20), Math.round(W*0.16), 240));
         const y0=H-bH;
         // Fondo NEGRO sólido para máxima legibilidad
         const grad=ctx.createLinearGradient(0,y0,0,H);
@@ -1343,7 +1343,7 @@ function agregarSello(base64,datos){
           txtFit('Plus Code: '+datos.pluscode,tx,yB,maxW,fS,'#8aaec0',false,true);
           yB+=Math.round(fS*1.32);
         }
-        // Línea 5: Fecha + hora + tipo + Sist.Relev.Vial + versión
+        // Línea 5: Fecha + hora + tipo
         const partes=[];
         if(datos.fecha){
           const m=datos.fecha.match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -1355,8 +1355,18 @@ function agregarSello(base64,datos){
           partes.push(hm[0]+':'+(hm[1]||'00')+' hs');
         }
         if(datos.tipo) partes.push(datos.tipo);
-        partes.push('Sist. Relev. Vial · DVBA Zona VI · '+(typeof APP_VER!=='undefined'?APP_VER:'v9.14'));
-        txtFit(partes.join(' · '),tx,yB,maxW,fS,'#8aaec0',false);
+        if(partes.length) txtFit(partes.join(' · '),tx,yB,maxW,fS,'#8aaec0',false);
+        // Gap visual antes de la firma institucional
+        yB+=Math.round(fS*1.55);
+        // Línea 6 (firma): Sist. Relev. Vial · DVBA Zona VI · vX.X (italic dorado tenue)
+        const fF=Math.max(9,Math.round(fS*0.92));
+        const verApp=(typeof APP_VER!=='undefined'?APP_VER:'v9.15');
+        ctx.font='500 italic '+fF+"px Arial,Helvetica,sans-serif";
+        ctx.fillStyle='rgba(212,168,32,0.85)';
+        ctx.textBaseline='top';
+        ctx.shadowColor='rgba(0,0,0,0.85)'; ctx.shadowBlur=2; ctx.shadowOffsetX=1; ctx.shadowOffsetY=1;
+        ctx.fillText('Sist. Relev. Vial  ·  DVBA Zona VI  ·  '+verApp,tx,yB);
+        ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetX=0; ctx.shadowOffsetY=0;
         res(C.toDataURL('image/jpeg',0.95));
       }catch(e){rej(e);}
     };
