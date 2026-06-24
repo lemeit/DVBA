@@ -96,6 +96,9 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
 .leaflet-popup-content .pop-action{margin-top:8px;display:block;width:100%;padding:5px;background:#ff6600;color:#fff;border:none;border-radius:3px;cursor:pointer;font-size:.7rem;font-weight:600}
 .leaflet-popup-content .pop-action.quitar{background:#999}
 .leaflet-popup-content .pop-action:hover{opacity:.9}
+/* Tooltip flotante de km al hover sobre un camino */
+.leaflet-tooltip.prog-hover-tip{background:rgba(255,255,255,.95);border:1.5px solid #003366;color:#003366;padding:3px 7px;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,.25);font-size:.7rem;font-weight:600}
+.leaflet-tooltip.prog-hover-tip::before{border-top-color:#003366}
 .leaflet-popup-content .alerta{background:#fee;color:#a00;padding:4px 6px;border-radius:3px;margin-top:5px;font-size:.62rem}
 
 /* Reporte (window.open) inherits browser default */
@@ -203,6 +206,10 @@ let CAPA_HALO = null;
 let CAPA_PROG = null;          // capa de markers de progresivas
 let PROG_ACTIVO = true;
 let PROG_PASO_KM = 5;          // 1, 5, 10
+let PROG_HOVER_NM = null;      // NOMEMCLATURA cuyas progresivas están activas por hover
+let PROG_COORDS_CACHE = {};    // {nm: coords concatenadas} para no recalcular en cada mousemove
+let PROG_CUMM_CACHE   = {};    // {nm: array de km acumulado por vértice}
+let HOVER_TOOLTIP = null;      // L.tooltip flotante con el km del punto más cercano
 
 const COLOR_CLASE = cl => cl==='PAVIMENTADO'?'#3a7bd5':cl==='SIN ABRIR'?'#888':cl==='MIXTO'?'#7050b0':'#a07842';
 const ESTILO_BASE = cl => ({color: COLOR_CLASE(cl), weight:3, opacity:.9});
@@ -418,6 +425,102 @@ function limpiarProgresivas(){
   if (CAPA_PROG){ map.removeLayer(CAPA_PROG); CAPA_PROG = null; }
 }
 
+// Cache de coords concatenadas + km acumulado por vértice (para hover en vivo)
+function obtenerCoordsCache(nm){
+  if (PROG_COORDS_CACHE[nm]) return { coords: PROG_COORDS_CACHE[nm], cumm: PROG_CUMM_CACHE[nm] };
+  const coords = concatenarCamino(nm);
+  const cumm = [0];
+  for (let i = 1; i < coords.length; i++){
+    cumm.push(cumm[i-1] + haversineMeters(coords[i-1][0], coords[i-1][1], coords[i][0], coords[i][1]));
+  }
+  PROG_COORDS_CACHE[nm] = coords;
+  PROG_CUMM_CACHE[nm]   = cumm;
+  return { coords, cumm };
+}
+
+// Devuelve el km del punto sobre el camino más cercano al latlng del cursor.
+// Usa proyección lineal sobre cada segmento, suficiente para distancias cortas.
+function kmCercanoCursor(nm, latlng){
+  const { coords, cumm } = obtenerCoordsCache(nm);
+  if (coords.length < 2) return null;
+  const px = latlng.lng, py = latlng.lat;
+  let mejorKm = 0, mejorDist2 = Infinity;
+  for (let i = 1; i < coords.length; i++){
+    const ax = coords[i-1][0], ay = coords[i-1][1];
+    const bx = coords[i][0],   by = coords[i][1];
+    const dx = bx - ax,        dy = by - ay;
+    const segLen2 = dx*dx + dy*dy;
+    let t = segLen2 > 0 ? ((px - ax)*dx + (py - ay)*dy) / segLen2 : 0;
+    t = Math.max(0, Math.min(1, t));
+    const cx = ax + t*dx, cy = ay + t*dy;
+    const dd = (px-cx)*(px-cx) + (py-cy)*(py-cy);
+    if (dd < mejorDist2){
+      mejorDist2 = dd;
+      const segM = haversineMeters(ax, ay, bx, by);
+      const acumM = cumm[i-1] + t * segM;
+      mejorKm = acumM / 1000;
+    }
+  }
+  return mejorKm;
+}
+
+// Muestra las progresivas de un camino por hover (sin tocar selección)
+function mostrarProgresivasHover(nm){
+  if (!PROG_ACTIVO) return;
+  if (PROG_HOVER_NM === nm) return;       // ya están las correctas
+  if (SELECCION.size > 0) return;          // si hay selección activa, no interferir
+  PROG_HOVER_NM = nm;
+  limpiarProgresivas();
+  const { coords } = obtenerCoordsCache(nm);
+  if (coords.length < 2) return;
+  const puntos = progresivas(coords, PROG_PASO_KM);
+  if (!puntos.length) return;
+
+  CAPA_PROG = L.layerGroup();
+  puntos.forEach(pt => {
+    const esMul10 = pt.km % 10 === 0;
+    const esMul5  = pt.km % 5  === 0;
+    const radio   = esMul10 ? 5 : (esMul5 ? 4 : 3);
+    const fill    = pt.km === 0 ? '#ff6600' : '#003366';
+    L.circleMarker([pt.lat, pt.lon], {
+      radius: radio, color: '#fff', weight: 1.5,
+      fillColor: fill, fillOpacity: 1, pane: 'markerPane'
+    }).addTo(CAPA_PROG);
+    const mostrarTxt = (PROG_PASO_KM <= 1) ? (pt.km % 5 === 0) : true;
+    if (mostrarTxt){
+      const lbl = L.divIcon({
+        className: 'prog-lbl',
+        html: `<div style="font-size:.62rem;color:#fff;background:rgba(0,51,102,.85);padding:1px 4px;border-radius:3px;font-weight:600;white-space:nowrap;transform:translate(8px,-50%)">km ${pt.km}</div>`,
+        iconSize: [0, 0], iconAnchor: [0, 0]
+      });
+      L.marker([pt.lat, pt.lon], { icon: lbl, interactive: false }).addTo(CAPA_PROG);
+    }
+  });
+  CAPA_PROG.addTo(map);
+}
+
+function ocultarProgresivasHover(){
+  if (SELECCION.size > 0) return;  // si hay selección, las maneja actualizarProgresivas
+  PROG_HOVER_NM = null;
+  limpiarProgresivas();
+  if (HOVER_TOOLTIP){ map.closeTooltip(HOVER_TOOLTIP); HOVER_TOOLTIP = null; }
+}
+
+function actualizarTooltipKm(nm, latlng){
+  if (!PROG_ACTIVO) return;
+  const km = kmCercanoCursor(nm, latlng);
+  if (km === null) return;
+  const html = `<div style="font-size:.7rem;font-weight:700;color:#003366">${nm} · km ${km.toFixed(2)}</div>`;
+  if (!HOVER_TOOLTIP){
+    HOVER_TOOLTIP = L.tooltip({
+      permanent: true, sticky: true, direction: 'top',
+      offset: [0, -10], className: 'prog-hover-tip'
+    });
+  }
+  HOVER_TOOLTIP.setLatLng(latlng).setContent(html);
+  if (!HOVER_TOOLTIP._map) HOVER_TOOLTIP.addTo(map);
+}
+
 // Si hay un camino seleccionado y progresivas activadas, las dibuja
 function actualizarProgresivas(){
   limpiarProgresivas();
@@ -481,13 +584,22 @@ function renderMapa(){
       LAYERS_BY_FID[fid] = layer;
       FEAT_BY_FID[fid] = f;
       layer.on('click', e => { abrirPopup(fid, e); L.DomEvent.stopPropagation(e); });
-      layer.on('mouseover', () => {
+      layer.on('mouseover', e => {
         if (!visible(f)) return;
         if (!SELECCION.has(fid)) layer.setStyle({weight:5});
+        // Mostrar progresivas del camino completo + tooltip de km al hover
+        mostrarProgresivasHover(f.properties.NOMEMCLATURA);
+        actualizarTooltipKm(f.properties.NOMEMCLATURA, e.latlng);
+      });
+      layer.on('mousemove', e => {
+        if (!visible(f)) return;
+        if (!PROG_ACTIVO) return;
+        actualizarTooltipKm(f.properties.NOMEMCLATURA, e.latlng);
       });
       layer.on('mouseout', () => {
         if (!visible(f)) { layer.setStyle(ESTILO_HIDE); return; }
         if (!SELECCION.has(fid)) layer.setStyle(ESTILO_BASE(f.properties.CLASE));
+        ocultarProgresivasHover();
       });
     }
   }).addTo(map);
