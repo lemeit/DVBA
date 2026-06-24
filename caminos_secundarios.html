@@ -124,6 +124,7 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a2a3a}
     <div class="filt-row">
       <span class="filt-chip" data-f="clase" data-v="DE TIERRA" style="background:#a07842;color:#fff;border-color:#a07842">Tierra</span>
       <span class="filt-chip" data-f="clase" data-v="PAVIMENTADO" style="background:#3a7bd5;color:#fff;border-color:#3a7bd5">Pav.</span>
+      <span class="filt-chip" data-f="clase" data-v="MIXTO" style="background:#7050b0;color:#fff;border-color:#7050b0">Mixto</span>
       <span class="filt-chip" data-f="clase" data-v="SIN ABRIR" style="background:#888;color:#fff;border-color:#888">S/abrir</span>
     </div>
     <h4 style="font-size:.72rem;color:#003366;margin:10px 0 4px 0;border-top:1px solid #eee;padding-top:8px">Mapa</h4>
@@ -180,14 +181,14 @@ const PATRONES = [
 
 let DATA=null, CAPA=null;
 let PARTIDO_FILTRO = new Set();   // vacío = todos los partidos
-let CLASE_FILTROS = new Set(['DE TIERRA','PAVIMENTADO','SIN ABRIR']); // todos activos por defecto
+let CLASE_FILTROS = new Set(['DE TIERRA','PAVIMENTADO','MIXTO','SIN ABRIR']); // todos activos por defecto
 const SELECCION = new Set();
 const LAYERS_BY_NM = {};
 const LAYERS_BY_FID = {};
 const FEAT_BY_FID = {};
 const FUENTES = {};
 
-const ESTILO_BASE = cl => ({color: cl==='PAVIMENTADO'?'#3a7bd5':cl==='SIN ABRIR'?'#888':'#a07842', weight:3, opacity:.85});
+const ESTILO_BASE = cl => ({color: cl==='PAVIMENTADO'?'#3a7bd5':cl==='SIN ABRIR'?'#888':cl==='MIXTO'?'#7050b0':'#a07842', weight:3, opacity:.85});
 const ESTILO_SEL  = {color:'#ff6600', weight:6, opacity:1};
 const ESTILO_DIM  = cl => ({...ESTILO_BASE(cl), opacity:.12});
 const ESTILO_HIDE = {opacity:0, weight:0};
@@ -231,6 +232,7 @@ function normalizarClase(c){
   if (/^DE\s+TIERR+A$/.test(s) || s === 'TIERRA') return 'DE TIERRA';
   // Pavimentado: acepta abreviaciones
   if (/^PAV(IMENTAD[OA])?\.?$/.test(s)) return 'PAVIMENTADO';
+  if (/^MIXT[OA]$/.test(s)) return 'MIXTO';
   // Sin abrir
   if (/^SIN\s+ABR(IR)?$/.test(s) || s === 'S/ABRIR' || s === 'S/A') return 'SIN ABRIR';
   return s;
@@ -495,6 +497,7 @@ if (ckPol) {
 
 function claseTag(cl){
   if (cl === 'PAVIMENTADO') return '<span class="tklass k-pavi">PAV</span>';
+  if (cl === 'MIXTO')       return '<span class="tklass k-mixto" style="background:#7050b0;color:#fff;padding:1px 4px;border-radius:2px">MIX</span>';
   if (cl === 'SIN ABRIR') return '<span class="tklass k-sinabrir">S/A</span>';
   return '<span class="tklass k-tierra">TIE</span>';
 }
