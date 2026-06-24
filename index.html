@@ -487,7 +487,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.5';
+const APP_VERSION = 'v7.6';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -610,8 +610,8 @@ function aplicarSelloDVBA(base64, datos){
         ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0);
         // Banda inferior: cap con max para no comerse fotos panorámicas
-        // Se ajusta al menor entre 16% del alto y 12% del ancho, mínimo 90px, máximo 200px
-        const bH = Math.max(90, Math.min(Math.round(H*0.16), Math.round(W*0.13), 200));
+        // Menor entre 18% del alto y 14% del ancho, mín 105, máx 220
+        const bH = Math.max(105, Math.min(Math.round(H*0.18), Math.round(W*0.14), 220));
         const y0 = H - bH;
         // Fondo NEGRO sólido para máxima legibilidad
         const grad = ctx.createLinearGradient(0, y0, 0, H);
@@ -627,11 +627,11 @@ function aplicarSelloDVBA(base64, datos){
         const colW = Math.round(W*0.23), colX = W - colW;
         ctx.strokeStyle = 'rgba(212,168,32,0.4)'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(colX, y0+bH*0.10); ctx.lineTo(colX, H-bH*0.10); ctx.stroke();
-        const logoSz = Math.round(bH*0.52);
+        // Logo CENTRADO verticalmente en la columna derecha, sin texto debajo
+        const logoSz = Math.min(Math.round(bH*0.78), Math.round(colW*0.78));
         const logoX = colX + Math.round((colW - logoSz)/2);
-        const logoY = y0 + Math.round(bH*0.12);
+        const logoY = y0 + Math.round((bH - logoSz)/2);
         if (logoImg && logoImg.complete && logoImg.naturalWidth > 0){
-          // Logo institucional tal cual (ya es circular con su propio amarillo)
           ctx.drawImage(logoImg, logoX, logoY, logoSz, logoSz);
         } else {
           // Fallback: círculo amarillo con DVBA
@@ -645,17 +645,6 @@ function aplicarSelloDVBA(base64, datos){
           ctx.fillText('DVBA', cx, cy);
           ctx.textAlign = 'left';
         }
-        // Texto debajo del logo
-        const fsCol = Math.max(9, Math.round(bH*0.085));
-        ctx.font = '700 '+fsCol+'px Arial';
-        ctx.fillStyle = '#fff';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        const tyCol = logoY + logoSz + Math.round(bH*0.06);
-        ctx.fillText('Sist. Relev. Vial', colX + colW/2, tyCol);
-        ctx.font = '600 '+Math.round(fsCol*0.92)+'px Arial';
-        ctx.fillStyle = '#d4a820';
-        ctx.fillText('DVBA Zona VI', colX + colW/2, tyCol + Math.round(fsCol*1.25));
-        ctx.textAlign = 'left';
         // === COLUMNA IZQUIERDA (texto) ===
         const padX = Math.round(W*0.025);
         const tx = padX;
@@ -681,24 +670,24 @@ function aplicarSelloDVBA(base64, datos){
           ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
           return sz;
         }
-        let yB = y0 + Math.round(bH*0.10);
+        let yB = y0 + Math.round(bH*0.07);
         if (datos.localidad){
           txtFit(datos.localidad, tx, yB, maxW, fT, '#d4a820', true);
-          yB += Math.round(fT*1.40);
+          yB += Math.round(fT*1.32);
         }
         if (datos.direccion){
           txtFit(datos.direccion, tx, yB, maxW, fM, '#ffffff', true);
-          yB += Math.round(fM*1.38);
+          yB += Math.round(fM*1.32);
         }
         if (datos.lat && datos.lng){
           let coords = 'Lat ' + datos.lat + '   Long ' + datos.lng;
           if (datos.alt) coords += '   Alt ' + datos.alt + ' m';
           txtFit(coords, tx, yB, maxW, fS, '#6ecba0', false, true);
-          yB += Math.round(fS*1.38);
+          yB += Math.round(fS*1.32);
         }
         if (datos.pluscode){
           txtFit('Plus Code: ' + datos.pluscode, tx, yB, maxW, fS, '#8aaec0', false, true);
-          yB += Math.round(fS*1.38);
+          yB += Math.round(fS*1.32);
         }
         const partes = [];
         if (datos.fecha){
@@ -711,7 +700,7 @@ function aplicarSelloDVBA(base64, datos){
           partes.push(hm[0]+':'+(hm[1]||'00')+' hs');
         }
         if (datos.tipo) partes.push(datos.tipo);
-        partes.push('DVBA Escritorio ' + APP_VERSION);
+        partes.push('Sist. Relev. Vial · DVBA Zona VI · ' + APP_VERSION);
         txtFit(partes.join(' · '), tx, yB, maxW, fS, '#8aaec0', false);
         res(C.toDataURL('image/jpeg', 0.95));
       } catch(e){ rej(e); }
