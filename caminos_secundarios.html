@@ -210,11 +210,14 @@ let PROG_HOVER_NM = null;      // NOMEMCLATURA cuyas progresivas están activas 
 let PROG_COORDS_CACHE = {};    // {nm: coords concatenadas} para no recalcular en cada mousemove
 let PROG_CUMM_CACHE   = {};    // {nm: array de km acumulado por vértice}
 let HOVER_TOOLTIP = null;      // L.tooltip flotante con el km del punto más cercano
+let HOVER_OUT_TIMER = null;    // timeout para "delay de salida" al perder hover
+const HOVER_OUT_DELAY_MS = 300; // ms que se mantiene visible el dato después de salir del tramo
 
 const COLOR_CLASE = cl => cl==='PAVIMENTADO'?'#3a7bd5':cl==='SIN ABRIR'?'#888':cl==='MIXTO'?'#7050b0':'#a07842';
 const ESTILO_BASE = cl => ({color: COLOR_CLASE(cl), weight:3, opacity:.9});
-const ESTILO_HALO = cl => ({color: COLOR_CLASE(cl), weight:11, opacity:.22, lineCap:'round', lineJoin:'round'});
-const ESTILO_HALO_SEL = {color:'#ff6600', weight:14, opacity:.30, lineCap:'round', lineJoin:'round'};
+// Halo más ancho para ampliar zona de hit detection (no se compromete visual: opacity baja)
+const ESTILO_HALO = cl => ({color: COLOR_CLASE(cl), weight:18, opacity:.16, lineCap:'round', lineJoin:'round'});
+const ESTILO_HALO_SEL = {color:'#ff6600', weight:20, opacity:.28, lineCap:'round', lineJoin:'round'};
 const ESTILO_SEL  = {color:'#ff6600', weight:6, opacity:1};
 const ESTILO_DIM  = cl => ({...ESTILO_BASE(cl), opacity:.12});
 const ESTILO_HIDE = {opacity:0, weight:0};
@@ -586,20 +589,26 @@ function renderMapa(){
       layer.on('click', e => { abrirPopup(fid, e); L.DomEvent.stopPropagation(e); });
       layer.on('mouseover', e => {
         if (!visible(f)) return;
+        // Cancelar el "delay de salida" si el cursor vuelve a entrar
+        if (HOVER_OUT_TIMER){ clearTimeout(HOVER_OUT_TIMER); HOVER_OUT_TIMER = null; }
         if (!SELECCION.has(fid)) layer.setStyle({weight:5});
-        // Mostrar progresivas del camino completo + tooltip de km al hover
         mostrarProgresivasHover(f.properties.NOMEMCLATURA);
         actualizarTooltipKm(f.properties.NOMEMCLATURA, e.latlng);
       });
       layer.on('mousemove', e => {
         if (!visible(f)) return;
+        if (HOVER_OUT_TIMER){ clearTimeout(HOVER_OUT_TIMER); HOVER_OUT_TIMER = null; }
         if (!PROG_ACTIVO) return;
         actualizarTooltipKm(f.properties.NOMEMCLATURA, e.latlng);
       });
       layer.on('mouseout', () => {
         if (!visible(f)) { layer.setStyle(ESTILO_HIDE); return; }
         if (!SELECCION.has(fid)) layer.setStyle(ESTILO_BASE(f.properties.CLASE));
-        ocultarProgresivasHover();
+        // En vez de ocultar inmediatamente, esperamos HOVER_OUT_DELAY_MS por si el cursor
+        // vuelve a entrar (movimiento impreciso). Si entra a OTRO tramo, el mouseover de ese
+        // tramo cancela el timer y mostrará SU progresiva (correcto para intersecciones).
+        if (HOVER_OUT_TIMER) clearTimeout(HOVER_OUT_TIMER);
+        HOVER_OUT_TIMER = setTimeout(() => { ocultarProgresivasHover(); HOVER_OUT_TIMER = null; }, HOVER_OUT_DELAY_MS);
       });
     }
   }).addTo(map);
