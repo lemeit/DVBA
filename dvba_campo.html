@@ -654,7 +654,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.12</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.13</span>
 </div>
 
 
@@ -1259,15 +1259,18 @@ function agregarSello(base64,datos){
       try{
         const W=img.width, H=img.height;
         const C=document.createElement('canvas'); C.width=W; C.height=H;
-        const ctx=C.getContext('2d'); ctx.drawImage(img,0,0);
-        // Banda inferior: ~22% del alto, mínimo 110px
-        const bH=Math.max(110, Math.round(H*0.22));
+        const ctx=C.getContext('2d');
+        ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
+        ctx.drawImage(img,0,0);
+        // Banda inferior: cap con max para no comerse fotos panorámicas
+        // Menor entre 16% del alto y 13% del ancho, mín 90, máx 200
+        const bH=Math.max(90, Math.min(Math.round(H*0.16), Math.round(W*0.13), 200));
         const y0=H-bH;
-        // Fondo gradient negro
+        // Fondo NEGRO sólido para máxima legibilidad
         const grad=ctx.createLinearGradient(0,y0,0,H);
-        grad.addColorStop(0,'rgba(0,0,0,0.55)');
-        grad.addColorStop(0.25,'rgba(0,0,0,0.85)');
-        grad.addColorStop(1,'rgba(0,0,0,0.93)');
+        grad.addColorStop(0,'rgba(0,0,0,0.72)');
+        grad.addColorStop(0.2,'rgba(0,0,0,0.92)');
+        grad.addColorStop(1,'rgba(0,0,0,0.97)');
         ctx.fillStyle=grad; ctx.fillRect(0,y0,W,bH);
         // Línea superior dorada
         ctx.strokeStyle='#d4a820'; ctx.lineWidth=Math.max(2,Math.round(H*0.0025));
@@ -1309,16 +1312,23 @@ function agregarSello(base64,datos){
         const padX=Math.round(W*0.025);
         const tx=padX;
         const maxW=colX-padX-Math.round(W*0.015);
-        const fT=Math.max(12,Math.round(H*0.022));   // Título (localidad)
-        const fM=Math.max(11,Math.round(H*0.018));   // Línea destacada (dirección/ruta)
-        const fS=Math.max(10,Math.round(H*0.0155));  // Líneas pequeñas
+        // Tipografías basadas en el ANCHO (escalan mejor en panorámicas)
+        const baseFont=Math.max(13,Math.min(Math.round(W*0.014),26));
+        const fT=Math.round(baseFont*1.15);
+        const fM=Math.round(baseFont*1.00);
+        const fS=Math.round(baseFont*0.85);
         function txtFit(txt,x,y,mxW,fs,color,bold,mono){
           if(!txt)return 0;
           let sz=fs;
-          const ff=mono?"'Courier New',monospace":'Arial';
-          ctx.font=(bold?'700':'400')+' '+sz+"px "+ff;
-          while(ctx.measureText(txt).width>mxW&&sz>7){sz--;ctx.font=(bold?'700':'400')+' '+sz+"px "+ff;}
-          ctx.fillStyle=color; ctx.textBaseline='top'; ctx.fillText(txt,x,y);
+          const ff=mono?"'Courier New',monospace":"Arial,Helvetica,sans-serif";
+          ctx.font=(bold?'700':'500')+' '+sz+"px "+ff;
+          while(ctx.measureText(txt).width>mxW&&sz>8){sz--;ctx.font=(bold?'700':'500')+' '+sz+"px "+ff;}
+          ctx.fillStyle=color; ctx.textBaseline='top';
+          // Text shadow sutil para mayor contraste/nitidez
+          ctx.shadowColor='rgba(0,0,0,0.85)';
+          ctx.shadowBlur=2; ctx.shadowOffsetX=1; ctx.shadowOffsetY=1;
+          ctx.fillText(txt,x,y);
+          ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetX=0; ctx.shadowOffsetY=0;
           return sz;
         }
         let yB=y0+Math.round(bH*0.10);
@@ -1356,9 +1366,9 @@ function agregarSello(base64,datos){
           partes.push(hm[0]+':'+(hm[1]||'00')+' hs');
         }
         if(datos.tipo) partes.push(datos.tipo);
-        partes.push('DVBA '+(typeof APP_VER!=='undefined'?APP_VER:'v9.11'));
+        partes.push('DVBA '+(typeof APP_VER!=='undefined'?APP_VER:'v9.13'));
         txtFit(partes.join(' · '),tx,yB,maxW,fS,'#8aaec0',false);
-        res(C.toDataURL('image/jpeg',0.90));
+        res(C.toDataURL('image/jpeg',0.95));
       }catch(e){rej(e);}
     };
     img.onerror=()=>rej(new Error('Error cargando foto')); img.src=base64;
