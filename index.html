@@ -650,7 +650,7 @@ function aplicarSelloDVBA(base64, datos){
         const tx = padX;
         const maxW = colX - padX - Math.round(W*0.015);
         // Tipografías basadas en el ANCHO de la foto (escalan mejor en panorámicas)
-        const baseFont = Math.max(16, Math.min(Math.round(W*0.014), 26));
+        const baseFont = Math.max(14, Math.min(Math.round(W*0.018), 32));
         const fT = Math.round(baseFont * 1.15);
         const fM = Math.round(baseFont * 1.00);
         const fS = Math.round(baseFont * 0.85);
