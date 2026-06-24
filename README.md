@@ -10,12 +10,46 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 ## Apps publicadas
 
-| URL | Archivo | Descripción |
+| URL | Archivo | Versión | Descripción |
+|---|---|---|---|
+| https://lemeit.github.io/DVBA/ | `index.html` | **v7.7** | App de escritorio: mapa Leaflet, progresivas, sidebar de registros, reportes PDF/CSV, sello v2 editable en fotos |
+| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | **v9.15** | App móvil PWA instalable: relevamiento GPS de campo (MSV 2017), sello v2 editable + Plus Code offline |
+| https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte |
+| https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.1 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
+| https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html | guía de usuario | — | Manual de la app de campo |
+
+## Sello DVBA en fotos (v2 — desde junio 2026)
+
+Toda foto cargada en cualquiera de las dos apps (escritorio y móvil) se estampa con un sello institucional al estilo **GPS Map Camera**, pero offline-first y con datos **editables** vía modal antes de aplicar.
+
+### Funcionamiento
+Al subir/sacar una foto se abre un modal **"Editar datos del sello"** con los campos pre-cargados desde el GPS, el formulario y la fecha/hora actual. El operador puede ajustar cualquier valor antes de estampar:
+
+| Campo | Origen automático | Editable |
 |---|---|---|
-| https://lemeit.github.io/DVBA/ | `index.html` | App de escritorio: mapa Leaflet, progresivas, sidebar de registros, reportes PDF/CSV |
-| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | App móvil PWA instalable: relevamiento GPS de campo (MSV 2017) |
-| https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes) |
-| https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html | guía de usuario | Manual de la app de campo |
+| Localidad | Partido + Provincia + País | ✓ |
+| Dirección | Ruta + km del form | ✓ |
+| Lat / Lng | GPS (móvil) o form (escritorio) | ✓ |
+| Fecha / Hora | Sistema | ✓ |
+| Altura | GPS (`gpsAlt`) — solo móvil | ✓ |
+| Plus Code | Calculado vanilla JS desde lat/lng | ✓ |
+| Ruta / Km / Tipo | Form | ✓ |
+
+Botones: **"Aplicar y guardar"** estampa con los valores confirmados; **"Sin sello"** sube la foto original.
+
+### Diseño visual
+- Banda inferior con gradient negro + línea dorada superior
+- **Izquierda**: 5 líneas de información (localidad dorada, ruta+km blanca, lat/long+alt verde mono, plus code azul mono, fecha+hora+tipo) + firma institucional separada en italic dorado tenue
+- **Derecha**: logo institucional DVBA centrado verticalmente
+
+Sin mini-mapa ni clima — las apps deben funcionar sin datos en campo, solo con GPS.
+
+### Plus Code (Open Location Code)
+Implementación vanilla JavaScript, 10 caracteres, válido a nivel mundial sin dependencias externas ni conexión. Se auto-recalcula al editar lat/lng en el modal.
+
+### Política de versionado del sello
+- **Tweak cosmético** (fuente, color, posición): solo se bumpea `sw.js` con sufijo letra (`v9.15a` → `v9.15b`...). El span del footer queda igual.
+- **Cambio publicable**: se bumpean los 3 (`APP_VERSION` en `index.html`, `<span id='app-ver'>` en `dvba_campo.html`, `CACHE_NAME` en `sw.js`).
 
 ## Estructura del repositorio
 
@@ -103,10 +137,12 @@ C:\DVBA_fuentes\
 | Componente | Versión | Rol |
 |---|---|---|
 | QGIS | 3.42.0 Münster | Edición y limpieza de capas vectoriales |
-| Leaflet.js | 1.9.4 | Mapa interactivo en `index.html` |
+| Leaflet.js | 1.9.4 | Mapa interactivo en `index.html` y `caminos_secundarios.html` |
 | Python | 3.12 | Scripts de procesamiento y generación de bundles |
-| Supabase | — | Backend de registros de campo (cola offline + sync) |
+| Supabase | Free tier | Backend de registros de campo (PostgreSQL + Storage + Auth + RLS) |
 | GitHub Pages | — | Hosting estático |
+| Service Worker + IndexedDB | — | Cola offline + sync automático en la app de campo |
+| Canvas API | — | Renderizado del sello v2 sobre las fotos (sin dependencias externas) |
 
 ## Convención institucional
 
