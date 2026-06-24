@@ -221,6 +221,27 @@ body.modo-campo #campo-fab{display:flex}
 #user-info #user-email{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;opacity:.95}
 #user-info button{background:transparent;color:#ffd700;border:1px solid rgba(255,215,0,.55);font-size:.58rem;padding:0 6px;border-radius:8px;cursor:pointer;line-height:1.5;font-weight:600}
 #user-info button:hover{background:rgba(255,215,0,.15)}
+
+/* ── Modal "Editar datos del sello" v7.4 ── */
+.mov-sello{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
+.mov-sello.on{display:flex}
+.modal-sello{width:100%;max-width:540px;background:#fff;border-radius:14px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:msFade .22s ease-out}
+@keyframes msFade{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.modal-sello .ms-h{padding:16px 20px 13px;border-bottom:1px solid #e2e2e2;font-weight:700;font-size:1.06rem;color:#222;display:flex;align-items:center;gap:10px;font-family:'Encode Sans',sans-serif}
+.modal-sello .ms-h-icon{width:26px;height:26px;background:#d4a820;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:12px;font-family:Arial,sans-serif;letter-spacing:-.5px}
+.modal-sello .ms-b{padding:14px 20px 18px;overflow-y:auto;flex:1;font-family:'Encode Sans',sans-serif}
+.modal-sello .ms-b label{display:block;font-size:11px;font-weight:600;color:#666;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.4px}
+.modal-sello .ms-b label:first-of-type{margin-top:2px}
+.modal-sello .ms-b input,.modal-sello .ms-b select{width:100%;padding:9px 11px;border:1.4px solid #d0d4dc;border-radius:7px;font-size:14px;font-family:inherit;background:#fafbfc;color:#222;box-sizing:border-box}
+.modal-sello .ms-b input:focus,.modal-sello .ms-b select:focus{outline:none;border-color:#d4a820;background:#fff}
+.modal-sello .ms-g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-sello .ms-hint{font-size:11px;color:#888;margin-top:10px;font-style:italic;line-height:1.4}
+.modal-sello .ms-f{padding:13px 20px;border-top:1px solid #e2e2e2;display:flex;gap:10px;background:#fff;border-radius:0 0 14px 14px}
+.modal-sello .ms-f button{flex:1;padding:11px 14px;border:none;border-radius:7px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s}
+.modal-sello .ms-canc{background:#eee;color:#555}
+.modal-sello .ms-canc:hover{background:#dcdcdc}
+.modal-sello .ms-ok{background:#d4a820;color:#000;flex:1.5}
+.modal-sello .ms-ok:hover{background:#c19919}
 </style>
 </head>
 <body>
@@ -466,7 +487,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.3';
+const APP_VERSION = 'v7.4';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -478,104 +499,210 @@ logoImg.onerror = e  => console.warn('[Logo] no se pudo cargar', e);
 logoImg.src = 'datos/img/logo_dvba_circular.png';
 
 // ── Sello institucional sobre la foto (mismo diseño que app móvil) ──────────
+/* ── Sello v7.4 — datos editables + layout estilo GPS Map Camera ── */
+
+// Datos del último sello aplicado (para reusar sin re-pedir)
+let ultimoSelloDatos = null;
+
+// Open Location Code (Plus Code) — vanilla, 10 caracteres, sin dependencias
+function generarPlusCode(lat, lng){
+  if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) return '';
+  const A = '23456789CFGHJMPQRVWX';
+  let la = lat + 90, ln = lng + 180;
+  if (la < 0) la = 0; if (la >= 180) la = 179.9999999;
+  ln = ((ln % 360) + 360) % 360;
+  const RES = [20, 1, 1/20, 1/400, 1/8000];
+  let code = '';
+  for (let i = 0; i < 5; i++){
+    const di = Math.min(19, Math.max(0, Math.floor(la / RES[i])));
+    const dj = Math.min(19, Math.max(0, Math.floor(ln / RES[i])));
+    la = la - di * RES[i]; ln = ln - dj * RES[i];
+    code += A[di] + A[dj];
+    if (i === 3) code += '+';
+  }
+  return code;
+}
+
+// Muestra el modal pre-poblado y devuelve Promise con datos editados (o null si cancela)
+function mostrarModalSello(datos){
+  return new Promise(resolve => {
+    const $ = id => document.getElementById(id);
+    $('ms-localidad').value = datos.localidad || '';
+    $('ms-direccion').value = datos.direccion || '';
+    $('ms-lat').value       = datos.lat || '';
+    $('ms-lng').value       = datos.lng || '';
+    $('ms-fecha').value     = datos.fecha || '';
+    $('ms-hora').value      = datos.hora || '';
+    $('ms-alt').value       = datos.alt || '';
+    $('ms-pluscode').value  = datos.pluscode || '';
+    $('ms-ruta').value      = datos.ruta || '';
+    $('ms-prog').value      = datos.prog || '';
+    $('ms-tipo').value      = datos.tipo || '';
+    // Auto-recalcular Plus Code si edita lat/lng
+    const recalc = () => {
+      const la = parseFloat($('ms-lat').value), ln = parseFloat($('ms-lng').value);
+      if (isFinite(la) && isFinite(ln)) $('ms-pluscode').value = generarPlusCode(la, ln);
+    };
+    $('ms-lat').oninput = recalc; $('ms-lng').oninput = recalc;
+    const ov = $('modal-sello-ov'), btnOk = $('ms-aplicar'), btnNo = $('ms-cancel');
+    const limpiar = () => { ov.classList.remove('on'); btnOk.onclick = null; btnNo.onclick = null; };
+    btnOk.onclick = () => {
+      const r = {
+        localidad: $('ms-localidad').value.trim(),
+        direccion: $('ms-direccion').value.trim(),
+        lat:       $('ms-lat').value.trim(),
+        lng:       $('ms-lng').value.trim(),
+        fecha:     $('ms-fecha').value,
+        hora:      $('ms-hora').value,
+        alt:       $('ms-alt').value.trim(),
+        pluscode:  $('ms-pluscode').value.trim(),
+        ruta:      $('ms-ruta').value.trim(),
+        prog:      $('ms-prog').value.trim(),
+        tipo:      $('ms-tipo').value.trim()
+      };
+      limpiar(); resolve(r);
+    };
+    btnNo.onclick = () => { limpiar(); resolve(null); };
+    ov.classList.add('on');
+  });
+}
+
+// Wrapper: muestra modal con datos pre-cargados, luego estampa (o devuelve sin sello si cancela)
+async function aplicarSelloDVBAInteractivo(b64, datosBase){
+  datosBase = datosBase || {};
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const fecha = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
+  const hora = pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+  const latN = (typeof datosBase.lat === 'number') ? datosBase.lat : parseFloat(datosBase.lat);
+  const lngN = (typeof datosBase.lng === 'number') ? datosBase.lng : parseFloat(datosBase.lng);
+  const lat = isFinite(latN) ? latN.toFixed(6) : '';
+  const lng = isFinite(lngN) ? lngN.toFixed(6) : '';
+  const pluscode = (isFinite(latN) && isFinite(lngN)) ? generarPlusCode(latN, lngN) : '';
+  const localidad = (datosBase.partido ? datosBase.partido + ', Buenos Aires, Argentina' : 'Saladillo, Buenos Aires, Argentina');
+  const ruta = datosBase.ruta ? (String(datosBase.ruta).match(/^(RP|CS)/i) ? datosBase.ruta : ('RP ' + datosBase.ruta)) : '';
+  const direccion = (ruta && datosBase.prog) ? (ruta + ' km ' + datosBase.prog) : (ruta || '');
+  const datos = {
+    localidad, direccion, lat, lng, fecha, hora, alt: '', pluscode,
+    ruta, prog: datosBase.prog || '', tipo: datosBase.tipo || ''
+  };
+  // Reusar localidad/dirección del último sello si están definidas
+  if (ultimoSelloDatos){
+    if (!datos.localidad) datos.localidad = ultimoSelloDatos.localidad;
+    if (!datos.direccion) datos.direccion = ultimoSelloDatos.direccion;
+  }
+  const editados = await mostrarModalSello(datos);
+  if (!editados) return b64;  // canceló → foto sin sello
+  ultimoSelloDatos = editados;
+  return aplicarSelloDVBA(b64, editados);
+}
+
+// Sello v2 — layout horizontal estilo GPS Map Camera (sin mini-mapa ni clima)
 function aplicarSelloDVBA(base64, datos){
+  datos = datos || {};
   return new Promise((res, rej) => {
     const img = new Image();
     img.onload = () => {
       try{
         const W = img.width, H = img.height;
         const C = document.createElement('canvas'); C.width = W; C.height = H;
-        const ctx = C.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-
-        // Banda inferior con degradado
-        const bH = Math.max(72, Math.round(H*0.10));
+        const ctx = C.getContext('2d'); ctx.drawImage(img, 0, 0);
+        // Banda inferior: ~22% del alto, mínimo 110px
+        const bH = Math.max(110, Math.round(H*0.22));
         const y0 = H - bH;
+        // Fondo gradient negro
         const grad = ctx.createLinearGradient(0, y0, 0, H);
-        grad.addColorStop(0,   'rgba(0,0,0,0.45)');
-        grad.addColorStop(0.3, 'rgba(0,0,0,0.78)');
-        grad.addColorStop(1,   'rgba(0,0,0,0.88)');
+        grad.addColorStop(0,    'rgba(0,0,0,0.55)');
+        grad.addColorStop(0.25, 'rgba(0,0,0,0.85)');
+        grad.addColorStop(1,    'rgba(0,0,0,0.93)');
         ctx.fillStyle = grad; ctx.fillRect(0, y0, W, bH);
+        // Línea superior dorada
         ctx.strokeStyle = '#d4a820';
-        ctx.lineWidth = Math.max(1, Math.round(H*0.002));
+        ctx.lineWidth = Math.max(2, Math.round(H*0.0025));
         ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
-
-        // Logo (clipped en círculo) o fallback procedural
-        const ls = Math.round(bH*0.78);
-        const lx = Math.round(bH*0.12);
-        const ly = y0 + Math.round((bH - ls)/2);
+        // === COLUMNA DERECHA (logo + texto) ===
+        const colW = Math.round(W*0.23), colX = W - colW;
+        ctx.strokeStyle = 'rgba(212,168,32,0.4)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(colX, y0+bH*0.10); ctx.lineTo(colX, H-bH*0.10); ctx.stroke();
+        const logoSz = Math.round(bH*0.52);
+        const logoX = colX + Math.round((colW - logoSz)/2);
+        const logoY = y0 + Math.round(bH*0.12);
         if (logoImg && logoImg.complete && logoImg.naturalWidth > 0){
-          ctx.save();
-          ctx.beginPath(); ctx.arc(lx+ls/2, ly+ls/2, ls/2, 0, Math.PI*2); ctx.clip();
-          ctx.drawImage(logoImg, lx, ly, ls, ls);
-          ctx.restore();
+          // Logo institucional tal cual (ya es circular con su propio amarillo)
+          ctx.drawImage(logoImg, logoX, logoY, logoSz, logoSz);
         } else {
-          const cx = lx+ls/2, cy = ly+ls/2;
-          ctx.fillStyle = '#111';
-          ctx.beginPath(); ctx.arc(cx, cy, ls/2, 0, Math.PI*2); ctx.fill();
-          ctx.strokeStyle = '#d4a820';
-          ctx.lineWidth = Math.max(2, ls*0.06);
-          ctx.beginPath(); ctx.arc(cx, cy, ls/2 - ctx.lineWidth/2, 0, Math.PI*2); ctx.stroke();
-          const fs2 = Math.max(8, Math.round(ls*0.27));
-          ctx.font = '900 '+fs2+'px Arial';
+          // Fallback: círculo amarillo con DVBA
+          const cx = logoX + logoSz/2, cy = logoY + logoSz/2;
           ctx.fillStyle = '#d4a820';
+          ctx.beginPath(); ctx.arc(cx, cy, logoSz/2, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#000';
+          const fs = Math.max(11, Math.round(logoSz*0.30));
+          ctx.font = '900 '+fs+'px Arial';
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.fillText('D', cx-ls*0.23, cy-ls*0.23);
-          ctx.fillText('V', cx+ls*0.23, cy-ls*0.23);
-          ctx.fillText('B', cx-ls*0.23, cy+ls*0.24);
-          ctx.fillText('A', cx+ls*0.23, cy+ls*0.24);
+          ctx.fillText('DVBA', cx, cy);
           ctx.textAlign = 'left';
         }
-
-        // Separador vertical
-        const sepX = lx + ls + Math.round(bH*0.10);
-        ctx.strokeStyle = 'rgba(212,168,32,0.35)'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(sepX, y0+bH*0.08); ctx.lineTo(sepX, H-bH*0.08); ctx.stroke();
-
-        // Textos
-        const tx = sepX + Math.round(bH*0.08);
-        const maxW = W - tx - Math.round(bH*0.06);
-        const fT = Math.max(9, Math.round(H*0.016));
-        const fD = Math.max(8, Math.round(H*0.013));
-        const lh = fT * 1.42;
-
-        const ruta    = datos.ruta    || '—';
-        const prog    = datos.prog    || '—';
-        const partido = datos.partido || '—';
-        const tipo    = datos.tipo    || '—';
-        const latV    = (datos.lat !== null && datos.lat !== undefined) ? Number(datos.lat).toFixed(6) : '—';
-        const lngV    = (datos.lng !== null && datos.lng !== undefined) ? Number(datos.lng).toFixed(6) : '—';
-        const now = new Date();
-        const fecha = now.toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit', year:'numeric'});
-        const hora  = now.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
-
-        function txtFit(txt, x, y, mxW, fs, color, bold){
+        // Texto debajo del logo
+        const fsCol = Math.max(9, Math.round(bH*0.085));
+        ctx.font = '700 '+fsCol+'px Arial';
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        const tyCol = logoY + logoSz + Math.round(bH*0.06);
+        ctx.fillText('Sist. Relev. Vial', colX + colW/2, tyCol);
+        ctx.font = '600 '+Math.round(fsCol*0.92)+'px Arial';
+        ctx.fillStyle = '#d4a820';
+        ctx.fillText('DVBA Zona VI', colX + colW/2, tyCol + Math.round(fsCol*1.25));
+        ctx.textAlign = 'left';
+        // === COLUMNA IZQUIERDA (texto) ===
+        const padX = Math.round(W*0.025);
+        const tx = padX;
+        const maxW = colX - padX - Math.round(W*0.015);
+        const fT = Math.max(12, Math.round(H*0.022));
+        const fM = Math.max(11, Math.round(H*0.018));
+        const fS = Math.max(10, Math.round(H*0.0155));
+        function txtFit(txt, x, y, mxW, fs, color, bold, mono){
+          if (!txt) return 0;
           let sz = fs;
-          ctx.font = (bold?'700':'400')+' '+sz+'px Arial';
-          while (ctx.measureText(txt).width > mxW && sz > 6){
-            sz--; ctx.font = (bold?'700':'400')+' '+sz+'px Arial';
+          const ff = mono ? "'Courier New',monospace" : 'Arial';
+          ctx.font = (bold?'700':'400')+' '+sz+"px "+ff;
+          while (ctx.measureText(txt).width > mxW && sz > 7){
+            sz--; ctx.font = (bold?'700':'400')+' '+sz+"px "+ff;
           }
           ctx.fillStyle = color; ctx.textBaseline = 'top'; ctx.fillText(txt, x, y);
+          return sz;
         }
-        const yB = y0 + Math.round(bH*0.09);
-        // Línea 1: RP · Partido · Km (amarillo, bold)
-        const rotuloRuta = ruta && !String(ruta).match(/^(RP|CS)/i) ? ('RP '+ruta) : ruta;
-        txtFit(rotuloRuta+'  ·  '+partido+'  ·  Km '+prog, tx, yB, maxW, fT, '#d4a820', true);
-        // Línea 2: Tipo (blanco)
-        txtFit(tipo, tx, yB+lh, maxW, fT, '#ffffff', false);
-        // Línea 3: lat,lng (verde, monoespaciada)
-        const coordTxt = latV+', '+lngV;
-        let sz2 = fD;
-        ctx.font = "400 "+sz2+"px 'Courier New',monospace";
-        while (ctx.measureText(coordTxt).width > maxW && sz2 > 6){
-          sz2--; ctx.font = "400 "+sz2+"px 'Courier New',monospace";
+        let yB = y0 + Math.round(bH*0.10);
+        if (datos.localidad){
+          txtFit(datos.localidad, tx, yB, maxW, fT, '#d4a820', true);
+          yB += Math.round(fT*1.40);
         }
-        ctx.fillStyle = '#6ecba0'; ctx.textBaseline = 'top';
-        ctx.fillText(coordTxt, tx, yB+lh*2);
-        // Línea 4: fecha + hora + app version (gris claro)
-        txtFit(fecha+'  '+hora+' hs  ·  Sist. Relev. Vial Escritorio '+APP_VERSION,
-               tx, yB+lh*2.9, maxW, fD, '#8aaec0', false);
-
+        if (datos.direccion){
+          txtFit(datos.direccion, tx, yB, maxW, fM, '#ffffff', true);
+          yB += Math.round(fM*1.38);
+        }
+        if (datos.lat && datos.lng){
+          let coords = 'Lat ' + datos.lat + '   Long ' + datos.lng;
+          if (datos.alt) coords += '   Alt ' + datos.alt + ' m';
+          txtFit(coords, tx, yB, maxW, fS, '#6ecba0', false, true);
+          yB += Math.round(fS*1.38);
+        }
+        if (datos.pluscode){
+          txtFit('Plus Code: ' + datos.pluscode, tx, yB, maxW, fS, '#8aaec0', false, true);
+          yB += Math.round(fS*1.38);
+        }
+        const partes = [];
+        if (datos.fecha){
+          const m = datos.fecha.match(/^(\d{4})-(\d{2})-(\d{2})/);
+          if (m) partes.push(m[3]+'/'+m[2]+'/'+m[1].slice(2));
+          else partes.push(datos.fecha);
+        }
+        if (datos.hora){
+          const hm = datos.hora.split(':');
+          partes.push(hm[0]+':'+(hm[1]||'00')+' hs');
+        }
+        if (datos.tipo) partes.push(datos.tipo);
+        partes.push('DVBA Escritorio ' + APP_VERSION);
+        txtFit(partes.join(' · '), tx, yB, maxW, fS, '#8aaec0', false);
         res(C.toDataURL('image/jpeg', 0.90));
       } catch(e){ rej(e); }
     };
@@ -1165,15 +1292,15 @@ async function guardar(){
 
     let foto_url = null;
 
-    // ── Aplicar SELLO institucional DVBA antes de subir ──
-    // Si falla el estampado, se sube la original sin sello (no se pierde el registro).
+    // ── Aplicar SELLO institucional DVBA antes de subir (v7.4 - modal editable) ──
+    // Abre modal para editar todos los campos antes de estampar. Cancelar → sube sin sello.
     if (fotoBase64) {
       try {
-        const conSello = await aplicarSelloDVBA(fotoBase64, {
+        const conSello = await aplicarSelloDVBAInteractivo(fotoBase64, {
           ruta, partido, prog, tipo, lat, lng
         });
         fotoBase64 = conSello;
-        console.log('[FOTO] sello DVBA aplicado');
+        console.log('[FOTO] sello DVBA v2 aplicado');
       } catch(e) {
         console.warn('[FOTO] sello falló, subo original:', e);
       }
@@ -3105,5 +3232,42 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
 
 </script>
+
+<!-- Modal "Editar datos del sello" v7.4 -->
+<div class="mov-sello" id="modal-sello-ov">
+  <div class="modal-sello">
+    <div class="ms-h"><span class="ms-h-icon">DV</span>Editar datos del sello</div>
+    <div class="ms-b">
+      <label>Localidad</label>
+      <input type="text" id="ms-localidad" placeholder="Saladillo, Buenos Aires, Argentina">
+      <label>Dirección / Detalle</label>
+      <input type="text" id="ms-direccion" placeholder="RP 51 km 287">
+      <div class="ms-g2">
+        <div><label>Latitud</label><input type="text" id="ms-lat" inputmode="decimal"></div>
+        <div><label>Longitud</label><input type="text" id="ms-lng" inputmode="decimal"></div>
+      </div>
+      <div class="ms-g2">
+        <div><label>Fecha</label><input type="date" id="ms-fecha"></div>
+        <div><label>Hora</label><input type="time" id="ms-hora" step="1"></div>
+      </div>
+      <div class="ms-g2">
+        <div><label>Altura (m)</label><input type="text" id="ms-alt" inputmode="decimal" placeholder="Opcional"></div>
+        <div><label>Plus Code</label><input type="text" id="ms-pluscode" placeholder="Auto"></div>
+      </div>
+      <div class="ms-g2">
+        <div><label>Ruta</label><input type="text" id="ms-ruta"></div>
+        <div><label>Km / Progresiva</label><input type="text" id="ms-prog"></div>
+      </div>
+      <label>Tipo de relevamiento</label>
+      <input type="text" id="ms-tipo">
+      <div class="ms-hint">Editá lo que necesites. Lo que dejes vacío no aparecerá en el sello.</div>
+    </div>
+    <div class="ms-f">
+      <button class="ms-canc" id="ms-cancel">Sin sello</button>
+      <button class="ms-ok" id="ms-aplicar">Aplicar y guardar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

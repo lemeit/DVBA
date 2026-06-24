@@ -654,7 +654,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.11</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.12</span>
 </div>
 
 
@@ -1276,28 +1276,22 @@ function agregarSello(base64,datos){
         const colW=Math.round(W*0.23), colX=W-colW;
         ctx.strokeStyle='rgba(212,168,32,0.4)'; ctx.lineWidth=1;
         ctx.beginPath(); ctx.moveTo(colX,y0+bH*0.10); ctx.lineTo(colX,H-bH*0.10); ctx.stroke();
-        const logoSz=Math.round(bH*0.50);
+        const logoSz=Math.round(bH*0.52);
         const logoX=colX+Math.round((colW-logoSz)/2);
-        const logoY=y0+Math.round(bH*0.13);
-        // Fondo amarillo cuadrado redondeado
-        ctx.fillStyle='#d4a820';
-        const rr=Math.round(logoSz*0.10);
-        ctx.beginPath();
-        ctx.moveTo(logoX+rr,logoY);
-        ctx.arcTo(logoX+logoSz,logoY,logoX+logoSz,logoY+logoSz,rr);
-        ctx.arcTo(logoX+logoSz,logoY+logoSz,logoX,logoY+logoSz,rr);
-        ctx.arcTo(logoX,logoY+logoSz,logoX,logoY,rr);
-        ctx.arcTo(logoX,logoY,logoX+logoSz,logoY,rr);
-        ctx.closePath(); ctx.fill();
+        const logoY=y0+Math.round(bH*0.12);
         if(typeof logoImg!=='undefined'&&logoImg&&logoImg.complete&&logoImg.naturalWidth>0){
-          const pad=Math.round(logoSz*0.06);
-          ctx.drawImage(logoImg,logoX+pad,logoY+pad,logoSz-pad*2,logoSz-pad*2);
+          // Logo institucional tal cual (ya es circular con su propio amarillo)
+          ctx.drawImage(logoImg,logoX,logoY,logoSz,logoSz);
         }else{
+          // Fallback: círculo amarillo con DVBA
+          const cx=logoX+logoSz/2, cy=logoY+logoSz/2;
+          ctx.fillStyle='#d4a820';
+          ctx.beginPath(); ctx.arc(cx,cy,logoSz/2,0,Math.PI*2); ctx.fill();
           ctx.fillStyle='#000';
           const fs=Math.max(11,Math.round(logoSz*0.30));
           ctx.font='900 '+fs+'px Arial';
           ctx.textAlign='center'; ctx.textBaseline='middle';
-          ctx.fillText('DVBA',logoX+logoSz/2,logoY+logoSz/2);
+          ctx.fillText('DVBA',cx,cy);
           ctx.textAlign='left';
         }
         // Texto debajo del logo
