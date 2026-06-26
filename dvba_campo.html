@@ -1697,14 +1697,14 @@ function onTipoChange(tipoStr){
       o.value = e.key; o.textContent = e.label;
       selE.appendChild(o);
     });
-    // Si el valor previo sigue siendo válido para la nueva categoría, lo restauramos
     if (valActual && Array.from(selE.options).some(o => o.value === valActual)) selE.value = valActual;
   }
-  // 2) Muestra/oculta Tipo de superficie según categoría
+  // 2) Muestra/oculta Tipo de superficie según categoría — y oculta si está implícita en el nombre del tipo
   const wSup = document.getElementById('f-superficie-wrap');
   const selS = document.getElementById('f-superficie');
+  const supImpl = DVBA_ESTADOS.superficieImplicita(tipoStr);
   if (wSup && selS){
-    if (DVBA_ESTADOS.aplicaSuperficie(cat)){
+    if (DVBA_ESTADOS.aplicaSuperficie(cat) && !supImpl){
       wSup.style.display = '';
       if (selS.options.length <= 1){
         DVBA_ESTADOS.getSuperficies().forEach(s => {
@@ -1715,14 +1715,15 @@ function onTipoChange(tipoStr){
       }
     } else {
       wSup.style.display = 'none';
-      selS.value = '';
+      selS.value = supImpl || '';  // si está implícita, la guardamos igual
     }
   }
-  // 3) Muestra/oculta Modalidad según categoría
+  // 3) Muestra/oculta Modalidad según categoría — y oculta si está implícita en el nombre del tipo
   const wMod = document.getElementById('f-modalidad-wrap');
   const selM = document.getElementById('f-modalidad');
+  const modImpl = DVBA_ESTADOS.modalidadImplicita(tipoStr);
   if (wMod && selM){
-    if (DVBA_ESTADOS.aplicaModalidad(cat)){
+    if (DVBA_ESTADOS.aplicaModalidad(cat) && !modImpl){
       wMod.style.display = '';
       if (selM.options.length <= 1){
         DVBA_ESTADOS.getModalidades().forEach(m => {
@@ -1733,7 +1734,7 @@ function onTipoChange(tipoStr){
       }
     } else {
       wMod.style.display = 'none';
-      selM.value = '';
+      selM.value = modImpl || '';  // si está implícita, la guardamos igual
     }
   }
 }

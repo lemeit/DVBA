@@ -3270,10 +3270,11 @@ function onTipoChange(tipoStr) {
     });
     if (valActual && Array.from(selE.options).some(o => o.value === valActual)) selE.value = valActual;
   }
-  // 2) Tipo de superficie
+  // 2) Tipo de superficie — oculto si está implícito en el nombre del tipo
   const selS = document.getElementById('fsuperficie');
+  const supImpl = DVBA_ESTADOS.superficieImplicita(tipoStr);
   if (selS) {
-    if (DVBA_ESTADOS.aplicaSuperficie(cat)) {
+    if (DVBA_ESTADOS.aplicaSuperficie(cat) && !supImpl) {
       if (selS.options.length <= 1) {
         DVBA_ESTADOS.getSuperficies().forEach(s => {
           const o = document.createElement('option');
@@ -3284,13 +3285,14 @@ function onTipoChange(tipoStr) {
       selS.style.display = '';
     } else {
       selS.style.display = 'none';
-      selS.value = '';
+      selS.value = supImpl || '';
     }
   }
-  // 3) Modalidad
+  // 3) Modalidad — oculta si está implícita en el nombre del tipo
   const selM = document.getElementById('fmodalidad');
+  const modImpl = DVBA_ESTADOS.modalidadImplicita(tipoStr);
   if (selM) {
-    if (DVBA_ESTADOS.aplicaModalidad(cat)) {
+    if (DVBA_ESTADOS.aplicaModalidad(cat) && !modImpl) {
       if (selM.options.length <= 1) {
         DVBA_ESTADOS.getModalidades().forEach(m => {
           const o = document.createElement('option');
@@ -3301,7 +3303,7 @@ function onTipoChange(tipoStr) {
       selM.style.display = '';
     } else {
       selM.style.display = 'none';
-      selM.value = '';
+      selM.value = modImpl || '';
     }
   }
 }

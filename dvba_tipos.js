@@ -242,9 +242,11 @@ const DVBA_TIPOS = (() => {
   }
 
   function normStr(s) {
+    // Escape Unicode explícito para combining diacritical marks (U+0300..U+036F)
+    // Necesario porque el carácter literal puede no preservarse bien entre Windows/Linux/Mobile
     return (s || '').toLowerCase()
-      .normalize('NFD').replace(/[̀-ͯ]/g, '')
-      .replace(/[^a-z0-9 ]/g, ' ').trim();
+      .normalize('NFD').replace(new RegExp('[\\u0300-\\u036f]', 'g'), '')
+      .replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
   }
 
   // Dado un nombre de tipo (string), devuelve la key de su categoría

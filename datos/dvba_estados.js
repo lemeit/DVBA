@@ -143,6 +143,27 @@ const DVBA_ESTADOS = (() => {
   const CAT_CON_SUPERFICIE = new Set(['calzada', 'mantenimiento']);
   const CAT_CON_MODALIDAD  = new Set(['mantenimiento']);
 
+  // ── Detección de sub-atributos IMPLÍCITOS en el nombre del tipo ──
+  // Si el tipo ya incluye la modalidad o superficie en su nombre, no se muestra
+  // el selector correspondiente (sería redundante o contradictorio).
+  function modalidadImplicita(tipoStr) {
+    const s = (tipoStr || '').toLowerCase();
+    if (/\bmanual\b/.test(s))                            return 'manual';
+    if (/\bmec[áa]nic[oa]\b/.test(s))                    return 'mecanico';
+    if (/\bmixt[oa]\b/.test(s))                          return 'mixto';
+    return null;
+  }
+  function superficieImplicita(tipoStr) {
+    const s = (tipoStr || '').toLowerCase();
+    if (/\bdolomita\b/.test(s))                          return 'dolomita';
+    if (/\bsuelo\s*cal\b/.test(s))                       return 'suelo_cal';
+    if (/\btierra\b/.test(s) && /reconformado/.test(s))  return 'tierra';
+    if (/\bcamino\s*tierra\b/.test(s))                   return 'tierra';
+    if (/\bhormig[óo]n\b/.test(s))                       return 'hormigon';
+    if (/\basf[áa]ltic[oa]\b/.test(s) || /\briego\s*asf/.test(s)) return 'asfalto';
+    return null;
+  }
+
   // ── API pública ────────────────────────────────────────────────────
   function getEstados(catKey) {
     return POR_CAT[catKey] || [
@@ -169,6 +190,8 @@ const DVBA_ESTADOS = (() => {
     getModalidades,
     aplicaSuperficie,
     aplicaModalidad,
+    modalidadImplicita,
+    superficieImplicita,
     POR_CAT,
     SUPERFICIES,
     MODALIDADES,
