@@ -12,44 +12,87 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 | URL | Archivo | Versión | Descripción |
 |---|---|---|---|
-| https://lemeit.github.io/DVBA/ | `index.html` | **v7.7** | App de escritorio: mapa Leaflet, progresivas, sidebar de registros, reportes PDF/CSV, sello v2 editable en fotos |
-| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | **v9.15** | App móvil PWA instalable: relevamiento GPS de campo (MSV 2017), sello v2 editable + Plus Code offline |
+| https://lemeit.github.io/DVBA/ | `index.html` | **v7.10** | App de escritorio: mapa Leaflet, progresivas, sidebar de registros, reportes PDF/CSV, sello v3 con QR Google Maps |
+| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | **v9.18** | App móvil PWA instalable: relevamiento GPS de campo, modelo Tipo↔Estado coherente, sello v3 |
 | https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte |
-| https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.1 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
+| https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.2 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
 | https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html | guía de usuario | — | Manual de la app de campo |
+| https://lemeit.github.io/DVBA/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
 
-## Sello DVBA en fotos (v2 — desde junio 2026)
+## Modelo Tipo ↔ Estado (desde v9.18 / v7.10 — junio 2026)
 
-Toda foto cargada en cualquiera de las dos apps (escritorio y móvil) se estampa con un sello institucional al estilo **GPS Map Camera**, pero offline-first y con datos **editables** vía modal antes de aplicar.
+El sistema separa el registro vial en **3 dimensiones independientes** que se combinan según contexto:
 
-### Funcionamiento
-Al subir/sacar una foto se abre un modal **"Editar datos del sello"** con los campos pre-cargados desde el GPS, el formulario y la fecha/hora actual. El operador puede ajustar cualquier valor antes de estampar:
+| Dimensión | Definición | Ejemplo |
+|---|---|---|
+| **Elemento** | Qué objeto físico se está relevando | Calzada, señal, puente, banquina, luminaria |
+| **Condición** | Cómo está ese elemento | Bueno · Regular · Malo · Crítico (varía por categoría) |
+| **Acción** | Qué tarea se hizo o hay que hacer | Reconformado, desmalezado, bacheo |
+
+El **árbol tiene 10 categorías** (8 de relevamiento + 1 de mantenimiento/tarea + 1 catch-all). Cada categoría tiene su **propio set de estados coherentes** + **estados universales de seguimiento** (`Pendiente`, `En obra`, `Reparado`).
+
+### Sub-atributos condicionales
+Aparecen automáticamente según la categoría:
+
+- **Tipo de superficie** (Calzada, Mantenimiento): Asfalto · Hormigón · Tierra · Estabilizado · Mejorado con dolomita · Mejorado con suelo cal
+- **Modalidad de tarea** (Mantenimiento): Manual · Mecánico · Mixto
+
+### Cómo se implementa
+- `dvba_tipos.js` — árbol de categorías + helper `categoriaDe(tipoStr)`
+- `datos/dvba_estados.js` — modelo de estados por categoría + sub-atributos
+- Función `onTipoChange(tipoStr)` en ambas apps que repuebla el `<select>` de estado y muestra/oculta los condicionales
+
+Para el detalle completo (matriz Tipo→Estados, guía de extensibilidad, flujo en cada app), ver **[`docs/MODELO_TIPOS_ESTADOS.md`](docs/MODELO_TIPOS_ESTADOS.md)**.
+
+---
+
+## Sello DVBA en fotos (v3 — desde junio 2026)
+
+Toda foto cargada en cualquiera de las dos apps se estampa con un sello institucional estilo **GPS Map Camera**, offline-first y con datos editables antes de aplicar.
+
+### Layout v3 (3 columnas, banner DEBAJO de la foto)
+
+```
+┌────────────────────────────────────────────────────┐
+│              [FOTO ORIGINAL INTACTA]               │
+├────────────────────────────────────────────────────┤
+│ ┌────┐  Localidad                          ▣▣▣ ▣  │
+│ │LOGO│  Ruta · Km                          ▣ ▣ ▣  │
+│ │DVBA│  Tipo de incidencia                 ▣ ▣▣  │
+│ └────┘  Lat / Long / Alt                   ▣▣ ▣   │
+│         Fecha · Hora                       ▣▣▣ ▣  │
+└────────────────────────────────────────────────────┘
+   logo    texto blanco grande               QR Google Maps
+```
+
+- La foto **queda 100% intacta** — el banner es un footer agregado debajo (no la tapa).
+- Logo institucional DVBA a la izquierda, centrado vertical.
+- Texto blanco en el centro con sombra sutil para nitidez.
+- **QR a la derecha** apuntando a `https://www.google.com/maps/search/?api=1&query=LAT,LNG` — escaneable desde cualquier app de cámara, abre Google Maps con un pin **exacto** en la coordenada.
+
+### Modal editable
+
+Antes de estampar, se abre un modal con los datos pre-poblados:
 
 | Campo | Origen automático | Editable |
 |---|---|---|
 | Localidad | Partido + Provincia + País | ✓ |
-| Dirección | Ruta + km del form | ✓ |
-| Lat / Lng | GPS (móvil) o form (escritorio) | ✓ |
+| Ruta / Camino · Km / Progresiva | Form | ✓ |
+| Tipo de incidencia / relevamiento | Form | ✓ |
+| Lat / Lng | GPS o form | ✓ |
 | Fecha / Hora | Sistema | ✓ |
-| Altura | GPS (`gpsAlt`) — solo móvil | ✓ |
-| Plus Code | Calculado vanilla JS desde lat/lng | ✓ |
-| Ruta / Km / Tipo | Form | ✓ |
+| Altura | GPS (`gpsAlt`) | ✓ |
 
-Botones: **"Aplicar y guardar"** estampa con los valores confirmados; **"Sin sello"** sube la foto original.
+Botones: **"Aplicar y guardar"** o **"Sin sello"** (sube la foto original).
 
-### Diseño visual
-- Banda inferior con gradient negro + línea dorada superior
-- **Izquierda**: 5 líneas de información (localidad dorada, ruta+km blanca, lat/long+alt verde mono, plus code azul mono, fecha+hora+tipo) + firma institucional separada en italic dorado tenue
-- **Derecha**: logo institucional DVBA centrado verticalmente
+### QR Code offline
 
-Sin mini-mapa ni clima — las apps deben funcionar sin datos en campo, solo con GPS.
-
-### Plus Code (Open Location Code)
-Implementación vanilla JavaScript, 10 caracteres, válido a nivel mundial sin dependencias externas ni conexión. Se auto-recalcula al editar lat/lng en el modal.
+Implementación vanilla JavaScript en `datos/qrcode.min.js` (~14 KB, sin dependencias externas, basada en qrcode-generator de Kazuhiko Arase). Genera el QR como matriz de píxeles y se pinta en el canvas — funciona 100% sin conexión.
 
 ### Política de versionado del sello
-- **Tweak cosmético** (fuente, color, posición): solo se bumpea `sw.js` con sufijo letra (`v9.15a` → `v9.15b`...). El span del footer queda igual.
-- **Cambio publicable**: se bumpean los 3 (`APP_VERSION` en `index.html`, `<span id='app-ver'>` en `dvba_campo.html`, `CACHE_NAME` en `sw.js`).
+
+- **Tweak cosmético** (fuente, color, posición): solo bump de `sw.js` con sufijo letra (`v9.18` → `v9.18a` → `v9.18b`...). El span del footer queda igual.
+- **Cambio publicable** (feature, fix funcional): bump de los 3 — `APP_VERSION` en `index.html`, `<span id='app-ver'>` en `dvba_campo.html`, `CACHE_NAME` en `sw.js`.
 
 ## Estructura del repositorio
 
@@ -62,15 +105,14 @@ DVBA/
 ├── sw.js                   ← Service Worker (cache + sync Supabase)
 ├── icon-192.png  icon-512.png
 │
-├── datos/                  ← Bundles JS por ruta cargados por las apps
+├── datos/                  ← Bundles JS por ruta + módulos compartidos
 │   ├── rutas.js            ← Índice maestro
 │   ├── rutas_rp40.js       ← RP40 — completa (cadena + anchors + 5 mojones físicos + 37 sintéticos + 3 gaps)
-│   ├── rutas_rp30.js
-│   ├── rutas_rp41.js
-│   ├── rutas_rp46.js
-│   ├── rutas_rp51.js
-│   ├── rutas_rp91.js
-│   └── img/                ← Logos e íconos institucionales
+│   ├── rutas_rp30.js  rutas_rp41.js  rutas_rp46.js  rutas_rp51.js  rutas_rp91.js  …
+│   ├── auth.js             ← Módulo Supabase Auth compartido entre apps
+│   ├── dvba_estados.js     ← Modelo de estados por categoría + superficies + modalidades (v9.18)
+│   ├── qrcode.min.js       ← Librería QR vanilla JS para el sello (sin dependencias, ~14 KB)
+│   └── img/                ← Logos e íconos institucionales (logo_dvba_circular.png ← usado en sello)
 │
 ├── scripts/                ← Scripts Python (procesamiento, generación de bundles)
 │   ├── gen_ruta_bundle.py        ← Generador de bundles datos/rutas_rpXX.js
@@ -88,6 +130,9 @@ DVBA/
 │
 ├── docs/                   ← Documentación
 │   ├── bitacora.html                   ← Bitácora unificada (tabs por temática)
+│   ├── MODELO_TIPOS_ESTADOS.md         ← Referencia del modelo Tipo↔Estado (v9.18)
+│   ├── HANDOFF_caminos_secundarios.md
+│   ├── SETUP_AUTH.md                   ← Guía de configuración Supabase Auth
 │   ├── guia_dvba_campo.html
 │   └── guia_dvba_campo.pdf
 │

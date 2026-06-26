@@ -735,7 +735,17 @@ git push origin main
       <li>Documentado en nuevo <a href="MODELO_TIPOS_ESTADOS.md">docs/MODELO_TIPOS_ESTADOS.md</a> con árbol completo, matriz de estados, flujo en cada app y guía de extensibilidad.</li>
     </ul>
 
-    <h3>v9.17 · 24 junio 2026 — Sello v3 con QR Google Maps + banner debajo de la foto</h3>
+    <h3>v9.16 · 24 junio 2026 — Sello v3 inicial con QR + fix bug RS_BLOCK_TABLE</h3>
+    <ul>
+      <li><strong>Primera implementación del sello v3</strong> con layout 3 columnas (logo izq + texto centro + QR der). Reemplaza el sello v2 (banda 5 líneas con localidad/dirección/lat-long/plus code/fecha-hora-tipo + firma institucional).</li>
+      <li><strong>Lib QR vanilla JS embebida</strong> en <code>datos/qrcode.min.js</code>. Implementación basada en qrcode-generator de Kazuhiko Arase (MIT License), soporta hasta version 10 con error correction level M. Sin dependencias externas, ~14 KB.</li>
+      <li><strong>Fix de bug crítico</strong> en <code>getRSBlocks()</code>: los valores de las constantes ECL están en orden L=1, M=0, Q=3, H=2 (usados así en el QR format info), pero la tabla <code>RS_BLOCK_TABLE</code> está ordenada L→M→Q→H. Mi primera versión mapeaba <code>idx = (typeNumber-1)*4 + errorCorrectionLevel</code> que daba resultados invertidos (L recibía la tabla de M, M la de L, etc.). El QR se "veía" pero al escanearlo no decodificaba. Reescrito con un switch que mapea la constante ECL al offset correcto.</li>
+      <li><strong>Modal del sello simplificado</strong>: se sacan campos Dirección y Plus Code (reemplazados por el QR). Se reordena con Ruta+Km arriba y Tipo de incidencia más prominente. Pasa de 11 campos a 8.</li>
+      <li><strong>Tipo de incidencia destacado</strong> como feature diferencial: GPS Map Camera no lo tiene (solo coordenada + fecha), mientras que el sistema DVBA permite categorizar el motivo del relevamiento desde el modal.</li>
+      <li>Bump: <code>dvba_campo</code> v9.15 → v9.16, <code>index</code> v7.7 → v7.8, sw v9.15b → v9.16.</li>
+    </ul>
+
+    <h3>v9.17 · 24 junio 2026 — Banner del sello como footer (no tapa la foto) + URL QR oficial</h3>
     <ul>
       <li><strong>Layout 3 columnas</strong> estilo GPS Map Camera: logo institucional DVBA centrado vertical a la izquierda · texto blanco grande con sombra (Localidad / Ruta+Km / Tipo / Lat-Lng / Fecha-Hora) en el centro · QR Code apuntando a <code>https://www.google.com/maps/search/?api=1&query=LAT,LNG</code> a la derecha. URL oficial de Google Maps API que pone un pin EXACTO en la coordenada (no la interpreta como búsqueda de texto).</li>
       <li><strong>Lib QR vanilla JS embebida</strong> (<code>datos/qrcode.min.js</code>, ~14 KB, sin dependencias externas). Basada en qrcode-generator de Kazuhiko Arase. Soporta hasta version 10 con error correction level M. 100% offline. Fix de bug en <code>getRSBlocks</code>: el mapeo de ECL constants (L=1, M=0, Q=3, H=2 para format info) no coincidía con el índice de la tabla RS_BLOCK_TABLE (orden L/M/Q/H).</li>
