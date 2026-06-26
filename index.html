@@ -275,7 +275,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · v7.3</div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v7.9</span></div>
   </div>
 </div>
 <div class="layout">
@@ -3140,8 +3140,10 @@ document.addEventListener('click', function(e){
   });
 })();
 
-// Versión visible en header
+// Versión visible en header + modal de login
 document.getElementById('app-ver').textContent = APP_VERSION;
+const loginVer = document.getElementById('login-app-ver');
+if (loginVer) loginVer.textContent = APP_VERSION;
 
 /* ══════════════════════════════════════════════════════════════
    SELECTOR JERÁRQUICO DE TIPO — desktop (zona6)
