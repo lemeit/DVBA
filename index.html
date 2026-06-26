@@ -10,6 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="datos/auth.js"></script>
 <script src="dvba_tipos.js"></script>
+<script src="datos/dvba_estados.js"></script>
 <script src="datos/qrcode.min.js"></script>
 <style>
 :root{
@@ -365,10 +366,15 @@ body.modo-campo #campo-fab{display:flex}
     </div>
     <!-- campo oculto compatible con el código existente -->
     <input type="hidden" id="ftipo" value="">
+    <!-- v7.10: Tipo de superficie + Modalidad — visibles según categoría del tipo elegido -->
+    <select id="fsuperficie" style="display:none;font-size:10px;margin-bottom:3px">
+      <option value="">-- Tipo de superficie --</option>
+    </select>
+    <select id="fmodalidad" style="display:none;font-size:10px;margin-bottom:3px">
+      <option value="">-- Modalidad --</option>
+    </select>
     <select id="festado">
       <option value="">-- Estado --</option>
-      <option value="bueno">Bueno</option><option value="regular">Regular</option>
-      <option value="malo">Malo / Deteriorado</option><option value="obra">En obra</option>
     </select>
     <textarea id="fobs" placeholder="Observaciones..." rows="2" style="resize:vertical"></textarea>
     <label style="font-size:9px;color:#3d6a88;display:block;margin-bottom:2px">Adjuntar foto</label>
@@ -488,7 +494,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.9';
+const APP_VERSION = 'v7.10';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1287,7 +1293,16 @@ async function guardar(){
   const tipo    = document.getElementById('ftipo').value;
   const estado  = document.getElementById('festado').value;
   const obs     = document.getElementById('fobs').value;
+  // v7.10 — sub-atributos condicionales (se serializan en observaciones)
+  const superficie = document.getElementById('fsuperficie')?.value || '';
+  const modalidad  = document.getElementById('fmodalidad')?.value || '';
   if (!ruta || !prog || !tipo || !estado) { alert('Complete Ruta, Progresiva, Tipo y Estado.'); return; }
+  // Concat metadatos al final de las observaciones (sin migrar Supabase)
+  let obsFinal = obs;
+  const meta = [];
+  if (superficie) meta.push('superficie:'+superficie);
+  if (modalidad) meta.push('modalidad:'+modalidad);
+  if (meta.length) obsFinal = (obs ? obs+'\n\n' : '') + '['+meta.join(' · ')+']';
 
   const fi = document.getElementById('ffoto');
   const manualLat = parseFloat(document.getElementById('flat').value);
@@ -1356,7 +1371,7 @@ async function guardar(){
       ruta, partido,
       progresiva:    prog,
       tipo, estado,
-      observaciones: obs || null,
+      observaciones: obsFinal || null,
       foto_url:      fotoFinal,
       lat, lng,
       fecha:         fechaOriginal || new Date().toISOString(),
@@ -1407,12 +1422,12 @@ async function guardar(){
         const idx = regs.findIndex(r => r.id === _editandoId);
         if (idx >= 0) {
           regs[idx] = { ...regs[idx], ruta, partido, prog, tipo, estado,
-            obs: obs || '', lat, lng,
+            obs: obsFinal || '', lat, lng,
             foto: fotoBase64 || regs[idx].foto };
         }
       } else {
         const reg = { id: Date.now(), ruta, partido, prog, tipo, estado,
-                      obs: obs || '', foto: fotoBase64 || null,
+                      obs: obsFinal || '', foto: fotoBase64 || null,
                       fecha: new Date().toLocaleString('es-AR'), lat, lng };
         regs.unshift(reg);
       }
@@ -1421,7 +1436,11 @@ async function guardar(){
 
     // Limpiar formulario y resetear modo edición
     cancelarEdit();
-    ['fobs','ftipo','festado'].forEach(id => document.getElementById(id).value = '');
+    ['fobs','ftipo','festado','fsuperficie','fmodalidad'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    const fs = document.getElementById('fsuperficie'); if (fs) fs.style.display = 'none';
+    const fm = document.getElementById('fmodalidad'); if (fm) fm.style.display = 'none';
     document.getElementById('ffoto').value = '';
     document.getElementById('iprev').style.display = 'none';
     document.getElementById('flat').value = '';
@@ -3223,6 +3242,68 @@ function z6TipoSeleccionar(valor) {
   disp.classList.remove('open');
   disp.classList.add('elegido');
   document.getElementById('z6-tipo-panel').style.display = 'none';
+  // v7.10 — repuebla estado + muestra/oculta sub-atributos
+  onTipoChange(valor);
+}
+
+function z6TipoSetValor(valor) {
+  if (!valor) { z6TipoReset(); return; }
+  document.getElementById('ftipo').value = valor;
+  document.getElementById('z6-tipo-txt').textContent = valor;
+  document.getElementById('z6-tipo-display').classList.add('elegido');
+  onTipoChange(valor);
+}
+
+/* ── v7.10 — Hook al cambio de tipo: repuebla estado, superficie y modalidad ── */
+function onTipoChange(tipoStr) {
+  if (typeof DVBA_TIPOS === 'undefined' || typeof DVBA_ESTADOS === 'undefined') return;
+  const cat = DVBA_TIPOS.categoriaDe(tipoStr) || 'otro';
+  // 1) Estados
+  const selE = document.getElementById('festado');
+  if (selE) {
+    const valActual = selE.value;
+    selE.innerHTML = '<option value="">-- Estado --</option>';
+    DVBA_ESTADOS.getEstados(cat).forEach(e => {
+      const o = document.createElement('option');
+      o.value = e.key; o.textContent = e.label;
+      selE.appendChild(o);
+    });
+    if (valActual && Array.from(selE.options).some(o => o.value === valActual)) selE.value = valActual;
+  }
+  // 2) Tipo de superficie
+  const selS = document.getElementById('fsuperficie');
+  if (selS) {
+    if (DVBA_ESTADOS.aplicaSuperficie(cat)) {
+      if (selS.options.length <= 1) {
+        DVBA_ESTADOS.getSuperficies().forEach(s => {
+          const o = document.createElement('option');
+          o.value = s.key; o.textContent = s.label;
+          selS.appendChild(o);
+        });
+      }
+      selS.style.display = '';
+    } else {
+      selS.style.display = 'none';
+      selS.value = '';
+    }
+  }
+  // 3) Modalidad
+  const selM = document.getElementById('fmodalidad');
+  if (selM) {
+    if (DVBA_ESTADOS.aplicaModalidad(cat)) {
+      if (selM.options.length <= 1) {
+        DVBA_ESTADOS.getModalidades().forEach(m => {
+          const o = document.createElement('option');
+          o.value = m.key; o.textContent = m.label;
+          selM.appendChild(o);
+        });
+      }
+      selM.style.display = '';
+    } else {
+      selM.style.display = 'none';
+      selM.value = '';
+    }
+  }
 }
 
 function z6TipoReset() {
@@ -3234,13 +3315,6 @@ function z6TipoReset() {
   document.getElementById('z6-tipo-panel').style.display = 'none';
   document.getElementById('z6-tipo-cats').style.display = 'grid';
   document.getElementById('z6-tipo-items-wrap').style.display = 'none';
-}
-
-function z6TipoSetValor(valor) {
-  if (!valor) { z6TipoReset(); return; }
-  document.getElementById('ftipo').value = valor;
-  document.getElementById('z6-tipo-txt').textContent = valor;
-  document.getElementById('z6-tipo-display').classList.add('elegido');
 }
 
 // Inicializar al cargar

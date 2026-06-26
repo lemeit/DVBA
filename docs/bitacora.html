@@ -99,7 +99,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <div class="sub">DVBA · Zona Departamental VI Saladillo</div>
   <div class="meta">
     <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">24 de junio de 2026</span></div>
-    <div><span class="lbl">Versión bitácora</span><span class="val">v4.1 — apps v9.15 / v7.7</span></div>
+    <div><span class="lbl">Versión bitácora</span><span class="val">v4.2 — apps v9.18 / v7.10</span></div>
     <div><span class="lbl">Responsable</span><span class="val">Ing. Luciano Lamaita</span></div>
     <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></span></div>
     <div><span class="lbl">Estado general</span><span class="val">🟢 En desarrollo activo</span></div>
@@ -718,10 +718,31 @@ git push origin main
   <div class="card">
     <table>
       <tr><th>Artefacto</th><th>Versión</th><th>Archivo(s)</th><th>Bumpear con</th></tr>
-      <tr><td><strong>📱 App Campo</strong></td><td><span class="badge b-ok">v9.15</span></td><td><code>dvba_campo.html</code> + <code>sw.js</code> (cache <code>dvba-campo-v9.15b</code>)</td><td>Manual + bump sw.js con sufijo letra</td></tr>
-      <tr><td><strong>🖥 App Escritorio</strong></td><td><span class="badge b-ok">v7.7</span></td><td><code>index.html</code></td><td>Manual en <code>const APP_VERSION</code></td></tr>
+      <tr><td><strong>📱 App Campo</strong></td><td><span class="badge b-ok">v9.18</span></td><td><code>dvba_campo.html</code> + <code>sw.js</code> (cache <code>dvba-campo-v9.18</code>) + <code>datos/dvba_estados.js</code></td><td>Manual + bump sw.js con sufijo letra para tweaks</td></tr>
+      <tr><td><strong>🖥 App Escritorio</strong></td><td><span class="badge b-ok">v7.10</span></td><td><code>index.html</code> + <code>datos/dvba_estados.js</code> + <code>datos/qrcode.min.js</code></td><td>Manual en <code>const APP_VERSION</code></td></tr>
       <tr><td><strong>🛣 Caminos Secundarios</strong></td><td><span class="badge b-ok">v1.1</span></td><td><code>caminos_secundarios.html</code></td><td>—</td></tr>
     </table>
+
+    <h3>v9.18 · 24 junio 2026 — Modelo Tipo↔Estado rediseñado + sub-atributos</h3>
+    <ul>
+      <li><strong>Nuevo módulo <code>datos/dvba_estados.js</code></strong>: estados específicos por categoría (Calzada: Bueno/Regular/Malo/Crítico · Señales: OK/Dañada/Ilegible/Falta · Iluminación: Funciona/No funciona/Parcial · Entorno: Activo/Bajo monitoreo/En limpieza · Mantenimiento: Programado/En ejecución/Finalizado · etc.) más 3 estados universales de seguimiento (Pendiente · En obra · Reparado) que aparecen en casi todas las categorías.</li>
+      <li><strong>Reescritura de <code>dvba_tipos.js</code></strong> con 10 categorías separando RELEVAMIENTO (estado físico) de TAREA (acción). Categorías nuevas: <em>Demarcación horizontal</em>, <em>Mantenimiento / Tarea</em>. Eliminadas referencias viejas a "Tratamiento bituminoso". Agregados ítems específicos para caminos de tierra: Huellas, Anegamiento por mala conformación, Erosión de calzada. Seguridad vial ahora incluye Cámaras de control / fotomultas y Radares de velocidad.</li>
+      <li><strong>Sub-atributos condicionales</strong>: Tipo de superficie (Asfalto · Hormigón · Tierra · Estabilizado · Mejorado con dolomita · Mejorado con suelo cal) y Modalidad de tarea (Manual · Mecánico · Mixto). Aparecen automáticamente solo cuando la categoría del tipo elegido los soporta (Calzada y Mantenimiento para superficie; solo Mantenimiento para modalidad).</li>
+      <li><strong>Hook <code>onTipoChange(tipoStr)</code></strong> en ambas apps: al elegir un tipo, infiere su categoría con <code>DVBA_TIPOS.categoriaDe()</code>, repuebla el <code>&lt;select&gt;</code> de estado con los estados válidos, y muestra/oculta los selects de superficie y modalidad según corresponda.</li>
+      <li><strong>Decisión: NO migrar Supabase (Opción B)</strong>. Los registros viejos con strings legacy ("Bueno", "Malo", "Crítico", "En obra") se siguen mostrando tal cual en listas. Al editar uno viejo, el dropdown se inicializa vacío y al guardar adopta el nuevo modelo. Cero downtime, cero riesgo de corrupción.</li>
+      <li><strong>Serialización de sub-atributos en <code>observaciones</code></strong>: como no hay columnas dedicadas en BD, superficie y modalidad se concatenan al final del campo observaciones con formato <code>[superficie:asfalto · modalidad:mecanico]</code>. Parseable con regex para reportes futuros. Migrable a columnas dedicadas cuando se quieran cruces.</li>
+      <li><strong>Antes</strong>: ambas apps usaban estados distintos (escritorio: Crítico/Grave/Regular/Leve/Resuelto · móvil: Bueno/Regular/Malo/En obra) sin sentido lógico cuando se aplicaban a tipos como "Mojón kilométrico" o "Siniestro vial".</li>
+      <li>Documentado en nuevo <a href="MODELO_TIPOS_ESTADOS.md">docs/MODELO_TIPOS_ESTADOS.md</a> con árbol completo, matriz de estados, flujo en cada app y guía de extensibilidad.</li>
+    </ul>
+
+    <h3>v9.17 · 24 junio 2026 — Sello v3 con QR Google Maps + banner debajo de la foto</h3>
+    <ul>
+      <li><strong>Layout 3 columnas</strong> estilo GPS Map Camera: logo institucional DVBA centrado vertical a la izquierda · texto blanco grande con sombra (Localidad / Ruta+Km / Tipo / Lat-Lng / Fecha-Hora) en el centro · QR Code apuntando a <code>https://www.google.com/maps/search/?api=1&query=LAT,LNG</code> a la derecha. URL oficial de Google Maps API que pone un pin EXACTO en la coordenada (no la interpreta como búsqueda de texto).</li>
+      <li><strong>Lib QR vanilla JS embebida</strong> (<code>datos/qrcode.min.js</code>, ~14 KB, sin dependencias externas). Basada en qrcode-generator de Kazuhiko Arase. Soporta hasta version 10 con error correction level M. 100% offline. Fix de bug en <code>getRSBlocks</code>: el mapeo de ECL constants (L=1, M=0, Q=3, H=2 para format info) no coincidía con el índice de la tabla RS_BLOCK_TABLE (orden L/M/Q/H).</li>
+      <li><strong>Banner como footer agregado debajo de la foto</strong> (no la tapa). El canvas se crea más alto que la imagen (H + bH) y el banner se dibuja en el espacio agregado con fondo negro sólido. La foto queda 100% intacta, sin transparencia que comprometa legibilidad de datos. Banda con altura adaptativa: <code>max(200, min(W*0.22), 340)</code>.</li>
+      <li><strong>Modal simplificado</strong>: se sacan campos Dirección y Plus Code (reemplazados por el QR), se reordenan con Ruta+Km arriba y Tipo de incidencia más prominente.</li>
+      <li>Fix: footer del modal de login de <code>index.html</code> lee <code>APP_VERSION</code> dinámico (estaba hardcoded en v7.3 desde hace varios commits).</li>
+    </ul>
 
     <h3>v9.15 · 24 junio 2026 — App de campo (Sello v2 + Modal editable)</h3>
     <ul>
@@ -838,7 +859,7 @@ git push origin main
 
 <footer>
   Bitácora unificada — Sistema de Relevamiento y Gestión Vial DVBA Zona Departamental VI Saladillo<br>
-  Ing. Luciano Lamaita · División Técnica · Última actualización: 24 de junio de 2026 · v4.1 (apps v9.15 / v7.7)
+  Ing. Luciano Lamaita · División Técnica · Última actualización: 24 de junio de 2026 · v4.2 (apps v9.18 / v7.10)
 </footer>
 
 </div>

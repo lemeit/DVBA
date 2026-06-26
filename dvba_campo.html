@@ -603,10 +603,23 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
         <!-- Campo oculto para mantener compatibilidad con el resto del código -->
         <input type="hidden" id="f-tipo" value="">
       </div>
+      <!-- Tipo de superficie — visible solo si categoría = Calzada o Mantenimiento (v9.18) -->
+      <div class="field" id="f-superficie-wrap" style="display:none">
+        <div class="flbl">Tipo de superficie</div>
+        <select id="f-superficie">
+          <option value="">— Seleccionar —</option>
+        </select>
+      </div>
+      <!-- Modalidad de tarea — visible solo si categoría = Mantenimiento (v9.18) -->
+      <div class="field" id="f-modalidad-wrap" style="display:none">
+        <div class="flbl">Modalidad de tarea</div>
+        <select id="f-modalidad">
+          <option value="">— Seleccionar —</option>
+        </select>
+      </div>
       <div class="field"><div class="flbl">Estado</div>
         <select id="f-estado">
           <option value="">— Estado —</option>
-          <option>Crítico</option><option>Grave</option><option>Regular</option><option>Leve</option><option>Resuelto</option>
         </select>
       </div>
       <div class="field"><div class="flbl">Observaciones</div>
@@ -654,7 +667,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.17</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.18</span>
 </div>
 
 
@@ -1395,12 +1408,22 @@ async function guardarRegistro(){
   const partido=document.getElementById('f-partido').value.trim();
   const lat=parseFloat(document.getElementById('f-lat').value)||null;
   const lng=parseFloat(document.getElementById('f-lng').value)||null;
+  // v9.18 — sub-atributos condicionales
+  const superficie=document.getElementById('f-superficie')?.value.trim()||'';
+  const modalidad=document.getElementById('f-modalidad')?.value.trim()||'';
   if(!ruta){toast('Seleccioná la ruta','err');return;}
   if(!tipo){toast('Seleccioná el tipo de suceso','err');return;}
   if(!lat||!lng){toast('Aplicá las coordenadas GPS con ↓ Usar','err');return;}
   const fecha=new Date().toISOString(), tempId=Date.now();
+  // Incluimos superficie/modalidad en observaciones (no requiere migración Supabase)
+  // Formato: las observaciones del usuario + meta serializada al final
+  let obsCompletas = obs;
+  const meta = [];
+  if (superficie) meta.push('superficie:'+superficie);
+  if (modalidad) meta.push('modalidad:'+modalidad);
+  if (meta.length) obsCompletas = (obs ? obs+'\n\n' : '') + '['+meta.join(' · ')+']';
   const reg={ruta,partido:partido||null,progresiva:prog||'',tipo,
-    estado:estado||null,observaciones:obs||null,foto_url:null,lat,lng,fecha};
+    estado:estado||null,observaciones:obsCompletas||null,foto_url:null,lat,lng,fecha};
   if(navigator.onLine) showOv('Verificando conexión…');
   const online=await estaOnline();
   let cloud=false,fotoUrl=null;
@@ -1579,7 +1602,11 @@ async function syncManual(){
 
 /* ── Limpiar form ── */
 function limpiarForm(){
-  ['f-ruta','f-prog','f-estado','f-partido','f-obs'].forEach(id=>document.getElementById(id).value='');
+  ['f-ruta','f-prog','f-estado','f-partido','f-obs','f-superficie','f-modalidad'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('f-superficie-wrap').style.display='none';
+  document.getElementById('f-modalidad-wrap').style.display='none';
   tipoReset();
   document.getElementById('f-lat').value=''; document.getElementById('f-lng').value='';
   fotoOriginal=null; fotoFinal=null;
@@ -1652,6 +1679,63 @@ function tipoSeleccionar(valor){
   document.getElementById('tipo-items-wrap').style.display='none';
   document.getElementById('tipo-cats').style.display='none';
   document.getElementById('tipo-elegido').style.display='flex';
+  // v9.18 — Repuebla estado + muestra/oculta sub-atributos según categoría del tipo elegido
+  onTipoChange(valor);
+}
+
+/* ── v9.18 — Hook al cambio de tipo: repuebla estado, superficie y modalidad ── */
+function onTipoChange(tipoStr){
+  if (typeof DVBA_TIPOS === 'undefined' || typeof DVBA_ESTADOS === 'undefined') return;
+  const cat = DVBA_TIPOS.categoriaDe(tipoStr) || 'otro';
+  // 1) Repuebla el <select id="f-estado"> con los estados de la categoría
+  const selE = document.getElementById('f-estado');
+  if (selE){
+    const valActual = selE.value;
+    selE.innerHTML = '<option value="">— Estado —</option>';
+    DVBA_ESTADOS.getEstados(cat).forEach(e => {
+      const o = document.createElement('option');
+      o.value = e.key; o.textContent = e.label;
+      selE.appendChild(o);
+    });
+    // Si el valor previo sigue siendo válido para la nueva categoría, lo restauramos
+    if (valActual && Array.from(selE.options).some(o => o.value === valActual)) selE.value = valActual;
+  }
+  // 2) Muestra/oculta Tipo de superficie según categoría
+  const wSup = document.getElementById('f-superficie-wrap');
+  const selS = document.getElementById('f-superficie');
+  if (wSup && selS){
+    if (DVBA_ESTADOS.aplicaSuperficie(cat)){
+      wSup.style.display = '';
+      if (selS.options.length <= 1){
+        DVBA_ESTADOS.getSuperficies().forEach(s => {
+          const o = document.createElement('option');
+          o.value = s.key; o.textContent = s.label;
+          selS.appendChild(o);
+        });
+      }
+    } else {
+      wSup.style.display = 'none';
+      selS.value = '';
+    }
+  }
+  // 3) Muestra/oculta Modalidad según categoría
+  const wMod = document.getElementById('f-modalidad-wrap');
+  const selM = document.getElementById('f-modalidad');
+  if (wMod && selM){
+    if (DVBA_ESTADOS.aplicaModalidad(cat)){
+      wMod.style.display = '';
+      if (selM.options.length <= 1){
+        DVBA_ESTADOS.getModalidades().forEach(m => {
+          const o = document.createElement('option');
+          o.value = m.key; o.textContent = m.label;
+          selM.appendChild(o);
+        });
+      }
+    } else {
+      wMod.style.display = 'none';
+      selM.value = '';
+    }
+  }
 }
 function tipoVolverCats(){
   document.getElementById('tipo-cats').style.display='grid';
@@ -1693,6 +1777,7 @@ function hacerThumb(b64){
 </script>
 <script src="datos/auth.js"></script>
 <script src="dvba_tipos.js"></script>
+<script src="datos/dvba_estados.js"></script>
 <script src="datos/qrcode.min.js"></script>
 <script>
 /* ── Inicializar selector jerárquico de tipo ── */
