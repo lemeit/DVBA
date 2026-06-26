@@ -10,6 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="datos/auth.js"></script>
 <script src="dvba_tipos.js"></script>
+<script src="datos/qrcode.min.js"></script>
 <style>
 :root{
   --p:#009aae;--pd:#007d90;--pl:#00b3c7;
@@ -487,7 +488,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.7';
+const APP_VERSION = 'v7.9';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -523,39 +524,29 @@ function generarPlusCode(lat, lng){
   return code;
 }
 
-// Muestra el modal pre-poblado y devuelve Promise con datos editados (o null si cancela)
+// Muestra el modal v3 pre-poblado (sin Dirección ni Plus Code — reemplazados por QR Google Maps)
 function mostrarModalSello(datos){
   return new Promise(resolve => {
     const $ = id => document.getElementById(id);
     $('ms-localidad').value = datos.localidad || '';
-    $('ms-direccion').value = datos.direccion || '';
     $('ms-lat').value       = datos.lat || '';
     $('ms-lng').value       = datos.lng || '';
     $('ms-fecha').value     = datos.fecha || '';
     $('ms-hora').value      = datos.hora || '';
     $('ms-alt').value       = datos.alt || '';
-    $('ms-pluscode').value  = datos.pluscode || '';
     $('ms-ruta').value      = datos.ruta || '';
     $('ms-prog').value      = datos.prog || '';
     $('ms-tipo').value      = datos.tipo || '';
-    // Auto-recalcular Plus Code si edita lat/lng
-    const recalc = () => {
-      const la = parseFloat($('ms-lat').value), ln = parseFloat($('ms-lng').value);
-      if (isFinite(la) && isFinite(ln)) $('ms-pluscode').value = generarPlusCode(la, ln);
-    };
-    $('ms-lat').oninput = recalc; $('ms-lng').oninput = recalc;
     const ov = $('modal-sello-ov'), btnOk = $('ms-aplicar'), btnNo = $('ms-cancel');
     const limpiar = () => { ov.classList.remove('on'); btnOk.onclick = null; btnNo.onclick = null; };
     btnOk.onclick = () => {
       const r = {
         localidad: $('ms-localidad').value.trim(),
-        direccion: $('ms-direccion').value.trim(),
         lat:       $('ms-lat').value.trim(),
         lng:       $('ms-lng').value.trim(),
         fecha:     $('ms-fecha').value,
         hora:      $('ms-hora').value,
         alt:       $('ms-alt').value.trim(),
-        pluscode:  $('ms-pluscode').value.trim(),
         ruta:      $('ms-ruta').value.trim(),
         prog:      $('ms-prog').value.trim(),
         tipo:      $('ms-tipo').value.trim()
@@ -578,26 +569,21 @@ async function aplicarSelloDVBAInteractivo(b64, datosBase){
   const lngN = (typeof datosBase.lng === 'number') ? datosBase.lng : parseFloat(datosBase.lng);
   const lat = isFinite(latN) ? latN.toFixed(6) : '';
   const lng = isFinite(lngN) ? lngN.toFixed(6) : '';
-  const pluscode = (isFinite(latN) && isFinite(lngN)) ? generarPlusCode(latN, lngN) : '';
   const localidad = (datosBase.partido ? datosBase.partido + ', Buenos Aires, Argentina' : 'Saladillo, Buenos Aires, Argentina');
   const ruta = datosBase.ruta ? (String(datosBase.ruta).match(/^(RP|CS)/i) ? datosBase.ruta : ('RP ' + datosBase.ruta)) : '';
-  const direccion = (ruta && datosBase.prog) ? (ruta + ' km ' + datosBase.prog) : (ruta || '');
   const datos = {
-    localidad, direccion, lat, lng, fecha, hora, alt: '', pluscode,
+    localidad, lat, lng, fecha, hora, alt: '',
     ruta, prog: datosBase.prog || '', tipo: datosBase.tipo || ''
   };
-  // Reusar localidad/dirección del último sello si están definidas
-  if (ultimoSelloDatos){
-    if (!datos.localidad) datos.localidad = ultimoSelloDatos.localidad;
-    if (!datos.direccion) datos.direccion = ultimoSelloDatos.direccion;
-  }
+  // Reusar localidad del último sello si está definida
+  if (ultimoSelloDatos && !datos.localidad) datos.localidad = ultimoSelloDatos.localidad;
   const editados = await mostrarModalSello(datos);
   if (!editados) return b64;  // canceló → foto sin sello
   ultimoSelloDatos = editados;
   return aplicarSelloDVBA(b64, editados);
 }
 
-// Sello v2 — layout horizontal estilo GPS Map Camera (sin mini-mapa ni clima)
+// Sello v3 — 3 columnas (logo izq + texto blanco centro + QR Google Maps der)
 function aplicarSelloDVBA(base64, datos){
   datos = datos || {};
   return new Promise((res, rej) => {
@@ -605,113 +591,132 @@ function aplicarSelloDVBA(base64, datos){
     img.onload = () => {
       try{
         const W = img.width, H = img.height;
-        const C = document.createElement('canvas'); C.width = W; C.height = H;
+        // v3.1: banner como footer AGREGADO debajo (no tapa la foto)
+        const bH = Math.max(200, Math.min(Math.round(W*0.22), 340));
+        const totalH = H + bH;
+        const C = document.createElement('canvas'); C.width = W; C.height = totalH;
         const ctx = C.getContext('2d');
         ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+        // Fondo extendido + foto arriba intacta
+        ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, W, totalH);
         ctx.drawImage(img, 0, 0);
-        // Banda inferior: cap con max para no comerse fotos panorámicas
-        // Menor entre 20% del alto y 16% del ancho, mín 120, máx 240 (6 líneas)
-        const bH = Math.max(120, Math.min(Math.round(H*0.20), Math.round(W*0.16), 240));
-        const y0 = H - bH;
-        // Fondo NEGRO sólido para máxima legibilidad
-        const grad = ctx.createLinearGradient(0, y0, 0, H);
-        grad.addColorStop(0,    'rgba(0,0,0,0.72)');
-        grad.addColorStop(0.2,  'rgba(0,0,0,0.92)');
-        grad.addColorStop(1,    'rgba(0,0,0,0.97)');
+        // Banner abajo (fondo sólido, sin transparencia)
+        const y0 = H;
+        const grad = ctx.createLinearGradient(0, y0, 0, totalH);
+        grad.addColorStop(0, '#0d0d0d');
+        grad.addColorStop(1, '#000000');
         ctx.fillStyle = grad; ctx.fillRect(0, y0, W, bH);
-        // Línea superior dorada
+        // Línea dorada superior
         ctx.strokeStyle = '#d4a820';
         ctx.lineWidth = Math.max(2, Math.round(H*0.0025));
         ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
-        // === COLUMNA DERECHA (logo + texto) ===
-        const colW = Math.round(W*0.23), colX = W - colW;
-        ctx.strokeStyle = 'rgba(212,168,32,0.4)'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(colX, y0+bH*0.10); ctx.lineTo(colX, H-bH*0.10); ctx.stroke();
-        // Logo CENTRADO verticalmente en la columna derecha, sin texto debajo
-        const logoSz = Math.min(Math.round(bH*0.78), Math.round(colW*0.78));
-        const logoX = colX + Math.round((colW - logoSz)/2);
+        // === 3 columnas: logo izq + texto centro + QR der ===
+        const colSide = Math.round(bH*0.95);
+        const colLX = 0, colRX = W - colSide;
+        const colCX = colSide;
+        const colCW = colRX - colSide;
+        // Separadores verticales (dorado tenue) — totalH = H + bH
+        ctx.strokeStyle = 'rgba(212,168,32,0.35)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(colSide, y0+bH*0.10); ctx.lineTo(colSide, totalH-bH*0.10); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(colRX, y0+bH*0.10); ctx.lineTo(colRX, totalH-bH*0.10); ctx.stroke();
+        // === COLUMNA IZQUIERDA: Logo DVBA centrado vertical ===
+        const logoSz = Math.round(bH*0.78);
+        const logoX = colLX + Math.round((colSide - logoSz)/2);
         const logoY = y0 + Math.round((bH - logoSz)/2);
         if (logoImg && logoImg.complete && logoImg.naturalWidth > 0){
           ctx.drawImage(logoImg, logoX, logoY, logoSz, logoSz);
         } else {
-          // Fallback: círculo amarillo con DVBA
           const cx = logoX + logoSz/2, cy = logoY + logoSz/2;
           ctx.fillStyle = '#d4a820';
           ctx.beginPath(); ctx.arc(cx, cy, logoSz/2, 0, Math.PI*2); ctx.fill();
           ctx.fillStyle = '#000';
-          const fs = Math.max(11, Math.round(logoSz*0.30));
-          ctx.font = '900 '+fs+'px Arial';
+          ctx.font = '900 '+Math.round(logoSz*0.30)+'px Arial';
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
           ctx.fillText('DVBA', cx, cy);
           ctx.textAlign = 'left';
         }
-        // === COLUMNA IZQUIERDA (texto) ===
-        const padX = Math.round(W*0.025);
-        const tx = padX;
-        const maxW = colX - padX - Math.round(W*0.015);
-        // Tipografías basadas en el ANCHO de la foto (escalan mejor en panorámicas)
-        const baseFont = Math.max(14, Math.min(Math.round(W*0.018), 32));
-        const fT = Math.round(baseFont * 1.15);
-        const fM = Math.round(baseFont * 1.00);
-        const fS = Math.round(baseFont * 0.85);
+        // === COLUMNA DERECHA: QR Google Maps ===
+        const qrSz = Math.round(bH*0.82);
+        const qrX = colRX + Math.round((colSide - qrSz)/2);
+        const qrY = y0 + Math.round((bH - qrSz)/2);
+        if (typeof qrcode === 'function' && datos.lat && datos.lng){
+          try{
+            const url = 'https://www.google.com/maps?q='+datos.lat+','+datos.lng;
+            const qr = qrcode(0, 'M'); qr.addData(url); qr.make();
+            const n = qr.getModuleCount();
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(qrX, qrY, qrSz, qrSz);
+            const pad = Math.round(qrSz*0.05);
+            const inner = qrSz - pad*2;
+            const cell = Math.floor(inner/n);
+            const ox = qrX + pad + Math.floor((inner - cell*n)/2);
+            const oy = qrY + pad + Math.floor((inner - cell*n)/2);
+            ctx.fillStyle = '#000000';
+            for (let r = 0; r < n; r++) for (let c = 0; c < n; c++){
+              if (qr.isDark(r, c)) ctx.fillRect(ox + c*cell, oy + r*cell, cell, cell);
+            }
+          } catch(e){ console.warn('QR:', e); }
+        }
+        // === COLUMNA CENTRAL: Texto blanco grande ===
+        const padX = Math.round(W*0.018);
+        const tx = colCX + padX;
+        const maxW = colCW - padX*2;
+        // Tipografía v3 — texto BLANCO más grande y nítido
+        const baseFont = Math.max(16, Math.min(Math.round(W*0.022), 36));
+        const fT = Math.round(baseFont * 1.20);   // Localidad
+        const fM = Math.round(baseFont * 1.05);   // Ruta/Tipo
+        const fS = Math.round(baseFont * 0.85);   // Lat/lng, fecha
         function txtFit(txt, x, y, mxW, fs, color, bold, mono){
           if (!txt) return 0;
           let sz = fs;
           const ff = mono ? "'Courier New',monospace" : "Arial,Helvetica,sans-serif";
-          ctx.font = (bold?'700':'500')+' '+sz+"px "+ff;
-          while (ctx.measureText(txt).width > mxW && sz > 8){
-            sz--; ctx.font = (bold?'700':'500')+' '+sz+"px "+ff;
+          ctx.font = (bold?'700':'500')+' '+sz+'px '+ff;
+          while (ctx.measureText(txt).width > mxW && sz > 9){
+            sz--; ctx.font = (bold?'700':'500')+' '+sz+'px '+ff;
           }
           ctx.fillStyle = color; ctx.textBaseline = 'top';
-          // Text shadow sutil para mayor contraste/nitidez
-          ctx.shadowColor = 'rgba(0,0,0,0.85)';
+          ctx.shadowColor = 'rgba(0,0,0,0.9)';
           ctx.shadowBlur = 2; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
           ctx.fillText(txt, x, y);
           ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
           return sz;
         }
-        let yB = y0 + Math.round(bH*0.07);
+        let yB = y0 + Math.round(bH*0.10);
+        // Línea 1: Localidad (blanco bold)
         if (datos.localidad){
-          txtFit(datos.localidad, tx, yB, maxW, fT, '#d4a820', true);
-          yB += Math.round(fT*1.32);
+          txtFit(datos.localidad, tx, yB, maxW, fT, '#ffffff', true);
+          yB += Math.round(fT*1.28);
         }
-        if (datos.direccion){
-          txtFit(datos.direccion, tx, yB, maxW, fM, '#ffffff', true);
-          yB += Math.round(fM*1.32);
+        // Línea 2: Ruta/Camino + Km
+        const rutaKm = [datos.ruta, datos.prog ? 'Km '+datos.prog : ''].filter(Boolean).join('  ·  ');
+        if (rutaKm){
+          txtFit(rutaKm, tx, yB, maxW, fM, '#ffffff', true);
+          yB += Math.round(fM*1.26);
         }
+        // Línea 3: Tipo de incidencia
+        if (datos.tipo){
+          txtFit(datos.tipo, tx, yB, maxW, fM, '#ffffff', false);
+          yB += Math.round(fM*1.26);
+        }
+        // Línea 4: Lat/Lng + alt (verde mono)
         if (datos.lat && datos.lng){
           let coords = 'Lat ' + datos.lat + '   Long ' + datos.lng;
           if (datos.alt) coords += '   Alt ' + datos.alt + ' m';
           txtFit(coords, tx, yB, maxW, fS, '#6ecba0', false, true);
-          yB += Math.round(fS*1.32);
+          yB += Math.round(fS*1.26);
         }
-        if (datos.pluscode){
-          txtFit('Plus Code: ' + datos.pluscode, tx, yB, maxW, fS, '#8aaec0', false, true);
-          yB += Math.round(fS*1.32);
-        }
-        // Línea 5: fecha · hora · tipo
+        // Línea 5: Fecha + Hora
         const partes = [];
         if (datos.fecha){
           const m = datos.fecha.match(/^(\d{4})-(\d{2})-(\d{2})/);
-          if (m) partes.push(m[3]+'/'+m[2]+'/'+m[1].slice(2));
+          if (m) partes.push(m[3]+'/'+m[2]+'/'+m[1]);
           else partes.push(datos.fecha);
         }
         if (datos.hora){
           const hm = datos.hora.split(':');
           partes.push(hm[0]+':'+(hm[1]||'00')+' hs');
         }
-        if (datos.tipo) partes.push(datos.tipo);
-        if (partes.length) txtFit(partes.join(' · '), tx, yB, maxW, fS, '#8aaec0', false);
-        // Gap visual antes de la firma institucional
-        yB += Math.round(fS*1.55);
-        // Línea 6 (firma): Sist. Relev. Vial · DVBA Zona VI · vX.X (italic dorado tenue)
-        const fF = Math.max(9, Math.round(fS*0.92));
-        ctx.font = '500 italic '+fF+"px Arial,Helvetica,sans-serif";
-        ctx.fillStyle = 'rgba(212,168,32,0.85)';
-        ctx.textBaseline = 'top';
-        ctx.shadowColor = 'rgba(0,0,0,0.85)'; ctx.shadowBlur = 2; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
-        ctx.fillText('Sist. Relev. Vial  ·  DVBA Zona VI  ·  '+APP_VERSION, tx, yB);
-        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+        if (partes.length) txtFit(partes.join('  ·  '), tx, yB, maxW, fS, '#dddddd', false);
         res(C.toDataURL('image/jpeg', 0.95));
       } catch(e){ rej(e); }
     };
@@ -3249,8 +3254,12 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
     <div class="ms-b">
       <label>Localidad</label>
       <input type="text" id="ms-localidad" placeholder="Saladillo, Buenos Aires, Argentina">
-      <label>Dirección / Detalle</label>
-      <input type="text" id="ms-direccion" placeholder="RP 51 km 287">
+      <div class="ms-g2">
+        <div><label>Ruta / Camino</label><input type="text" id="ms-ruta" placeholder="RP 51"></div>
+        <div><label>Km / Progresiva</label><input type="text" id="ms-prog" placeholder="287+200"></div>
+      </div>
+      <label>Tipo de incidencia / relevamiento</label>
+      <input type="text" id="ms-tipo" placeholder="Bache crítico, Señal dañada, …">
       <div class="ms-g2">
         <div><label>Latitud</label><input type="text" id="ms-lat" inputmode="decimal"></div>
         <div><label>Longitud</label><input type="text" id="ms-lng" inputmode="decimal"></div>
@@ -3259,17 +3268,9 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
         <div><label>Fecha</label><input type="date" id="ms-fecha"></div>
         <div><label>Hora</label><input type="time" id="ms-hora" step="1"></div>
       </div>
-      <div class="ms-g2">
-        <div><label>Altura (m)</label><input type="text" id="ms-alt" inputmode="decimal" placeholder="Opcional"></div>
-        <div><label>Plus Code</label><input type="text" id="ms-pluscode" placeholder="Auto"></div>
-      </div>
-      <div class="ms-g2">
-        <div><label>Ruta</label><input type="text" id="ms-ruta"></div>
-        <div><label>Km / Progresiva</label><input type="text" id="ms-prog"></div>
-      </div>
-      <label>Tipo de relevamiento</label>
-      <input type="text" id="ms-tipo">
-      <div class="ms-hint">Editá lo que necesites. Lo que dejes vacío no aparecerá en el sello.</div>
+      <label>Altura (m) <span style="font-weight:400;color:#999;text-transform:none;letter-spacing:0">— opcional</span></label>
+      <input type="text" id="ms-alt" inputmode="decimal" placeholder="Tomada del GPS">
+      <div class="ms-hint">El QR del sello apunta a Google Maps con las coordenadas. Lo que dejes vacío no aparecerá.</div>
     </div>
     <div class="ms-f">
       <button class="ms-canc" id="ms-cancel">Sin sello</button>
