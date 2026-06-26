@@ -641,7 +641,8 @@ function aplicarSelloDVBA(base64, datos){
         const qrY = y0 + Math.round((bH - qrSz)/2);
         if (typeof qrcode === 'function' && datos.lat && datos.lng){
           try{
-            const url = 'https://www.google.com/maps?q='+datos.lat+','+datos.lng;
+            // URL oficial de Google Maps que pone un pin EXACTO en la coordenada (no la interpreta como búsqueda de texto)
+            const url = 'https://www.google.com/maps/search/?api=1&query='+datos.lat+','+datos.lng;
             const qr = qrcode(0, 'M'); qr.addData(url); qr.make();
             const n = qr.getModuleCount();
             ctx.fillStyle = '#ffffff';
