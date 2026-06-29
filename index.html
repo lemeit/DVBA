@@ -226,6 +226,10 @@ body.modo-campo #campo-fab{display:flex}
 #user-info button{background:transparent;color:#ffd700;border:1px solid rgba(255,215,0,.55);font-size:.58rem;padding:0 6px;border-radius:8px;cursor:pointer;line-height:1.5;font-weight:600}
 #user-info button:hover{background:rgba(255,215,0,.15)}
 
+/* v7.15 — Toggle Tipo de vía en form de carga */
+.tv-btn-d.active{background:var(--teal);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tv-btn-d:hover:not(.active){background:#dbe5ee}
+
 /* v7.12 — Badge cola de pendientes en header */
 #cola-badge{display:none;align-items:center;gap:5px;background:linear-gradient(135deg,#f0a500,#f57c00);color:#fff;border:none;font-size:.66rem;font-weight:700;padding:4px 10px;border-radius:12px;cursor:pointer;margin-right:8px;box-shadow:0 2px 6px rgba(245,124,0,.4);animation:colaPulse 2s ease-in-out infinite}
 #cola-badge.show{display:inline-flex}
@@ -400,9 +404,15 @@ body.modo-campo #campo-fab{display:flex}
         <div class="sec-title">Nuevo Registro</div>
         <div class="nota">Pasá el cursor sobre la ruta para autocompletar.</div>
         <div class="nota">Al pasar el cursor sobre una ruta los campos se autocompletan.</div>
+    <!-- v7.15 — Toggle Tipo de vía (RP/Camino) — paridad con app móvil -->
+    <div class="tipo-via-toggle-d" style="display:flex;gap:0;background:#eef3f8;border-radius:5px;padding:2px;border:1px solid #cdd9e6;margin-bottom:3px">
+      <button type="button" class="tv-btn-d active" data-tvd="rp" onclick="d_setTipoVia('rp')" style="flex:1;padding:5px 6px;border:none;background:transparent;font-size:.7rem;font-weight:600;color:#5a6a7a;border-radius:4px;cursor:pointer">🛣 Ruta Provincial</button>
+      <button type="button" class="tv-btn-d" data-tvd="camino" onclick="d_setTipoVia('camino')" style="flex:1;padding:5px 6px;border:none;background:transparent;font-size:.7rem;font-weight:600;color:#5a6a7a;border-radius:4px;cursor:pointer">🚜 Camino Sec.</button>
+    </div>
+    <input type="hidden" id="ftipo-via" value="rp">
     <div class="frow">
+      <select id="fpartido" onchange="d_actualizarCaminosDelPartido()"><option value="">-- Partido --</option></select>
       <select id="fruta"><option value="">-- Ruta --</option></select>
-      <select id="fpartido"><option value="">-- Partido --</option></select>
     </div>
     <input type="text" id="fprog" placeholder="Progresiva (ej: 45+500)">
     <!-- Selector jerárquico de tipo — desktop -->
@@ -527,6 +537,8 @@ body.modo-campo #campo-fab{display:flex}
     <button id="btn-osm" class="active" onclick="setLayer('osm')">Mapa OSM</button>
     <button id="btn-dark" onclick="setLayer('dark')">Vista Oscura</button>
     <button id="btn-sat" onclick="setLayer('sat')">Satelite</button>
+    <!-- v7.15 — Toggle de caminos secundarios en mapa -->
+    <button id="btn-caminos" onclick="toggleCaminosLayer()" style="margin-top:4px;border-color:#7050b0;color:#7050b0">🚜 Caminos Sec.</button>
     <button id="btn-ley" onclick="toggleLeyendaPopup()" style="margin-top:4px;border-color:#4a7a9a" class="btn-ley-desktop">🗺 Leyenda</button>
     <!-- Botón leyenda móvil: dentro del mapa, esquina superior izquierda, solo visible en móvil -->
     <button id="btn-ley-mob" onclick="toggleLeyendaPopup()" 
@@ -550,7 +562,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.14';
+const APP_VERSION = 'v7.15';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -998,6 +1010,8 @@ async function cargarRegs() {
       sello_version:   r.sello_version   || null,
       prioridad:       r.prioridad       || 'normal',
       motivo_rechazo:  r.motivo_rechazo  || null,
+      // v7.15 — tipo de vía (RP o camino secundario)
+      tipo_via:        r.tipo_via        || 'rp',
     }));
     setModoIndicador(true);
     actualizarBadgeCola();  // v7.12 — refresca badge "X pendientes"
@@ -1359,7 +1373,9 @@ async function guardar(){
   // v7.10 — sub-atributos condicionales (se serializan en observaciones)
   const superficie = document.getElementById('fsuperficie')?.value || '';
   const modalidad  = document.getElementById('fmodalidad')?.value || '';
-  if (!ruta || !prog || !tipo || !estado) { alert('Complete Ruta, Progresiva, Tipo y Estado.'); return; }
+  // v7.15 — tipo_via (RP o camino secundario)
+  const tipoVia = document.getElementById('ftipo-via')?.value || 'rp';
+  if (!ruta || !prog || !tipo || !estado) { alert('Complete ' + (tipoVia==='camino'?'Camino':'Ruta') + ', Progresiva, Tipo y Estado.'); return; }
   // Concat metadatos al final de las observaciones (sin migrar Supabase)
   let obsFinal = obs;
   const meta = [];
@@ -1438,6 +1454,7 @@ async function guardar(){
       foto_url:      fotoFinal,
       lat, lng,
       fecha:         fechaOriginal || new Date().toISOString(),
+      tipo_via:      tipoVia,  // v7.15 — 'rp' | 'camino'
     };
 
     if (_supa) {
@@ -1681,9 +1698,14 @@ function renderRegs(){
     } else if (reg.estado_workflow === 'rechazado') {
       wfBadge = '<span title="' + (reg.motivo_rechazo || 'Rechazado') + '" style="background:#dc3545;color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;margin-right:3px">✕ RECHAZADO</span>';
     }
+    // v7.15 — Badge de tipo de vía (RP / Camino)
+    const tipoViaBadge = reg.tipo_via === 'camino'
+      ? '<span title="Camino Secundario" style="background:#7050b0;color:#fff;font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700;margin-right:3px">🚜 C</span>'
+      : '<span title="Ruta Provincial" style="background:#009aae;color:#fff;font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700;margin-right:3px">🛣 RP</span>';
     return `<div class="ritem" style="border-left-color:${m.color}">
       <div class="rhdr">
         <span class="rbadge" style="background:${m.color}">${m.label}</span>
+        ${tipoViaBadge}
         ${wfBadge}
         ${reg.estado ? `<span class="est est-${reg.estado}">${reg.estado}</span>` : '<span class="est" style="background:#e0e0e0;color:#888">(sin estado)</span>'}
         <button class="btn-edit" onclick="editReg(${reg.id})" title="Editar">✏</button>
@@ -3311,6 +3333,106 @@ document.addEventListener('click', function(e){
 document.getElementById('app-ver').textContent = APP_VERSION;
 const loginVer = document.getElementById('login-app-ver');
 if (loginVer) loginVer.textContent = APP_VERSION;
+
+/* ═══════════════════════════════════════════════════════════════════
+   v7.15 — CAPA DE CAMINOS SECUNDARIOS EN EL MAPA
+   ═══════════════════════════════════════════════════════════════════ */
+let _caminosSecLayer = null;
+let _caminosSecVisible = false;
+
+function toggleCaminosLayer(){
+  if (!_caminosSecLayer) {
+    // Construir la capa la primera vez (lazy)
+    if (typeof RED_VIAL === 'undefined') { alert('Módulo de caminos no cargado todavía. Refrescá la página.'); return; }
+    RED_VIAL.init().then(() => {
+      _caminosSecLayer = L.geoJSON(null, {
+        style: { color:'#7050b0', weight:1.8, opacity:.65, lineJoin:'round', lineCap:'round' },
+        onEachFeature: (feat, layer) => {
+          const p = feat.properties;
+          const den = p.DENOMINACION ? '<br>' + p.DENOMINACION : '';
+          const km = p.LONGITUD_KM_WGS84 ? '<br><b>' + p.LONGITUD_KM_WGS84.toFixed(2) + ' km</b>' : '';
+          const cls = p.CLASE ? '<br><i style="color:#888">' + p.CLASE + '</i>' : '';
+          layer.bindPopup(`<b style="color:#7050b0">🚜 ${p.NOMEMCLATURA}</b>${den}${km}${cls}<br><span style="color:#888;font-size:10px">${p.PARTIDO_NOMBRE}</span>`);
+          layer.on('mouseover', e => e.target.setStyle({ weight:3.5, opacity:1 }));
+          layer.on('mouseout',  e => e.target.setStyle({ weight:1.8, opacity:.65 }));
+        }
+      });
+      // Buscar el geojson cargado por RED_VIAL
+      fetch('datos/zona_vi/red_secundaria_zonaVI_final.geojson')
+        .then(r => r.json())
+        .then(geo => { _caminosSecLayer.addData(geo); _activarCaminosLayer(); });
+    });
+  } else {
+    if (_caminosSecVisible) _desactivarCaminosLayer();
+    else _activarCaminosLayer();
+  }
+}
+
+function _activarCaminosLayer(){
+  if (!_caminosSecLayer) return;
+  map.addLayer(_caminosSecLayer);
+  _caminosSecLayer.bringToBack();  // caminos por debajo de las RPs y registros
+  Object.values(capasP).forEach(l => l.bringToBack && l.bringToBack());  // partidos aún más abajo
+  _caminosSecVisible = true;
+  const btn = document.getElementById('btn-caminos');
+  if (btn) { btn.classList.add('active'); btn.style.background = '#7050b0'; btn.style.color = '#fff'; }
+}
+
+function _desactivarCaminosLayer(){
+  if (!_caminosSecLayer) return;
+  map.removeLayer(_caminosSecLayer);
+  _caminosSecVisible = false;
+  const btn = document.getElementById('btn-caminos');
+  if (btn) { btn.classList.remove('active'); btn.style.background = ''; btn.style.color = '#7050b0'; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   v7.15 — TIPO DE VÍA (RP / Camino Secundario) en form escritorio
+   ═══════════════════════════════════════════════════════════════════ */
+
+// Toggle visual + cambio del selector de Ruta/Camino
+function d_setTipoVia(tipo){
+  const elTipo = document.getElementById('ftipo-via');
+  if (!elTipo) return;
+  elTipo.value = tipo;
+  document.querySelectorAll('.tv-btn-d').forEach(b => b.classList.toggle('active', b.dataset.tvd === tipo));
+  const ruta = document.getElementById('fruta');
+  if (!ruta) return;
+  if (tipo === 'rp') {
+    // RPs: usa rtags (las chips ya existentes) + select estándar
+    ruta.innerHTML = '<option value="">-- Ruta --</option>' +
+      RUTAS_LIST.map(r => `<option value="${r}">RP ${r}</option>`).join('');
+  } else {
+    // Camino: depende del partido elegido
+    d_actualizarCaminosDelPartido();
+  }
+}
+
+// Repuebla el selector de "Ruta/Camino" con los caminos del partido elegido
+function d_actualizarCaminosDelPartido(){
+  const tipoVia = document.getElementById('ftipo-via')?.value || 'rp';
+  if (tipoVia !== 'camino') return;
+  const partido = document.getElementById('fpartido').value;
+  const ruta = document.getElementById('fruta');
+  if (!partido) {
+    ruta.innerHTML = '<option value="">-- Elegí partido primero --</option>';
+    return;
+  }
+  if (typeof RED_VIAL === 'undefined' || !RED_VIAL.getCaminosPorPartido) {
+    ruta.innerHTML = '<option value="">-- Cargando caminos... --</option>';
+    return;
+  }
+  const caminos = RED_VIAL.getCaminosPorPartido(partido);
+  if (!caminos.length) {
+    ruta.innerHTML = '<option value="">-- Sin caminos en ' + partido + ' --</option>';
+    return;
+  }
+  ruta.innerHTML = '<option value="">-- Camino (' + caminos.length + ') --</option>' +
+    caminos.map(c => {
+      const ttl = c.tooltip ? ` title="${c.tooltip.replace(/"/g, '&quot;')}"` : '';
+      return `<option value="${c.key}"${ttl}>${c.key}</option>`;
+    }).join('');
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    v7.12 — COLA DE PENDIENTES (workflow campo→oficina + armonización)
