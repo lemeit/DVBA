@@ -574,7 +574,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.16';
+const APP_VERSION = 'v7.17';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1226,7 +1226,7 @@ function drawPartidos(){
   PARTIDOS_GEO.features.forEach(f=>{
     const n=f.properties.partido; if(!selP.has(n)) return;
     const c=PARTIDO_COLORS[n]||'#888';
-    const ly=L.geoJSON(f,{style:{color:c,weight:1,opacity:.4,fillColor:c,fillOpacity:.06}}).addTo(map);
+    const ly=L.geoJSON(f,{interactive:false,style:{color:c,weight:1,opacity:.4,fillColor:c,fillOpacity:.06}}).addTo(map);
     capasP[n]=[ly];
   });
   updateLbls();
