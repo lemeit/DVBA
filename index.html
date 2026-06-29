@@ -495,7 +495,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.10';
+const APP_VERSION = 'v7.11';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1501,8 +1501,8 @@ function drawRegMarkers(){
     const meta=RUTA_META[(reg.ruta||'').replace(/^RP\s*/i,'')]||RUTA_META[reg.ruta]||{color:'#009aae'};
     const ico=L.divIcon({className:'',html:`<div style="background:${meta.color};border:2px solid rgba(255,255,255,.4);width:10px;height:10px;border-radius:50%;box-shadow:0 1px 5px rgba(0,0,0,.6)"></div>`,iconAnchor:[5,5]});
     const mk=L.marker([reg.lat,reg.lng],{icon:ico}).addTo(map)
-      .bindPopup(`<b style="color:${meta.color}">${reg.ruta}</b> &middot; ${reg.prog}<br>
-        <span class="est est-${reg.estado}">${reg.estado}</span> &middot; ${reg.tipo}<br>
+      .bindPopup(`<b style="color:${meta.color}">${reg.ruta}</b>${reg.prog?` &middot; <b>Km</b> ${reg.prog}`:''}${reg.partido?` &middot; ${reg.partido}`:''}<br>
+        ${reg.estado?`<span class="est est-${reg.estado}">${reg.estado}</span>`:'<span style="color:#888;font-size:10px">(sin estado)</span>'}${reg.tipo?` &middot; ${reg.tipo}`:''}<br>
         ${reg.obs?reg.obs+'<br>':''}
         ${reg.foto?`<img src="${reg.foto}" style="max-width:200px;border-radius:3px;margin-top:4px;display:block;cursor:pointer" onclick="showFoto(this.src)">`:''}
         <div style="margin-top:5px;display:flex;gap:5px;align-items:center">
@@ -1543,11 +1543,15 @@ function renderRegs(){
     return `<div class="ritem" style="border-left-color:${m.color}">
       <div class="rhdr">
         <span class="rbadge" style="background:${m.color}">${m.label}</span>
-        <span class="est est-${reg.estado}">${reg.estado}</span>
+        ${reg.estado ? `<span class="est est-${reg.estado}">${reg.estado}</span>` : '<span class="est" style="background:#e0e0e0;color:#888">(sin estado)</span>'}
         <button class="btn-edit" onclick="editReg(${reg.id})" title="Editar">✏</button>
         <button class="btn-del" onclick="delReg(${reg.id})" title="Eliminar">✕</button>
       </div>
-      <div><b>Prog:</b> ${reg.prog} &middot; ${reg.tipo}</div>
+      <div>
+        ${reg.prog ? `<b>Prog:</b> ${reg.prog}` : '<i style="color:#999">(sin prog)</i>'}
+        ${reg.tipo ? ` &middot; <b>Tipo:</b> ${reg.tipo}` : ''}
+        ${reg.partido ? ` &middot; <span style="color:#5a6a80">${reg.partido}</span>` : ''}
+      </div>
       ${reg.obs?`<div style="color:#3a5060;margin-top:1px">${reg.obs}</div>`:''}
       ${reg.foto?`<img src="${reg.foto}" class="fprev" style="display:block;cursor:pointer" onclick="showFoto(this.src)">`:''}
       <div class="rfecha">${reg.fecha}${reg.lat?` &middot; ${reg.lat.toFixed(5)},${reg.lng.toFixed(5)}`:''}</div>
