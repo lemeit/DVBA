@@ -549,7 +549,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.12';
+const APP_VERSION = 'v7.13';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1441,6 +1441,10 @@ async function guardar(){
 
     if (_supa) {
       let data, error;
+      // v7.13 — detectar si estamos editando un registro que estaba en 'campo'
+      // (pendiente de revisión) para luego auto-sellar + auto-aprobar
+      const regOrig = _editandoId ? regs.find(r => r.id === _editandoId) : null;
+      const editaPendiente = !!(regOrig && regOrig.estado_workflow === 'campo');
       if (_editandoId) {
         // ── ACTUALIZAR registro existente en Supabase ──
         let updRows, updErr;
@@ -1458,6 +1462,60 @@ async function guardar(){
         alert('Error al guardar en la nube: ' + error.message);
         return;
       }
+      // v7.13 — Si editamos un registro que estaba en 'campo' Y tiene foto → sellar v3 + aprobar
+      if (editaPendiente && data && data.foto_url && typeof aplicarSelloDVBA === 'function') {
+        try {
+          console.log('[Aprobación post-edición] Sellando foto v3 + aprobando registro', _editandoId);
+          const fotoUrlOrig = data.foto_url;
+          // Bajar foto cruda
+          const blobOrig = await (await fetch(fotoUrlOrig)).blob();
+          const b64 = await new Promise((res, rej) => {
+            const fr = new FileReader();
+            fr.onload = e => res(e.target.result);
+            fr.onerror = rej;
+            fr.readAsDataURL(blobOrig);
+          });
+          // Generar sello v3 con datos finales
+          const fd = new Date(data.fecha || Date.now());
+          const datosSello = {
+            localidad: data.partido ? data.partido + ', Buenos Aires, Argentina' : 'Saladillo, Buenos Aires, Argentina',
+            ruta: /^(RP|CS)\s/i.test(data.ruta || '') ? data.ruta : ('RP ' + (data.ruta || '?')),
+            prog: data.progresiva || '',
+            tipo: data.tipo || '',
+            lat: data.lat != null ? Number(data.lat).toFixed(6) : '',
+            lng: data.lng != null ? Number(data.lng).toFixed(6) : '',
+            fecha: fd.toISOString().slice(0, 10),
+            hora: fd.toTimeString().slice(0, 8),
+          };
+          const b64Sellada = await aplicarSelloDVBA(b64, datosSello);
+          // Subir al MISMO path en Storage con upsert
+          const blobSellada = await (await fetch(b64Sellada)).blob();
+          const pathMatch = fotoUrlOrig.match(/\/object\/public\/relevamientos\/(.+?)(\?|$)/);
+          if (pathMatch) {
+            const path = decodeURIComponent(pathMatch[1]);
+            const { error: upErr } = await _supa.storage.from('relevamientos')
+              .upload(path, blobSellada, { contentType: 'image/jpeg', upsert: true });
+            if (upErr) {
+              console.warn('[Aprobación post-edición] Error subiendo foto sellada:', upErr);
+            } else {
+              // UPDATE final: aprobado + v3 + cache-bust en foto_url
+              const fotoConBust = fotoUrlOrig + (fotoUrlOrig.includes('?') ? '&' : '?') + 'v=' + Date.now();
+              await _supa.from('relevamientos').update({
+                estado_workflow: 'aprobado',
+                sello_version: 'v3',
+                validado_geo: regOrig.validado_geo === 'auto_ok' ? 'auto_ok' : 'auto_corregido',
+                foto_url: fotoConBust
+              }).eq('id', _editandoId);
+              data.estado_workflow = 'aprobado';
+              data.sello_version = 'v3';
+              data.foto_url = fotoConBust;
+              console.log('[Aprobación post-edición] OK — registro', _editandoId, 'aprobado y sellado v3');
+            }
+          } else {
+            console.warn('[Aprobación post-edición] URL de foto no matchea el formato esperado:', fotoUrlOrig);
+          }
+        } catch(e) { console.warn('[Aprobación post-edición] excepción:', e); }
+      }
       const regObj = {
         id:      data.id,
         ruta:    data.ruta,
@@ -1471,6 +1529,12 @@ async function guardar(){
         fechaISO: data.fecha || null,
         lat:     data.lat,
         lng:     data.lng,
+        // v7.13 — workflow + armonización (refresca con el estado final post-aprobación)
+        estado_workflow: data.estado_workflow || 'aprobado',
+        validado_geo:    data.validado_geo    || 'pendiente',
+        sello_version:   data.sello_version   || null,
+        prioridad:       data.prioridad       || 'normal',
+        motivo_rechazo:  data.motivo_rechazo  || null,
       };
       if (_editandoId) {
         const idx = regs.findIndex(r => r.id === _editandoId);
@@ -1478,6 +1542,8 @@ async function guardar(){
       } else {
         regs.unshift(regObj);
       }
+      // v7.13 — refrescar badge cola por si dejó de ser pendiente
+      if (typeof actualizarBadgeCola === 'function') actualizarBadgeCola();
     } else {
       // ── Fallback localStorage ──
       if (_editandoId) {
