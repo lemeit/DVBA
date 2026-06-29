@@ -99,7 +99,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <div class="sub">DVBA · Zona Departamental VI Saladillo</div>
   <div class="meta">
     <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">24 de junio de 2026</span></div>
-    <div><span class="lbl">Versión bitácora</span><span class="val">v4.2 — apps v9.18 / v7.10</span></div>
+    <div><span class="lbl">Versión bitácora</span><span class="val">v4.3 — apps v9.19 / v7.14</span></div>
     <div><span class="lbl">Responsable</span><span class="val">Ing. Luciano Lamaita</span></div>
     <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></span></div>
     <div><span class="lbl">Estado general</span><span class="val">🟢 En desarrollo activo</span></div>
@@ -718,10 +718,86 @@ git push origin main
   <div class="card">
     <table>
       <tr><th>Artefacto</th><th>Versión</th><th>Archivo(s)</th><th>Bumpear con</th></tr>
-      <tr><td><strong>📱 App Campo</strong></td><td><span class="badge b-ok">v9.18</span></td><td><code>dvba_campo.html</code> + <code>sw.js</code> (cache <code>dvba-campo-v9.18</code>) + <code>datos/dvba_estados.js</code></td><td>Manual + bump sw.js con sufijo letra para tweaks</td></tr>
-      <tr><td><strong>🖥 App Escritorio</strong></td><td><span class="badge b-ok">v7.10</span></td><td><code>index.html</code> + <code>datos/dvba_estados.js</code> + <code>datos/qrcode.min.js</code></td><td>Manual en <code>const APP_VERSION</code></td></tr>
+      <tr><td><strong>📱 App Campo</strong></td><td><span class="badge b-ok">v9.19</span></td><td><code>dvba_campo.html</code> + <code>sw.js</code> (cache <code>dvba-campo-v9.19g</code>) + módulos en <code>datos/</code></td><td>Manual + bump sw.js con sufijo letra para tweaks</td></tr>
+      <tr><td><strong>🖥 App Escritorio</strong></td><td><span class="badge b-ok">v7.14</span></td><td><code>index.html</code> + <code>datos/dvba_estados.js</code> + <code>datos/qrcode.min.js</code> + <code>datos/armonizador.js</code></td><td>Manual en <code>const APP_VERSION</code></td></tr>
       <tr><td><strong>🛣 Caminos Secundarios</strong></td><td><span class="badge b-ok">v1.1</span></td><td><code>caminos_secundarios.html</code></td><td>—</td></tr>
     </table>
+
+    <h3>v9.19 / v7.14 · 30 junio 2026 — Workflow "campo → oficina" + armonización geoespacial 🎯</h3>
+    <p><strong>Cambio mayor de paradigma:</strong> la foto se captura cruda en campo y se sella SOLO al aprobar en oficina, con armonización automática contra GPS. Cierra el ciclo de calidad de datos del sistema.</p>
+
+    <h4>BD — 5 columnas nuevas en <code>relevamientos</code></h4>
+    <ul>
+      <li><code>estado_workflow</code>: <code>'campo'</code> (recién cargado) | <code>'aprobado'</code> | <code>'rechazado'</code></li>
+      <li><code>validado_geo</code>: <code>'pendiente'</code> | <code>'auto_ok'</code> | <code>'auto_corregido'</code> | <code>'usuario_priorizado'</code> | <code>'gps_sospechoso'</code> | <code>'sin_coords'</code></li>
+      <li><code>sello_version</code>: <code>NULL</code> (sin sello) | <code>'v2'</code> (histórico) | <code>'v3'</code> (re-sellable)</li>
+      <li><code>prioridad</code>: <code>'normal'</code> | <code>'urgente'</code></li>
+      <li><code>motivo_rechazo</code>: <code>TEXT</code> opcional</li>
+    </ul>
+    <p>Backfill aplicado: 82 registros con foto → estado <code>aprobado</code> + sello v2 (histórico). 19 registros sin foto → quedan en <code>campo</code> (revisión manual).</p>
+
+    <h4>Nuevo módulo <code>datos/armonizador.js</code> (~410 líneas, 100% offline)</h4>
+    <ul>
+      <li><code>detectarPartido(lat, lng)</code>: point-in-polygon contra <code>partidos_zona_vi.geojson</code></li>
+      <li><code>rutaMasCercana(lat, lng, radioM)</code>: barrido sobre las 15 RPs con CHAINS_DATA</li>
+      <li><code>progresivaEnRuta(lat, lng, rutaKey)</code>: proyección perpendicular + interpolación con ANCHORS_DATA (calibrados con mojones físicos)</li>
+      <li><code>mojonMasCercano(lat, lng, rutaKey)</code>: referencia visual desde MOJONES_DATA</li>
+      <li><code>armonizar(form)</code>: función principal, devuelve <code>{cambios, consistentes, sugerencias, severidad}</code></li>
+      <li><strong>Umbrales adaptativos</strong> según precisión GPS: <code>max(50, gpsAcc*2)</code> para ruta, <code>max(80, gpsAcc*3)</code> para progresiva. Evita falsos positivos en zonas de mala señal.</li>
+    </ul>
+
+    <h4>App móvil (v9.19)</h4>
+    <ul>
+      <li><strong>Captura SIN sellar</strong>: nueva función <code>procesarFotoCampo(b64)</code> reemplaza a <code>agregarSelloInteractivo</code>. Foto se sube cruda a Storage, registro insertado con <code>estado_workflow='campo'</code> y <code>sello_version=NULL</code>.</li>
+      <li>El modal "Editar datos del sello" sigue mostrándose para que el operador confirme/edite datos antes de sincronizar — pero NO genera sello.</li>
+      <li><code>validado_geo</code> se pre-calcula en cliente con <code>ARMONIZADOR.armonizar()</code> al insertar (auto_ok / pendiente / gps_sospechoso / sin_coords).</li>
+      <li><strong>Pre-fill GPS al tocar "↓ Usar"</strong>: en 2 niveles de radio
+        <ul>
+          <li>500m: <code>★ Ruta sugerida: RPXX · km YYY</code> (preciso)</li>
+          <li>2km: <code>⚠ Ruta más cercana: RPXX a NNNm — ¿es esta?</code></li>
+          <li>&gt;2km: <code>ℹ No hay RP cercana — cargá manualmente</code></li>
+        </ul>
+      </li>
+      <li>Mensaje en pestaña Confirmar: "Foto lista (sello al aprobar)" reemplaza "Con sello DVBA".</li>
+    </ul>
+
+    <h4>App escritorio (v7.14) — Cola de pendientes</h4>
+    <ul>
+      <li><strong>Badge "🔔 X pendientes"</strong> en header con animación pulse + gradient naranja. Rojo si hay urgentes. Visible solo logueado. Auto-actualiza con MutationObserver sobre user-info.</li>
+      <li><strong><code>ensureColaBadge()</code></strong>: crea el botón dinámicamente si el HTML cacheado no lo tenía (fallback PWA).</li>
+      <li><strong>Modal cola de pendientes</strong>: por cada registro foto thumb + datos + recuadro de armonización en tiempo real + 3 botones (Aprobar/Editar/Rechazar). Indicador de color según validado_geo (verde auto_ok, amarillo con sugerencias, rojo gps_sospechoso).</li>
+      <li><strong>Aprobar</strong>: auto-acepta sugerencias del armonizador, genera sello v3 con <code>aplicarSelloDVBA</code>, sube al mismo path con <code>storage.update()</code>, UPDATE estado='aprobado' + sello_version='v3'.</li>
+      <li><strong>Rechazar</strong>: prompt para motivo opcional, UPDATE estado='rechazado' + motivo_rechazo.</li>
+      <li><strong>Botón "Aprobar los verificados"</strong> (batch): aprueba en lote los <code>validado_geo='auto_ok'</code>.</li>
+      <li><strong>Auto-sellar al editar pendientes</strong>: si el revisor edita un registro en <code>'campo'</code> desde el sidebar normal, al guardar se sella v3 + aprueba automáticamente.</li>
+      <li><strong>Badges en sidebar de registros</strong>: cada item muestra estado del workflow:
+        <ul>
+          <li>⏳ EN REVISIÓN (naranja) — <code>estado='campo'</code></li>
+          <li>✓ APROBADO (verde) — <code>estado='aprobado'</code> + sello v3</li>
+          <li>📜 HISTÓRICO (gris) — <code>estado='aprobado'</code> + sello v2</li>
+          <li>✕ RECHAZADO (rojo, tooltip con motivo)</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h4>Infraestructura</h4>
+    <ul>
+      <li>SQL: 5 ALTER TABLE en Supabase aplicados con CHECK constraints + backfill.</li>
+      <li>Policy RLS de Storage: <code>auth_update_relevamientos</code> ya existía OK, pero <code>upload({upsert:true})</code> chocaba con policies de INSERT. Cambio a <code>storage.update(path, blob)</code> que es UPDATE puro → respeta solo la policy de UPDATE existente.</li>
+      <li><code>sw.js</code> CACHE_URLS incluye armonizador.js + partidos_zona_vi.geojson + dvba_estados.js + qrcode.min.js.</li>
+    </ul>
+
+    <h4>Sub-versiones intermedias durante el desarrollo</h4>
+    <ul>
+      <li><strong>v9.18a (sw)</strong>: fix tildes en <code>modalidadImplicita</code> / <code>superficieImplicita</code> usando <code>.normalize('NFD').replace(̀-ͯ)</code> antes del regex (JavaScript <code>\b</code> no es Unicode-aware).</li>
+      <li><strong>v9.19a (sw)</strong>: texto pestaña Confirmar móvil + pre-fill GPS en 2 niveles.</li>
+      <li><strong>v9.19b (sw)</strong>: fix tildes confirmado en escritorio también.</li>
+      <li><strong>v9.19c (sw)</strong>: <code>ensureColaBadge</code> fallback dinámico + no duplicar "RP " si reg.ruta ya lo incluye.</li>
+      <li><strong>v9.19d (sw / v7.13)</strong>: auto-sellar v3 + aprobar al editar registros en 'campo'.</li>
+      <li><strong>v9.19e (sw)</strong>: badges de workflow en sidebar + texto botón "Aprobar los verificados".</li>
+      <li><strong>v9.19f (sw)</strong>: auto-seleccionar tipo cuando la categoría tiene un solo ítem (caso "Otro" — antes el operador creía que ya estaba seleccionado al tocar la categoría).</li>
+      <li><strong>v9.19g (sw / v7.14)</strong>: fix storage.update() vs upsert para evitar conflicto RLS.</li>
+    </ul>
 
     <h3>v9.18 · 24 junio 2026 — Modelo Tipo↔Estado rediseñado + sub-atributos</h3>
     <ul>
@@ -869,7 +945,7 @@ git push origin main
 
 <footer>
   Bitácora unificada — Sistema de Relevamiento y Gestión Vial DVBA Zona Departamental VI Saladillo<br>
-  Ing. Luciano Lamaita · División Técnica · Última actualización: 24 de junio de 2026 · v4.2 (apps v9.18 / v7.10)
+  Ing. Luciano Lamaita · División Técnica · Última actualización: 30 de junio de 2026 · v4.3 (apps v9.19 / v7.14)
 </footer>
 
 </div>

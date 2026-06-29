@@ -12,10 +12,10 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 | URL | Archivo | Versión | Descripción |
 |---|---|---|---|
-| https://lemeit.github.io/DVBA/ | `index.html` | **v7.10** | App de escritorio: mapa Leaflet, progresivas, sidebar de registros, reportes PDF/CSV, sello v3 con QR Google Maps |
-| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | **v9.18** | App móvil PWA instalable: relevamiento GPS de campo, modelo Tipo↔Estado coherente, sello v3 |
+| https://lemeit.github.io/DVBA/ | `index.html` | **v7.14** | App de escritorio: mapa, sidebar de registros + **cola de pendientes + sellado al aprobar** |
+| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | **v9.19** | App móvil PWA: relevamiento GPS de campo, **captura cruda + pre-fill GPS automático**, sincronización offline |
 | https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte |
-| https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.2 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
+| https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.3 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
 | https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html | guía de usuario | — | Manual de la app de campo |
 | https://lemeit.github.io/DVBA/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
 
@@ -188,6 +188,66 @@ C:\DVBA_fuentes\
 | GitHub Pages | — | Hosting estático |
 | Service Worker + IndexedDB | — | Cola offline + sync automático en la app de campo |
 | Canvas API | — | Renderizado del sello v2 sobre las fotos (sin dependencias externas) |
+
+## Workflow campo → oficina (desde v9.19 / v7.14)
+
+Cambio de paradigma en el flujo de captura+sellado de fotos:
+
+```
+   📱 CAMPO                         🏢 OFICINA
+   (móvil PWA)                       (escritorio)
+   ─────────                         ─────────
+   Operador toma foto                Revisor logueado ve:
+   GPS pre-llena ruta/km/partido     🔔 X pendientes en header
+   Datos cargados al form
+   ↓
+   Foto cruda + datos →  Supabase →  Modal cola con:
+   estado_workflow='campo'           - Foto thumb
+   sello_version=NULL                - Datos cargados
+                                     - Armonización en tiempo real:
+                                       sugerencias del sistema
+                                       basadas en GPS vs cartografía
+                                     ↓
+                                     [✅ Aprobar] / [✏ Editar] / [✕ Rechazar]
+                                     ↓
+                                     Al aprobar:
+                                     1. Acepta sugerencias del armonizador
+                                     2. Genera sello v3 con datos finales
+                                     3. storage.update() reemplaza foto cruda
+                                     4. estado='aprobado' · sello_version='v3'
+```
+
+### Armonización geoespacial (`datos/armonizador.js`)
+
+100% offline (sin red). Usa los GeoJSON de partidos + bundles de RPs cacheados localmente para:
+
+- **Point-in-polygon**: detecta el partido correcto desde lat/lng
+- **Proyección + haversine**: encuentra la RP más cercana y calcula la progresiva real interpolada con anchors de mojones físicos
+- **Umbrales adaptativos**: tolerancia se ajusta automáticamente según precisión del GPS (`gpsAcc`). GPS preciso → umbral estricto; GPS impreciso → umbral laxo
+
+Resultado por registro:
+
+| `validado_geo` | Significado |
+|---|---|
+| `auto_ok` | Datos coinciden con GPS — aprobable en batch |
+| `auto_corregido` | El revisor aceptó las sugerencias del sistema |
+| `usuario_priorizado` | El revisor mantuvo lo cargado a pesar de las sugerencias |
+| `gps_sospechoso` | Coordenadas fuera de Zona VI — requiere revisión manual |
+| `pendiente` | Hay sugerencias por revisar |
+| `sin_coords` | Sin lat/lng |
+
+### Badges visuales en sidebar de registros (escritorio)
+
+Cada item muestra de un vistazo su estado en el workflow:
+
+- ⏳ **EN REVISIÓN** (naranja) — en cola, pendiente del revisor
+- ✓ **APROBADO** (verde) — sellado v3 aplicado
+- 📜 **HISTÓRICO** (gris) — registros viejos con sello v2 (no re-sellables)
+- ✕ **RECHAZADO** (rojo, tooltip con motivo)
+
+Para detalles técnicos completos (5 columnas BD agregadas, lógica de umbrales, fases de implementación), ver la **[bitácora — Tab Changelog](docs/bitacora.html)**.
+
+---
 
 ## Convención institucional
 

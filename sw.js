@@ -7,7 +7,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.19g';
+const CACHE_NAME = 'dvba-campo-v9.20-caminos-f1';
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -27,7 +27,9 @@ const CACHE_URLS = [
   './datos/qrcode.min.js',
   './datos/dvba_estados.js',
   './datos/armonizador.js',
-  './datos/partidos_zona_vi.geojson'
+  './datos/red_vial.js',
+  './datos/partidos_zona_vi.geojson',
+  './datos/zona_vi/red_secundaria_zonaVI_final.geojson'
 ];
 
 self.addEventListener('install', e => {
