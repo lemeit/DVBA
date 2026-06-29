@@ -7,7 +7,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.21';
+const CACHE_NAME = 'dvba-campo-v9.22';
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -29,7 +29,15 @@ const CACHE_URLS = [
   './datos/armonizador.js',
   './datos/red_vial.js',
   './datos/partidos_zona_vi.geojson',
-  './datos/zona_vi/red_secundaria_zonaVI_final.geojson'
+  './datos/zona_vi/red_secundaria_zonaVI_final.geojson',
+  './datos/rutas_rp30.js',
+  './datos/rutas_rp40.js',
+  './datos/rutas_rp41.js',
+  './datos/rutas_rp46.js',
+  './datos/rutas_rp47.js',
+  './datos/rutas_rp51.js',
+  './datos/rutas_rp61.js',
+  './datos/rutas_rp91.js'
 ];
 
 self.addEventListener('install', e => {
