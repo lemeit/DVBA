@@ -562,8 +562,8 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
         </div>
         <input type="hidden" id="f-tipo-via" value="rp">
       </div>
-      <div class="row2">
-        <div class="field"><div class="flbl" id="lbl-f-ruta">Ruta Provincial</div>
+      <div class="row2" id="row-ruta-partido">
+        <div class="field" id="field-f-ruta"><div class="flbl" id="lbl-f-ruta">Ruta Provincial</div>
           <select id="f-ruta">
             <option value="">— Ruta —</option>
             <option>RP 6</option><option>RP 20</option><option>RP 24</option>
@@ -573,7 +573,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
             <option>RP 51</option><option>RP 61</option><option>RP 91</option>
           </select>
         </div>
-        <div class="field"><div class="flbl">Partido</div>
+        <div class="field" id="field-f-partido"><div class="flbl">Partido</div>
           <select id="f-partido" onchange="actualizarCaminosDelPartido()">
             <option value="">— Partido —</option>
             <option>General Alvear</option><option>General Las Heras</option>
@@ -1039,6 +1039,9 @@ function setTipoVia(tipo){
   elTipo.value = tipo;
   // Actualizar botones toggle
   document.querySelectorAll('.tv-btn').forEach(b => b.classList.toggle('active', b.dataset.tv === tipo));
+  // v9.20a — Reordenar UI: cuando tipo=camino, Partido va primero (porque filtra el selector de Camino)
+  const row = document.getElementById('row-ruta-partido');
+  if (row) row.classList.toggle('tipo-camino', tipo === 'camino');
   // Actualizar label + opciones del selector "Ruta/Camino"
   const ruta = document.getElementById('f-ruta');
   const lbl = document.getElementById('lbl-f-ruta');
