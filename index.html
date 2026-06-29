@@ -3708,8 +3708,8 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
       <div class="mc-empty">No hay registros pendientes de revisión.</div>
     </div>
     <div class="mc-f">
-      <button class="btn-aprob-batch" id="btn-aprob-batch" onclick="aprobarBatch()" disabled>
-        ✅ Aprobar todos los <strong>auto_ok</strong> (<span id="batch-count">0</span>)
+      <button class="btn-aprob-batch" id="btn-aprob-batch" onclick="aprobarBatch()" disabled title="Aprueba todos los registros donde el GPS coincide con los datos cargados (sin sugerencias de cambio)">
+        ✅ Aprobar los verificados (<span id="batch-count">0</span>)
       </button>
       <button class="btn-cerrar" onclick="cerrarColaPendientes()">Cerrar</button>
     </div>
