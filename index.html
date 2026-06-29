@@ -549,7 +549,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.13';
+const APP_VERSION = 'v7.14';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1493,12 +1493,14 @@ async function guardar(){
           const pathMatch = fotoUrlOrig.match(/\/object\/public\/relevamientos\/(.+?)(\?|$)/);
           if (pathMatch) {
             const path = decodeURIComponent(pathMatch[1]);
+            // v7.14 — usar update() en vez de upload({upsert}) para evitar pelea con
+            // RLS de Storage (upsert internamente hace INSERT-ON-CONFLICT que choca
+            // con policies restrictivas; update() es UPDATE puro)
             const { error: upErr } = await _supa.storage.from('relevamientos')
-              .upload(path, blobSellada, { contentType: 'image/jpeg', upsert: true });
+              .update(path, blobSellada, { contentType: 'image/jpeg' });
             if (upErr) {
               console.warn('[Aprobación post-edición] Error subiendo foto sellada:', upErr);
             } else {
-              // UPDATE final: aprobado + v3 + cache-bust en foto_url
               const fotoConBust = fotoUrlOrig + (fotoUrlOrig.includes('?') ? '&' : '?') + 'v=' + Date.now();
               await _supa.from('relevamientos').update({
                 estado_workflow: 'aprobado',
@@ -3504,15 +3506,19 @@ async function aprobarRegistro(id, opts){
           reader.readAsDataURL(blob);
         });
         const b64Sellada = await aplicarSelloDVBA(b64, datosSello);
-        // Subir sobre el mismo path
+        // Subir sobre el mismo path con update() — v7.14, evita conflict con RLS
         const blobSellada = await (await fetch(b64Sellada)).blob();
-        const pathMatch = reg.foto.match(/\/object\/public\/relevamientos\/(.+)$/);
+        const pathMatch = reg.foto.match(/\/object\/public\/relevamientos\/(.+?)(\?|$)/);
         if (pathMatch && _supa) {
           const path = decodeURIComponent(pathMatch[1]);
           const { error: upErr } = await _supa.storage.from('relevamientos')
-            .upload(path, blobSellada, { contentType: 'image/jpeg', upsert: true });
-          if (!upErr) fotoSellada = reg.foto + '?v=' + Date.now();  // cache-bust
-          else console.warn('Upload sellado:', upErr);
+            .update(path, blobSellada, { contentType: 'image/jpeg' });
+          if (!upErr) {
+            const baseUrl = reg.foto.split('?')[0];
+            fotoSellada = baseUrl + '?v=' + Date.now();  // cache-bust
+          } else {
+            console.warn('Upload sellado:', upErr);
+          }
         }
       } catch(e) { console.warn('Sellado al aprobar:', e); }
     }
