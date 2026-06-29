@@ -225,6 +225,56 @@ body.modo-campo #campo-fab{display:flex}
 #user-info button{background:transparent;color:#ffd700;border:1px solid rgba(255,215,0,.55);font-size:.58rem;padding:0 6px;border-radius:8px;cursor:pointer;line-height:1.5;font-weight:600}
 #user-info button:hover{background:rgba(255,215,0,.15)}
 
+/* v7.12 — Badge cola de pendientes en header */
+#cola-badge{display:none;align-items:center;gap:5px;background:linear-gradient(135deg,#f0a500,#f57c00);color:#fff;border:none;font-size:.66rem;font-weight:700;padding:4px 10px;border-radius:12px;cursor:pointer;margin-right:8px;box-shadow:0 2px 6px rgba(245,124,0,.4);animation:colaPulse 2s ease-in-out infinite}
+#cola-badge.show{display:inline-flex}
+#cola-badge:hover{filter:brightness(1.1)}
+#cola-badge.urgente{background:linear-gradient(135deg,#e53935,#b71c1c)}
+@keyframes colaPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+
+/* v7.12 — Modal cola de pendientes */
+.mov-cola{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow-y:auto}
+.mov-cola.on{display:flex}
+.modal-cola{width:100%;max-width:900px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.4);display:flex;flex-direction:column;max-height:90vh}
+.modal-cola .mc-h{padding:14px 20px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#f0a500,#f57c00);color:#fff;border-radius:12px 12px 0 0}
+.modal-cola .mc-h h2{margin:0;font-size:1.05rem;font-weight:700;flex:1}
+.modal-cola .mc-h button.mc-x{background:transparent;color:#fff;border:none;font-size:1.4rem;cursor:pointer;padding:0 6px;line-height:1}
+.modal-cola .mc-h button.mc-x:hover{opacity:.7}
+.modal-cola .mc-b{padding:14px 18px;overflow-y:auto;flex:1;background:#f4f6f9}
+.modal-cola .mc-b .mc-empty{text-align:center;padding:40px 20px;color:#888;font-size:.9rem}
+.modal-cola .mc-f{padding:12px 18px;border-top:1px solid #e0e0e0;display:flex;gap:10px;background:#fff;border-radius:0 0 12px 12px}
+.modal-cola .mc-f button{padding:10px 16px;border:none;border-radius:7px;font-size:.86rem;font-weight:700;cursor:pointer;font-family:inherit}
+.modal-cola .btn-aprob-batch{background:#28a745;color:#fff;flex:1}
+.modal-cola .btn-aprob-batch:hover{background:#218838}
+.modal-cola .btn-aprob-batch:disabled{background:#aaa;cursor:not-allowed}
+.modal-cola .btn-cerrar{background:#eee;color:#555}
+
+/* Item de la cola */
+.cola-item{background:#fff;border:1px solid #d0d4dc;border-radius:8px;margin-bottom:10px;display:flex;overflow:hidden}
+.cola-item.urgente{border-left:4px solid #e53935}
+.cola-item.auto-ok{border-left:4px solid #28a745}
+.cola-item.gps-sosp{border-left:4px solid #b71c1c;background:#fff5f5}
+.cola-item-foto{width:160px;min-width:160px;background:#222;display:flex;align-items:center;justify-content:center}
+.cola-item-foto img{width:100%;height:100%;object-fit:cover;cursor:pointer}
+.cola-item-foto .sin-foto{color:#888;font-size:.7rem;text-align:center;padding:20px 10px}
+.cola-item-body{flex:1;padding:11px 14px;font-size:.84rem;color:#333}
+.cola-item-titulo{font-weight:700;color:#003366;font-size:.95rem;margin-bottom:3px}
+.cola-item-meta{color:#666;font-size:.78rem;margin-bottom:5px}
+.cola-item-armoniz{background:#fff8e1;border:1px solid #f0a500;border-radius:5px;padding:6px 9px;margin:6px 0;font-size:.78rem}
+.cola-item-armoniz.ok{background:#e8f5e9;border-color:#28a745;color:#155724}
+.cola-item-armoniz.alerta{background:#fff5f5;border-color:#dc3545;color:#721c24}
+.cola-item-armoniz ul{margin:3px 0 0 18px;padding:0}
+.cola-item-armoniz li{margin:1px 0}
+.cola-item-acciones{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.cola-item-acciones button{padding:6px 12px;border:none;border-radius:5px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-aprob{background:#28a745;color:#fff}
+.btn-aprob:hover{background:#218838}
+.btn-edit-cola{background:#ffc107;color:#212529}
+.btn-edit-cola:hover{background:#e0a800}
+.btn-rechaz{background:#dc3545;color:#fff}
+.btn-rechaz:hover{background:#c82333}
+.cola-badge-urg{background:#e53935;color:#fff;font-size:.66rem;padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px;text-transform:uppercase}
+
 /* ── Modal "Editar datos del sello" v7.4 ── */
 .mov-sello{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
 .mov-sello.on{display:flex}
@@ -255,6 +305,10 @@ body.modo-campo #campo-fab{display:flex}
     <p>Direccion de Vialidad de la Prov. de Buenos Aires &nbsp;&middot;&nbsp; 8 Partidos &nbsp;&middot;&nbsp; 15 Rutas Provinciales</p>
   </div>
   <div class="hright">
+    <!-- v7.12 — Badge cola de pendientes (visible solo logueado con registros estado_workflow=campo) -->
+    <button id="cola-badge" title="Registros pendientes de revisión" onclick="abrirColaPendientes()">
+      🔔 <span id="cola-count">0</span> pendientes
+    </button>
     <div id="user-info" title="Usuario autenticado">
       <span id="user-email">—</span>
       <button onclick="hacerLogout()">salir</button>
@@ -495,7 +549,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.11';
+const APP_VERSION = 'v7.12';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -937,8 +991,15 @@ async function cargarRegs() {
       fechaISO: r.fecha || null,
       lat:     r.lat,
       lng:     r.lng,
+      // v7.12 — workflow + armonización
+      estado_workflow: r.estado_workflow || 'aprobado',  // null = registro viejo (pre-v9.19) → aprobado
+      validado_geo:    r.validado_geo    || 'pendiente',
+      sello_version:   r.sello_version   || null,
+      prioridad:       r.prioridad       || 'normal',
+      motivo_rechazo:  r.motivo_rechazo  || null,
     }));
     setModoIndicador(true);
+    actualizarBadgeCola();  // v7.12 — refresca badge "X pendientes"
   } catch(e) {
     console.warn('Supabase error, usando localStorage:', e.message);
     try { regs = JSON.parse(localStorage.getItem('dvba_z6v6') || '[]'); } catch(e2) { regs = []; }
@@ -3170,6 +3231,281 @@ document.getElementById('app-ver').textContent = APP_VERSION;
 const loginVer = document.getElementById('login-app-ver');
 if (loginVer) loginVer.textContent = APP_VERSION;
 
+/* ═══════════════════════════════════════════════════════════════════
+   v7.12 — COLA DE PENDIENTES (workflow campo→oficina + armonización)
+   ═══════════════════════════════════════════════════════════════════ */
+
+// Refresca el contador del badge en el header — solo visible si hay pendientes
+function actualizarBadgeCola(){
+  const badge = document.getElementById('cola-badge');
+  if (!badge) return;
+  const logueado = !!(window._supa && _supa.auth && _supa.auth.getUser);
+  const pendientes = regs.filter(r => r.estado_workflow === 'campo');
+  const urgentes = pendientes.filter(r => r.prioridad === 'urgente').length;
+  const elCount = document.getElementById('cola-count');
+  if (elCount) elCount.textContent = pendientes.length;
+  // Solo mostrar si hay pendientes Y usuario logueado (cola es feature de revisión)
+  if (pendientes.length > 0 && logueado) {
+    badge.classList.add('show');
+    if (urgentes > 0) badge.classList.add('urgente');
+    else badge.classList.remove('urgente');
+  } else {
+    badge.classList.remove('show');
+    badge.classList.remove('urgente');
+  }
+}
+
+// Abre el modal con la lista
+function abrirColaPendientes(){
+  const pendientes = regs.filter(r => r.estado_workflow === 'campo');
+  // Ordenar: urgentes primero, después por fecha más reciente
+  pendientes.sort((a, b) => {
+    if (a.prioridad === 'urgente' && b.prioridad !== 'urgente') return -1;
+    if (b.prioridad === 'urgente' && a.prioridad !== 'urgente') return 1;
+    return new Date(b.fechaISO || 0) - new Date(a.fechaISO || 0);
+  });
+  document.getElementById('mc-titulo-count').textContent = pendientes.length;
+  const lista = document.getElementById('mc-lista');
+  if (pendientes.length === 0) {
+    lista.innerHTML = '<div class="mc-empty">No hay registros pendientes de revisión. 🎉</div>';
+  } else {
+    lista.innerHTML = pendientes.map(r => renderColaItem(r)).join('');
+  }
+  // Botón batch: contar los auto_ok
+  const autoOk = pendientes.filter(r => r.validado_geo === 'auto_ok').length;
+  document.getElementById('batch-count').textContent = autoOk;
+  document.getElementById('btn-aprob-batch').disabled = autoOk === 0;
+  document.getElementById('modal-cola-ov').classList.add('on');
+}
+
+function cerrarColaPendientes(){
+  document.getElementById('modal-cola-ov').classList.remove('on');
+}
+
+// Construye el HTML de un item de la cola con armonización en tiempo real
+function renderColaItem(reg){
+  let armonizacionHTML = '';
+  let claseExtra = '';
+  if (reg.validado_geo === 'gps_sospechoso') {
+    claseExtra = 'gps-sosp';
+    armonizacionHTML = '<div class="cola-item-armoniz alerta">⚠ GPS sospechoso — coordenadas fuera de Zona VI</div>';
+  } else if (reg.validado_geo === 'auto_ok') {
+    claseExtra = 'auto-ok';
+    armonizacionHTML = '<div class="cola-item-armoniz ok">✅ Datos coinciden con GPS — listo para aprobar</div>';
+  } else if (reg.lat && reg.lng && typeof ARMONIZADOR !== 'undefined') {
+    // Recalcular en el momento para mostrar cambios sugeridos
+    try {
+      const r = ARMONIZADOR.armonizar({
+        lat: reg.lat, lng: reg.lng, gpsAcc: 15,  // asumimos precisión típica
+        ruta: reg.ruta, partido: reg.partido, prog: reg.prog
+      });
+      if (r.cambios.length > 0) {
+        const items = r.cambios.map(c =>
+          `<li><b>${c.campo}:</b> "${c.cargado || '—'}" → <b style="color:#28a745">"${c.sugerido}"</b> <span style="color:#888;font-size:.72rem">(${c.motivo})</span></li>`
+        ).join('');
+        armonizacionHTML = '<div class="cola-item-armoniz">⚠ Sugerencias del sistema:<ul>' + items + '</ul></div>';
+      }
+    } catch(e) { console.warn('armonizar item:', e); }
+  }
+  if (!reg.lat || !reg.lng) {
+    armonizacionHTML = '<div class="cola-item-armoniz alerta">⚠ Sin coordenadas GPS — no se puede armonizar</div>';
+  }
+  const urgenteBadge = reg.prioridad === 'urgente'
+    ? '<span class="cola-badge-urg">urgente</span>' : '';
+  const fotoHTML = reg.foto
+    ? `<img src="${reg.foto}" onclick="showFoto('${reg.foto}')" alt="Foto">`
+    : '<div class="sin-foto">📷 sin foto</div>';
+  return `
+    <div class="cola-item ${claseExtra}" id="cola-item-${reg.id}">
+      <div class="cola-item-foto">${fotoHTML}</div>
+      <div class="cola-item-body">
+        <div class="cola-item-titulo">
+          RP ${reg.ruta || '?'} ${reg.prog ? `· km ${reg.prog}` : ''} ${urgenteBadge}
+        </div>
+        <div class="cola-item-meta">
+          ${reg.partido ? reg.partido + ' · ' : ''}
+          ${reg.tipo || '<i>(sin tipo)</i>'}
+          ${reg.estado ? ' · ' + reg.estado : ''}
+        </div>
+        <div class="cola-item-meta">${reg.fecha} ${reg.lat ? '· ' + reg.lat.toFixed(5) + ',' + reg.lng.toFixed(5) : ''}</div>
+        ${reg.obs ? `<div style="color:#3a5060;font-size:.78rem;margin:3px 0">${reg.obs.split('\\n')[0].slice(0, 120)}${reg.obs.length>120?'…':''}</div>` : ''}
+        ${armonizacionHTML}
+        <div class="cola-item-acciones">
+          <button class="btn-aprob" onclick="aprobarRegistro(${reg.id})">✅ Aprobar</button>
+          <button class="btn-edit-cola" onclick="editarDesdeCola(${reg.id})">✏ Editar</button>
+          <button class="btn-rechaz" onclick="rechazarRegistro(${reg.id})">✕ Rechazar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── APROBAR REGISTRO: armoniza si corresponde, sella la foto v3, sube y actualiza BD ── */
+async function aprobarRegistro(id, opts){
+  opts = opts || {};
+  if (!(await requireAuth('Iniciá sesión para aprobar registros.'))) return;
+  const reg = regs.find(r => r.id === id);
+  if (!reg) return;
+  const item = document.getElementById('cola-item-' + id);
+  if (item) item.style.opacity = '0.5';
+
+  try {
+    // 1) Aplicar sugerencias del armonizador (si validado_geo no era 'auto_ok')
+    let datosFinales = {
+      ruta: reg.ruta, partido: reg.partido, prog: reg.prog,
+      tipo: reg.tipo, lat: reg.lat, lng: reg.lng
+    };
+    let validadoFinal = reg.validado_geo;
+    if (reg.lat && reg.lng && typeof ARMONIZADOR !== 'undefined' && !opts.sinArmonizar) {
+      const r = ARMONIZADOR.armonizar({
+        lat: reg.lat, lng: reg.lng, gpsAcc: 15,
+        ruta: reg.ruta, partido: reg.partido, prog: reg.prog
+      });
+      if (r.cambios.length > 0 && r.severidad !== 'baja') {
+        // Hay sugerencias importantes — auto-aceptamos al aprobar
+        for (const c of r.cambios) {
+          if (c.campo === 'partido') datosFinales.partido = c.sugerido;
+          if (c.campo === 'prog')    datosFinales.prog    = c.sugerido;
+          if (c.campo === 'ruta')    datosFinales.ruta    = c.sugerido.replace(/^RP\s*/i, '');
+        }
+        validadoFinal = 'auto_corregido';
+      } else if (r.cambios.length === 0) {
+        validadoFinal = 'auto_ok';
+      }
+    }
+
+    // 2) Sellar la foto v3 con los datos finales (si hay foto)
+    let fotoSellada = reg.foto;
+    if (reg.foto && typeof aplicarSelloDVBA === 'function') {
+      try {
+        const datosSello = {
+          localidad: datosFinales.partido ? datosFinales.partido + ', Buenos Aires, Argentina' : 'Saladillo, Buenos Aires, Argentina',
+          ruta: 'RP ' + datosFinales.ruta,
+          prog: datosFinales.prog,
+          tipo: datosFinales.tipo,
+          lat: datosFinales.lat ? datosFinales.lat.toFixed(6) : '',
+          lng: datosFinales.lng ? datosFinales.lng.toFixed(6) : '',
+          fecha: new Date(reg.fechaISO || Date.now()).toISOString().slice(0, 10),
+          hora: new Date(reg.fechaISO || Date.now()).toTimeString().slice(0, 8),
+        };
+        // Bajamos la foto, sellamos, subimos al mismo path
+        const blob = await (await fetch(reg.foto)).blob();
+        const reader = new FileReader();
+        const b64 = await new Promise((res, rej) => {
+          reader.onload = e => res(e.target.result);
+          reader.onerror = rej;
+          reader.readAsDataURL(blob);
+        });
+        const b64Sellada = await aplicarSelloDVBA(b64, datosSello);
+        // Subir sobre el mismo path
+        const blobSellada = await (await fetch(b64Sellada)).blob();
+        const pathMatch = reg.foto.match(/\/object\/public\/relevamientos\/(.+)$/);
+        if (pathMatch && _supa) {
+          const path = decodeURIComponent(pathMatch[1]);
+          const { error: upErr } = await _supa.storage.from('relevamientos')
+            .upload(path, blobSellada, { contentType: 'image/jpeg', upsert: true });
+          if (!upErr) fotoSellada = reg.foto + '?v=' + Date.now();  // cache-bust
+          else console.warn('Upload sellado:', upErr);
+        }
+      } catch(e) { console.warn('Sellado al aprobar:', e); }
+    }
+
+    // 3) UPDATE en BD: estado=aprobado, sello_version=v3, datos finales, foto_url
+    const update = {
+      ruta: datosFinales.ruta,
+      partido: datosFinales.partido,
+      progresiva: datosFinales.prog,
+      tipo: datosFinales.tipo,
+      lat: datosFinales.lat,
+      lng: datosFinales.lng,
+      estado_workflow: 'aprobado',
+      validado_geo: validadoFinal,
+      sello_version: reg.foto ? 'v3' : null,
+      foto_url: fotoSellada
+    };
+    const { error } = await _supa.from('relevamientos').update(update).eq('id', id);
+    if (error) throw error;
+
+    // 4) Actualizar regs[] local
+    Object.assign(reg, {
+      ruta: update.ruta, partido: update.partido, prog: update.progresiva,
+      tipo: update.tipo, lat: update.lat, lng: update.lng,
+      estado_workflow: 'aprobado', validado_geo: validadoFinal,
+      sello_version: update.sello_version, foto: fotoSellada
+    });
+
+    actualizarBadgeCola();
+    renderRegs(); drawRegMarkers(); buildRegTags();
+    if (item) item.remove();
+    // Si quedó vacío, mostrar mensaje
+    const lista = document.getElementById('mc-lista');
+    if (lista && !lista.querySelector('.cola-item')) {
+      lista.innerHTML = '<div class="mc-empty">¡No quedan más pendientes! 🎉</div>';
+    }
+    return true;
+  } catch(e) {
+    console.error('aprobarRegistro:', e);
+    alert('Error al aprobar: ' + (e.message || e));
+    if (item) item.style.opacity = '1';
+    return false;
+  }
+}
+
+/* ── RECHAZAR ── */
+async function rechazarRegistro(id){
+  if (!(await requireAuth('Iniciá sesión para rechazar registros.'))) return;
+  const reg = regs.find(r => r.id === id);
+  if (!reg) return;
+  const motivo = prompt('Motivo del rechazo (opcional):\n\nEjemplos:\n- Foto borrosa\n- GPS erróneo\n- Duplicado\n- Datos insuficientes', '');
+  if (motivo === null) return;  // cancelado
+  try {
+    const { error } = await _supa.from('relevamientos').update({
+      estado_workflow: 'rechazado',
+      motivo_rechazo: motivo.trim() || null
+    }).eq('id', id);
+    if (error) throw error;
+    reg.estado_workflow = 'rechazado';
+    reg.motivo_rechazo = motivo.trim() || null;
+    actualizarBadgeCola();
+    renderRegs(); drawRegMarkers(); buildRegTags();
+    const item = document.getElementById('cola-item-' + id);
+    if (item) item.remove();
+    const lista = document.getElementById('mc-lista');
+    if (lista && !lista.querySelector('.cola-item')) {
+      lista.innerHTML = '<div class="mc-empty">¡No quedan más pendientes! 🎉</div>';
+    }
+  } catch(e) {
+    console.error('rechazarRegistro:', e);
+    alert('Error al rechazar: ' + (e.message || e));
+  }
+}
+
+/* ── EDITAR DESDE COLA: cierra el modal cola, abre el modal de edición de registro ── */
+function editarDesdeCola(id){
+  cerrarColaPendientes();
+  setTimeout(() => editReg(id), 200);  // pequeña pausa para que termine la animación
+}
+
+/* ── APROBAR BATCH: aprueba todos los registros con validado_geo='auto_ok' ── */
+async function aprobarBatch(){
+  if (!(await requireAuth('Iniciá sesión para aprobar registros.'))) return;
+  const candidatos = regs.filter(r => r.estado_workflow === 'campo' && r.validado_geo === 'auto_ok');
+  if (candidatos.length === 0) return;
+  if (!confirm('¿Aprobar ' + candidatos.length + ' registro(s) automáticamente?\n\nSon los que tienen datos GPS coincidentes con lo cargado en campo.')) return;
+  const btn = document.getElementById('btn-aprob-batch');
+  if (btn) btn.disabled = true;
+  let ok = 0, fail = 0;
+  for (const reg of candidatos) {
+    const r = await aprobarRegistro(reg.id, { sinArmonizar: true });
+    if (r) ok++; else fail++;
+  }
+  alert(`✅ ${ok} aprobado${ok!==1?'s':''} · ${fail} fallaron`);
+  // Refrescar el modal
+  abrirColaPendientes();
+}
+
+// Llamar al cargar la página y cada vez que cambia el set de regs
+// (cargarRegistros() ya llama actualizarBadgeCola al final)
+
 /* ══════════════════════════════════════════════════════════════
    SELECTOR JERÁRQUICO DE TIPO — desktop (zona6)
    Requiere dvba_tipos.js
@@ -3330,6 +3666,25 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
 
 </script>
+
+<!-- v7.12 — Modal "Cola de pendientes" (workflow campo→oficina) -->
+<div class="mov-cola" id="modal-cola-ov">
+  <div class="modal-cola">
+    <div class="mc-h">
+      <h2>🔔 Cola de pendientes — <span id="mc-titulo-count">0</span></h2>
+      <button class="mc-x" onclick="cerrarColaPendientes()" title="Cerrar">✕</button>
+    </div>
+    <div class="mc-b" id="mc-lista">
+      <div class="mc-empty">No hay registros pendientes de revisión.</div>
+    </div>
+    <div class="mc-f">
+      <button class="btn-aprob-batch" id="btn-aprob-batch" onclick="aprobarBatch()" disabled>
+        ✅ Aprobar todos los <strong>auto_ok</strong> (<span id="batch-count">0</span>)
+      </button>
+      <button class="btn-cerrar" onclick="cerrarColaPendientes()">Cerrar</button>
+    </div>
+  </div>
+</div>
 
 <!-- Modal "Editar datos del sello" v7.4 -->
 <div class="mov-sello" id="modal-sello-ov">

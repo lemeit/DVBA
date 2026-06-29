@@ -146,21 +146,30 @@ const DVBA_ESTADOS = (() => {
   // ── Detección de sub-atributos IMPLÍCITOS en el nombre del tipo ──
   // Si el tipo ya incluye la modalidad o superficie en su nombre, no se muestra
   // el selector correspondiente (sería redundante o contradictorio).
+  //
+  // OJO: JavaScript `\b` no es Unicode-aware: las tildes (á,é,ó,...) NO están
+  // en `\w`, así que `\b` las trata como boundary y rompe palabras como
+  // "mecánico" (queda como 3 pedazos: "mec", "á", "nico"). Por eso
+  // normalizamos el string ANTES de aplicar el regex.
+  function _normTipo(s) {
+    return (s || '').toLowerCase()
+      .normalize('NFD').replace(new RegExp('[\\u0300-\\u036f]', 'g'), '');
+  }
   function modalidadImplicita(tipoStr) {
-    const s = (tipoStr || '').toLowerCase();
-    if (/\bmanual\b/.test(s))                            return 'manual';
-    if (/\bmec[áa]nic[oa]\b/.test(s))                    return 'mecanico';
-    if (/\bmixt[oa]\b/.test(s))                          return 'mixto';
+    const s = _normTipo(tipoStr);
+    if (/\bmanual\b/.test(s))     return 'manual';
+    if (/\bmecanic[oa]\b/.test(s)) return 'mecanico';
+    if (/\bmixt[oa]\b/.test(s))   return 'mixto';
     return null;
   }
   function superficieImplicita(tipoStr) {
-    const s = (tipoStr || '').toLowerCase();
+    const s = _normTipo(tipoStr);
     if (/\bdolomita\b/.test(s))                          return 'dolomita';
     if (/\bsuelo\s*cal\b/.test(s))                       return 'suelo_cal';
     if (/\btierra\b/.test(s) && /reconformado/.test(s))  return 'tierra';
     if (/\bcamino\s*tierra\b/.test(s))                   return 'tierra';
-    if (/\bhormig[óo]n\b/.test(s))                       return 'hormigon';
-    if (/\basf[áa]ltic[oa]\b/.test(s) || /\briego\s*asf/.test(s)) return 'asfalto';
+    if (/\bhormigon\b/.test(s))                          return 'hormigon';
+    if (/\basfaltic[oa]\b/.test(s) || /\briego\s*asf/.test(s)) return 'asfalto';
     return null;
   }
 
