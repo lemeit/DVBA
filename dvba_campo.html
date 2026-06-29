@@ -1045,18 +1045,29 @@ function prefillDesdeArmonizacion(){
         toast('★ Partido sugerido: ' + partido, 'ok');
       }
     }
-    // Ruta más cercana (radio 500m por default — si estás sobre una RP la detecta)
+    // Ruta más cercana (radio escalado: primero 500m, luego 2km con disclaimer)
     const elRuta = document.getElementById('f-ruta');
     if (elRuta && !elRuta.value) {
-      const rc = ARMONIZADOR.rutaMasCercana(gpsLat, gpsLng, 500);
+      let rc = ARMONIZADOR.rutaMasCercana(gpsLat, gpsLng, 500);
+      let lejos = false;
+      if (!rc) {
+        // Si no hay RP dentro de 500m, probar con 2 km y avisar
+        rc = ARMONIZADOR.rutaMasCercana(gpsLat, gpsLng, 2000);
+        lejos = !!rc;
+      }
       if (rc) {
         elRuta.value = rc.ruta;
-        // y aprovechamos para sugerir progresiva
         const elProg = document.getElementById('f-prog');
         if (elProg && !elProg.value && isFinite(rc.progKm)) {
           elProg.value = rc.progKm.toFixed(2);
         }
-        toast('★ Ruta sugerida: RP' + rc.ruta + ' · km ' + rc.progKm.toFixed(1), 'ok');
+        if (lejos) {
+          toast('⚠ Ruta más cercana: RP' + rc.ruta + ' a ' + Math.round(rc.distM) + 'm — ¿es esta?', 'warn');
+        } else {
+          toast('★ Ruta sugerida: RP' + rc.ruta + ' · km ' + rc.progKm.toFixed(1), 'ok');
+        }
+      } else {
+        toast('ℹ No hay RP cercana (>2 km) — cargá la ruta manualmente', 'info');
       }
     } else if (elRuta && elRuta.value) {
       // Si ya hay ruta cargada, sugerir solo progresiva si está vacía
@@ -1110,7 +1121,7 @@ function generarResumen(){
     ['Tipo',   document.getElementById('f-tipo').value    ||'—'],
     ['Estado', document.getElementById('f-estado').value  ||'—'],
     ['Observ.',document.getElementById('f-obs').value     ||'—'],
-    ['Foto',   fotoFinal?'✅ Con sello DVBA':'⚠ Sin foto'],
+    ['Foto',   fotoFinal?'✅ Foto lista (sello al aprobar)':'⚠ Sin foto'],
   ];
   document.getElementById('resumen').innerHTML=filas.map(([k,v])=>
     '<div class="res-row"><div class="res-k">'+k+'</div><div class="res-v">'+v+'</div></div>'
