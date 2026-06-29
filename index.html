@@ -3239,12 +3239,15 @@ if (loginVer) loginVer.textContent = APP_VERSION;
 function actualizarBadgeCola(){
   const badge = document.getElementById('cola-badge');
   if (!badge) return;
-  const logueado = !!(window._supa && _supa.auth && _supa.auth.getUser);
-  const pendientes = regs.filter(r => r.estado_workflow === 'campo');
+  // Check de "logueado" usando el DOM (más confiable que checkear la SDK): el div
+  // user-info recibe la clase 'show' cuando hay sesión activa (ver auth.js).
+  const userInfo = document.getElementById('user-info');
+  const logueado = !!userInfo && userInfo.classList.contains('show');
+  const pendientes = (typeof regs !== 'undefined' && regs) ? regs.filter(r => r.estado_workflow === 'campo') : [];
   const urgentes = pendientes.filter(r => r.prioridad === 'urgente').length;
   const elCount = document.getElementById('cola-count');
   if (elCount) elCount.textContent = pendientes.length;
-  // Solo mostrar si hay pendientes Y usuario logueado (cola es feature de revisión)
+  console.log(`[Cola] pendientes=${pendientes.length} urgentes=${urgentes} logueado=${logueado}`);
   if (pendientes.length > 0 && logueado) {
     badge.classList.add('show');
     if (urgentes > 0) badge.classList.add('urgente');
@@ -3254,6 +3257,14 @@ function actualizarBadgeCola(){
     badge.classList.remove('urgente');
   }
 }
+
+// Auto-refresca el badge cuando el user-info cambia de estado (login/logout)
+(function watchUserInfoCambios(){
+  const ui = document.getElementById('user-info');
+  if (!ui || !window.MutationObserver) return;
+  const obs = new MutationObserver(() => actualizarBadgeCola());
+  obs.observe(ui, { attributes: true, attributeFilter: ['class'] });
+})();
 
 // Abre el modal con la lista
 function abrirColaPendientes(){
