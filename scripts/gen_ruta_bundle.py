@@ -479,20 +479,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    js_lines.append('  mojonesF:' + str(n_mf) + ',mojonesS:' + str(n_ms) + ',')
-    js_lines.append('  gapsReales:' + str(n_real) + ',gapsAuto:' + str(n_auto))
-    js_lines.append('};')
-    js = '\n'.join(js_lines) + '\n'
-
-    out = Path(args.out_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    datos_dir = out / 'datos'
-    datos_dir.mkdir(exist_ok=True)
-    js_path = datos_dir / ('rutas_rp' + rn + '.js')
-    js_path.write_text(js, encoding='utf-8')
-
-    print('\nOK: ' + str(js_path) + ' (' + str(js_path.stat().st_size // 1024) + ' KB)')
-
-
-if __name__ == '__main__':
-    main()
