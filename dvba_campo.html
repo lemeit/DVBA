@@ -425,6 +425,13 @@ body.accesible #user-info{color:#ffd700}
 }
 #update-banner button:hover{background:#f0fff4}
 
+/* ── v9.20 — Toggle tipo de vía RP / Camino ── */
+.tipo-via-toggle{display:flex;gap:0;background:#eef3f8;border-radius:6px;padding:3px;border:1px solid #cdd9e6;margin-bottom:4px}
+.tv-btn{flex:1;padding:8px 10px;border:none;background:transparent;font-size:.82rem;font-weight:600;color:#5a6a7a;border-radius:5px;cursor:pointer;transition:all .15s;font-family:inherit}
+.tv-btn.active{background:var(--teal,#009aae);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tv-btn:hover:not(.active){background:#dbe5ee}
+body.accesible .tv-btn{padding:14px 12px;font-size:1rem}
+
 /* ── Modal "Editar datos del sello" v9.11 ── */
 .mov-sello{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:flex-end;justify-content:center}
 .mov-sello.on{display:flex}
@@ -543,8 +550,16 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
     <div class="card-head">📍 Ubicación en ruta</div>
     <div class="card-body">
       <div class="geo-r" id="geo-r"></div>
+      <!-- v9.20 — Toggle Tipo de vía -->
+      <div class="field"><div class="flbl">Tipo de vía</div>
+        <div class="tipo-via-toggle">
+          <button type="button" class="tv-btn active" data-tv="rp" onclick="setTipoVia('rp')">🛣 Ruta Provincial</button>
+          <button type="button" class="tv-btn" data-tv="camino" onclick="setTipoVia('camino')">🚜 Camino Secundario</button>
+        </div>
+        <input type="hidden" id="f-tipo-via" value="rp">
+      </div>
       <div class="row2">
-        <div class="field"><div class="flbl">Ruta Provincial</div>
+        <div class="field"><div class="flbl" id="lbl-f-ruta">Ruta Provincial</div>
           <select id="f-ruta">
             <option value="">— Ruta —</option>
             <option>RP 6</option><option>RP 20</option><option>RP 24</option>
@@ -555,7 +570,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
           </select>
         </div>
         <div class="field"><div class="flbl">Partido</div>
-          <select id="f-partido">
+          <select id="f-partido" onchange="actualizarCaminosDelPartido()">
             <option value="">— Partido —</option>
             <option>General Alvear</option><option>General Las Heras</option>
             <option>Las Flores</option><option>Lobos</option><option>Navarro</option>
@@ -667,7 +682,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.19</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.20</span>
 </div>
 
 
@@ -1011,6 +1026,54 @@ function onGPSerr(err){
 function setGpsUI(e,t){
   document.getElementById('gps-led').className='led '+e;
   document.getElementById('gps-hdr-txt').textContent=t;
+}
+
+/* ── v9.20 — Toggle Tipo de vía (RP / Camino Secundario) ── */
+function setTipoVia(tipo){
+  const elTipo = document.getElementById('f-tipo-via');
+  if (!elTipo) return;
+  elTipo.value = tipo;
+  // Actualizar botones toggle
+  document.querySelectorAll('.tv-btn').forEach(b => b.classList.toggle('active', b.dataset.tv === tipo));
+  // Actualizar label + opciones del selector "Ruta/Camino"
+  const ruta = document.getElementById('f-ruta');
+  const lbl = document.getElementById('lbl-f-ruta');
+  if (tipo === 'rp') {
+    if (lbl) lbl.textContent = 'Ruta Provincial';
+    ruta.innerHTML = '<option value="">— Ruta —</option>' +
+      ['RP 6','RP 20','RP 24','RP 30','RP 40','RP 41','RP 42','RP 43','RP 44',
+       'RP 46','RP 47','RP 48','RP 51','RP 61','RP 91']
+        .map(r => `<option>${r}</option>`).join('');
+  } else {
+    if (lbl) lbl.textContent = 'Camino Secundario';
+    actualizarCaminosDelPartido();
+  }
+}
+
+/* Llamado cuando cambia el partido (si tipo=camino) o cuando se cambia a tipo=camino */
+function actualizarCaminosDelPartido(){
+  const tipoVia = document.getElementById('f-tipo-via')?.value || 'rp';
+  if (tipoVia !== 'camino') return;
+  const partido = document.getElementById('f-partido').value;
+  const ruta = document.getElementById('f-ruta');
+  if (!partido) {
+    ruta.innerHTML = '<option value="">— Elegí el partido primero —</option>';
+    return;
+  }
+  if (typeof RED_VIAL === 'undefined' || !RED_VIAL.getCaminosPorPartido) {
+    ruta.innerHTML = '<option value="">— Cargando módulo de caminos… —</option>';
+    return;
+  }
+  const caminos = RED_VIAL.getCaminosPorPartido(partido);
+  if (!caminos.length) {
+    ruta.innerHTML = '<option value="">— Sin caminos en ' + partido + ' —</option>';
+    return;
+  }
+  ruta.innerHTML = '<option value="">— Camino (' + caminos.length + ') —</option>' +
+    caminos.map(c => {
+      const denom = c.denominacion ? ' — ' + c.denominacion : '';
+      return `<option value="${c.key}" title="${c.denominacion}">${c.key}${denom}</option>`;
+    }).join('');
 }
 
 function usarCoordenadas(){
@@ -1487,7 +1550,9 @@ async function guardarRegistro(){
   // v9.18 — sub-atributos condicionales
   const superficie=document.getElementById('f-superficie')?.value.trim()||'';
   const modalidad=document.getElementById('f-modalidad')?.value.trim()||'';
-  if(!ruta){toast('Seleccioná la ruta','err');return;}
+  // v9.20 — tipo_via (RP o camino secundario)
+  const tipoVia=document.getElementById('f-tipo-via')?.value||'rp';
+  if(!ruta){toast(tipoVia==='camino'?'Seleccioná el camino':'Seleccioná la ruta','err');return;}
   if(!tipo){toast('Seleccioná el tipo de suceso','err');return;}
   if(!lat||!lng){toast('Aplicá las coordenadas GPS con ↓ Usar','err');return;}
   const fecha=new Date().toISOString(), tempId=Date.now();
@@ -1498,26 +1563,28 @@ async function guardarRegistro(){
   if (modalidad) meta.push('modalidad:'+modalidad);
   if (meta.length) obsCompletas = (obs ? obs+'\n\n' : '') + '['+meta.join(' · ')+']';
   // v9.19 — Workflow: registros de campo entran como 'campo' (van a cola de revisión)
-  //                  Foto se sube CRUDA, sello_version queda NULL hasta que apruebe el revisor
-  // v9.19 — Armonización: pre-validamos contra GPS para guardar resultado
+  // v9.20 — Si es camino, NO armonizar contra RPs (armonizador solo conoce RPs por ahora)
   let validadoGeo = 'sin_coords';
-  if (lat && lng && typeof ARMONIZADOR !== 'undefined') {
+  if (lat && lng && typeof ARMONIZADOR !== 'undefined' && tipoVia === 'rp') {
     try {
       const gpsAccArm = (typeof gpsAcc === 'number' && gpsAcc > 0) ? gpsAcc : 10;
       const r = ARMONIZADOR.armonizar({ lat, lng, gpsAcc: gpsAccArm, ruta, partido, prog });
       if (r.motivo === 'gps_sospechoso') validadoGeo = 'gps_sospechoso';
       else if (r.severidad === 'ninguna' || r.cambios.length === 0) validadoGeo = 'auto_ok';
-      else validadoGeo = 'pendiente';  // hay sugerencias, el revisor decide en oficina
+      else validadoGeo = 'pendiente';
     } catch (e) { console.warn('Armonizar:', e); }
+  } else if (tipoVia === 'camino') {
+    validadoGeo = 'pendiente';  // caminos requieren validación manual en oficina (futuro: armonizar contra red secundaria)
   }
   const reg={
     ruta, partido:partido||null, progresiva:prog||'', tipo,
     estado:estado||null, observaciones:obsCompletas||null,
     foto_url:null, lat, lng, fecha,
-    estado_workflow: 'campo',     // ← v9.19 workflow
-    validado_geo:    validadoGeo, // ← v9.19 resultado armonización en campo
-    sello_version:   null,        // ← v9.19 sin sello todavía
-    prioridad:       'normal'     // ← v9.19 futuro: checkbox urgente
+    estado_workflow: 'campo',
+    validado_geo:    validadoGeo,
+    sello_version:   null,
+    prioridad:       'normal',
+    tipo_via:        tipoVia      // ← v9.20 RP o camino secundario
   };
   if(navigator.onLine) showOv('Verificando conexión…');
   const online=await estaOnline();
@@ -1702,6 +1769,8 @@ function limpiarForm(){
   });
   document.getElementById('f-superficie-wrap').style.display='none';
   document.getElementById('f-modalidad-wrap').style.display='none';
+  // v9.20 — resetear toggle tipo_via a RP por default
+  if (typeof setTipoVia === 'function') setTipoVia('rp');
   tipoReset();
   document.getElementById('f-lat').value=''; document.getElementById('f-lng').value='';
   fotoOriginal=null; fotoFinal=null;
