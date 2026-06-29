@@ -1753,6 +1753,13 @@ function tipoInit(){
 }
 function tipoMostrarItems(catKey){
   const cat=DVBA_TIPOS.ARBOL[catKey];
+  // v9.19f — Si la categoría tiene un solo ítem (caso "Otro"), auto-seleccionarlo
+  // (evita el caso confuso donde el operador toca la categoría y cree que ya
+  // está seleccionado el tipo, sin tocar el único botón de la lista)
+  if (cat.items.length === 1) {
+    tipoSeleccionar(cat.items[0]);
+    return;
+  }
   document.getElementById('tipo-cats').parentElement.querySelectorAll('.tipo-cat-btn').forEach(b=>b.classList.remove('sel'));
   document.getElementById('tipo-cat-label').textContent=cat.icon+' '+cat.label;
   const iDiv=document.getElementById('tipo-items');

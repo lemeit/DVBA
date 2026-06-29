@@ -3664,6 +3664,11 @@ function z6TipoCerrar() {
 function z6TipoMostrarItems(catKey) {
   if (typeof DVBA_TIPOS === 'undefined') return;
   const cat = DVBA_TIPOS.ARBOL[catKey];
+  // v7.13 — Si la categoría tiene un solo ítem (caso "Otro"), auto-seleccionarlo
+  if (cat.items.length === 1) {
+    z6TipoSeleccionar(cat.items[0]);
+    return;
+  }
   document.getElementById('z6-tipo-cat-lbl').textContent = cat.icon + ' ' + cat.label;
   const iDiv = document.getElementById('z6-tipo-items');
   iDiv.innerHTML = '';
