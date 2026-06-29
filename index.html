@@ -375,6 +375,18 @@ body.modo-campo #campo-fab{display:flex}
           <button class="btn btn-xs btn-ghost" onclick="noneR()">Ninguna</button>
         </div>
       </div>
+      <!-- v7.16 — Caminos Secundarios (paralelo a Rutas Provinciales) -->
+      <div class="sec">
+        <div class="sec-title">Caminos Secundarios <span id="cs-count" style="color:#7050b0;font-weight:600;font-size:9px"></span></div>
+        <div style="font-size:9px;color:var(--mut);margin-bottom:4px">Filtros por clase:</div>
+        <div id="cs-clases" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px"></div>
+        <div id="cs-tags" style="max-height:120px;overflow-y:auto;padding:2px;border:1px solid var(--light);border-radius:4px;background:#fafbfc;font-size:9.5px"></div>
+        <div style="display:flex;gap:4px;margin-top:6px;align-items:center">
+          <button class="btn btn-xs btn-ghost" onclick="csAllOn()">Todos</button>
+          <button class="btn btn-xs btn-ghost" onclick="csAllOff()">Ninguno</button>
+          <button class="btn btn-xs btn-ghost" onclick="toggleCaminosLayer()" id="btn-cs-map" style="margin-left:auto;color:#7050b0;border-color:#7050b0">🚜 Ver en mapa</button>
+        </div>
+      </div>
       <div class="sec" style="border-bottom:none">
         <div class="sec-title">Zona VI · Resumen</div>
         <div class="sgrid">
@@ -562,7 +574,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.15';
+const APP_VERSION = 'v7.16';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1310,9 +1322,9 @@ function buildPartidosUI(){
     const o=document.createElement('option'); o.value=n; o.textContent=n; s.appendChild(o);
   });
 }
-function togP(n){selP.has(n)?selP.delete(n):selP.add(n);document.getElementById('pb-'+n)?.classList.toggle('on');drawPartidos();}
-function allP(){PARTIDOS_LIST.forEach(n=>{selP.add(n);document.getElementById('pb-'+n)?.classList.add('on');});drawPartidos();}
-function noneP(){PARTIDOS_LIST.forEach(n=>{selP.delete(n);document.getElementById('pb-'+n)?.classList.remove('on');});drawPartidos();}
+function togP(n){selP.has(n)?selP.delete(n):selP.add(n);document.getElementById('pb-'+n)?.classList.toggle('on');drawPartidos();if(typeof csBuildTagList==='function'){csBuildTagList();if(_caminosSecVisible)csRefrescarLayer();}}
+function allP(){PARTIDOS_LIST.forEach(n=>{selP.add(n);document.getElementById('pb-'+n)?.classList.add('on');});drawPartidos();if(typeof csBuildTagList==='function'){csBuildTagList();if(_caminosSecVisible)csRefrescarLayer();}}
+function noneP(){PARTIDOS_LIST.forEach(n=>{selP.delete(n);document.getElementById('pb-'+n)?.classList.remove('on');});drawPartidos();if(typeof csBuildTagList==='function'){csBuildTagList();if(_caminosSecVisible)csRefrescarLayer();}}
 
 function buildRutasUI(){
   const c=document.getElementById('rtags'),s=document.getElementById('fruta');
@@ -3335,56 +3347,169 @@ const loginVer = document.getElementById('login-app-ver');
 if (loginVer) loginVer.textContent = APP_VERSION;
 
 /* ═══════════════════════════════════════════════════════════════════
-   v7.15 — CAPA DE CAMINOS SECUNDARIOS EN EL MAPA
+   v7.16 — CAMINOS SECUNDARIOS: capa Leaflet + sidebar con filtros
+   Paridad de UX con Rutas Provinciales — filtros por partido + clase
    ═══════════════════════════════════════════════════════════════════ */
 let _caminosSecLayer = null;
 let _caminosSecVisible = false;
+let _caminosGeoJSON_cache = null;
+let csSelKeys = null;        // Set<key> caminos visibles (todos por default)
+let csSelClases = null;      // Set<clase> clases activas (todas por default)
+const CS_CLASES = ['DE TIERRA', 'PAVIMENTADO', 'MIXTO', 'SIN ABRIR'];
+const CS_COLOR_CLASE = {
+  'DE TIERRA':    '#a07842',
+  'PAVIMENTADO':  '#3a7bd5',
+  'MIXTO':        '#7050b0',
+  'SIN ABRIR':    '#888888',
+};
 
-function toggleCaminosLayer(){
-  if (!_caminosSecLayer) {
-    // Construir la capa la primera vez (lazy)
-    if (typeof RED_VIAL === 'undefined') { alert('Módulo de caminos no cargado todavía. Refrescá la página.'); return; }
-    RED_VIAL.init().then(() => {
-      _caminosSecLayer = L.geoJSON(null, {
-        style: { color:'#7050b0', weight:1.8, opacity:.65, lineJoin:'round', lineCap:'round' },
-        onEachFeature: (feat, layer) => {
-          const p = feat.properties;
-          const den = p.DENOMINACION ? '<br>' + p.DENOMINACION : '';
-          const km = p.LONGITUD_KM_WGS84 ? '<br><b>' + p.LONGITUD_KM_WGS84.toFixed(2) + ' km</b>' : '';
-          const cls = p.CLASE ? '<br><i style="color:#888">' + p.CLASE + '</i>' : '';
-          layer.bindPopup(`<b style="color:#7050b0">🚜 ${p.NOMEMCLATURA}</b>${den}${km}${cls}<br><span style="color:#888;font-size:10px">${p.PARTIDO_NOMBRE}</span>`);
-          layer.on('mouseover', e => e.target.setStyle({ weight:3.5, opacity:1 }));
-          layer.on('mouseout',  e => e.target.setStyle({ weight:1.8, opacity:.65 }));
-        }
-      });
-      // Buscar el geojson cargado por RED_VIAL
-      fetch('datos/zona_vi/red_secundaria_zonaVI_final.geojson')
-        .then(r => r.json())
-        .then(geo => { _caminosSecLayer.addData(geo); _activarCaminosLayer(); });
-    });
-  } else {
-    if (_caminosSecVisible) _desactivarCaminosLayer();
-    else _activarCaminosLayer();
+function csInit(){
+  if (typeof RED_VIAL === 'undefined') return;
+  RED_VIAL.init().then(() => {
+    const todos = RED_VIAL.listarCaminos();
+    if (!csSelKeys)   csSelKeys   = new Set(todos.map(c => c.key));
+    if (!csSelClases) csSelClases = new Set(CS_CLASES);
+    csBuildClaseChips();
+    csBuildTagList();
+  }).catch(()=>{});
+}
+
+function csBuildClaseChips(){
+  const c = document.getElementById('cs-clases');
+  if (!c) return;
+  c.innerHTML = CS_CLASES.map(cls => {
+    const on = csSelClases.has(cls);
+    const col = CS_COLOR_CLASE[cls];
+    return `<span class="regtag ${on?'on':''}" onclick="csToggleClase('${cls}')"
+       style="background:${on?col+'30':'transparent'};color:${on?col:'#777'};border:1px solid ${on?col:'var(--light)'};padding:2px 7px;font-size:9px;border-radius:10px;cursor:pointer;font-weight:600">
+       ${cls.toLowerCase()}</span>`;
+  }).join('');
+}
+
+function csBuildTagList(){
+  const c = document.getElementById('cs-tags');
+  const cnt = document.getElementById('cs-count');
+  if (!c) return;
+  const visibles = csListarVisibles();
+  if (cnt) cnt.textContent = '(' + visibles.length + ')';
+  if (!visibles.length) {
+    c.innerHTML = '<div style="padding:8px;color:#888;font-size:9px;text-align:center">Sin caminos en los filtros activos</div>';
+    return;
+  }
+  c.innerHTML = visibles.map(c => {
+    const on = csSelKeys.has(c.key);
+    const col = CS_COLOR_CLASE[c.clase] || '#7050b0';
+    const ttl = c.tooltip ? ` title="${c.tooltip.replace(/"/g, '&quot;')}"` : '';
+    return `<span class="regtag" onclick="csToggleKey('${c.key}')"${ttl}
+       style="background:${on?col+'25':'transparent'};color:${on?col:'#777'};border:1px solid ${on?col:'var(--light)'};padding:1px 6px;font-size:9.5px;border-radius:8px;cursor:pointer;display:inline-block;margin:1px 1px;font-weight:600">
+       ${c.key}</span>`;
+  }).join('');
+}
+
+// Lista los caminos que pasan los filtros activos (partido + clase)
+function csListarVisibles(){
+  if (typeof RED_VIAL === 'undefined' || !csSelClases) return [];
+  return RED_VIAL.listarCaminos().filter(c =>
+    csSelClases.has(c.clase) && (typeof selP !== 'undefined' ? selP.has(c.partido) : true)
+  );
+}
+
+function csToggleClase(cls){
+  if (csSelClases.has(cls)) csSelClases.delete(cls);
+  else csSelClases.add(cls);
+  csBuildClaseChips(); csBuildTagList();
+  if (_caminosSecVisible) csRefrescarLayer();
+}
+
+function csToggleKey(key){
+  if (csSelKeys.has(key)) csSelKeys.delete(key);
+  else csSelKeys.add(key);
+  csBuildTagList();
+  if (_caminosSecVisible) csRefrescarLayer();
+}
+
+function csAllOn(){
+  if (typeof RED_VIAL === 'undefined') return;
+  csSelKeys = new Set(RED_VIAL.listarCaminos().map(c => c.key));
+  csBuildTagList();
+  if (_caminosSecVisible) csRefrescarLayer();
+}
+
+function csAllOff(){
+  csSelKeys = new Set();
+  csBuildTagList();
+  if (_caminosSecVisible) csRefrescarLayer();
+}
+
+// Construir o refrescar la capa de Leaflet filtrada
+function csRefrescarLayer(){
+  if (!_caminosGeoJSON_cache) {
+    fetch('datos/zona_vi/red_secundaria_zonaVI_final.geojson')
+      .then(r => r.json())
+      .then(geo => { _caminosGeoJSON_cache = geo; csRefrescarLayer(); });
+    return;
+  }
+  // Eliminar capa anterior
+  if (_caminosSecLayer) map.removeLayer(_caminosSecLayer);
+  // Construir features filtrados
+  const featuresVisibles = _caminosGeoJSON_cache.features.filter(f => {
+    const p = f.properties;
+    if (!csSelKeys.has(p.NOMEMCLATURA)) return false;
+    if (!csSelClases.has(p.CLASE)) return false;
+    if (typeof selP !== 'undefined' && !selP.has(p.PARTIDO_NOMBRE)) return false;
+    return true;
+  });
+  _caminosSecLayer = L.geoJSON({type:'FeatureCollection', features: featuresVisibles}, {
+    style: f => ({ color: CS_COLOR_CLASE[f.properties.CLASE] || '#7050b0', weight:1.8, opacity:.75, lineJoin:'round', lineCap:'round' }),
+    onEachFeature: (feat, layer) => {
+      const p = feat.properties;
+      const den = p.DENOMINACION ? '<br>' + p.DENOMINACION : '';
+      const km = p.LONGITUD_KM_WGS84 ? '<br><b>' + p.LONGITUD_KM_WGS84.toFixed(2) + ' km</b>' : '';
+      const cls = p.CLASE ? '<br><i style="color:#888">' + p.CLASE + '</i>' : '';
+      layer.bindPopup(`<b style="color:#7050b0">🚜 ${p.NOMEMCLATURA}</b>${den}${km}${cls}<br><span style="color:#888;font-size:10px">${p.PARTIDO_NOMBRE}</span>`);
+      layer.on('mouseover', e => e.target.setStyle({ weight:3.5, opacity:1 }));
+      layer.on('mouseout',  e => e.target.setStyle({ weight:1.8, opacity:.75 }));
+    }
+  });
+  if (_caminosSecVisible) {
+    map.addLayer(_caminosSecLayer);
+    _caminosSecLayer.bringToBack();
+    Object.values(capasP).forEach(l => l.bringToBack && l.bringToBack());
   }
 }
 
-function _activarCaminosLayer(){
-  if (!_caminosSecLayer) return;
-  map.addLayer(_caminosSecLayer);
-  _caminosSecLayer.bringToBack();  // caminos por debajo de las RPs y registros
-  Object.values(capasP).forEach(l => l.bringToBack && l.bringToBack());  // partidos aún más abajo
-  _caminosSecVisible = true;
-  const btn = document.getElementById('btn-caminos');
-  if (btn) { btn.classList.add('active'); btn.style.background = '#7050b0'; btn.style.color = '#fff'; }
+function toggleCaminosLayer(){
+  if (!_caminosSecLayer) {
+    csRefrescarLayer();
+    _caminosSecVisible = true;
+    setTimeout(() => { if (_caminosSecLayer) { map.addLayer(_caminosSecLayer); _caminosSecLayer.bringToBack(); Object.values(capasP).forEach(l => l.bringToBack && l.bringToBack()); } }, 200);
+    _csUpdateBtnEstado(true);
+    return;
+  }
+  if (_caminosSecVisible) {
+    map.removeLayer(_caminosSecLayer);
+    _caminosSecVisible = false;
+    _csUpdateBtnEstado(false);
+  } else {
+    map.addLayer(_caminosSecLayer);
+    _caminosSecLayer.bringToBack();
+    Object.values(capasP).forEach(l => l.bringToBack && l.bringToBack());
+    _caminosSecVisible = true;
+    _csUpdateBtnEstado(true);
+  }
 }
 
-function _desactivarCaminosLayer(){
-  if (!_caminosSecLayer) return;
-  map.removeLayer(_caminosSecLayer);
-  _caminosSecVisible = false;
-  const btn = document.getElementById('btn-caminos');
-  if (btn) { btn.classList.remove('active'); btn.style.background = ''; btn.style.color = '#7050b0'; }
+function _csUpdateBtnEstado(on){
+  ['btn-caminos','btn-cs-map'].forEach(id => {
+    const b = document.getElementById(id);
+    if (!b) return;
+    if (on) { b.classList.add('active'); b.style.background = '#7050b0'; b.style.color = '#fff'; }
+    else    { b.classList.remove('active'); b.style.background = ''; b.style.color = '#7050b0'; }
+  });
 }
+
+// Auto-init después del DOM
+document.addEventListener('DOMContentLoaded', () => setTimeout(csInit, 500));
 
 /* ═══════════════════════════════════════════════════════════════════
    v7.15 — TIPO DE VÍA (RP / Camino Secundario) en form escritorio
