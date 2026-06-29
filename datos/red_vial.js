@@ -24,7 +24,8 @@ const RED_VIAL = (() => {
 
   // Estado interno
   let _caminosGeoJSON = null;
-  let _caminosIndex = null;  // Map<nomemclatura, feature>
+  let _caminosIndex = null;       // Map<nomemclatura, feature> — primer feature por key (legacy)
+  let _caminosGrupos = null;      // Map<nomemclatura, grupo agrupado> — v1.1 (post agrupación)
   let _caminosPorPartido = null;  // Map<partido, [features]>
   let _initPromise = null;
 
@@ -44,14 +45,21 @@ const RED_VIAL = (() => {
         _caminosPorPartido = new Map();
         for (const f of (j.features || [])) {
           const nom = f.properties.NOMEMCLATURA;
-          if (nom) _caminosIndex.set(nom, f);
+          if (nom) _caminosIndex.set(nom, f);  // legacy: solo guarda el último
           const part = f.properties.PARTIDO_NOMBRE;
           if (part) {
             if (!_caminosPorPartido.has(part)) _caminosPorPartido.set(part, []);
             _caminosPorPartido.get(part).push(f);
           }
         }
-        console.log('[RedVial] cargados', j.features.length, 'caminos en', _caminosPorPartido.size, 'partidos');
+        // v1.1 — pre-agrupar caminos por NOMEMCLATURA (cada camino puede tener varios tramos)
+        _caminosGrupos = new Map();
+        for (const g of _agruparPorNomenclatura(j.features || [])) {
+          _caminosGrupos.set(g.key, g);
+        }
+        const tramos = j.features.length;
+        const caminosUnicos = _caminosGrupos.size;
+        console.log('[RedVial] cargados', caminosUnicos, 'caminos únicos (' + tramos + ' tramos) en', _caminosPorPartido.size, 'partidos');
         return j;
       })
       .catch(e => {
@@ -79,51 +87,71 @@ const RED_VIAL = (() => {
     return out;
   }
 
-  // ── Listar TODOS los caminos secundarios ──────────────────────────
-  function listarCaminos() {
-    if (!_caminosGeoJSON) return [];
-    const out = [];
-    for (const f of _caminosGeoJSON.features) {
+  // ── Agrupar features por NOMEMCLATURA ─────────────────────────────
+  // Cada camino tiene múltiples tramos en el GeoJSON original. Esta función
+  // los agrupa y arma una sola entrada por camino (suma longitudes, concatena
+  // denominaciones de tramos únicas).
+  function _agruparPorNomenclatura(features) {
+    const grupos = new Map();
+    for (const f of features) {
       const p = f.properties;
-      out.push({
-        key: p.NOMEMCLATURA,
-        label: p.NOMEMCLATURA + (p.DENOMINACION ? ' — ' + p.DENOMINACION : ''),
-        denominacion: p.DENOMINACION || '',
-        partido: p.PARTIDO_NOMBRE,
-        partidoCode: p.PARTIDO,
-        tipo: 'camino',
-        clase: p.CLASE,
-        transitabilidad: p.TRANSITABIlIDAD,  // sic — el campo viene con typo del original
-        longKm: p.LONGITUD_KM_WGS84 || p.LONGITUD_KM_ORIG,
-      });
+      const k = p.NOMEMCLATURA;
+      if (!k) continue;
+      if (!grupos.has(k)) {
+        grupos.set(k, {
+          key: k,
+          partido: p.PARTIDO_NOMBRE,
+          partidoCode: p.PARTIDO,
+          tipo: 'camino',
+          clase: p.CLASE,
+          longKm: 0,
+          tramos: [],
+          featuresOrig: [],   // para acceso futuro (geometry, etc.)
+        });
+      }
+      const g = grupos.get(k);
+      g.longKm += (p.LONGITUD_KM_WGS84 || p.LONGITUD_KM_ORIG || 0);
+      if (p.DENOMINACION) g.tramos.push(p.DENOMINACION);
+      g.featuresOrig.push(f);
     }
-    // Ordenar por NOMEMCLATURA
+    // Construir label y denominacion final
+    const out = [];
+    for (const g of grupos.values()) {
+      const denomsUnicas = [...new Set(g.tramos.filter(d => d))];
+      g.denominacion = denomsUnicas.join(' / ');
+      if (denomsUnicas.length === 0) {
+        g.label = g.key;
+      } else if (denomsUnicas.length === 1) {
+        g.label = g.key + ' — ' + denomsUnicas[0];
+      } else {
+        // Mostrar primer y último tramo si son varios — más útil que solo "(N tramos)"
+        g.label = g.key + ' (' + g.featuresOrig.length + ' tramos)';
+      }
+      g.longKm = Math.round(g.longKm * 100) / 100;  // 2 decimales
+      out.push(g);
+    }
     out.sort((a, b) => String(a.key).localeCompare(String(b.key)));
     return out;
   }
 
-  // ── Caminos filtrados por partido ─────────────────────────────────
+  // ── Listar TODOS los caminos secundarios (agrupados) ──────────────
+  function listarCaminos() {
+    if (!_caminosGeoJSON) return [];
+    return _agruparPorNomenclatura(_caminosGeoJSON.features);
+  }
+
+  // ── Caminos filtrados por partido (agrupados) ─────────────────────
   function getCaminosPorPartido(partidoNombre) {
     if (!_caminosPorPartido) return [];
     const feats = _caminosPorPartido.get(partidoNombre) || [];
-    return feats.map(f => {
-      const p = f.properties;
-      return {
-        key: p.NOMEMCLATURA,
-        label: p.NOMEMCLATURA + (p.DENOMINACION ? ' — ' + p.DENOMINACION : ''),
-        denominacion: p.DENOMINACION || '',
-        partido: p.PARTIDO_NOMBRE,
-        tipo: 'camino',
-        clase: p.CLASE,
-        longKm: p.LONGITUD_KM_WGS84 || p.LONGITUD_KM_ORIG,
-      };
-    }).sort((a, b) => String(a.key).localeCompare(String(b.key)));
+    return _agruparPorNomenclatura(feats);
   }
 
-  // ── Obtener feature completo de un camino (con geometry) ──────────
+  // ── Obtener grupo agrupado de un camino (con todos sus tramos / features) ──
+  // Devuelve { key, label, partido, clase, longKm, tramos[], featuresOrig[] }
   function getCaminoByKey(nomemclatura) {
-    if (!_caminosIndex) return null;
-    return _caminosIndex.get(nomemclatura) || null;
+    if (!_caminosGrupos) return null;
+    return _caminosGrupos.get(nomemclatura) || null;
   }
 
   // ── Inferir tipo_via desde un string de ruta ──────────────────────
@@ -151,7 +179,8 @@ const RED_VIAL = (() => {
     return {
       rpsCargadas: RP_LIST.length,
       rpsConBundle: RP_LIST.filter(k => typeof CHAINS_DATA !== 'undefined' && CHAINS_DATA[k]).length,
-      caminos: _caminosGeoJSON ? _caminosGeoJSON.features.length : 0,
+      caminosUnicos: _caminosGrupos ? _caminosGrupos.size : 0,
+      tramosTotales: _caminosGeoJSON ? _caminosGeoJSON.features.length : 0,
       partidosConCaminos: _caminosPorPartido ? _caminosPorPartido.size : 0,
     };
   }
