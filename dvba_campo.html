@@ -432,9 +432,7 @@ body.accesible #user-info{color:#ffd700}
 .tv-btn:hover:not(.active){background:#dbe5ee}
 body.accesible .tv-btn{padding:14px 12px;font-size:1rem}
 
-/* Cuando tipo=camino: el partido va PRIMERO (para filtrar el selector de caminos) */
-.row2.tipo-camino #field-f-ruta{order:2}
-.row2.tipo-camino #field-f-partido{order:1}
+/* v9.20b — Partido siempre primero, ya está en el HTML; CSS sobrante eliminado */
 
 /* ── Modal "Editar datos del sello" v9.11 ── */
 .mov-sello{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:flex-end;justify-content:center}
@@ -562,7 +560,17 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
         </div>
         <input type="hidden" id="f-tipo-via" value="rp">
       </div>
+      <!-- v9.20b — Partido SIEMPRE primero (consistente RP y Camino) -->
       <div class="row2" id="row-ruta-partido">
+        <div class="field" id="field-f-partido"><div class="flbl">Partido</div>
+          <select id="f-partido" onchange="actualizarCaminosDelPartido()">
+            <option value="">— Partido —</option>
+            <option>General Alvear</option><option>General Las Heras</option>
+            <option>Las Flores</option><option>Lobos</option><option>Navarro</option>
+            <option>Roque Pérez</option><option>Saladillo</option>
+            <option>Veinticinco de Mayo</option>
+          </select>
+        </div>
         <div class="field" id="field-f-ruta"><div class="flbl" id="lbl-f-ruta">Ruta Provincial</div>
           <select id="f-ruta">
             <option value="">— Ruta —</option>
@@ -571,15 +579,6 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
             <option>RP 42</option><option>RP 43</option><option>RP 44</option>
             <option>RP 46</option><option>RP 47</option><option>RP 48</option>
             <option>RP 51</option><option>RP 61</option><option>RP 91</option>
-          </select>
-        </div>
-        <div class="field" id="field-f-partido"><div class="flbl">Partido</div>
-          <select id="f-partido" onchange="actualizarCaminosDelPartido()">
-            <option value="">— Partido —</option>
-            <option>General Alvear</option><option>General Las Heras</option>
-            <option>Las Flores</option><option>Lobos</option><option>Navarro</option>
-            <option>Roque Pérez</option><option>Saladillo</option>
-            <option>Veinticinco de Mayo</option>
           </select>
         </div>
       </div>
@@ -1039,9 +1038,7 @@ function setTipoVia(tipo){
   elTipo.value = tipo;
   // Actualizar botones toggle
   document.querySelectorAll('.tv-btn').forEach(b => b.classList.toggle('active', b.dataset.tv === tipo));
-  // v9.20a — Reordenar UI: cuando tipo=camino, Partido va primero (porque filtra el selector de Camino)
-  const row = document.getElementById('row-ruta-partido');
-  if (row) row.classList.toggle('tipo-camino', tipo === 'camino');
+  // v9.20b — orden fijo Partido↔Ruta/Camino (definido en HTML, no necesita JS)
   // Actualizar label + opciones del selector "Ruta/Camino"
   const ruta = document.getElementById('f-ruta');
   const lbl = document.getElementById('lbl-f-ruta');
@@ -1078,8 +1075,9 @@ function actualizarCaminosDelPartido(){
   }
   ruta.innerHTML = '<option value="">— Camino (' + caminos.length + ') —</option>' +
     caminos.map(c => {
-      const denom = c.denominacion ? ' — ' + c.denominacion : '';
-      return `<option value="${c.key}" title="${c.denominacion}">${c.key}${denom}</option>`;
+      // Solo el código en el label, descripción/km como tooltip
+      const ttl = c.tooltip ? ` title="${c.tooltip.replace(/"/g, '&quot;')}"` : '';
+      return `<option value="${c.key}"${ttl}>${c.key}</option>`;
     }).join('');
 }
 

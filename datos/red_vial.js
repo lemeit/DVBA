@@ -114,23 +114,18 @@ const RED_VIAL = (() => {
       if (p.DENOMINACION) g.tramos.push(p.DENOMINACION);
       g.featuresOrig.push(f);
     }
-    // Construir label final — limpio para la app móvil (sin "N tramos")
+    // Construir label final — SOLO el código de nomenclatura (limpio para móvil)
+    // Las denominaciones y km totales quedan en el objeto para uso futuro (tooltip, escritorio)
     const out = [];
     for (const g of grupos.values()) {
       const denomsUnicas = [...new Set(g.tramos.filter(d => d))];
       g.denominacion = denomsUnicas.join(' / ');
-      g.longKm = Math.round(g.longKm * 100) / 100;  // 2 decimales
-      const kmStr = g.longKm > 0 ? g.longKm.toFixed(1) + ' km' : '';
-      if (denomsUnicas.length === 0) {
-        // Sin denominación: solo código + km
-        g.label = kmStr ? g.key + ' — ' + kmStr : g.key;
-      } else if (denomsUnicas.length === 1) {
-        // 1 sola denominación: código + denominación + km
-        g.label = g.key + ' — ' + denomsUnicas[0] + (kmStr ? ' (' + kmStr + ')' : '');
-      } else {
-        // Múltiples tramos: solo código + km total (no listar todas las denoms — ruido)
-        g.label = kmStr ? g.key + ' — ' + kmStr : g.key;
-      }
+      g.longKm = Math.round(g.longKm * 100) / 100;
+      g.label = g.key;  // ← solo código (ej. "093-13")
+      // tooltip con info útil para el option title
+      g.tooltip = g.denominacion
+        ? g.denominacion + (g.longKm > 0 ? ' · ' + g.longKm.toFixed(1) + ' km' : '')
+        : (g.longKm > 0 ? g.longKm.toFixed(1) + ' km' : '');
       out.push(g);
     }
     out.sort((a, b) => String(a.key).localeCompare(String(b.key)));
