@@ -3235,10 +3235,26 @@ if (loginVer) loginVer.textContent = APP_VERSION;
    v7.12 — COLA DE PENDIENTES (workflow campo→oficina + armonización)
    ═══════════════════════════════════════════════════════════════════ */
 
+// Crea el badge en el DOM si no existe (fallback por cache viejo del HTML)
+function ensureColaBadge(){
+  if (document.getElementById('cola-badge')) return;
+  const hright = document.querySelector('.hright');
+  if (!hright) return;
+  const btn = document.createElement('button');
+  btn.id = 'cola-badge';
+  btn.title = 'Registros pendientes de revisión';
+  btn.onclick = () => abrirColaPendientes();
+  btn.innerHTML = '🔔 <span id="cola-count">0</span> pendientes';
+  // Insertar al inicio del .hright
+  hright.insertBefore(btn, hright.firstChild);
+  console.log('[Cola] badge creado dinámicamente (fallback)');
+}
+
 // Refresca el contador del badge en el header — solo visible si hay pendientes
 function actualizarBadgeCola(){
+  ensureColaBadge();  // crea el badge si no existe (cache viejo)
   const badge = document.getElementById('cola-badge');
-  if (!badge) return;
+  if (!badge) { console.warn('[Cola] no se pudo crear badge — .hright no existe'); return; }
   // Check de "logueado" usando el DOM (más confiable que checkear la SDK): el div
   // user-info recibe la clase 'show' cuando hay sesión activa (ver auth.js).
   const userInfo = document.getElementById('user-info');
@@ -3326,12 +3342,15 @@ function renderColaItem(reg){
   const fotoHTML = reg.foto
     ? `<img src="${reg.foto}" onclick="showFoto('${reg.foto}')" alt="Foto">`
     : '<div class="sin-foto">📷 sin foto</div>';
+  // Normalizar prefijo RP: si reg.ruta ya empieza con RP/CS, no duplicar
+  const rutaStr = reg.ruta || '?';
+  const rutaLabel = /^(RP|CS)\s/i.test(rutaStr) ? rutaStr : ('RP ' + rutaStr);
   return `
     <div class="cola-item ${claseExtra}" id="cola-item-${reg.id}">
       <div class="cola-item-foto">${fotoHTML}</div>
       <div class="cola-item-body">
         <div class="cola-item-titulo">
-          RP ${reg.ruta || '?'} ${reg.prog ? `· km ${reg.prog}` : ''} ${urgenteBadge}
+          ${rutaLabel} ${reg.prog ? `· km ${reg.prog}` : ''} ${urgenteBadge}
         </div>
         <div class="cola-item-meta">
           ${reg.partido ? reg.partido + ' · ' : ''}
