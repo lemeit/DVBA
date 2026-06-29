@@ -667,7 +667,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.18</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.19</span>
 </div>
 
 
@@ -1023,7 +1023,53 @@ function usarCoordenadas(){
   const box=document.getElementById('coord-box');
   box.style.background='rgba(26,138,74,.08)'; box.style.borderColor='rgba(26,138,74,.4)';
   toast('✓ Coords guardadas ±'+gpsAcc+' m','ok');
-  if(fotoOriginal)regenerarSello();
+  // v9.19 — Pre-fill GPS: sugiere partido/ruta/prog desde la armonización si están vacíos
+  prefillDesdeArmonizacion();
+}
+
+/* ── v9.19 — Pre-fill GPS: sugiere partido/ruta/prog automáticamente ──
+ * Solo llena campos VACÍOS para no pisar ediciones del operador.
+ * 100% offline (usa partidos_zona_vi.geojson + CHAINS_DATA ya cacheados).
+ */
+function prefillDesdeArmonizacion(){
+  if (typeof ARMONIZADOR === 'undefined') return;
+  if (!gpsLat || !gpsLng) return;
+  try {
+    const gpsAccArm = (typeof gpsAcc === 'number' && gpsAcc > 0) ? gpsAcc : 10;
+    // Partido (point-in-polygon)
+    const elPart = document.getElementById('f-partido');
+    if (elPart && !elPart.value) {
+      const partido = ARMONIZADOR.detectarPartido(gpsLat, gpsLng);
+      if (partido) {
+        elPart.value = partido;
+        toast('★ Partido sugerido: ' + partido, 'ok');
+      }
+    }
+    // Ruta más cercana (radio 500m por default — si estás sobre una RP la detecta)
+    const elRuta = document.getElementById('f-ruta');
+    if (elRuta && !elRuta.value) {
+      const rc = ARMONIZADOR.rutaMasCercana(gpsLat, gpsLng, 500);
+      if (rc) {
+        elRuta.value = rc.ruta;
+        // y aprovechamos para sugerir progresiva
+        const elProg = document.getElementById('f-prog');
+        if (elProg && !elProg.value && isFinite(rc.progKm)) {
+          elProg.value = rc.progKm.toFixed(2);
+        }
+        toast('★ Ruta sugerida: RP' + rc.ruta + ' · km ' + rc.progKm.toFixed(1), 'ok');
+      }
+    } else if (elRuta && elRuta.value) {
+      // Si ya hay ruta cargada, sugerir solo progresiva si está vacía
+      const elProg = document.getElementById('f-prog');
+      if (elProg && !elProg.value) {
+        const pr = ARMONIZADOR.progresivaEnRuta(gpsLat, gpsLng, elRuta.value);
+        if (pr && isFinite(pr.progKm)) {
+          elProg.value = pr.progKm.toFixed(2);
+          toast('★ Progresiva sugerida: km ' + pr.progKm.toFixed(1), 'ok');
+        }
+      }
+    }
+  } catch(e) { console.warn('prefillDesdeArmonizacion:', e); }
 }
 
 async function geocodificar(lat,lng){
@@ -1101,10 +1147,10 @@ function capturarFrame(){
   c.getContext('2d').drawImage(v,0,0);
   cerrarCamara();
   fotoOriginal=c.toDataURL('image/jpeg',0.85);
-  // v9.11 — agregarSelloInteractivo muestra modal editable y luego estampa
-  agregarSelloInteractivo(fotoOriginal)
-    .then(r=>{fotoFinal=r;mostrarFotoPreview(fotoFinal);irPaso(3);})
-    .catch(e=>{console.warn('Sello:',e);fotoFinal=fotoOriginal;mostrarFotoPreview(fotoFinal);irPaso(3);});
+  // v9.19 — procesarFotoCampo muestra modal de confirmación, NO sella (se sella en oficina al aprobar)
+  procesarFotoCampo(fotoOriginal)
+    .then(b=>{fotoFinal=b;mostrarFotoPreview(fotoFinal);irPaso(3);})
+    .catch(e=>{console.warn('Captura:',e);fotoFinal=fotoOriginal;mostrarFotoPreview(fotoFinal);irPaso(3);});
 }
 
 /* ── Galería ── */
@@ -1117,8 +1163,9 @@ function onGaleriaChange(input){
   reader.onload=async e=>{
     try{
       fotoOriginal=await comprimir(e.target.result,1600,0.85);
-      hideOv();  // cerrar overlay antes del modal interactivo (v9.11)
-      fotoFinal=await agregarSelloInteractivo(fotoOriginal);
+      hideOv();
+      // v9.19 — sin sellado en campo
+      fotoFinal=await procesarFotoCampo(fotoOriginal);
       mostrarFotoPreview(fotoFinal); irPaso(3);
     }catch(err){
       if(fotoOriginal){fotoFinal=fotoOriginal;mostrarFotoPreview(fotoFinal);irPaso(3);}
@@ -1130,30 +1177,48 @@ function onGaleriaChange(input){
 }
 function mostrarFotoPreview(b64){
   const p=document.getElementById('foto-prev'); p.src=b64; p.style.display='block';
-  const ok=document.getElementById('foto-ok'); ok.textContent='✅ Foto con sello DVBA lista'; ok.style.display='block';
+  const ok=document.getElementById('foto-ok'); ok.textContent='✅ Foto lista — se sella al aprobar en oficina'; ok.style.display='block';
   ['btn-cam','btn-gal'].forEach(id=>document.getElementById(id).classList.add('done'));
 }
-async function regenerarSello(){
-  if(!fotoOriginal)return;
-  try{
-    // v9.11 — usa los datos del último sello aplicado (sin volver a abrir el modal)
-    const datos=ultimoSelloDatos||recolectarDatosSello();
-    fotoFinal=await agregarSello(fotoOriginal,datos);
-    const p=document.getElementById('foto-prev');
-    if(p.style.display!=='none')p.src=fotoFinal;
-  }catch(e){}
+
+/* ── v9.19 — Procesar foto en campo: muestra modal de datos, NO sella ──
+ * El sellado se hace en oficina cuando un revisor aprueba el registro.
+ * El modal sigue siendo importante porque permite editar/confirmar datos
+ * antes de sincronizar (especialmente útil cuando hay buena señal GPS).
+ */
+async function procesarFotoCampo(b64){
+  if (typeof recolectarDatosSello !== 'function' || typeof mostrarModalSello !== 'function') return b64;
+  const datos = recolectarDatosSello();
+  if (ultimoSelloDatos) {
+    if (!datos.localidad) datos.localidad = ultimoSelloDatos.localidad;
+  }
+  try {
+    const editados = await mostrarModalSello(datos);
+    if (editados) {
+      ultimoSelloDatos = editados;
+      // Persistir los datos editados en los campos del form para que guardarRegistro los use
+      const setIf = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+      if (editados.lat)  setIf('f-lat',  editados.lat);
+      if (editados.lng)  setIf('f-lng',  editados.lng);
+      if (editados.ruta) setIf('f-ruta', editados.ruta);
+      if (editados.prog) setIf('f-prog', editados.prog);
+      if (editados.tipo) setIf('f-tipo', editados.tipo);
+    }
+  } catch(e) { console.warn('procesarFotoCampo:', e); }
+  return b64;  // foto cruda, sin estampar
 }
 
-// v9.11 — botón "Editar sello" (re-abre el modal con los datos actuales y re-estampa)
-async function editarSello(){
+// v9.19 — editarDatosRegistro reemplaza editarSello: re-abre el modal para editar datos del form
+async function editarDatosRegistro(){
   if(!fotoOriginal){toast('Primero tomá una foto','warn');return;}
   try{
-    fotoFinal=await agregarSelloInteractivo(fotoOriginal);
-    const p=document.getElementById('foto-prev');
-    if(p.style.display!=='none')p.src=fotoFinal;
-    toast('Sello actualizado','ok');
-  }catch(e){console.warn('editarSello:',e);}
+    await procesarFotoCampo(fotoOriginal);
+    toast('Datos actualizados','ok');
+  }catch(e){console.warn('editarDatosRegistro:',e);}
 }
+// Alias para compat con código viejo que llamara editarSello() o regenerarSello()
+const editarSello = editarDatosRegistro;
+async function regenerarSello(){ /* v9.19: no-op, el sello se aplica en oficina */ }
 
 /* ── Sello v9.11 — datos editables + layout estilo GPS Map Camera ── */
 
@@ -1416,14 +1481,33 @@ async function guardarRegistro(){
   if(!lat||!lng){toast('Aplicá las coordenadas GPS con ↓ Usar','err');return;}
   const fecha=new Date().toISOString(), tempId=Date.now();
   // Incluimos superficie/modalidad en observaciones (no requiere migración Supabase)
-  // Formato: las observaciones del usuario + meta serializada al final
   let obsCompletas = obs;
   const meta = [];
   if (superficie) meta.push('superficie:'+superficie);
   if (modalidad) meta.push('modalidad:'+modalidad);
   if (meta.length) obsCompletas = (obs ? obs+'\n\n' : '') + '['+meta.join(' · ')+']';
-  const reg={ruta,partido:partido||null,progresiva:prog||'',tipo,
-    estado:estado||null,observaciones:obsCompletas||null,foto_url:null,lat,lng,fecha};
+  // v9.19 — Workflow: registros de campo entran como 'campo' (van a cola de revisión)
+  //                  Foto se sube CRUDA, sello_version queda NULL hasta que apruebe el revisor
+  // v9.19 — Armonización: pre-validamos contra GPS para guardar resultado
+  let validadoGeo = 'sin_coords';
+  if (lat && lng && typeof ARMONIZADOR !== 'undefined') {
+    try {
+      const gpsAccArm = (typeof gpsAcc === 'number' && gpsAcc > 0) ? gpsAcc : 10;
+      const r = ARMONIZADOR.armonizar({ lat, lng, gpsAcc: gpsAccArm, ruta, partido, prog });
+      if (r.motivo === 'gps_sospechoso') validadoGeo = 'gps_sospechoso';
+      else if (r.severidad === 'ninguna' || r.cambios.length === 0) validadoGeo = 'auto_ok';
+      else validadoGeo = 'pendiente';  // hay sugerencias, el revisor decide en oficina
+    } catch (e) { console.warn('Armonizar:', e); }
+  }
+  const reg={
+    ruta, partido:partido||null, progresiva:prog||'', tipo,
+    estado:estado||null, observaciones:obsCompletas||null,
+    foto_url:null, lat, lng, fecha,
+    estado_workflow: 'campo',     // ← v9.19 workflow
+    validado_geo:    validadoGeo, // ← v9.19 resultado armonización en campo
+    sello_version:   null,        // ← v9.19 sin sello todavía
+    prioridad:       'normal'     // ← v9.19 futuro: checkbox urgente
+  };
   if(navigator.onLine) showOv('Verificando conexión…');
   const online=await estaOnline();
   let cloud=false,fotoUrl=null;
