@@ -1667,9 +1667,21 @@ function renderRegs(){
 
   let html = pagina.map(reg=>{
     const m=RUTA_META[reg.ruta]||{color:'#009aae',label:reg.ruta||'?'};
+    // v7.13 — badge de workflow (estado del proceso de revisión)
+    let wfBadge = '';
+    if (reg.estado_workflow === 'campo') {
+      wfBadge = '<span title="Pendiente de revisión en oficina" style="background:#f0a500;color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;margin-right:3px">⏳ EN REVISIÓN</span>';
+    } else if (reg.estado_workflow === 'aprobado' && reg.sello_version === 'v3') {
+      wfBadge = '<span title="Aprobado · sello v3 aplicado" style="background:#28a745;color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;margin-right:3px">✓ APROBADO</span>';
+    } else if (reg.estado_workflow === 'aprobado' && reg.sello_version === 'v2') {
+      wfBadge = '<span title="Histórico (sello v2)" style="background:#9e9e9e;color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;margin-right:3px">📜 HISTÓRICO</span>';
+    } else if (reg.estado_workflow === 'rechazado') {
+      wfBadge = '<span title="' + (reg.motivo_rechazo || 'Rechazado') + '" style="background:#dc3545;color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;margin-right:3px">✕ RECHAZADO</span>';
+    }
     return `<div class="ritem" style="border-left-color:${m.color}">
       <div class="rhdr">
         <span class="rbadge" style="background:${m.color}">${m.label}</span>
+        ${wfBadge}
         ${reg.estado ? `<span class="est est-${reg.estado}">${reg.estado}</span>` : '<span class="est" style="background:#e0e0e0;color:#888">(sin estado)</span>'}
         <button class="btn-edit" onclick="editReg(${reg.id})" title="Editar">✏</button>
         <button class="btn-del" onclick="delReg(${reg.id})" title="Eliminar">✕</button>
