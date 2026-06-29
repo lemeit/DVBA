@@ -432,6 +432,10 @@ body.accesible #user-info{color:#ffd700}
 .tv-btn:hover:not(.active){background:#dbe5ee}
 body.accesible .tv-btn{padding:14px 12px;font-size:1rem}
 
+/* Cuando tipo=camino: el partido va PRIMERO (para filtrar el selector de caminos) */
+.row2.tipo-camino #field-f-ruta{order:2}
+.row2.tipo-camino #field-f-partido{order:1}
+
 /* ── Modal "Editar datos del sello" v9.11 ── */
 .mov-sello{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:flex-end;justify-content:center}
 .mov-sello.on{display:flex}

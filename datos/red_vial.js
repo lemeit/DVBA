@@ -114,20 +114,23 @@ const RED_VIAL = (() => {
       if (p.DENOMINACION) g.tramos.push(p.DENOMINACION);
       g.featuresOrig.push(f);
     }
-    // Construir label y denominacion final
+    // Construir label final — limpio para la app móvil (sin "N tramos")
     const out = [];
     for (const g of grupos.values()) {
       const denomsUnicas = [...new Set(g.tramos.filter(d => d))];
       g.denominacion = denomsUnicas.join(' / ');
-      if (denomsUnicas.length === 0) {
-        g.label = g.key;
-      } else if (denomsUnicas.length === 1) {
-        g.label = g.key + ' — ' + denomsUnicas[0];
-      } else {
-        // Mostrar primer y último tramo si son varios — más útil que solo "(N tramos)"
-        g.label = g.key + ' (' + g.featuresOrig.length + ' tramos)';
-      }
       g.longKm = Math.round(g.longKm * 100) / 100;  // 2 decimales
+      const kmStr = g.longKm > 0 ? g.longKm.toFixed(1) + ' km' : '';
+      if (denomsUnicas.length === 0) {
+        // Sin denominación: solo código + km
+        g.label = kmStr ? g.key + ' — ' + kmStr : g.key;
+      } else if (denomsUnicas.length === 1) {
+        // 1 sola denominación: código + denominación + km
+        g.label = g.key + ' — ' + denomsUnicas[0] + (kmStr ? ' (' + kmStr + ')' : '');
+      } else {
+        // Múltiples tramos: solo código + km total (no listar todas las denoms — ruido)
+        g.label = kmStr ? g.key + ' — ' + kmStr : g.key;
+      }
       out.push(g);
     }
     out.sort((a, b) => String(a.key).localeCompare(String(b.key)));
