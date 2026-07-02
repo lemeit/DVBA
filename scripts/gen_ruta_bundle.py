@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
-gen_ruta_bundle.py v2.6 - DVBA Zona VI Saladillo
+gen_ruta_bundle.py v2.7 - DVBA Zona VI Saladillo
 Genera datos/rutas_rpXX.js desde dos GeoJSON (traza + mojones).
+
+v2.7: agregar anchor inicial {km: prog_ini, acc: 0} para que el portal
+      interpole correctamente la zona inicial (antes del primer mojon
+      fisico). Sin esto, el portal extrapola desde el primer mojon y da
+      progresivas incorrectas en la entrada Zona VI.
 
 USO:
     python scripts/gen_ruta_bundle.py <traza.geojson> <mojones.geojson> --ruta XX [opciones]
@@ -401,6 +406,13 @@ def main():
     print('prog_ini: km' + str(prog_ini))
 
     anchors.sort(key=lambda a: a['km'])
+    # v2.7 — Agregar anchor inicial {km: prog_ini, acc: 0} si no existe.
+    # Esto permite al portal interpolar correctamente entre el inicio de la
+    # cadena (entrada Zona VI = km prog_ini) y el primer mojon fisico.
+    # Sin esto, el portal extrapola hacia atras desde el primer mojon
+    # (ej km 50) y da progresivas incorrectas en la zona inicial.
+    if not anchors or anchors[0]['acc'] > 0.01:
+        anchors.insert(0, {'km': round(prog_ini, 2), 'acc': 0.0})
     anchors.append({'km': round(prog_ini + total_km, 1), 'acc': round(total_km, 4)})
     moj_fis.sort(key=lambda m: m['km'])
 
@@ -444,7 +456,7 @@ def main():
     js_lines = []
     js_lines.append('// =================================================================')
     js_lines.append('// datos/rutas_rp' + rn + '.js  -  RP' + rn + ' DVBA Zona VI')
-    js_lines.append('// Generado por gen_ruta_bundle.py v2.6 (orden=' + args.order_by + ')')
+    js_lines.append('// Generado por gen_ruta_bundle.py v2.7 (orden=' + args.order_by + ')')
     js_lines.append('// ' + str(n_sub) + ' pts | ' + str(tk_r) + ' km | progIni:' + str(prog_ini) + ' | progFin:' + str(prog_fin))
     js_lines.append('// Gaps reales (es_gap=1): ' + str(n_real) + ' [GAPS_RP' + rn + ']')
     js_lines.append('// Gaps auto-detectados:   ' + str(n_auto) + ' [GAPS_AUTO_RP' + rn + ']')

@@ -685,7 +685,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.23</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.24</span>
 </div>
 
 
@@ -1324,6 +1324,15 @@ function generarPlusCode(lat,lng){
 }
 
 // Pre-poblar datos del modal v3 (sin Dirección ni Plus Code — reemplazados por QR Google Maps)
+// v9.24 — Helper: elige prefijo correcto para el sello ("RP" o "Cno.") según tipo_via
+function _prefijoRutaSello(rutaRaw, tipoVia){
+  const r = String(rutaRaw || '').trim();
+  if (!r) return '';
+  if (/^(RP|CS|Cno)/i.test(r)) return r;
+  const esCamino = tipoVia === 'camino' || /^\d{3}-\d{2,3}$/.test(r);
+  return esCamino ? ('Cno. ' + r) : ('RP ' + r);
+}
+
 function recolectarDatosSello(){
   const now=new Date();
   const pad=n=>String(n).padStart(2,'0');
@@ -1334,7 +1343,10 @@ function recolectarDatosSello(){
   const lat=isFinite(latN)?latN.toFixed(6):'';
   const lng=isFinite(lngN)?lngN.toFixed(6):'';
   const alt=(typeof gpsAlt==='number'&&gpsAlt!==null)?String(gpsAlt):'';
-  const ruta=document.getElementById('f-ruta')?.value||'';
+  const rutaRaw=document.getElementById('f-ruta')?.value||'';
+  const tipoVia=document.getElementById('f-tipo-via')?.value||'rp';
+  // v9.24 — Aplicar prefijo correcto ("Cno." para caminos, "RP" para rutas)
+  const ruta=_prefijoRutaSello(rutaRaw, tipoVia);
   const prog=document.getElementById('f-prog')?.value||'';
   const partido=document.getElementById('f-partido')?.value||'';
   const tipo=document.getElementById('f-tipo')?.value||'';
