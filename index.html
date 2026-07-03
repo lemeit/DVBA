@@ -584,7 +584,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.29';
+const APP_VERSION = 'v7.30';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -3656,6 +3656,12 @@ function csAllOff(){
   if (_caminosSecVisible) csRefrescarLayer();
 }
 
+// v7.29 — Migración del sistema de renderizado desde caminos_secundarios.html
+// Doble capa HALO + BASE. Estilos idénticos a los validados en la subruta.
+let _caminosSecHalo = null;
+const CS_ESTILO_BASE = cl => ({color: (CS_COLOR_CLASE[cl] || '#a07842'), weight:3, opacity:.9, lineJoin:'round', lineCap:'round'});
+const CS_ESTILO_HALO = cl => ({color: (CS_COLOR_CLASE[cl] || '#a07842'), weight:18, opacity:.16, lineCap:'round', lineJoin:'round'});
+
 // Construir o refrescar la capa de Leaflet filtrada
 function csRefrescarLayer(){
   if (!_caminosGeoJSON_cache) {
@@ -3664,7 +3670,8 @@ function csRefrescarLayer(){
       .then(geo => { _caminosGeoJSON_cache = geo; csRefrescarLayer(); });
     return;
   }
-  // Eliminar capa anterior
+  // Eliminar capas anteriores (halo + base)
+  if (_caminosSecHalo)  map.removeLayer(_caminosSecHalo);
   if (_caminosSecLayer) map.removeLayer(_caminosSecLayer);
   // Construir features filtrados
   const featuresVisibles = _caminosGeoJSON_cache.features.filter(f => {
@@ -3674,21 +3681,30 @@ function csRefrescarLayer(){
     if (typeof selP !== 'undefined' && !selP.has(p.PARTIDO_NOMBRE)) return false;
     return true;
   });
-  _caminosSecLayer = L.geoJSON({type:'FeatureCollection', features: featuresVisibles}, {
-    style: f => ({ color: CS_COLOR_CLASE[f.properties.CLASE] || '#7050b0', weight:1.8, opacity:.75, lineJoin:'round', lineCap:'round' }),
+  const fc = {type:'FeatureCollection', features: featuresVisibles};
+  // 1) HALO (sombreado ancho translúcido, sin eventos)
+  _caminosSecHalo = L.geoJSON(fc, {
+    style: f => CS_ESTILO_HALO(f.properties.CLASE),
+    interactive: false
+  });
+  // 2) BASE (línea principal con click/hover/popup)
+  _caminosSecLayer = L.geoJSON(fc, {
+    style: f => CS_ESTILO_BASE(f.properties.CLASE),
     onEachFeature: (feat, layer) => {
       const p = feat.properties;
       const den = p.DENOMINACION ? '<br>' + p.DENOMINACION : '';
       const km = p.LONGITUD_KM_WGS84 ? '<br><b>' + p.LONGITUD_KM_WGS84.toFixed(2) + ' km</b>' : '';
       const cls = p.CLASE ? '<br><i style="color:#888">' + p.CLASE + '</i>' : '';
       layer.bindPopup(`<b style="color:#7050b0">🚜 ${p.NOMEMCLATURA}</b>${den}${km}${cls}<br><span style="color:#888;font-size:10px">${p.PARTIDO_NOMBRE}</span>`);
-      layer.on('mouseover', e => e.target.setStyle({ weight:3.5, opacity:1 }));
-      layer.on('mouseout',  e => e.target.setStyle({ weight:1.8, opacity:.75 }));
+      layer.on('mouseover', e => e.target.setStyle({ weight:5 }));
+      layer.on('mouseout',  e => e.target.setStyle(CS_ESTILO_BASE(p.CLASE)));
     }
   });
   if (_caminosSecVisible) {
-    map.addLayer(_caminosSecLayer);
-    _caminosSecLayer.bringToBack();
+    _caminosSecHalo.addTo(map);
+    _caminosSecLayer.addTo(map);
+    // HALO debajo, BASE encima. Ambos por encima de partidos.
+    _caminosSecHalo.bringToBack();
     Object.values(capasP).forEach(l => l.bringToBack && l.bringToBack());
   }
 }
@@ -3697,17 +3713,22 @@ function toggleCaminosLayer(){
   if (!_caminosSecLayer) {
     csRefrescarLayer();
     _caminosSecVisible = true;
-    setTimeout(() => { if (_caminosSecLayer) { map.addLayer(_caminosSecLayer); _caminosSecLayer.bringToBack(); Object.values(capasP).forEach(l => l.bringToBack && l.bringToBack()); } }, 200);
+    setTimeout(() => {
+      if (_caminosSecHalo)  { _caminosSecHalo.addTo(map);  _caminosSecHalo.bringToBack(); }
+      if (_caminosSecLayer) { _caminosSecLayer.addTo(map); }
+      Object.values(capasP).forEach(l => l.bringToBack && l.bringToBack());
+    }, 200);
     _csUpdateBtnEstado(true);
     return;
   }
   if (_caminosSecVisible) {
-    map.removeLayer(_caminosSecLayer);
+    if (_caminosSecHalo)  map.removeLayer(_caminosSecHalo);
+    if (_caminosSecLayer) map.removeLayer(_caminosSecLayer);
     _caminosSecVisible = false;
     _csUpdateBtnEstado(false);
   } else {
-    map.addLayer(_caminosSecLayer);
-    _caminosSecLayer.bringToBack();
+    if (_caminosSecHalo)  { _caminosSecHalo.addTo(map);  _caminosSecHalo.bringToBack(); }
+    if (_caminosSecLayer) { _caminosSecLayer.addTo(map); }
     Object.values(capasP).forEach(l => l.bringToBack && l.bringToBack());
     _caminosSecVisible = true;
     _csUpdateBtnEstado(true);
