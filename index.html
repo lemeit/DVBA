@@ -167,6 +167,9 @@ body.modo-campo #campo-fab{display:flex}
 .mj-wrap{display:flex;align-items:center;gap:3px;pointer-events:none}
 .mj-dot{width:7px;height:7px;border-radius:50%;border:2px solid rgba(255,255,255,.7);flex-shrink:0}
 .mj-lbl{font-size:9px;font-weight:700;background:rgba(255,255,255,.92);padding:1px 5px;border-radius:3px;white-space:nowrap;border:1px solid rgba(0,0,0,.12);color:#404040}
+/* v7.31 — Tooltip flotante con progresiva al hover */
+.leaflet-tooltip.tt-prog{background:rgba(255,255,255,.97);border:1px solid #003366;padding:3px 7px;font-size:11px;color:#003366;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.leaflet-tooltip.tt-prog:before{border-top-color:#003366}
 .foto-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999;cursor:pointer}
 
 /* ═══ SCROLLBAR ═════════════════════════════════════════════ */
@@ -561,6 +564,33 @@ body.modo-campo #campo-fab{display:flex}
     <button id="btn-sat" onclick="setLayer('sat')">Satelite</button>
     <!-- v7.15 — Toggle de caminos secundarios en mapa -->
     <button id="btn-caminos" onclick="toggleCaminosLayer()" style="margin-top:4px;border-color:#7050b0;color:#7050b0">🚜 Caminos Sec.</button>
+    <!-- v7.31 — Controles unificados: progresivas hover + densidad mojones + modo minimalista -->
+    <div id="pnl-vis" style="margin-top:4px;background:rgba(11,16,24,.88);border:1px solid #2a3e52;border-radius:5px;padding:5px 7px;font-size:10px;color:#7aaac8;line-height:1.5">
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
+        <input type="checkbox" id="ck-prog-hover" onchange="setProgHover(this.checked)"> 🎯 Progresivas al hover
+      </label>
+      <div id="wrap-paso-prog" style="display:none;padding-left:18px;margin-top:2px">
+        <span>cada</span>
+        <select id="sl-paso-prog" onchange="setProgPaso(Number(this.value))" style="font-size:10px;padding:1px 3px;background:#0b1018;border:1px solid #2a3e52;color:#7aaac8;border-radius:3px">
+          <option value="1">1 km</option>
+          <option value="5" selected>5 km</option>
+          <option value="10">10 km</option>
+        </select>
+      </div>
+      <div style="margin-top:3px">
+        Mojones cada
+        <select id="sl-paso-moj" onchange="setMojonesPaso(Number(this.value))" style="font-size:10px;padding:1px 3px;background:#0b1018;border:1px solid #2a3e52;color:#7aaac8;border-radius:3px;margin-left:2px">
+          <option value="5">5 km</option>
+          <option value="10">10 km</option>
+          <option value="20">20 km</option>
+          <option value="50" selected>50 km</option>
+          <option value="0">Ninguno</option>
+        </select>
+      </div>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin-top:3px">
+        <input type="checkbox" id="ck-modo-detallado" onchange="setModoDetallado(this.checked)"> ⚙ Modo detallado
+      </label>
+    </div>
     <button id="btn-ley" onclick="toggleLeyendaPopup()" style="margin-top:4px;border-color:#4a7a9a" class="btn-ley-desktop">🗺 Leyenda</button>
     <!-- Botón leyenda móvil: dentro del mapa, esquina superior izquierda, solo visible en móvil -->
     <button id="btn-ley-mob" onclick="toggleLeyendaPopup()" 
@@ -584,7 +614,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.30';
+const APP_VERSION = 'v7.31';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -941,6 +971,18 @@ for (const rid in _RP_BUNDLES_FULL) {
   if (b.c) CHAINS_DATA[rid]  = b.c;
   if (b.a) ANCHORS_DATA[rid] = b.a;
   if (b.m) META_DATA[rid]    = b.m;
+}
+// v7.31 — Color uniforme para todas las RPs (azul institucional DVBA).
+// Antes cada RP tenía color del bundle → "arcoíris". Sobrescribimos para
+// uniformizar. Se diferencia por LABEL en el mapa, no por color.
+const RP_COLOR_UNIFICADO = '#003366';
+for (const rid in META_DATA) {
+  if (META_DATA[rid]) META_DATA[rid].color = RP_COLOR_UNIFICADO;
+}
+// También sobrescribir el diccionario hardcoded RUTA_META que usan drawRutas,
+// drawMojones, panel lateral y sidebar.
+for (const rid in RUTA_META) {
+  if (RUTA_META[rid]) RUTA_META[rid].color = RP_COLOR_UNIFICADO;
 }
 console.log('[Bundles v7.24] CHAINS_DATA con bundle:',
             Object.keys(META_DATA).join(','),
@@ -1394,29 +1436,29 @@ function drawPartidos(){
 }
 
 // MOJONES
+// v7.31 — Densidad de mojones controlada por MOJ_PASO_KM (5/10/20/50/0=off).
+// Físicos siempre visibles con label. Sintéticos según paso configurado, label cada 50 km.
 function drawMojones(){
   capasM.forEach(l=>map.removeLayer(l)); capasM=[];
   let cnt=0;
-  // v7.25 — evitar saturar el mapa: dedupear por (ruta, km) y filtrar sintéticos densos.
-  // Físicos: siempre visible con label
-  // Sintéticos: solo múltiplos de 20 km, con label solo cada 50 km
-  const vistos = new Set();  // Set<'rutakmXX'> para dedupe físico+sintético mismo km
+  if(MOJ_PASO_KM===0){ document.getElementById('smoj').textContent=0; return; }
+  const vistos = new Set();  // dedupe físico+sintético mismo km
   const parsed = MOJONES_DATA.map(m => ({...m, _kmN: parseFloat(m.km)}));
-  // Ordenar: físicos primero (para que ganen dedupe), luego sintéticos por km
+  // Físicos primero (para que ganen dedupe), luego sintéticos por km
   parsed.sort((a,b) => (a.sintetico?1:0) - (b.sintetico?1:0) || a._kmN - b._kmN);
   parsed.forEach(m=>{
     if(!selR.has(m.ruta)) return;
     if(!isFinite(m._kmN)) return;
     const key = m.ruta + '|' + Math.round(m._kmN*10);
-    if(vistos.has(key)) return;  // dedupe físico vs sintético del mismo km
+    if(vistos.has(key)) return;
     vistos.add(key);
-    // Sintéticos: solo múltiplos de 20 km
-    if(m.sintetico && (Math.round(m._kmN) % 20 !== 0)) return;
+    // Sintéticos: filtrar por MOJ_PASO_KM
+    if(m.sintetico && (Math.round(m._kmN) % MOJ_PASO_KM !== 0)) return;
     const meta=RUTA_META[m.ruta]||{color:'#fff'};
     const c=meta.color;
     const etq=m.km!==null?`${m.km} km`:m.etiqueta;
-    // Label visible solo cada 50 km, o siempre para físicos
-    const showLbl = !m.sintetico || (Math.round(m._kmN) % 50 === 0);
+    // Label: siempre para físicos; sintéticos solo cada 50 km salvo que MOJ_PASO_KM ya sea >=50
+    const showLbl = !m.sintetico || (Math.round(m._kmN) % Math.max(50, MOJ_PASO_KM) === 0);
     const lblHtml = showLbl ? `<div class="mj-lbl">${etq}</div>` : '';
     const ico=L.divIcon({className:'mj-ico',
       html:`<div class="mj-wrap"><div class="mj-dot" style="background:${c}30;border-color:${c}"></div>${lblHtml}</div>`,
@@ -1428,36 +1470,205 @@ function drawMojones(){
   document.getElementById('smoj').textContent=cnt;
 }
 
-// v7.25 — Cursor naranja sobre la traza (portado del test test_rpXX.html)
-// Se posiciona sobre la cadena (no donde está el mouse) para mostrar exactamente
-// qué punto de la ruta corresponde a la progresiva que ve el usuario.
-let _cursorRuta = null;
-function _mostrarCursorSobreRuta(rid, latlng){
-  const chain = CHAINS_DATA[rid];
-  if(!chain || !chain.length) return;
-  // Encontrar el punto de la cadena más cercano al mouse
+// v7.31 — Sistema unificado de cursor + progresivas al hover.
+// Migrado desde caminos_secundarios.html. Funciona para RPs y caminos.
+// Config global:
+let PROG_HOVER_ACTIVO = false;      // checkbox "Progresivas al hover"
+let PROG_PASO_KM      = 5;          // 1 / 5 / 10
+let MOJ_PASO_KM       = 50;         // 5 / 10 / 20 / 50 / 0=off
+let MODO_DETALLADO    = false;      // toggle "modo detallado"
+
+let _cursorRuta       = null;       // círculo naranja sobre la traza
+let _cursorTooltip    = null;       // tooltip flotante con progresiva
+let _cursorProgLayer  = null;       // capa de círculos de progresivas cada N km
+let _cursorTargetKey  = null;       // 'rp:40' o 'cam:093-15' del target actual
+
+// Utilidad: distancia haversine en metros
+function _haversineM(lon1,lat1,lon2,lat2){
+  const R=6371000, toR=Math.PI/180;
+  const dLat=(lat2-lat1)*toR, dLon=(lon2-lon1)*toR;
+  const a=Math.sin(dLat/2)**2 + Math.cos(lat1*toR)*Math.cos(lat2*toR)*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(a));
+}
+
+// Proyección de cursor a la polilínea → devuelve punto más cercano
+function _proyectarCursor(chain, latlng){
+  if(!chain || !chain.length) return null;
   const target = [latlng.lng, latlng.lat];
-  let best = {d: 1e9, lat: latlng.lat, lng: latlng.lng};
+  let best = {d:1e9, lat:latlng.lat, lng:latlng.lng, seg:0, t:0};
   for(let i=1; i<chain.length; i++){
-    const a = chain[i-1], b = chain[i];
+    const a=chain[i-1], b=chain[i];
     const dx=b[0]-a[0], dy=b[1]-a[1], L2=dx*dx+dy*dy;
     if(L2 < 1e-12) continue;
     let t = ((target[0]-a[0])*dx + (target[1]-a[1])*dy)/L2;
     if(t<0) t=0; else if(t>1) t=1;
-    const px = a[0]+t*dx, py = a[1]+t*dy;
-    const d = Math.hypot(target[0]-px, target[1]-py);
-    if(d < best.d) best = {d:d, lat:py, lng:px};
+    const px=a[0]+t*dx, py=a[1]+t*dy;
+    const d=Math.hypot(target[0]-px, target[1]-py);
+    if(d<best.d) best={d:d, lat:py, lng:px, seg:i, t:t};
   }
+  return best;
+}
+
+// Genera puntos cada `pasoKm` a lo largo de coords (formato [[lon,lat],...])
+function _progresivasEnCoords(coords, pasoKm){
+  if(!coords || coords.length<2 || pasoKm<=0) return [];
+  const pasoM=pasoKm*1000, out=[{km:0, lon:coords[0][0], lat:coords[0][1]}];
+  let acumM=0, proxM=pasoM;
+  for(let i=1; i<coords.length; i++){
+    const a=coords[i-1], b=coords[i];
+    const segM=_haversineM(a[0],a[1],b[0],b[1]);
+    if(segM===0) continue;
+    while(acumM+segM>=proxM){
+      const t=(proxM-acumM)/segM;
+      out.push({km:Math.round(proxM/1000), lon:a[0]+t*(b[0]-a[0]), lat:a[1]+t*(b[1]-a[1])});
+      proxM+=pasoM;
+    }
+    acumM+=segM;
+  }
+  return out;
+}
+
+// Muestra círculos de progresiva sobre una cadena (RP o camino) cada PROG_PASO_KM
+function _mostrarProgresivasSobre(coords, colorFondo){
+  _limpiarProgresivas();
+  if(!PROG_HOVER_ACTIVO || !coords || coords.length<2) return;
+  const puntos=_progresivasEnCoords(coords, PROG_PASO_KM);
+  if(!puntos.length) return;
+  _cursorProgLayer=L.layerGroup();
+  puntos.forEach(pt=>{
+    const esMul10=pt.km%10===0, esMul5=pt.km%5===0;
+    const radio=esMul10?5:(esMul5?4:3);
+    L.circleMarker([pt.lat,pt.lon],{
+      radius:radio, color:'#fff', weight:1.5,
+      fillColor: pt.km===0?'#ff6600':colorFondo, fillOpacity:1,
+      pane:'markerPane', interactive:false
+    }).addTo(_cursorProgLayer);
+    const mostrarTxt=(PROG_PASO_KM<=1)?(pt.km%5===0):true;
+    if(mostrarTxt){
+      const lbl=L.divIcon({
+        className:'',
+        html:`<div style="font-size:.62rem;color:#fff;background:rgba(0,51,102,.85);padding:1px 4px;border-radius:3px;font-weight:600;white-space:nowrap;transform:translate(8px,-50%)">km ${pt.km}</div>`,
+        iconSize:[0,0], iconAnchor:[0,0]
+      });
+      L.marker([pt.lat,pt.lon],{icon:lbl, interactive:false}).addTo(_cursorProgLayer);
+    }
+  });
+  _cursorProgLayer.addTo(map);
+}
+function _limpiarProgresivas(){
+  if(_cursorProgLayer){ map.removeLayer(_cursorProgLayer); _cursorProgLayer=null; }
+}
+
+// Cursor sobre RP: muestra círculo naranja + tooltip con progresiva calc
+function _mostrarCursorSobreRuta(rid, latlng){
+  const chain=CHAINS_DATA[rid];
+  if(!chain || !chain.length) return;
+  const p=_proyectarCursor(chain, latlng);
+  if(!p) return;
+  const key='rp:'+rid;
   if(!_cursorRuta){
-    _cursorRuta = L.circleMarker([best.lat, best.lng],
-      {radius:7, fillColor:'#ff6600', color:'#fff', weight:2, fillOpacity:.95, interactive:false})
+    _cursorRuta=L.circleMarker([p.lat,p.lng],
+      {radius:7, fillColor:'#ff6600', color:'#fff', weight:2, fillOpacity:.95, interactive:false, pane:'markerPane'})
       .addTo(map);
   } else {
-    _cursorRuta.setLatLng([best.lat, best.lng]);
+    _cursorRuta.setLatLng([p.lat,p.lng]);
+  }
+  if(PROG_HOVER_ACTIVO){
+    const meta=RUTA_META[rid]||{label:'RP '+rid};
+    const prog=calcProg(rid,{lng:p.lng,lat:p.lat});
+    _actualizarTooltipCursor(p.lat,p.lng, `<b style="color:#003366">${meta.label}</b> · <b>${prog.prog}</b> (${prog.km} km)`);
+    if(_cursorTargetKey!==key){
+      _cursorTargetKey=key;
+      _mostrarProgresivasSobre(chain, '#003366');
+    }
   }
 }
 function _ocultarCursorSobreRuta(){
-  if(_cursorRuta){ map.removeLayer(_cursorRuta); _cursorRuta = null; }
+  if(_cursorRuta){ map.removeLayer(_cursorRuta); _cursorRuta=null; }
+  _ocultarTooltipCursor();
+  _limpiarProgresivas();
+  _cursorTargetKey=null;
+}
+
+// Cursor sobre Camino: mismo estilo, tooltip con NM · km X.XX
+function _mostrarCursorSobreCamino(feat, layer, latlng){
+  const p=feat.properties;
+  // Cache de coords + cumm por _fid del feature
+  if(!feat.__csCoords){
+    const geo=feat.geometry;
+    let coords=[];
+    if(geo.type==='LineString') coords=geo.coordinates.slice();
+    else if(geo.type==='MultiLineString') coords=geo.coordinates.flat();
+    feat.__csCoords=coords;
+    const cumm=[0];
+    for(let i=1;i<coords.length;i++){
+      cumm.push(cumm[i-1]+_haversineM(coords[i-1][0],coords[i-1][1],coords[i][0],coords[i][1]));
+    }
+    feat.__csCumm=cumm;
+  }
+  const coords=feat.__csCoords, cumm=feat.__csCumm;
+  if(coords.length<2) return;
+  const proj=_proyectarCursor(coords, latlng);
+  if(!proj) return;
+  if(!_cursorRuta){
+    _cursorRuta=L.circleMarker([proj.lat,proj.lng],
+      {radius:7, fillColor:'#ff6600', color:'#fff', weight:2, fillOpacity:.95, interactive:false, pane:'markerPane'})
+      .addTo(map);
+  } else {
+    _cursorRuta.setLatLng([proj.lat,proj.lng]);
+  }
+  if(PROG_HOVER_ACTIVO){
+    // Km sobre la cadena
+    const segM=_haversineM(coords[proj.seg-1][0],coords[proj.seg-1][1],coords[proj.seg][0],coords[proj.seg][1]);
+    const km=(cumm[proj.seg-1]+proj.t*segM)/1000;
+    _actualizarTooltipCursor(proj.lat, proj.lng, `<b style="color:#7050b0">Cno. ${p.NOMEMCLATURA}</b> · <b>${km.toFixed(2)} km</b>`);
+    const key='cam:'+(p._fid||p.NOMEMCLATURA);
+    if(_cursorTargetKey!==key){
+      _cursorTargetKey=key;
+      const color=(typeof CS_COLOR_CLASE!=='undefined' && CS_COLOR_CLASE[p.CLASE]) || '#7050b0';
+      _mostrarProgresivasSobre(coords, color);
+    }
+  }
+}
+
+function _actualizarTooltipCursor(lat, lng, html){
+  if(!_cursorTooltip){
+    _cursorTooltip=L.tooltip({permanent:true, direction:'top', offset:[0,-12], className:'tt-prog', interactive:false});
+    _cursorTooltip.setLatLng([lat,lng]).setContent(html).addTo(map);
+  } else {
+    _cursorTooltip.setLatLng([lat,lng]).setContent(html);
+  }
+}
+function _ocultarTooltipCursor(){
+  if(_cursorTooltip){ map.removeLayer(_cursorTooltip); _cursorTooltip=null; }
+}
+
+// Setters expuestos a los controles UI
+function setProgHover(on){
+  PROG_HOVER_ACTIVO=!!on;
+  document.getElementById('wrap-paso-prog').style.display = on ? 'block' : 'none';
+  if(!on){ _limpiarProgresivas(); _ocultarTooltipCursor(); _cursorTargetKey=null; }
+}
+function setProgPaso(km){
+  PROG_PASO_KM = km>0?km:5;
+  _cursorTargetKey=null;  // fuerza redibujo en el próximo hover
+}
+function setMojonesPaso(km){
+  MOJ_PASO_KM = km>=0?km:50;
+  if(typeof drawMojones==='function') drawMojones();
+}
+function setModoDetallado(on){
+  MODO_DETALLADO=!!on;
+  // Modo detallado = mojones cada 10 km + progresivas ON con paso 5 km
+  if(on){
+    document.getElementById('sl-paso-moj').value='10'; setMojonesPaso(10);
+    document.getElementById('ck-prog-hover').checked=true; setProgHover(true);
+    document.getElementById('sl-paso-prog').value='5'; setProgPaso(5);
+  } else {
+    // Minimalista: mojones cada 50 + progresivas OFF
+    document.getElementById('sl-paso-moj').value='50'; setMojonesPaso(50);
+    document.getElementById('ck-prog-hover').checked=false; setProgHover(false);
+  }
 }
 
 // RUTAS
@@ -3697,7 +3908,9 @@ function csRefrescarLayer(){
       const cls = p.CLASE ? '<br><i style="color:#888">' + p.CLASE + '</i>' : '';
       layer.bindPopup(`<b style="color:#7050b0">🚜 ${p.NOMEMCLATURA}</b>${den}${km}${cls}<br><span style="color:#888;font-size:10px">${p.PARTIDO_NOMBRE}</span>`);
       layer.on('mouseover', e => e.target.setStyle({ weight:5 }));
-      layer.on('mouseout',  e => e.target.setStyle(CS_ESTILO_BASE(p.CLASE)));
+      layer.on('mouseout',  e => { e.target.setStyle(CS_ESTILO_BASE(p.CLASE)); _ocultarCursorSobreRuta(); });
+      // v7.31 — cursor flotante + tooltip progresivas sobre caminos (mismo criterio que RPs)
+      layer.on('mousemove', e => _mostrarCursorSobreCamino(feat, layer, e.latlng));
     }
   });
   if (_caminosSecVisible) {
