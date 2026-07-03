@@ -1425,6 +1425,38 @@ function drawMojones(){
   document.getElementById('smoj').textContent=cnt;
 }
 
+// v7.25 — Cursor naranja sobre la traza (portado del test test_rpXX.html)
+// Se posiciona sobre la cadena (no donde está el mouse) para mostrar exactamente
+// qué punto de la ruta corresponde a la progresiva que ve el usuario.
+let _cursorRuta = null;
+function _mostrarCursorSobreRuta(rid, latlng){
+  const chain = CHAINS_DATA[rid];
+  if(!chain || !chain.length) return;
+  // Encontrar el punto de la cadena más cercano al mouse
+  const target = [latlng.lng, latlng.lat];
+  let best = {d: 1e9, lat: latlng.lat, lng: latlng.lng};
+  for(let i=1; i<chain.length; i++){
+    const a = chain[i-1], b = chain[i];
+    const dx=b[0]-a[0], dy=b[1]-a[1], L2=dx*dx+dy*dy;
+    if(L2 < 1e-12) continue;
+    let t = ((target[0]-a[0])*dx + (target[1]-a[1])*dy)/L2;
+    if(t<0) t=0; else if(t>1) t=1;
+    const px = a[0]+t*dx, py = a[1]+t*dy;
+    const d = Math.hypot(target[0]-px, target[1]-py);
+    if(d < best.d) best = {d:d, lat:py, lng:px};
+  }
+  if(!_cursorRuta){
+    _cursorRuta = L.circleMarker([best.lat, best.lng],
+      {radius:7, fillColor:'#ff6600', color:'#fff', weight:2, fillOpacity:.95, interactive:false})
+      .addTo(map);
+  } else {
+    _cursorRuta.setLatLng([best.lat, best.lng]);
+  }
+}
+function _ocultarCursorSobreRuta(){
+  if(_cursorRuta){ map.removeLayer(_cursorRuta); _cursorRuta = null; }
+}
+
 // RUTAS
 function drawRutas(){
   Object.values(capasR).flat().forEach(l=>map.removeLayer(l)); capasR={};
@@ -1436,8 +1468,13 @@ function drawRutas(){
     ly.on('mousemove',function(e){
       actualizarPanelPos(rid, e.latlng);
       ly.setStyle({weight:meta.w+3,opacity:1});
+      // v7.25 — puntero naranja flotante que se posiciona sobre la traza
+      _mostrarCursorSobreRuta(rid, e.latlng);
     });
-    ly.on('mouseout',()=>ly.setStyle({weight:meta.w,opacity:.85}));
+    ly.on('mouseout',()=>{
+      ly.setStyle({weight:meta.w,opacity:.85});
+      _ocultarCursorSobreRuta();
+    });
     ly.on('click',function(e){
       const p=calcProg(rid,e.latlng);
       const mojs=MOJONES_DATA.filter(m=>m.ruta===rid);
