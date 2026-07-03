@@ -167,9 +167,9 @@ body.modo-campo #campo-fab{display:flex}
 .mj-wrap{display:flex;align-items:center;gap:3px;pointer-events:none}
 .mj-dot{width:7px;height:7px;border-radius:50%;border:2px solid rgba(255,255,255,.7);flex-shrink:0}
 .mj-lbl{font-size:9px;font-weight:700;background:rgba(255,255,255,.92);padding:1px 5px;border-radius:3px;white-space:nowrap;border:1px solid rgba(0,0,0,.12);color:#404040}
-/* v7.31 — Tooltip flotante con progresiva al hover */
-.leaflet-tooltip.tt-prog{background:rgba(255,255,255,.97);border:1px solid #003366;padding:3px 7px;font-size:11px;color:#003366;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
-.leaflet-tooltip.tt-prog:before{border-top-color:#003366}
+/* v7.31 — Tooltip flotante con progresiva al hover (color v7.32) */
+.leaflet-tooltip.tt-prog{background:rgba(255,255,255,.97);border:1px solid #1976d2;padding:3px 7px;font-size:11px;color:#1976d2;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.leaflet-tooltip.tt-prog:before{border-top-color:#1976d2}
 .foto-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999;cursor:pointer}
 
 /* ═══ SCROLLBAR ═════════════════════════════════════════════ */
@@ -178,10 +178,30 @@ body.modo-campo #campo-fab{display:flex}
 ::-webkit-scrollbar-thumb:hover{background:#c0c0c0}
 
 /* ═══ CONTROLES MAPA ════════════════════════════════════════ */
-#layer-btns{position:absolute;top:10px;right:10px;z-index:1000;display:flex;flex-direction:column;gap:3px}
-#layer-btns button{background:rgba(255,255,255,.95);color:var(--txt);border:1px solid var(--light);border-radius:var(--r);padding:5px 11px;font-size:10px;cursor:pointer;font-family:inherit;backdrop-filter:blur(6px);text-align:left;transition:all .15s;min-width:110px;box-shadow:0 1px 4px rgba(0,0,0,.1)}
-#layer-btns button:hover{background:#fff;color:var(--p)}
-#layer-btns button.active{border-color:var(--p);color:var(--p);background:#e8f7f9}
+/* v7.32 — Panel unificado de Capas (reemplaza los botones sueltos anteriores) */
+#layer-btns{position:absolute;top:10px;right:10px;z-index:1000;display:flex;flex-direction:column;gap:0;width:200px}
+#capas-chip{background:rgba(255,255,255,.96);border:1px solid var(--light);border-radius:var(--r);padding:7px 11px;font-size:11px;font-weight:600;color:var(--p);cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,.15);backdrop-filter:blur(6px);user-select:none}
+#capas-chip:hover{background:#fff}
+#capas-panel{background:rgba(255,255,255,.96);border:1px solid var(--light);border-top:none;border-radius:0 0 var(--r) var(--r);padding:8px 10px;font-size:10.5px;color:var(--txt);backdrop-filter:blur(6px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+#capas-panel.hidden{display:none}
+.cp-sect{margin-bottom:9px;padding-bottom:8px;border-bottom:1px solid #dde3ea}
+.cp-sect:last-of-type{border-bottom:none;margin-bottom:6px}
+.cp-title{font-size:9px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px}
+.cp-grp{display:flex;gap:3px}
+.cp-btn{flex:1;background:#fff;color:var(--txt);border:1px solid var(--light);border-radius:4px;padding:4px 6px;font-size:10px;cursor:pointer;font-family:inherit;transition:all .15s}
+.cp-btn:hover{border-color:var(--p);color:var(--p);background:#eef5fb}
+.cp-btn.active{border-color:var(--p);color:var(--p);background:#e3f0fa;font-weight:700}
+.cp-toggle{width:100%;text-align:left;margin-top:4px;color:#7050b0;border-color:#c7b8dc}
+.cp-toggle.active{background:#7050b0;color:#fff;border-color:#7050b0}
+.cp-row{display:flex;justify-content:space-between;align-items:center;padding:2px 0}
+.cp-row.cp-check{cursor:pointer}
+.cp-row.cp-check input{margin:0 5px 0 0}
+.cp-row.cp-inline{gap:5px}
+.cp-hint{font-size:9px;color:var(--p);cursor:pointer;text-decoration:underline;opacity:.75}
+.cp-hint:hover{opacity:1}
+.cp-sub{padding-left:20px;margin:1px 0 3px;font-size:10px;color:#5a7080}
+#capas-panel select{background:#fff;border:1px solid var(--light);color:var(--txt);border-radius:3px;padding:1px 3px;font-size:10px;font-family:inherit}
+.cp-ley{width:100%;text-align:center;background:#eef5fb;border-color:#c0d5e5;color:var(--p);margin-top:2px}
 
 /* ═══ RESPONSIVE ════════════════════════════════════════════ */
 #mob-toggle{display:none;position:absolute;top:10px;left:10px;z-index:1100;width:44px;height:44px;border-radius:9px;background:rgba(255,255,255,.95);border:2px solid var(--p);color:var(--p);font-size:20px;cursor:pointer;align-items:center;justify-content:center;backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(0,0,0,.15)}
@@ -379,7 +399,7 @@ body.modo-campo #campo-fab{display:flex}
           <button class="btn btn-xs btn-ghost" onclick="noneP()">Ninguno</button>
         </div>
       </div>
-      <div class="sec">
+      <div class="sec" id="rutas-list">
         <div class="sec-title">Rutas Provinciales</div>
         <div id="rtags"></div>
         <div style="display:flex;gap:4px;margin-top:6px">
@@ -559,39 +579,62 @@ body.modo-campo #campo-fab{display:flex}
   </div>
 <div id="map">
   <div id="layer-btns">
-    <button id="btn-osm" class="active" onclick="setLayer('osm')">Mapa OSM</button>
-    <button id="btn-dark" onclick="setLayer('dark')">Vista Oscura</button>
-    <button id="btn-sat" onclick="setLayer('sat')">Satelite</button>
-    <!-- v7.15 — Toggle de caminos secundarios en mapa -->
-    <button id="btn-caminos" onclick="toggleCaminosLayer()" style="margin-top:4px;border-color:#7050b0;color:#7050b0">🚜 Caminos Sec.</button>
-    <!-- v7.31 — Controles unificados: progresivas hover + densidad mojones + modo minimalista -->
-    <div id="pnl-vis" style="margin-top:4px;background:rgba(11,16,24,.88);border:1px solid #2a3e52;border-radius:5px;padding:5px 7px;font-size:10px;color:#7aaac8;line-height:1.5">
-      <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
-        <input type="checkbox" id="ck-prog-hover" onchange="setProgHover(this.checked)"> 🎯 Progresivas al hover
-      </label>
-      <div id="wrap-paso-prog" style="display:none;padding-left:18px;margin-top:2px">
-        <span>cada</span>
-        <select id="sl-paso-prog" onchange="setProgPaso(Number(this.value))" style="font-size:10px;padding:1px 3px;background:#0b1018;border:1px solid #2a3e52;color:#7aaac8;border-radius:3px">
-          <option value="1">1 km</option>
-          <option value="5" selected>5 km</option>
-          <option value="10">10 km</option>
-        </select>
-      </div>
-      <div style="margin-top:3px">
-        Mojones cada
-        <select id="sl-paso-moj" onchange="setMojonesPaso(Number(this.value))" style="font-size:10px;padding:1px 3px;background:#0b1018;border:1px solid #2a3e52;color:#7aaac8;border-radius:3px;margin-left:2px">
-          <option value="5">5 km</option>
-          <option value="10">10 km</option>
-          <option value="20">20 km</option>
-          <option value="50" selected>50 km</option>
-          <option value="0">Ninguno</option>
-        </select>
-      </div>
-      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin-top:3px">
-        <input type="checkbox" id="ck-modo-detallado" onchange="setModoDetallado(this.checked)"> ⚙ Modo detallado
-      </label>
+    <!-- v7.32 — Panel único plegable de Capas. Reúne fondo + capas + visualización + leyenda. -->
+    <div id="capas-chip" onclick="toggleCapasPanel()" title="Mostrar/ocultar panel de capas">
+      <span>🗺 Capas</span><span id="capas-arrow">▾</span>
     </div>
-    <button id="btn-ley" onclick="toggleLeyendaPopup()" style="margin-top:4px;border-color:#4a7a9a" class="btn-ley-desktop">🗺 Leyenda</button>
+    <div id="capas-panel">
+      <!-- FONDO -->
+      <div class="cp-sect">
+        <div class="cp-title">Fondo</div>
+        <div class="cp-grp">
+          <button id="btn-osm"  class="cp-btn active" onclick="setLayer('osm')">OSM</button>
+          <button id="btn-dark" class="cp-btn" onclick="setLayer('dark')">Oscura</button>
+          <button id="btn-sat"  class="cp-btn" onclick="setLayer('sat')">Satélite</button>
+        </div>
+      </div>
+      <!-- CAPAS -->
+      <div class="cp-sect">
+        <div class="cp-title">Capas</div>
+        <label class="cp-row">
+          <span>🛣 Rutas Provinciales</span>
+          <span class="cp-hint" onclick="event.stopPropagation();document.getElementById('rutas-list')?.scrollIntoView({behavior:'smooth',block:'center'});">ver en panel →</span>
+        </label>
+        <button id="btn-caminos" class="cp-btn cp-toggle" onclick="toggleCaminosLayer()">🚜 Caminos Sec.</button>
+      </div>
+      <!-- VISUALIZACIÓN -->
+      <div class="cp-sect">
+        <div class="cp-title">Visualización</div>
+        <label class="cp-row cp-check">
+          <input type="checkbox" id="ck-prog-hover" onchange="setProgHover(this.checked)">
+          <span>🎯 Progresivas al hover</span>
+        </label>
+        <div id="wrap-paso-prog" class="cp-sub" style="display:none">
+          cada
+          <select id="sl-paso-prog" onchange="setProgPaso(Number(this.value))">
+            <option value="1">1 km</option>
+            <option value="5" selected>5 km</option>
+            <option value="10">10 km</option>
+          </select>
+        </div>
+        <div class="cp-row cp-inline">
+          <span>📍 Mojones cada</span>
+          <select id="sl-paso-moj" onchange="setMojonesPaso(Number(this.value))">
+            <option value="5">5 km</option>
+            <option value="10">10 km</option>
+            <option value="20">20 km</option>
+            <option value="50" selected>50 km</option>
+            <option value="0">Ninguno</option>
+          </select>
+        </div>
+        <label class="cp-row cp-check">
+          <input type="checkbox" id="ck-modo-detallado" onchange="setModoDetallado(this.checked)">
+          <span>⚙ Modo detallado</span>
+        </label>
+      </div>
+      <!-- LEYENDA -->
+      <button id="btn-ley" class="cp-btn cp-ley" onclick="toggleLeyendaPopup()">🗺 Leyenda</button>
+    </div>
     <!-- Botón leyenda móvil: dentro del mapa, esquina superior izquierda, solo visible en móvil -->
     <button id="btn-ley-mob" onclick="toggleLeyendaPopup()" 
       style="display:none;position:absolute;top:10px;left:50px;z-index:1000;
@@ -614,7 +657,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.31a';
+const APP_VERSION = 'v7.32';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -975,7 +1018,7 @@ for (const rid in _RP_BUNDLES_FULL) {
 // v7.31 — Color uniforme para todas las RPs (azul institucional DVBA).
 // Antes cada RP tenía color del bundle → "arcoíris". Sobrescribimos para
 // uniformizar. Se diferencia por LABEL en el mapa, no por color.
-const RP_COLOR_UNIFICADO = '#003366';
+const RP_COLOR_UNIFICADO = '#1976d2';  // v7.32 — azul cielo institucional, más claro que #003366
 for (const rid in META_DATA) {
   if (META_DATA[rid]) META_DATA[rid].color = RP_COLOR_UNIFICADO;
 }
@@ -1012,7 +1055,10 @@ const RUTA_META={"6":{"color":"#e8a060","w":4,"label":"RP 6"},"20":{"color":"#d4
 for (const rid in RUTA_META) {
   if (RUTA_META[rid]) RUTA_META[rid].color = RP_COLOR_UNIFICADO;
 }
-const PARTIDO_COLORS={"General Alvear":"#e87050","General Las Heras":"#c8a820","Las Flores":"#7a60b8","Lobos":"#4aaa5a","Navarro":"#c84070","Roque Pérez":"#30a8b8","Saladillo":"#d46868","Veinticinco de Mayo":"#6a8090"};
+// v7.32 — Partidos unificados: mismo gris azulado neutro para todos.
+// Los partidos son "fondo administrativo", el color lo aportan RPs y caminos.
+const _PARTIDO_COLOR_NEUTRO = '#3a5a7a';
+const PARTIDO_COLORS={"General Alvear":_PARTIDO_COLOR_NEUTRO,"General Las Heras":_PARTIDO_COLOR_NEUTRO,"Las Flores":_PARTIDO_COLOR_NEUTRO,"Lobos":_PARTIDO_COLOR_NEUTRO,"Navarro":_PARTIDO_COLOR_NEUTRO,"Roque Pérez":_PARTIDO_COLOR_NEUTRO,"Saladillo":_PARTIDO_COLOR_NEUTRO,"Veinticinco de Mayo":_PARTIDO_COLOR_NEUTRO};
 const PARTIDOS_CODIGO={"001":"Adolfo Alsina","051":"Adolfo Gonzales Chaves","002":"Alberti","003":"Almirante Brown","010":"Arrecifes","004":"Avellaneda","005":"Ayacucho","006":"Azul","007":"Bah\u00eda Blanca","008":"Balcarce","009":"Baradero","053":"Benito Ju\u00e1rez","120":"Berazategui","114":"Berisso","011":"Bol\u00edvar","012":"Bragado","013":"Brandsen","014":"Campana","015":"Ca\u00f1uelas","121":"Capit\u00e1n Sarmiento","016":"Carlos Casares","017":"Carlos Tejedor","018":"Carmen de Areco","020":"Castelli","026":"Chacabuco","027":"Chascom\u00fas","028":"Chivilcoy","021":"Col\u00f3n","022":"Coronel Dorrego","023":"La Costa","113":"Coronel Rosales","024":"Coronel Su\u00e1rez","019":"Daireaux","029":"Dolores","115":"Ensenada","118":"Escobar","030":"Esteban Echeverr\u00eda","031":"Exaltaci\u00f3n de la Cruz","130":"Ezeiza","032":"Florencio Varela","128":"Florentino Ameghino","033":"General Alvarado","034":"General Alvear","035":"General Arenales","036":"General Belgrano","037":"General Guido","040":"General La Madrid","041":"General Las Heras","042":"General Lavalle","039":"General Madariaga","043":"General Paz","044":"General Pinto","045":"General Pueyrred\u00f3n","046":"General Rodr\u00edguez","047":"General San Mart\u00edn","049":"General Viamonte","050":"General Villegas","052":"Guamin\u00ed","119":"Hip\u00f3lito Yrigoyen","135":"Hurlingham","054":"Jun\u00edn","070":"La Matanza","055":"La Plata","025":"Lan\u00fas","056":"Laprida","058":"Las Flores","059":"Leandro N. Alem","137":"Lezama","060":"Lincoln","061":"Lober\u00eda","062":"Lobos","063":"Lomas de Zamora","064":"Luj\u00e1n","065":"Magdalena","066":"Maip\u00fa","133":"Malvinas Argentinas","069":"Mar Chiquita","068":"Marcos Paz","071":"Mercedes","072":"Merlo","073":"Monte","126":"Monte Hermoso","074":"Moreno","101":"Mor\u00f3n","075":"Navarro","076":"Necochea","077":"Nueve de Julio","078":"Olavarr\u00eda","079":"Patagones","080":"Pehuaj\u00f3","081":"Pellegrini","082":"Pergamino","083":"Pila","084":"Pilar","124":"Pinamar","129":"Presidente Per\u00f3n","085":"Puan","134":"Punta Indio","086":"Quilmes","087":"Ramallo","088":"Rauch","089":"Rivadavia","090":"Rojas","091":"Roque P\u00e9rez","092":"Saavedra","093":"Saladillo","122":"Salliquel\u00f3","067":"Salto","094":"San Andr\u00e9s de Giles","095":"San Antonio de Areco","116":"San Cayetano","096":"San Fernando","097":"San Isidro","131":"San Miguel","098":"San Nicol\u00e1s","099":"San Pedro","100":"San Vicente","102":"Suipacha","103":"Tandil","104":"Tapalqu\u00e9","057":"Tigre","105":"Tordillo","106":"Tornquist","107":"Trenque Lauquen","108":"Tres Arroyos","117":"Tres de Febrero","127":"Tres Lomas","109":"Veinticinco de Mayo","110":"Vicente L\u00f3pez","125":"Villa Gesell","111":"Villarino","038":"Z\u00e1rate"};
 const EXTREMOS_DATA={"6":{"ptIni":[-58.798765,-34.983548],"ptFin":[-58.926612,-34.825339],"pIni":"General Las Heras","pFin":"General Las Heras","progIni":null,"progFin":null,"longGis":29.495,"clase":"Pavimentado"},"20":{"ptIni":[-59.10782,-35.483706],"ptFin":[-59.328902,-35.399735],"pIni":"Roque Pérez","pFin":"Roque Pérez","progIni":194.8,"progFin":227.3,"longGis":24.876,"clase":"De tierra"},"24":{"ptIni":[-59.068313,-34.734437],"ptFin":[-59.113267,-34.781101],"pIni":"General Las Heras","pFin":"General Las Heras","progIni":null,"progFin":null,"longGis":7.362,"clase":"De tierra"},"30":{"ptIni":[-59.044767,-36.218249],"ptFin":[-59.747253,-35.11136],"pIni":"Las Flores","pFin":"Navarro","progIni":267.1,"progFin":431.8,"longGis":167.587,"clase":"Mixto"},"40":{"ptIni":[-58.894452,-34.85438],"ptFin":[-60.456738,-35.484972],"pIni":"General Las Heras","pFin":"Veinticinco de Mayo","progIni":29.4,"progFin":202.3,"longGis":174.925,"clase":"Mixto"},"41":{"ptIni":[-58.904205,-35.323114],"ptFin":[-59.342694,-34.864747],"pIni":"Lobos","pFin":"Navarro","progIni":138.9,"progFin":207.9,"longGis":70.743,"clase":"Pavimentado"},"42":{"ptIni":[-58.946604,-34.912086],"ptFin":[-59.141793,-34.7767],"pIni":"General Las Heras","pFin":"General Las Heras","progIni":0.0,"progFin":24.2,"longGis":24.17,"clase":"Mixto"},"43":{"ptIni":[-59.4488,-35.01237],"ptFin":[-59.542108,-34.911181],"pIni":"Navarro","pFin":"Navarro","progIni":0.0,"progFin":15.1,"longGis":15.059,"clase":"De tierra"},"44":{"ptIni":[-59.314495,-34.996058],"ptFin":[-59.66123,-35.043068],"pIni":"Navarro","pFin":"Veinticinco de Mayo","progIni":0.0,"progFin":34.4,"longGis":34.424,"clase":"De tierra"},"46":{"ptIni":[-60.081515,-35.457994],"ptFin":[-60.360577,-35.263008],"pIni":"Veinticinco de Mayo","pFin":"Veinticinco de Mayo","progIni":0.0,"progFin":34.5,"longGis":34.524,"clase":"Pavimentado"},"47":{"ptIni":[-59.269398,-35.00701],"ptFin":[-59.180975,-34.804608],"pIni":"Navarro","pFin":"Navarro","progIni":0.0,"progFin":27.5,"longGis":27.478,"clase":"Pavimentado"},"48":{"ptIni":[-58.948826,-34.933267],"ptFin":[-59.093573,-35.15226],"pIni":"General Las Heras","pFin":"Lobos","progIni":0.0,"progFin":31.3,"longGis":31.294,"clase":"De tierra"},"51":{"ptIni":[-60.113619,-35.189302],"ptFin":[-59.972141,-36.243969],"pIni":"Veinticinco de Mayo","pFin":"General Alvear","progIni":214.8,"progFin":346.4,"longGis":134.53,"clase":"Pavimentado"},"61":{"ptIni":[-58.777005,-35.930822],"ptFin":[-60.674671,-35.675831],"pIni":"Las Flores","pFin":"Veinticinco de Mayo","progIni":17.3,"progFin":226.1,"longGis":196.761,"clase":"Mixto"},"91":{"ptIni":[-59.786696,-35.692119],"ptFin":[-59.332407,-35.939233],"pIni":"Saladillo","pFin":"Las Flores","progIni":-0.1,"progFin":51.7,"longGis":52.663,"clase":"Pavimentado"}};
 const PARTIDOS_TABLA={"001":"Adolfo Alsina","051":"Adolfo Gonzales Chaves","002":"Alberti","003":"Almirante Brown","010":"Arrecifes","004":"Avellaneda","005":"Ayacucho","006":"Azul","007":"Bahía Blanca","008":"Balcarce","009":"Baradero","053":"Benito Juárez","120":"Berazategui","114":"Berisso","011":"Bolívar","012":"Bragado","013":"Brandsen","014":"Campana","015":"Cañuelas","121":"Capitán Sarmiento","016":"Carlos Casares","017":"Carlos Tejedor","018":"Carmen de Areco","020":"Castelli","026":"Chacabuco","027":"Chascomús","028":"Chivilcoy","021":"Colón","022":"Coronel Dorrego","023":"Coronel Pringles","113":"Coronel Rosales","024":"Coronel Suárez","019":"Daireaux","029":"Dolores","115":"Ensenada","118":"Escobar","030":"Esteban Echeverría","031":"Exaltación de la Cruz","130":"Ezeiza","032":"Florencio Varela","128":"Florentino Ameghino","033":"General Alvarado","034":"General Alvear","035":"General Arenales","036":"General Belgrano","037":"General Guido","040":"General La Madrid","041":"General Las Heras","042":"General Lavalle","039":"General Madariaga","043":"General Paz","044":"General Pinto","045":"General Pueyrredón","046":"General Rodríguez","047":"General San Martín","049":"General Viamonte","050":"General Villegas","052":"Guaminí","119":"Hipólito Yrigoyen","135":"Hurlingham","054":"Junín","123":"La Costa","070":"La Matanza","055":"La Plata","025":"Lanús","056":"Laprida","058":"Las Flores","059":"Leandro N. Alem","137":"Lezama","060":"Lincoln","061":"Lobería","062":"Lobos","063":"Lomas de Zamora","064":"Luján","065":"Magdalena","066":"Maipú","133":"Malvinas Argentinas","069":"Mar Chiquita","068":"Marcos Paz","071":"Mercedes","072":"Merlo","073":"Monte","126":"Monte Hermoso","074":"Moreno","101":"Morón","075":"Navarro","076":"Necochea","077":"Nueve de Julio","078":"Olavarría","079":"Patagones","080":"Pehuajó","081":"Pellegrini","082":"Pergamino","083":"Pila","084":"Pilar","124":"Pinamar","129":"Presidente Perón","085":"Puan","134":"Punta Indio","086":"Quilmes","087":"Ramallo","088":"Rauch","089":"Rivadavia","090":"Rojas","091":"Roque Pérez","092":"Saavedra","093":"Saladillo","122":"Salliqueló","067":"Salto","094":"San Andrés de Giles","095":"San Antonio de Areco","116":"San Cayetano","096":"San Fernando","097":"San Isidro","131":"San Miguel","098":"San Nicolás","099":"San Pedro","100":"San Vicente","102":"Suipacha","103":"Tandil","104":"Tapalqué","057":"Tigre","105":"Tordillo","106":"Tornquist","107":"Trenque Lauquen","108":"Tres Arroyos","117":"Tres de Febrero","127":"Tres Lomas","109":"Veinticinco de Mayo","110":"Vicente López","125":"Villa Gesell","111":"Villarino","038":"Zárate","132":"José C. Paz"};
@@ -1549,7 +1595,7 @@ function _mostrarProgresivasSobre(coords, colorFondo){
     if(mostrarTxt){
       const lbl=L.divIcon({
         className:'',
-        html:`<div style="font-size:.62rem;color:#fff;background:rgba(0,51,102,.85);padding:1px 4px;border-radius:3px;font-weight:600;white-space:nowrap;transform:translate(8px,-50%)">km ${pt.km}</div>`,
+        html:`<div style="font-size:.62rem;color:#fff;background:rgba(25,118,210,.9);padding:1px 4px;border-radius:3px;font-weight:600;white-space:nowrap;transform:translate(8px,-50%)">km ${pt.km}</div>`,
         iconSize:[0,0], iconAnchor:[0,0]
       });
       L.marker([pt.lat,pt.lon],{icon:lbl, interactive:false}).addTo(_cursorProgLayer);
@@ -1578,7 +1624,7 @@ function _mostrarCursorSobreRuta(rid, latlng){
   if(PROG_HOVER_ACTIVO){
     const meta=RUTA_META[rid]||{label:'RP '+rid};
     const prog=calcProg(rid,{lng:p.lng,lat:p.lat});
-    _actualizarTooltipCursor(p.lat,p.lng, `<b style="color:#003366">${meta.label}</b> · <b>${prog.prog}</b> (${prog.km} km)`);
+    _actualizarTooltipCursor(p.lat,p.lng, `<b style="color:#1976d2">${meta.label}</b> · <b>${prog.prog}</b> (${prog.km} km)`);
     if(_cursorTargetKey!==key){
       _cursorTargetKey=key;
       _mostrarProgresivasSobre(chain, '#003366');
@@ -1671,6 +1717,15 @@ function setModoDetallado(on){
     document.getElementById('sl-paso-moj').value='50'; setMojonesPaso(50);
     document.getElementById('ck-prog-hover').checked=false; setProgHover(false);
   }
+}
+
+// v7.32 — Panel plegable de Capas
+function toggleCapasPanel(){
+  const pnl = document.getElementById('capas-panel');
+  const arr = document.getElementById('capas-arrow');
+  if(!pnl) return;
+  pnl.classList.toggle('hidden');
+  if(arr) arr.textContent = pnl.classList.contains('hidden') ? '▸' : '▾';
 }
 
 // RUTAS
@@ -3951,11 +4006,18 @@ function toggleCaminosLayer(){
 }
 
 function _csUpdateBtnEstado(on){
+  // v7.32 — el estilo activo/inactivo lo da .cp-toggle.active del CSS.
+  // btn-cs-map (dentro del sidebar) mantiene su estilo inline propio.
   ['btn-caminos','btn-cs-map'].forEach(id => {
     const b = document.getElementById(id);
     if (!b) return;
-    if (on) { b.classList.add('active'); b.style.background = '#7050b0'; b.style.color = '#fff'; }
-    else    { b.classList.remove('active'); b.style.background = ''; b.style.color = '#7050b0'; }
+    if (on) b.classList.add('active');
+    else    b.classList.remove('active');
+    // Solo el botón del sidebar necesita override inline por su estilo custom
+    if (id === 'btn-cs-map') {
+      if (on) { b.style.background = '#7050b0'; b.style.color = '#fff'; }
+      else    { b.style.background = ''; b.style.color = '#7050b0'; }
+    }
   });
 }
 
