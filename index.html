@@ -15,14 +15,14 @@
 <script src="datos/armonizador.js" defer></script>
 <script src="datos/red_vial.js" defer></script>
 <!-- v7.19 — Bundles RP (carga sincrónica, antes de RUTAS_DATA) -->
-<script src="datos/rutas_rp30.js?v=7.23"></script>
-<script src="datos/rutas_rp40.js?v=7.23"></script>
-<script src="datos/rutas_rp41.js?v=7.23"></script>
-<script src="datos/rutas_rp46.js?v=7.23"></script>
-<script src="datos/rutas_rp47.js?v=7.23"></script>
-<script src="datos/rutas_rp51.js?v=7.23"></script>
-<script src="datos/rutas_rp61.js?v=7.23"></script>
-<script src="datos/rutas_rp91.js?v=7.23"></script>
+<script src="datos/rutas_rp30.js?v=7.24"></script>
+<script src="datos/rutas_rp40.js?v=7.24"></script>
+<script src="datos/rutas_rp41.js?v=7.24"></script>
+<script src="datos/rutas_rp46.js?v=7.24"></script>
+<script src="datos/rutas_rp47.js?v=7.24"></script>
+<script src="datos/rutas_rp51.js?v=7.24"></script>
+<script src="datos/rutas_rp61.js?v=7.24"></script>
+<script src="datos/rutas_rp91.js?v=7.24"></script>
 <style>
 :root{
   --p:#009aae;--pd:#007d90;--pl:#00b3c7;
@@ -584,7 +584,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.23';
+const APP_VERSION = 'v7.24';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -862,17 +862,28 @@ for (const rid in _RP_BUNDLES) {
 }
 const _BUNDLE_MOJ_RIDS = Object.keys(_RP_BUNDLES).filter(r => _RP_BUNDLES[r]);
 const _MOJ_FROM_BUNDLES = [];
-['30','40','41','46','47','51','61','91'].forEach(rid => {
-  const varName = 'MOJONES_RP' + rid + '_TODOS';
-  if (typeof window[varName] !== 'undefined') {
-    window[varName].forEach(m => {
+// v7.24 fix — no usar window[...] con const globals. Referencia directa.
+const _MOJ_TODOS_BY_RID = {
+  '30': typeof MOJONES_RP30_TODOS !== 'undefined' ? MOJONES_RP30_TODOS : null,
+  '40': typeof MOJONES_RP40_TODOS !== 'undefined' ? MOJONES_RP40_TODOS : null,
+  '41': typeof MOJONES_RP41_TODOS !== 'undefined' ? MOJONES_RP41_TODOS : null,
+  '46': typeof MOJONES_RP46_TODOS !== 'undefined' ? MOJONES_RP46_TODOS : null,
+  '47': typeof MOJONES_RP47_TODOS !== 'undefined' ? MOJONES_RP47_TODOS : null,
+  '51': typeof MOJONES_RP51_TODOS !== 'undefined' ? MOJONES_RP51_TODOS : null,
+  '61': typeof MOJONES_RP61_TODOS !== 'undefined' ? MOJONES_RP61_TODOS : null,
+  '91': typeof MOJONES_RP91_TODOS !== 'undefined' ? MOJONES_RP91_TODOS : null,
+};
+for (const rid in _MOJ_TODOS_BY_RID) {
+  const mojArr = _MOJ_TODOS_BY_RID[rid];
+  if (mojArr) {
+    mojArr.forEach(m => {
       _MOJ_FROM_BUNDLES.push({
         ...m,
         etiqueta: m.km_label || (m.km != null ? 'km ' + m.km : '')
       });
     });
   }
-});
+}
 const MOJONES_DATA = [
   ..._MOJONES_DATA_HARDCODED.filter(m => !_BUNDLE_MOJ_RIDS.includes(String(m.ruta))),
   ..._MOJ_FROM_BUNDLES
@@ -881,23 +892,57 @@ console.log('[Bundles] RPs cargadas desde bundle:', _BUNDLE_MOJ_RIDS.join(','),
             '| Mojones bundle:', _MOJ_FROM_BUNDLES.length,
             '| Mojones hardcoded:', MOJONES_DATA.length - _MOJ_FROM_BUNDLES.length);
 
-// v7.22 — Construir CHAINS_DATA, ANCHORS_DATA y META_DATA desde bundles
+// v7.24 — Construir CHAINS_DATA, ANCHORS_DATA y META_DATA desde bundles
 // El portal usa estos objetos en calcProg(), proj(), drawRutas.
 // Sin este fix, el portal usaba las cadenas y anchors HARDCODED viejos
 // → progresivas incorrectas (ej. RP40 mostraba "61+900" en la intersección
 // RP6 cuando debería ser ~"29+400").
+// FIX v7.24: en JS `const CHAIN_RPxx = ...` es global pero NO en window.
+// Hay que referenciar las variables directamente, no vía window[].
 const CHAINS_DATA = Object.assign({}, _CHAINS_DATA_HARDCODED);
 const ANCHORS_DATA = Object.assign({}, _ANCHORS_DATA_HARDCODED);
 const META_DATA = {};
-for (const rid of ['30','40','41','46','47','51','61','91']) {
-  const chainVar = 'CHAIN_RP' + rid;
-  const anchorsVar = 'ANCHORS_RP' + rid;
-  const metaVar = 'META_RP' + rid;
-  if (typeof window[chainVar] !== 'undefined')   CHAINS_DATA[rid]  = window[chainVar];
-  if (typeof window[anchorsVar] !== 'undefined') ANCHORS_DATA[rid] = window[anchorsVar];
-  if (typeof window[metaVar] !== 'undefined')    META_DATA[rid]    = window[metaVar];
+const _RP_BUNDLES_FULL = {
+  '30': {c: typeof CHAIN_RP30 !== 'undefined' ? CHAIN_RP30 : null,
+         a: typeof ANCHORS_RP30 !== 'undefined' ? ANCHORS_RP30 : null,
+         m: typeof META_RP30 !== 'undefined' ? META_RP30 : null,
+         t: typeof MOJONES_RP30_TODOS !== 'undefined' ? MOJONES_RP30_TODOS : null},
+  '40': {c: typeof CHAIN_RP40 !== 'undefined' ? CHAIN_RP40 : null,
+         a: typeof ANCHORS_RP40 !== 'undefined' ? ANCHORS_RP40 : null,
+         m: typeof META_RP40 !== 'undefined' ? META_RP40 : null,
+         t: typeof MOJONES_RP40_TODOS !== 'undefined' ? MOJONES_RP40_TODOS : null},
+  '41': {c: typeof CHAIN_RP41 !== 'undefined' ? CHAIN_RP41 : null,
+         a: typeof ANCHORS_RP41 !== 'undefined' ? ANCHORS_RP41 : null,
+         m: typeof META_RP41 !== 'undefined' ? META_RP41 : null,
+         t: typeof MOJONES_RP41_TODOS !== 'undefined' ? MOJONES_RP41_TODOS : null},
+  '46': {c: typeof CHAIN_RP46 !== 'undefined' ? CHAIN_RP46 : null,
+         a: typeof ANCHORS_RP46 !== 'undefined' ? ANCHORS_RP46 : null,
+         m: typeof META_RP46 !== 'undefined' ? META_RP46 : null,
+         t: typeof MOJONES_RP46_TODOS !== 'undefined' ? MOJONES_RP46_TODOS : null},
+  '47': {c: typeof CHAIN_RP47 !== 'undefined' ? CHAIN_RP47 : null,
+         a: typeof ANCHORS_RP47 !== 'undefined' ? ANCHORS_RP47 : null,
+         m: typeof META_RP47 !== 'undefined' ? META_RP47 : null,
+         t: typeof MOJONES_RP47_TODOS !== 'undefined' ? MOJONES_RP47_TODOS : null},
+  '51': {c: typeof CHAIN_RP51 !== 'undefined' ? CHAIN_RP51 : null,
+         a: typeof ANCHORS_RP51 !== 'undefined' ? ANCHORS_RP51 : null,
+         m: typeof META_RP51 !== 'undefined' ? META_RP51 : null,
+         t: typeof MOJONES_RP51_TODOS !== 'undefined' ? MOJONES_RP51_TODOS : null},
+  '61': {c: typeof CHAIN_RP61 !== 'undefined' ? CHAIN_RP61 : null,
+         a: typeof ANCHORS_RP61 !== 'undefined' ? ANCHORS_RP61 : null,
+         m: typeof META_RP61 !== 'undefined' ? META_RP61 : null,
+         t: typeof MOJONES_RP61_TODOS !== 'undefined' ? MOJONES_RP61_TODOS : null},
+  '91': {c: typeof CHAIN_RP91 !== 'undefined' ? CHAIN_RP91 : null,
+         a: typeof ANCHORS_RP91 !== 'undefined' ? ANCHORS_RP91 : null,
+         m: typeof META_RP91 !== 'undefined' ? META_RP91 : null,
+         t: typeof MOJONES_RP91_TODOS !== 'undefined' ? MOJONES_RP91_TODOS : null},
+};
+for (const rid in _RP_BUNDLES_FULL) {
+  const b = _RP_BUNDLES_FULL[rid];
+  if (b.c) CHAINS_DATA[rid]  = b.c;
+  if (b.a) ANCHORS_DATA[rid] = b.a;
+  if (b.m) META_DATA[rid]    = b.m;
 }
-console.log('[Bundles v7.22] CHAINS_DATA con bundle:',
+console.log('[Bundles v7.24] CHAINS_DATA con bundle:',
             Object.keys(META_DATA).join(','),
             '| RP40 progIni:', META_DATA['40']?.progIni,
             '| ANCHOR_RP40[0]:', ANCHORS_DATA['40']?.[0]);
