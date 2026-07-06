@@ -631,7 +631,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.37';
+const APP_VERSION = 'v7.38';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2308,8 +2308,10 @@ map.on('click', function(e) {
       if (pip([lngN, latN], poly[0])) partidoDetectado = f.properties.partido;
     }
   });
-  // Ruta + progresiva + partido + todos los campos
-  autoDetectarCampos(latN, lngN);
+  // v7.38 — En el click del pin, forzar auto-detección (ignorar toggle tipo_via
+  // del form). El user visualmente sabe si el pin cayó sobre RP o camino, y
+  // espera que el sistema autocomplete con lo que está debajo del punto.
+  autoDetectarCampos(latN, lngN, { forzarAuto: true });
   progCalculada = document.getElementById('fprog').value || null;
   partidoDetectado = document.getElementById('fpartido').value || partidoDetectado;
   // v7.37 — leer ruta/tipo_via detectados por autoDetectarCampos (antes se usaba
@@ -2341,12 +2343,12 @@ map.on('click', function(e) {
     else {
       document.getElementById('flat').value = pos.lat.toFixed(6);
       document.getElementById('flng').value = pos.lng.toFixed(6);
-      autoDetectarCampos(pos.lat, pos.lng);
+      autoDetectarCampos(pos.lat, pos.lng, { forzarAuto: true });  // v7.38
     }
   });
   pinMarker.on('dragend', function(ev) {
     const pos = ev.target.getLatLng();
-    autoDetectarCampos(pos.lat, pos.lng);
+    autoDetectarCampos(pos.lat, pos.lng, { forzarAuto: true });  // v7.38
     const rid = document.getElementById('fruta').value;
     if (rid) actualizarPanelPos(rid, pos);
   });
@@ -2387,12 +2389,12 @@ function onCoordsManual() {
       const pos = ev.target.getLatLng();
       document.getElementById('flat').value = pos.lat.toFixed(6);
       document.getElementById('flng').value = pos.lng.toFixed(6);
-      autoDetectarCampos(pos.lat, pos.lng);
+      autoDetectarCampos(pos.lat, pos.lng, { forzarAuto: true });  // v7.38
     });
   }
 
   map.panTo([lat, lng]);
-  autoDetectarCampos(lat, lng);
+  autoDetectarCampos(lat, lng, { forzarAuto: true });  // v7.38
 }
 
 // Detectar partido, ruta y progresiva para unas coordenadas dadas
@@ -2952,7 +2954,12 @@ function actualizarPanelPosCamino(feat, latlng, km) {
 }
 
 
-function autoDetectarCampos(lat, lng) {
+// v7.38 — Segundo parámetro: opts.forzarAuto=true → ignora el toggle tipo_via
+// y elige lo más cercano (RP o camino). Se usa al PONER UN PIN (click en mapa)
+// donde el user visualmente ya sabe qué está señalando. En hover, el toggle
+// del form manda para no interferir entre capas.
+function autoDetectarCampos(lat, lng, opts) {
+  opts = opts || {};
   // Partido
   PARTIDOS_GEO.features.forEach(f => {
     for (const poly of f.geometry.coordinates) {
@@ -2998,15 +3005,28 @@ function autoDetectarCampos(lat, lng) {
       });
     });
   }
-  // v7.34 — La decisión respeta el tipo_via que el usuario tiene ACTIVO en el form.
-  //   • Si el toggle está en "RP" → SIEMPRE elige la RP más cercana (ignora caminos)
-  //   • Si el toggle está en "camino" → SIEMPRE elige el camino más cercano (ignora RPs)
-  // Así no hay interferencia entre capas: el usuario decide qué está relevando.
+  // v7.38 — Dos modos de decisión:
+  //  • forzarAuto=true (al poner un pin): elegir lo MÁS CERCANO, sin importar toggle.
+  //    El toggle del form se AJUSTA según lo detectado.
+  //  • forzarAuto=false (hover en form): respetar el toggle tipo_via del user.
   const tipoViaActivo = (document.getElementById('ftipo-via')?.value || 'rp');
-  const usarCamino = (tipoViaActivo === 'camino') && !!caminoMasCercano;
-  const usarRP     = (tipoViaActivo !== 'camino') && !!rutaMasCercana;
-  // v7.35 — log removido para no ensuciar consola. Reactivar poniendo window.__DVBA_DEBUG=true
-  if (window.__DVBA_DEBUG) console.log('[autoDetect] tipo_via=' + tipoViaActivo,
+  let usarCamino, usarRP;
+  if (opts.forzarAuto) {
+    // Umbral: si camino a menos de 150m Y RP a más de 30m, camino gana igual (pin visual).
+    // Si camino está estrictamente más cerca que RP, camino gana.
+    const UMBRAL_CAMINO_CERCA = 0.0014;   // ~150 m
+    usarCamino = !!caminoMasCercano && (
+      distCam < distRuta ||
+      (distCam < UMBRAL_CAMINO_CERCA && distRuta > 0.00027)  // RP > 30m
+    );
+    usarRP = !usarCamino && !!rutaMasCercana;
+  } else {
+    usarCamino = (tipoViaActivo === 'camino') && !!caminoMasCercano;
+    usarRP     = (tipoViaActivo !== 'camino') && !!rutaMasCercana;
+  }
+  // v7.38 — log verbose cuando hay forzarAuto para diagnosticar decisiones de pin
+  if (opts.forzarAuto || window.__DVBA_DEBUG) console.log('[autoDetect]',
+    (opts.forzarAuto ? '(PIN AUTO)' : 'tipo_via=' + tipoViaActivo),
     '| RP=' + rutaMasCercana, 'd=' + (distRuta*111000).toFixed(0) + 'm',
     '| Cno=' + (caminoMasCercano ? caminoMasCercano.properties.NOMEMCLATURA : '-'),
     'd=' + (distCam*111000).toFixed(0) + 'm',
@@ -3036,7 +3056,8 @@ function autoDetectarCampos(lat, lng) {
     if(p.PARTIDO_NOMBRE) document.getElementById('fpartido').value = p.PARTIDO_NOMBRE;
   } else if (usarRP) {
     document.getElementById('fruta').value = rutaMasCercana;
-    // No forzamos tipo_via='rp' aquí — respetamos el toggle que ya tiene el user
+    // v7.38 — si venimos de un pin (forzarAuto), setear también el toggle a 'rp'
+    if (opts.forzarAuto) { const el = document.getElementById('ftipo-via'); if(el) el.value='rp'; }
     try {
       const p = calcProg(rutaMasCercana, L.latLng(lat, lng));
       if (p && p.prog) document.getElementById('fprog').value = p.prog;
