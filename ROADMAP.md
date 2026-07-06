@@ -21,13 +21,31 @@ Este documento es la base para el **proyecto de congreso** — describe qué est
 
 ## 🔴 Bloqueadores / bugs de fondo (arreglar primero)
 
-### 1. ~~RP61 anchor no-monotónico~~ ✅ **RESUELTO en v7.40**
+### 1. RP61: parcialmente resuelto, falta renumerar fid en QGIS
 
-La RP61 **nace en Gral Belgrano (Este) y termina en 9 de Julio (Oeste)** — ambos extremos FUERA de Zona VI. Crece **Este→Oeste**. Tiene un **gap grande donde comparte trazado con RN3/RP30**.
+**Recorrido real verificado (E→O)**:
+1. Gral Belgrano (nace, fuera Zona VI) → Las Flores urbana
+2. **Gap Las Flores**: RN3 → RP30 hasta encontrar RP91 (~18 km recta / 25 km real)
+3. Post-RP91: camino de tierra hasta Gral Alvear
+4. **Gap Alvear**: usa ~280 m de RN205
+5. Camino de tierra hasta 9 de Julio (fin, fuera Zona VI)
 
-**Solución aplicada (`gen_ruta_bundle.py` v2.9)**: el script ahora **descarta anchors cuyo snap cae dentro de un tramo GAP físico** (`es_gap=1`). En v7.40 el mojón km 50 fue detectado en gap y no se usa como anchor; los anchors quedan monotónicos: `0 → 97.5 → 148.6 → 198.9 → 254.3 → 567.7`. El mojón sigue visible en el mapa (con `en_gap=true`), solo no distorsiona la interpolación.
+**✅ Fix anchors (v7.40)**: `gen_ruta_bundle.py v2.9` descarta anchors cuyo snap cae en gap. El mojón km 50 (que caía en el Gap Las Flores con acc=459 espurio) ya no distorsiona la interpolación. Anchors resultantes monotónicos: `0 → 97.5 → 148.6 → 198.9 → 254.3 → 567.7`.
 
-**Pendiente (mejora futura, task #183)**: recortar `rp61_traza_zonavi.geojson` en QGIS a solo tramos dentro de Zona VI (Este + Oeste con gaps), sin incluir el tramo compartido con RN3/RP30 completo. Con el fix del script ya no es urgente, pero mejoraría la longitud reportada y la calidad del bundle.
+**❌ Pendiente (task #186)**: los tramos gap en el geojson tienen `fid=5` y `fid=6` (mayor que los normales), quedan **al final** de la cadena por el orden por fid → genera rectas gigantes de 177 km y 102 km al saltar de vuelta al Este/centro. Renumerar manualmente en QGIS:
+
+| fid actual | Nuevo fid | Tramo |
+|---|---|---|
+| 1 | 1 | Belgrano → Las Flores |
+| 5 (gap) | **2** | Gap RN3+RP30 |
+| 2 | 3 | Post-Las Flores → 25M |
+| 3 | 4 | 25M → Alvear |
+| 6 (gap) | **5** | Gap RN205 |
+| 4 | 6 | Alvear → 9 Julio |
+
+Después regenerar bundle. Ver [`memory/reference_rp61_canonica.md`](internal).
+
+**Nueva regla operativa**: al digitalizar en QGIS, los `fid` deben reflejar el **orden geográfico real** (E→O u O→E según sentido de crecimiento), incluidos los gaps intercalados. Nunca dejarlos al final por orden de digitalización.
 
 ### 2. Sello mal generado en escritorio (task #174)
 
