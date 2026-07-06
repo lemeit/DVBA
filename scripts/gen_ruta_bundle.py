@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 """
-gen_ruta_bundle.py v2.9 - DVBA Zona VI Saladillo
+gen_ruta_bundle.py v2.10 - DVBA Zona VI Saladillo
 Genera datos/rutas_rpXX.js desde dos GeoJSON (traza + mojones).
+
+v2.10 (2026-07-06): si --ini-lng/lat o --fin-lng/lat NO coinciden con un
+      vertex existente (dist > 5m), el punto se INSERTA en la cadena
+      entre los dos vertices adyacentes. Asi la traza recortada llega
+      exactamente al limite del partido en vez de al vertex interior
+      mas cercano. Complementa recortar_zonavi.py v1.1 que ahora emite
+      el punto exacto de cruce con el borde.
 
 v2.9 (2026-07-06): descartar anchors cuyo snap cae dentro de un tramo
       GAP fisico (es_gap=1). El acc calculado en un gap es espurio porque
@@ -317,14 +324,48 @@ def main():
     print('Traza: ' + str(len(pts_all)) + ' puntos totales')
     has_gap_field = len(gap_ranges_field) > 0
 
+    # v2.10 (2026-07-06) - Si --ini-lng/lat NO coinciden con un vertex existente
+    # (dist > 5 metros), INSERTAR el punto en la cadena entre los dos vertices
+    # adyacentes. Esto permite que la traza recortada llegue EXACTAMENTE al
+    # limite del partido (recortar_zonavi.py v1.1 devuelve el cruce exacto).
+    def _insertar_o_matchear(pts, target_lng, target_lat, gap_ranges):
+        idx, d_km = nearest_idx(pts, [target_lng, target_lat])
+        if d_km * 1000 < 5.0:  # menos de 5m -> matchea al vertex
+            return idx, pts, gap_ranges
+        # Buscar el segmento donde cae el punto (aproximacion: proyeccion escalar)
+        best_i, best_dperp = 0, 1e18
+        for i in range(len(pts) - 1):
+            ax, ay = pts[i]
+            bx, by = pts[i+1]
+            dx, dy = bx - ax, by - ay
+            L2 = dx*dx + dy*dy
+            if L2 < 1e-14: continue
+            t = ((target_lng - ax) * dx + (target_lat - ay) * dy) / L2
+            t = max(0.0, min(1.0, t))
+            px = ax + t*dx; py = ay + t*dy
+            d = math.hypot(target_lng - px, target_lat - py)
+            if d < best_dperp:
+                best_dperp, best_i = d, i
+        # Insertar entre best_i y best_i+1
+        new_pts = pts[:best_i+1] + [[target_lng, target_lat]] + pts[best_i+1:]
+        # Actualizar gap_ranges (indices >= best_i+1 shiftean +1)
+        new_gaps = []
+        for a, b in gap_ranges:
+            na = a if a <= best_i else a + 1
+            nb = b if b <= best_i else b + 1
+            new_gaps.append((na, nb))
+        return best_i + 1, new_pts, new_gaps
+
     if args.ini_lng and args.ini_lat:
-        idx_ini, d_ini = nearest_idx(pts_all, [args.ini_lng, args.ini_lat])
-        print('Inicio zona VI: idx=' + str(idx_ini) + ', dist=' + str(round(d_ini, 3)) + 'km')
+        idx_ini, pts_all, gap_ranges_field = _insertar_o_matchear(
+            pts_all, args.ini_lng, args.ini_lat, gap_ranges_field)
+        print('Inicio zona VI: idx=' + str(idx_ini) + ' (vertex insertado o matcheado en borde)')
     else:
         idx_ini = 0
     if args.fin_lng and args.fin_lat:
-        idx_fin, d_fin = nearest_idx(pts_all, [args.fin_lng, args.fin_lat])
-        print('Fin zona VI: idx=' + str(idx_fin) + ', dist=' + str(round(d_fin, 3)) + 'km')
+        idx_fin, pts_all, gap_ranges_field = _insertar_o_matchear(
+            pts_all, args.fin_lng, args.fin_lat, gap_ranges_field)
+        print('Fin zona VI: idx=' + str(idx_fin) + ' (vertex insertado o matcheado en borde)')
     else:
         idx_fin = len(pts_all) - 1
 
@@ -495,9 +536,10 @@ def main():
     n_ms = len(moj_sint)
 
     js_lines = []
+    js_lines = []
     js_lines.append('// =================================================================')
     js_lines.append('// datos/rutas_rp' + rn + '.js  -  RP' + rn + ' DVBA Zona VI')
-    js_lines.append('// Generado por gen_ruta_bundle.py v2.9 (orden=' + args.order_by + ')')
+    js_lines.append('// Generado por gen_ruta_bundle.py v2.10 (orden=' + args.order_by + ')')
     js_lines.append('// ' + str(n_sub) + ' pts | ' + str(tk_r) + ' km | progIni:'
                     + str(prog_ini) + ' | progFin:' + str(prog_fin))
     js_lines.append('// Gaps reales (es_gap=1): ' + str(n_real) + ' [GAPS_RP' + rn + ']')
@@ -510,7 +552,7 @@ def main():
     js_lines.append('const MOJONES_RP' + rn + '_TODOS=' + tod_j + ';')
     js_lines.append('// GAPS_RPxx: solo gaps reales (es_gap=1 en QGIS)')
     js_lines.append('const GAPS_RP' + rn + '=' + gaps_real_j + ';')
-    js_lines.append('// GAPS_AUTO_RPxx: saltos auto-detectados, solo informativo (dev/tests)')
+    js_lines.append('// GAPS_AUTO_RPxx: saltos auto-detectados, solo informativo')
     js_lines.append('const GAPS_AUTO_RP' + rn + '=' + gaps_auto_j + ';')
     js_lines.append('const META_RP' + rn + '={')
     js_lines.append("  ruta:'" + rn + "',label:'RP " + rn + "',color:'"
@@ -528,7 +570,7 @@ def main():
     out_path.write_text('\n'.join(js_lines) + '\n', encoding='utf-8')
     size_kb = out_path.stat().st_size // 1024
     print('')
-    print('OK: ' + str(out_path).replace('\\\\', '/') + ' (' + str(size_kb) + ' KB)')
+    print('OK: ' + str(out_path) + ' (' + str(size_kb) + ' KB)')
 
 
 if __name__ == '__main__':
