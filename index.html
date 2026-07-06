@@ -631,7 +631,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.35';
+const APP_VERSION = 'v7.36';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1643,6 +1643,8 @@ function _mostrarCursorSobreCamino(feat, layer, latlng){
   const segM=_haversineM(coords[proj.seg-1][0],coords[proj.seg-1][1],coords[proj.seg][0],coords[proj.seg][1]);
   const km=(cumm[proj.seg-1]+proj.t*segM)/1000;
   _actualizarTooltipCursor(proj.lat, proj.lng, `<b style="color:#7050b0">Cno. ${p.NOMEMCLATURA}</b> · <b>${km.toFixed(2)} km</b>`);
+  // v7.36 — actualizar también el panel superior "Posición" (antes solo funcionaba con RPs)
+  if (typeof actualizarPanelPosCamino === 'function') actualizarPanelPosCamino(feat, latlng, km);
   if(PROG_HOVER_ACTIVO){
     const key='cam:'+(p._fid||p.NOMEMCLATURA);
     if(_cursorTargetKey!==key){
@@ -1952,6 +1954,24 @@ async function guardar(){
       // v7.13 — Si editamos un registro que estaba en 'campo' Y tiene foto → sellar v3 + aprobar
       if (editaPendiente && data && data.foto_url && typeof aplicarSelloDVBA === 'function') {
         try {
+          // v7.35 — GUARD anti-doble-sello.
+          // Este bloque estaba diseñado para sellar fotos SUBIDAS SIN sello (path
+          // móvil "capturar sin sellar → aprobar en escritorio"). Pero si la foto
+          // YA fue sellada por el modal aplicarSelloDVBAInteractivo del escritorio,
+          // aplicar otro sello encima duplica la información (dos overlays visibles).
+          // Detectar por convenciones: url contiene "_sello." o registro tiene sello_version.
+          const yaTieneSello =
+            (data.foto_url && /_sello\.[a-z0-9]+(\?|$)/i.test(data.foto_url)) ||
+            regOrig?.sello_version === 'v3' ||
+            data.sello_version === 'v3';
+          if (yaTieneSello) {
+            console.log('[Aprobación post-edición] Foto ya tenía sello v3 — no re-sellar. Solo marcar como aprobado.');
+            await _supa.from('relevamientos').update({
+              estado_workflow: 'aprobado',
+              validado_geo: regOrig?.validado_geo === 'auto_ok' ? 'auto_ok' : 'auto_corregido'
+            }).eq('id', _editandoId);
+            data.estado_workflow = 'aprobado';
+          } else {
           console.log('[Aprobación post-edición] Sellando foto v3 + aprobando registro', _editandoId);
           const fotoUrlOrig = data.foto_url;
           // Bajar foto cruda
@@ -2004,6 +2024,7 @@ async function guardar(){
           } else {
             console.warn('[Aprobación post-edición] URL de foto no matchea el formato esperado:', fotoUrlOrig);
           }
+          }  // fin del else de yaTieneSello (v7.35)
         } catch(e) { console.warn('[Aprobación post-edición] excepción:', e); }
       }
       const regObj = {
@@ -2894,6 +2915,27 @@ function actualizarPanelPos(rid, latlng) {
   document.getElementById('flat').value    = latlng.lat.toFixed(6);
   document.getElementById('flng').value    = latlng.lng.toFixed(6);
   autoDetectarCampos(latlng.lat, latlng.lng);
+}
+
+// v7.36 — Actualiza el panel "Posición" cuando el cursor está sobre un CAMINO secundario.
+// Muestra Cno. NOMEMCLATURA + progresiva calculada sobre la traza + partido + coords.
+function actualizarPanelPosCamino(feat, latlng, km) {
+  const p = feat.properties;
+  const ki = Math.floor(km), m = Math.round((km - ki) * 1000);
+  const progFmt = `${ki}+${String(m).padStart(3, '0')}`;
+  const regsR = regs.filter(r => r.ruta === p.NOMEMCLATURA);
+  const claseTxt = p.CLASE ? p.CLASE.toLowerCase() : '';
+  const clsColor = (typeof CS_COLOR_CLASE !== 'undefined' && CS_COLOR_CLASE[p.CLASE]) || '#7050b0';
+  const el = document.getElementById('hinfo');
+  if (!el) return;
+  el.innerHTML = `
+    <span class="lbl">Camino</span><div style="color:${clsColor};font-size:13px;font-weight:800">Cno. ${p.NOMEMCLATURA}</div>
+    <span class="lbl">Progresiva</span><div><div class="prog">${progFmt}</div></div>
+    <span style="color:#2a3a4a;font-size:9px">km ${km.toFixed(2)}</span>
+    <span class="lbl">Clase</span><div style="font-size:10px;color:#5a8090">${claseTxt}</div>
+    <span class="lbl">Partido</span><div style="font-size:10px;color:#5a8090">${p.PARTIDO_NOMBRE || '—'}</div>
+    <span class="lbl">Registros</span><div style="color:#4d8ab0;font-weight:700">${regsR.length}</div>
+    <div style="color:#2a3a4a;font-size:9px;margin-top:4px">${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}</div>`;
 }
 
 
