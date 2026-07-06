@@ -232,6 +232,85 @@ const ARMONIZADOR = (() => {
     };
   }
 
+  // ── 3b. Camino secundario más cercano ──────────────────────────────
+  // v9.32 (2026-07-06) — paridad con la detección de caminos del portal escritorio.
+  // Devuelve {camino, distM, progKm, projLat, projLng} o null si RED_VIAL no está listo
+  // o no hay caminos dentro del radio. La progresiva es km acumulados desde el inicio
+  // de la traza del camino (no hay anchors — los caminos no tienen mojones oficiales).
+  function caminoMasCercano(lat, lng, radioMaxM = 500) {
+    if (typeof RED_VIAL === 'undefined' || !RED_VIAL || typeof RED_VIAL.listarCaminos !== 'function') return null;
+    // RED_VIAL.init() debe haber sido llamado previamente. Si no, listarCaminos devuelve [].
+    const caminos = RED_VIAL.listarCaminos();
+    if (!caminos.length) return null;
+    let mejor = null;
+    for (const c of caminos) {
+      // v9.32 — RED_VIAL.getCaminoByKey devuelve el GRUPO (con featuresOrig[])
+      const grupo = RED_VIAL.getCaminoByKey ? RED_VIAL.getCaminoByKey(c.key) : null;
+      const feats = grupo && Array.isArray(grupo.featuresOrig) ? grupo.featuresOrig : [];
+      for (const f of feats) {
+        if (!f || !f.geometry) continue;
+        const coords = f.geometry.type === 'LineString'
+          ? f.geometry.coordinates
+          : (f.geometry.type === 'MultiLineString' ? f.geometry.coordinates.flat() : []);
+        if (coords.length < 2) continue;
+        // Proyectar punto a la polyline y calcular km acumulado
+        let mejorLocal = { distM: Infinity, acc: 0, projLat: null, projLng: null };
+        let accAcum = 0;
+        for (let i = 0; i < coords.length - 1; i++) {
+          const lng1 = coords[i][0],   lat1 = coords[i][1];
+          const lng2 = coords[i+1][0], lat2 = coords[i+1][1];
+          const proj = distPuntoASegmento(lat, lng, lat1, lng1, lat2, lng2);
+          const segLen = haversineM(lat1, lng1, lat2, lng2);
+          if (proj.distM < mejorLocal.distM) {
+            mejorLocal = {
+              distM: proj.distM,
+              acc: (accAcum + proj.t * segLen) / 1000,
+              projLat: proj.projLat,
+              projLng: proj.projLng
+            };
+          }
+          accAcum += segLen;
+        }
+        if (!mejor || mejorLocal.distM < mejor.distM) {
+          mejor = {
+            camino: c.key,
+            partido: f.properties.PARTIDO_NOMBRE,
+            clase: f.properties.CLASE,
+            distM: mejorLocal.distM,
+            progKm: mejorLocal.acc,
+            projLat: mejorLocal.projLat,
+            projLng: mejorLocal.projLng
+          };
+        }
+      }
+    }
+    if (mejor && mejor.distM <= radioMaxM) return mejor;
+    return null;
+  }
+
+  // ── 3c. Vía más cercana (RP o camino, cualquiera esté más próximo) ─
+  // v9.32 — Devuelve la mejor detección con el mismo criterio que el portal:
+  // camino gana si distCam < distRuta * 3 y distCam < 150m (bias hacia camino
+  // cuando el RP pasa tangencial pero el user está sobre un camino).
+  //
+  // Resultado:
+  //   {tipo: 'rp'|'camino', key: '91'|'093-13', progKm, distM, projLat, projLng}
+  function viaMasCercana(lat, lng, opts) {
+    opts = opts || {};
+    const radio = opts.radioMaxM || 500;
+    const rp = rutaMasCercana(lat, lng, radio);
+    const cno = caminoMasCercano(lat, lng, radio);
+    if (!rp && !cno) return null;
+    if (!cno) return { tipo: 'rp', key: rp.ruta, progKm: rp.progKm, distM: rp.distM, projLat: rp.projLat, projLng: rp.projLng };
+    if (!rp)  return { tipo: 'camino', key: cno.camino, progKm: cno.progKm, distM: cno.distM, projLat: cno.projLat, projLng: cno.projLng, partido: cno.partido, clase: cno.clase };
+    // Ambos existen — bias hacia camino si está razonablemente cerca
+    const UMBRAL_CAM = 150;   // m
+    const usarCamino = (cno.distM < rp.distM) || (cno.distM < UMBRAL_CAM && cno.distM < rp.distM * 3);
+    return usarCamino
+      ? { tipo: 'camino', key: cno.camino, progKm: cno.progKm, distM: cno.distM, projLat: cno.projLat, projLng: cno.projLng, partido: cno.partido, clase: cno.clase }
+      : { tipo: 'rp', key: rp.ruta, progKm: rp.progKm, distM: rp.distM, projLat: rp.projLat, projLng: rp.projLng };
+  }
+
   // ── 4. Mojón físico más cercano (para referencia visual al operador) ──
   function mojonMasCercano(lat, lng, rutaKey, maxDistM = 5000) {
     if (typeof MOJONES_DATA === 'undefined') return null;
@@ -301,87 +380,89 @@ const ARMONIZADOR = (() => {
     }
 
     // ── Ruta y progresiva ────────────────────────────────────────
-    // Si el operador puso una ruta, validar contra ella + sugerir alternativa si está lejos
-    let rutaParaProg = form.ruta;
-    let progReal = null;
-
+    // Si el operador puso una ruta, validar contra ella + sugerir alternativa
     if (form.ruta) {
       progReal = progresivaEnRuta(lat, lng, form.ruta);
       const umbR = umbralRuta(gpsAcc);
-      if (progReal) {
-        if (progReal.distM > umbR) {
-          // GPS está lejos de la ruta cargada — buscar mejor opción
-          const masCercana = rutaMasCercana(lat, lng, 500);
-          if (masCercana && masCercana.ruta !== form.ruta && masCercana.distM < progReal.distM) {
-            cambios.push({
-              campo: 'ruta', cargado: 'RP ' + form.ruta, sugerido: 'RP ' + masCercana.ruta,
-              confianza: progReal.distM > 2 * umbR ? 'alta' : 'media',
-              motivo: `GPS está a ${Math.round(progReal.distM)}m de RP${form.ruta} pero a solo ${Math.round(masCercana.distM)}m de RP${masCercana.ruta}`,
-              severidad: progReal.distM > 2 * umbR ? 'alta' : 'media'
-            });
-            rutaParaProg = masCercana.ruta;
-            progReal = { distM: masCercana.distM, progKm: masCercana.progKm };
-          } else {
-            sugerencias.push({
-              texto: `GPS está a ${Math.round(progReal.distM)}m de la traza de RP${form.ruta} — verificar`
-            });
-          }
+      if (progReal && progReal.distM > umbR) {
+        // GPS está lejos de la ruta cargada — buscar alternativa (RP o camino)
+        const alt = viaMasCercana ? viaMasCercana(lat, lng, { radioMaxM: 500 }) : rutaMasCercana(lat, lng, 500);
+        if (alt && (alt.key || alt.ruta) && String(alt.key || alt.ruta) !== String(form.ruta)) {
+          const altKey = alt.key || alt.ruta;
+          const prefijo = alt.tipo === 'camino' ? 'Cno.' : 'RP';
+          cambios.push({
+            campo: 'ruta', cargado: form.ruta, sugerido: altKey,
+            confianza: alt.distM < umbR ? 'alta' : 'media',
+            motivo: `GPS a ${Math.round(progReal.distM)}m de RP${form.ruta}, pero a ${Math.round(alt.distM)}m de ${prefijo} ${altKey}`,
+            severidad: 'media', tipoAlt: alt.tipo
+          });
+          rutaParaProg = altKey;
         } else {
-          consistentes.push('ruta');
+          sugerencias.push({ texto: `GPS a ${Math.round(progReal.distM)}m de la RP ${form.ruta} — verificar` });
+        }
+      } else if (progReal) {
+        consistentes.push('ruta');
+        // Validar progresiva cargada vs calculada
+        if (form.prog) {
+          const progNum = parseFloat(String(form.prog).replace(',', '.'));
+          if (isFinite(progNum)) {
+            const diff = Math.abs(progNum - progReal.progKm);
+            const umbP = umbralProgresiva(gpsAcc);
+            if (diff > umbP) {
+              cambios.push({
+                campo: 'prog', cargado: String(progNum), sugerido: progReal.progKm.toFixed(2),
+                confianza: 'media',
+                motivo: `Cargada km ${progNum}, GPS proyecta km ${progReal.progKm.toFixed(2)} (dif ${diff.toFixed(2)} km)`,
+                severidad: diff > umbP * 2 ? 'alta' : 'media'
+              });
+            } else {
+              consistentes.push('prog');
+            }
+          }
         }
       }
     } else {
-      // No cargó ruta → sugerir desde GPS
-      const masCercana = rutaMasCercana(lat, lng, 500);
-      if (masCercana) {
-        cambios.push({
-          campo: 'ruta', cargado: null, sugerido: 'RP ' + masCercana.ruta,
-          confianza: 'alta', motivo: `GPS está a ${Math.round(masCercana.distM)}m de RP${masCercana.ruta}`,
-          severidad: 'baja'
-        });
-        rutaParaProg = masCercana.ruta;
-        progReal = { distM: masCercana.distM, progKm: masCercana.progKm };
-      }
-    }
-
-    // ── Progresiva (solo si tenemos ruta + cálculo) ──────────────
-    if (rutaParaProg && progReal && isFinite(progReal.progKm)) {
-      const progCargada = parseFloat(String(form.prog || '').replace(',', '.'));
-      const umbP = umbralProgresiva(gpsAcc) / 1000;  // a km
-      if (!isFinite(progCargada)) {
-        cambios.push({
-          campo: 'prog', cargado: null, sugerido: progReal.progKm.toFixed(2),
-          confianza: 'alta', motivo: `Calculado por proyección sobre RP${rutaParaProg}`,
-          severidad: 'baja'
-        });
-      } else {
-        const dif = Math.abs(progCargada - progReal.progKm);
-        if (dif > umbP) {
-          cambios.push({
-            campo: 'prog', cargado: progCargada, sugerido: progReal.progKm.toFixed(2),
-            confianza: dif > 2 * umbP ? 'alta' : 'media',
-            motivo: `Diferencia ${(dif*1000).toFixed(0)}m respecto a la proyección sobre la ruta`,
-            severidad: dif > 5 ? 'alta' : 'media'  // > 5 km es muy raro
-          });
-        } else {
-          consistentes.push('prog');
-        }
-      }
-
-      // Mojón cercano como info adicional
-      const mj = mojonMasCercano(lat, lng, rutaParaProg, 3000);
-      if (mj) {
+      // Sin ruta cargada — sugerir la vía más cercana
+      const alt = viaMasCercana ? viaMasCercana(lat, lng, { radioMaxM: 500 }) : rutaMasCercana(lat, lng, 500);
+      if (alt) {
+        const altKey = alt.key || alt.ruta;
+        const prefijo = alt.tipo === 'camino' ? 'Cno.' : 'RP';
         sugerencias.push({
-          texto: `Mojón km ${mj.km} a ${Math.round(mj.distM)}m de tu posición`
+          texto: `Vía cercana: ${prefijo} ${altKey} a ${Math.round(alt.distM)}m, km ${(alt.progKm || 0).toFixed(2)}`
         });
       }
     }
 
-    // ── Severidad global = máxima de los cambios ─────────────────
-    let severidad = 'ninguna';
-    const orden = { ninguna: 0, baja: 1, media: 2, alta: 3 };
-    for (const c of cambios) {
-      if (orden[c.severidad] > orden[severidad]) severidad = c.severidad;
+    // Severidad global
+    if (cambios.some(c => c.severidad === 'alta')) severidad = 'alta';
+    else if (cambios.length > 0) severidad = 'media';
+
+    return { cambios, consistentes, sugerencias, severidad };
+  }
+
+  // ── Auto-inicializar al cargar (mejor para uso interactivo) ──────
+  init().catch(() => {/* silenciado, ya se loguea en init() */});
+
+  // ── API pública ──────────────────────────────────────────────────
+  return {
+    init,
+    detectarPartido,
+    distAlLimitePartido,
+    rutaMasCercana,
+    caminoMasCercano,   // v9.32 — camino secundario más cercano al GPS
+    viaMasCercana,      // v9.32 — RP o camino, lo que esté más cerca (bias camino)
+    progresivaEnRuta,
+    mojonMasCercano,
+    armonizar,
+    haversineM,
+    umbralRuta,
+    umbralProgresiva,
+    umbralPartidoLim
+  };
+})();
+
+if (typeof module !== 'undefined') module.exports = ARMONIZADOR;
+rden[severidad]) severidad = c.severidad;
     }
 
     return { cambios, consistentes, sugerencias, severidad };
@@ -396,6 +477,8 @@ const ARMONIZADOR = (() => {
     detectarPartido,
     distAlLimitePartido,
     rutaMasCercana,
+    caminoMasCercano,   // v9.32 — camino secundario más cercano al GPS
+    viaMasCercana,      // v9.32 — RP o camino, lo que esté más cerca (bias camino)
     progresivaEnRuta,
     mojonMasCercano,
     armonizar,

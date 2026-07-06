@@ -21,11 +21,19 @@ Este documento es la base para el **proyecto de congreso** — describe qué est
 
 ## 🔴 Bloqueadores / bugs de fondo (arreglar primero)
 
-### 1. RP61 anchor km 50 no-monotónico
+### 1. RP61 recortar a Zona VI (bug real)
 
-Al regenerar con el gap adicional agregado en QGIS, el mojón km 50 quedó snapped a `acc=459 km` cuando el resto de anchors están en secuencia normal (0 → 97 → 148 → 198 → 254). La progresiva calculada en el tramo entre km 0 y km 100 va a rebotar.
+La RP61 **nace en Gral Belgrano (Este) y termina en 9 de Julio (Oeste)** — ambos extremos FUERA de Zona VI. Crece **Este→Oeste**. Tiene un **gap grande donde comparte trazado con RN3/RP30** (la RP61 se apoya en esas rutas por varios km antes de continuar).
 
-**Acción**: revisar en QGIS si el mojón km 50 quedó geográficamente cerca del tramo gap agregado, o si debe reubicarse. Alternativa temporal: excluir ese mojón del bundle.
+Al regenerar en v7.39 con el gap agregado, el mojón km 50 quedó snapped a `acc=459` porque cayó en el tramo compartido con RN3/RP30 que aporta cientos de km lineales al acumulado. El resto de anchors están normales (0 → 97 → 148 → 198 → 254).
+
+**Acción (QGIS)**:
+- Recortar `rp61_traza_zonavi.geojson` a **solo tramos dentro de Zona VI** (Este + Oeste con gaps entre ellos), sin incluir el gap RN3/RP30 completo.
+- Mantener mojones oficiales solo los que caen dentro de Zona VI.
+- `prog_ini` = km del primer mojón físico dentro de Zona VI.
+- Regenerar bundle con `gen_ruta_bundle.py`.
+
+Ver [`memory/reference_rp61_canonica.md`](internal) para detalles canónicos.
 
 ### 2. Sello mal generado en escritorio (task #174)
 

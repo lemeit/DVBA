@@ -685,7 +685,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.31</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.32</span>
 </div>
 
 
@@ -1113,38 +1113,63 @@ function prefillDesdeArmonizacion(){
         toast('★ Partido sugerido: ' + partido, 'ok');
       }
     }
-    // Ruta más cercana (radio escalado: primero 500m, luego 2km con disclaimer)
+    // v9.32 — Vía más cercana (RP o Camino Secundario, lo que esté más cerca)
+    // Antes solo detectaba RPs; ahora si el operador está sobre un camino
+    // secundario en el campo, se sugiere ese camino con su NOMEMCLATURA + km.
     const elRuta = document.getElementById('f-ruta');
     if (elRuta && !elRuta.value) {
-      let rc = ARMONIZADOR.rutaMasCercana(gpsLat, gpsLng, 500);
+      let via = ARMONIZADOR.viaMasCercana ? ARMONIZADOR.viaMasCercana(gpsLat, gpsLng, { radioMaxM: 500 }) : null;
       let lejos = false;
-      if (!rc) {
-        // Si no hay RP dentro de 500m, probar con 2 km y avisar
-        rc = ARMONIZADOR.rutaMasCercana(gpsLat, gpsLng, 2000);
-        lejos = !!rc;
+      if (!via) {
+        // Radio ampliado si no encontró nada cerca
+        via = ARMONIZADOR.viaMasCercana ? ARMONIZADOR.viaMasCercana(gpsLat, gpsLng, { radioMaxM: 2000 }) : null;
+        lejos = !!via;
       }
-      if (rc) {
-        elRuta.value = rc.ruta;
+      // Fallback: si viaMasCercana no está (por si el user tiene versión vieja del armonizador cacheada), usar rutaMasCercana clásico
+      if (!via) {
+        const rp = ARMONIZADOR.rutaMasCercana(gpsLat, gpsLng, 2000);
+        if (rp) via = { tipo: 'rp', key: rp.ruta, progKm: rp.progKm, distM: rp.distM };
+        lejos = !!rp;
+      }
+      if (via) {
+        elRuta.value = via.key;
+        // Marcar el toggle tipo_via (input hidden en el wizard)
+        const elTipoVia = document.getElementById('f-tipo-via');
+        if (elTipoVia) elTipoVia.value = via.tipo;
+        // Si hay toggle visual RP/Camino, disparar su lógica
+        if (typeof m_setTipoVia === 'function') m_setTipoVia(via.tipo);
         const elProg = document.getElementById('f-prog');
-        if (elProg && !elProg.value && isFinite(rc.progKm)) {
-          elProg.value = rc.progKm.toFixed(2);
+        if (elProg && !elProg.value && isFinite(via.progKm)) {
+          elProg.value = via.progKm.toFixed(2);
         }
+        const prefijo = via.tipo === 'camino' ? 'Cno.' : 'RP';
         if (lejos) {
-          toast('⚠ Ruta más cercana: RP' + rc.ruta + ' a ' + Math.round(rc.distM) + 'm — ¿es esta?', 'warn');
+          toast('⚠ Vía más cercana: ' + prefijo + ' ' + via.key + ' a ' + Math.round(via.distM) + 'm — ¿es esta?', 'warn');
         } else {
-          toast('★ Ruta sugerida: RP' + rc.ruta + ' · km ' + rc.progKm.toFixed(1), 'ok');
+          toast('★ Vía sugerida: ' + prefijo + ' ' + via.key + ' · km ' + via.progKm.toFixed(1), 'ok');
         }
       } else {
-        toast('ℹ No hay RP cercana (>2 km) — cargá la ruta manualmente', 'info');
+        toast('ℹ No hay vía cercana (>2 km) — cargá manualmente', 'info');
       }
     } else if (elRuta && elRuta.value) {
       // Si ya hay ruta cargada, sugerir solo progresiva si está vacía
       const elProg = document.getElementById('f-prog');
       if (elProg && !elProg.value) {
-        const pr = ARMONIZADOR.progresivaEnRuta(gpsLat, gpsLng, elRuta.value);
-        if (pr && isFinite(pr.progKm)) {
-          elProg.value = pr.progKm.toFixed(2);
-          toast('★ Progresiva sugerida: km ' + pr.progKm.toFixed(1), 'ok');
+        const elTipoVia = document.getElementById('f-tipo-via');
+        const tipoActual = elTipoVia ? elTipoVia.value : 'rp';
+        if (tipoActual === 'camino' && ARMONIZADOR.caminoMasCercano) {
+          // Recalcular progresiva sobre el camino seleccionado
+          const cno = ARMONIZADOR.caminoMasCercano(gpsLat, gpsLng, 500);
+          if (cno && String(cno.camino) === String(elRuta.value) && isFinite(cno.progKm)) {
+            elProg.value = cno.progKm.toFixed(2);
+            toast('★ Progresiva sobre camino: km ' + cno.progKm.toFixed(1), 'ok');
+          }
+        } else {
+          const pr = ARMONIZADOR.progresivaEnRuta(gpsLat, gpsLng, elRuta.value);
+          if (pr && isFinite(pr.progKm)) {
+            elProg.value = pr.progKm.toFixed(2);
+            toast('★ Progresiva sugerida: km ' + pr.progKm.toFixed(1), 'ok');
+          }
         }
       }
     }
