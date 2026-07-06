@@ -631,7 +631,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.36';
+const APP_VERSION = 'v7.37';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1494,6 +1494,8 @@ function drawMojones(){
 
 // v7.31 — Sistema unificado de cursor + progresivas al hover.
 // Migrado desde caminos_secundarios.html. Funciona para RPs y caminos.
+// v7.37 — Cuando pinMode está activo (usuario poniendo un pin), no dibujamos el
+// círculo naranja del cursor sobre traza para no confundir con la cruz del pin.
 // Config global:
 let PROG_HOVER_ACTIVO = false;      // checkbox "Progresivas al hover"
 let PROG_PASO_KM      = 5;          // 1 / 5 / 10
@@ -1588,13 +1590,16 @@ function _mostrarCursorSobreRuta(rid, latlng){
   const p=_proyectarCursor(chain, latlng);
   if(!p) return;
   const key='rp:'+rid;
-  if(!_cursorRuta){
-    _cursorRuta=L.circleMarker([p.lat,p.lng],
-      {radius:7, fillColor:'#ff6600', color:'#fff', weight:2, fillOpacity:.95, interactive:false, pane:'markerPane'})
-      .addTo(map);
-  } else {
-    _cursorRuta.setLatLng([p.lat,p.lng]);
-  }
+  // v7.37 — en modo pin, no dibujar círculo naranja (interfiere con la cruz del pin)
+  if(!pinMode){
+    if(!_cursorRuta){
+      _cursorRuta=L.circleMarker([p.lat,p.lng],
+        {radius:7, fillColor:'#ff6600', color:'#fff', weight:2, fillOpacity:.95, interactive:false, pane:'markerPane'})
+        .addTo(map);
+    } else {
+      _cursorRuta.setLatLng([p.lat,p.lng]);
+    }
+  } else if(_cursorRuta){ map.removeLayer(_cursorRuta); _cursorRuta=null; }
   // v7.35 — Tooltip con progresiva SIEMPRE visible al hover sobre RP.
   const meta=RUTA_META[rid]||{label:'RP '+rid};
   const prog=calcProg(rid,{lng:p.lng,lat:p.lat});
@@ -1631,13 +1636,16 @@ function _mostrarCursorSobreCamino(feat, layer, latlng){
   if(coords.length<2) return;
   const proj=_proyectarCursor(coords, latlng);
   if(!proj) return;
-  if(!_cursorRuta){
-    _cursorRuta=L.circleMarker([proj.lat,proj.lng],
-      {radius:7, fillColor:'#ff6600', color:'#fff', weight:2, fillOpacity:.95, interactive:false, pane:'markerPane'})
-      .addTo(map);
-  } else {
-    _cursorRuta.setLatLng([proj.lat,proj.lng]);
-  }
+  // v7.37 — en modo pin, no dibujar círculo naranja
+  if(!pinMode){
+    if(!_cursorRuta){
+      _cursorRuta=L.circleMarker([proj.lat,proj.lng],
+        {radius:7, fillColor:'#ff6600', color:'#fff', weight:2, fillOpacity:.95, interactive:false, pane:'markerPane'})
+        .addTo(map);
+    } else {
+      _cursorRuta.setLatLng([proj.lat,proj.lng]);
+    }
+  } else if(_cursorRuta){ map.removeLayer(_cursorRuta); _cursorRuta=null; }
   // v7.35 — Tooltip con el km SIEMPRE visible al hover sobre camino.
   // El checkbox "Progresivas al hover" solo controla los círculos cada N km.
   const segM=_haversineM(coords[proj.seg-1][0],coords[proj.seg-1][1],coords[proj.seg][0],coords[proj.seg][1]);
@@ -2304,11 +2312,16 @@ map.on('click', function(e) {
   autoDetectarCampos(latN, lngN);
   progCalculada = document.getElementById('fprog').value || null;
   partidoDetectado = document.getElementById('fpartido').value || partidoDetectado;
+  // v7.37 — leer ruta/tipo_via detectados por autoDetectarCampos (antes se usaba
+  // una variable global rutaMasCercana que ya no existe → ReferenceError)
+  const rutaDetectada = document.getElementById('fruta').value || '';
+  const tipoViaDet   = document.getElementById('ftipo-via')?.value || 'rp';
+  const prefijo      = tipoViaDet === 'camino' ? 'Cno. ' : 'RP ';
 
   // ── Marcador en mapa ──
   if (pinMarker) map.removeLayer(pinMarker);
   const popTxt = '<b style="color:var(--p)">Punto de relevamiento</b><br>'
-    + (rutaMasCercana ? '<b>RP ' + rutaMasCercana + '</b>' + (progCalculada ? ' · ' + progCalculada : '') + '<br>' : '')
+    + (rutaDetectada ? '<b>' + prefijo + rutaDetectada + '</b>' + (progCalculada ? ' · ' + progCalculada : '') + '<br>' : '')
     + (partidoDetectado ? partidoDetectado + '<br>' : '')
     + '<span style="color:#5a8aaa;font-size:10px">' + lat + ', ' + lng + '</span>';
   // Usar marker arrastrable en lugar de circleMarker
@@ -4342,7 +4355,13 @@ async function aprobarRegistro(id, opts){
 
     // 2) Sellar la foto v3 con los datos finales (si hay foto)
     let fotoSellada = reg.foto;
-    if (reg.foto && typeof aplicarSelloDVBA === 'function') {
+    // v7.37 — GUARD anti-doble-sello (mismo criterio que línea ~1963).
+    // Si la foto YA tiene sello (URL termina en "_sello.EXT" o el registro
+    // ya tiene sello_version), NO re-sellar. Solo aprobar.
+    const yaTieneSello2 =
+      (reg.foto && /_sello\.[a-z0-9]+(\?|$)/i.test(reg.foto)) ||
+      reg.sello_version === 'v3';
+    if (reg.foto && !yaTieneSello2 && typeof aplicarSelloDVBA === 'function') {
       try {
         const datosSello = {
           localidad: datosFinales.partido ? datosFinales.partido + ', Buenos Aires, Argentina' : 'Saladillo, Buenos Aires, Argentina',
@@ -4378,6 +4397,8 @@ async function aprobarRegistro(id, opts){
           }
         }
       } catch(e) { console.warn('Sellado al aprobar:', e); }
+    } else if (yaTieneSello2) {
+      console.log('[Aprobar] Foto ya tenía sello v3 — no re-sellar. Solo aprobar.');
     }
 
     // 3) UPDATE en BD: estado=aprobado, sello_version=v3, datos finales, foto_url
