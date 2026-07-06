@@ -12,9 +12,9 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 | URL | Archivo | Versión | Descripción |
 |---|---|---|---|
-| https://lemeit.github.io/DVBA/ | `index.html` | **v7.14** | App de escritorio: mapa, sidebar de registros + **cola de pendientes + sellado al aprobar** |
-| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | **v9.19** | App móvil PWA: relevamiento GPS de campo, **captura cruda + pre-fill GPS automático**, sincronización offline |
-| https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte |
+| https://lemeit.github.io/DVBA/ | `index.html` | **v7.39** | App de escritorio: mapa, sidebar de registros, **caminos secundarios integrados con progresivas**, panel Capas + Visualización, cola de pendientes con sellado v3 al aprobar |
+| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | **v9.42** | App móvil PWA: relevamiento GPS de campo, captura cruda + pre-fill GPS automático, sincronización offline |
+| https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte (subruta legacy — el portal principal ya cubre este flujo) |
 | https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.3 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
 | https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html | guía de usuario | — | Manual de la app de campo |
 | https://lemeit.github.io/DVBA/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
@@ -43,6 +43,44 @@ Aparecen automáticamente según la categoría:
 - Función `onTipoChange(tipoStr)` en ambas apps que repuebla el `<select>` de estado y muestra/oculta los condicionales
 
 Para el detalle completo (matriz Tipo→Estados, guía de extensibilidad, flujo en cada app), ver **[`docs/MODELO_TIPOS_ESTADOS.md`](docs/MODELO_TIPOS_ESTADOS.md)**.
+
+---
+
+## Novedades v7.28 → v7.39 (julio 2026)
+
+Sprint de integración caminos secundarios + rediseño visual + saneamiento del flujo de sellado.
+
+### Integración red vial completa
+
+- **Red secundaria integrada al portal**: los 100 caminos únicos (129 tramos) de los 8 partidos aparecen en el mapa principal junto con las RPs. Filtros de partido, clase (pavimentado / mixto / tierra / sin abrir) y visibilidad por chip individual.
+- **Renderizado doble capa (HALO + BASE)** portado desde `caminos_secundarios.html` — trazas nítidas sin offset visual sobre OSM/Oscura/Satélite.
+- **Detección unificada por tipo_via**: al hacer click con el pin sobre un camino, el sistema autocompleta `Cno. NOMEMCLATURA` + progresiva calculada sobre la traza + partido, con la misma lógica que las RPs.
+
+### Cursor + progresivas al hover
+
+- **Cursor naranja flotante** que se posiciona sobre la cadena real de la traza (RP o camino) al pasar el mouse.
+- **Tooltip permanente con la progresiva**: `RP 91 · 15+041 (15.04 km)` o `Cno. 093-13 · km 4.87`.
+- **Círculos de progresiva cada N km** (1 / 5 / 10) — activables con `🎯 Progresivas al hover` en el panel Visualización.
+- **Densidad de mojones configurable**: 5 / 10 / 20 / 50 km / Ninguno. Default 50 (modo minimalista).
+- **Modo detallado**: atajo que pone mojones cada 10 km + progresivas ON con paso 5 km.
+
+### Unificación visual
+
+- **RPs con color único** `#c25a2a` (rojizo ladrillo) — antes cada una tenía su color (arcoíris). Diferenciación por label.
+- **Partidos con color único** `#3a5a7a` (gris azulado neutro) con opacidad baja — fondo administrativo, sin competir con las trazas.
+- **Caminos mantienen colores por clase** (semántica: PAVIMENTADO azul / MIXTO violeta / SIN ABRIR gris / DE TIERRA marrón).
+- **Panel "🗺 Capas" plegable** en esquina del mapa con secciones Fondo / Capas / Visualización / Leyenda.
+
+### Workflow de sellado saneado (v7.34 → v7.38)
+
+- **Fix crítico modal escritorio**: el `modal-sello-ov` de `index.html` estaba incompleto desde la task #76 — le faltaban 10 inputs + botones + cierres de tags. Reconstruido.
+- **Guard anti-doble-sello**: si la foto ya contiene sufijo `_sello.` en la URL o el registro tiene `sello_version === 'v3'`, no se re-sella. Aplica a los dos paths: `guardar()` post-edición y `aprobarRegistro()` desde la cola.
+- **Modo pin no muestra círculo naranja**: al activar el modo pin, el cursor sobre traza se oculta para no confundir con la cruz del pin.
+- **Auto-detección inteligente al hacer pin**: click sobre camino → toggle → 'camino' + `Cno. XX-YY`. Click sobre RP → toggle → 'rp' + progresiva. En modo hover normal, se respeta el toggle actual del form para no interferir entre capas.
+
+### Datos actualizados
+
+- **RP61**: regenerada con tramo de gap adicional agregado en QGIS (v7.39). longGis 225.836 → 567.677 km (incluye el gap añadido). Requiere revisión del anchor km 50 que quedó no-monotónico tras el cambio.
 
 ---
 
