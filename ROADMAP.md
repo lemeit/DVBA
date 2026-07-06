@@ -21,19 +21,13 @@ Este documento es la base para el **proyecto de congreso** — describe qué est
 
 ## 🔴 Bloqueadores / bugs de fondo (arreglar primero)
 
-### 1. RP61 recortar a Zona VI (bug real)
+### 1. ~~RP61 anchor no-monotónico~~ ✅ **RESUELTO en v7.40**
 
-La RP61 **nace en Gral Belgrano (Este) y termina en 9 de Julio (Oeste)** — ambos extremos FUERA de Zona VI. Crece **Este→Oeste**. Tiene un **gap grande donde comparte trazado con RN3/RP30** (la RP61 se apoya en esas rutas por varios km antes de continuar).
+La RP61 **nace en Gral Belgrano (Este) y termina en 9 de Julio (Oeste)** — ambos extremos FUERA de Zona VI. Crece **Este→Oeste**. Tiene un **gap grande donde comparte trazado con RN3/RP30**.
 
-Al regenerar en v7.39 con el gap agregado, el mojón km 50 quedó snapped a `acc=459` porque cayó en el tramo compartido con RN3/RP30 que aporta cientos de km lineales al acumulado. El resto de anchors están normales (0 → 97 → 148 → 198 → 254).
+**Solución aplicada (`gen_ruta_bundle.py` v2.9)**: el script ahora **descarta anchors cuyo snap cae dentro de un tramo GAP físico** (`es_gap=1`). En v7.40 el mojón km 50 fue detectado en gap y no se usa como anchor; los anchors quedan monotónicos: `0 → 97.5 → 148.6 → 198.9 → 254.3 → 567.7`. El mojón sigue visible en el mapa (con `en_gap=true`), solo no distorsiona la interpolación.
 
-**Acción (QGIS)**:
-- Recortar `rp61_traza_zonavi.geojson` a **solo tramos dentro de Zona VI** (Este + Oeste con gaps entre ellos), sin incluir el gap RN3/RP30 completo.
-- Mantener mojones oficiales solo los que caen dentro de Zona VI.
-- `prog_ini` = km del primer mojón físico dentro de Zona VI.
-- Regenerar bundle con `gen_ruta_bundle.py`.
-
-Ver [`memory/reference_rp61_canonica.md`](internal) para detalles canónicos.
+**Pendiente (mejora futura, task #183)**: recortar `rp61_traza_zonavi.geojson` en QGIS a solo tramos dentro de Zona VI (Este + Oeste con gaps), sin incluir el tramo compartido con RN3/RP30 completo. Con el fix del script ya no es urgente, pero mejoraría la longitud reportada y la calidad del bundle.
 
 ### 2. Sello mal generado en escritorio (task #174)
 

@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 """
-gen_ruta_bundle.py v2.7 - DVBA Zona VI Saladillo
+gen_ruta_bundle.py v2.9 - DVBA Zona VI Saladillo
 Genera datos/rutas_rpXX.js desde dos GeoJSON (traza + mojones).
+
+v2.9 (2026-07-06): descartar anchors cuyo snap cae dentro de un tramo
+      GAP fisico (es_gap=1). El acc calculado en un gap es espurio porque
+      la distancia recta del gap no representa la progresiva oficial de
+      la ruta. Sin este filtro, un mojon en gap arrastra una interpolacion
+      distorsionada que se ve como "rectas" en el mapa (bug RP61 v7.39).
+      Los mojones descartados siguen en moj_fis con en_gap=True.
 
 v2.7: agregar anchor inicial {km: prog_ini, acc: 0} para que el portal
       interpole correctamente la zona inicial (antes del primer mojon
@@ -296,6 +303,8 @@ def main():
     p.add_argument('--order-by', default='fid', choices=['fid', 'mojones', 'proximity'],
                    dest='order_by',
                    help='Estrategia de orden de features (defecto: fid)')
+    p.add_argument('--clase', default='Mixto',
+                   help='Clase de calzada para META (Pavimentado / Mixto / De tierra / etc.)')
     args = p.parse_args()
 
     rn = args.ruta.lstrip('0') or args.ruta
@@ -367,11 +376,43 @@ def main():
     anchors, moj_fis = [], []
     prog_ini = args.prog_ini
 
+    # v2.8 — Chequear si un indice del snap cae DENTRO de un tramo gap fisico.
+    # Si es asi, el acc calculado va a ser espurio (el gap suma distancia recta
+    # que NO corresponde a la progresiva oficial de la ruta). Descartar esos
+    # mojones como anchors para no distorsionar la interpolacion.
+    def _snap_en_gap(idx, gap_ranges):
+        for a, b in gap_ranges:
+            if a <= idx <= b:
+                return True
+        return False
+
     valid_mojs = []
+    descartados_gap = []
     for m in mojs:
         bi, bd = nearest_idx(sub, [m['lng'], m['lat']])
-        if bd < 2.0:
-            valid_mojs.append((m, bi, bd))
+        if bd >= 2.0:
+            continue  # muy lejos de la traza, ignorar
+        if _snap_en_gap(bi, gap_ranges_sub or []):
+            descartados_gap.append((m, bi, bd))
+            continue
+        valid_mojs.append((m, bi, bd))
+
+    if descartados_gap:
+        print('  ! Anchors descartados por caer en tramo GAP:')
+        for m, bi, bd in descartados_gap:
+            print('      mojon km' + str(m['km']) + ' snap idx=' + str(bi)
+                  + ' acc=' + str(round(acum[bi], 4)) + ' dist=' + str(round(bd, 4)) + 'km')
+
+    # Mojones descartados por gap siguen siendo mojones fisicos (para el mapa),
+    # solo no se usan como anchor. Los agregamos a moj_fis con en_gap=True.
+    for m, bi, bd in descartados_gap:
+        moj_fis.append({
+            'ruta': rn, 'km': m['km'], 'km_label': 'km ' + str(int(m['km'])),
+            'lng': m['lng'], 'lat': m['lat'],
+            'sintetico': False, 'en_gap': True, 'gap_id': '',
+            'sentido': m['sentido'], 'tipo': m['tipo'],
+            'fuente': m['fuente'], 'resp': m['resp'], 'fecha': m['fecha'],
+        })
 
     for m, bi, bd in valid_mojs:
         anchors.append({'km': m['km'], 'acc': round(acum[bi], 4)})
@@ -456,37 +497,38 @@ def main():
     js_lines = []
     js_lines.append('// =================================================================')
     js_lines.append('// datos/rutas_rp' + rn + '.js  -  RP' + rn + ' DVBA Zona VI')
-    js_lines.append('// Generado por gen_ruta_bundle.py v2.7 (orden=' + args.order_by + ')')
-    js_lines.append('// ' + str(n_sub) + ' pts | ' + str(tk_r) + ' km | progIni:' + str(prog_ini) + ' | progFin:' + str(prog_fin))
+    js_lines.append('// Generado por gen_ruta_bundle.py v2.9 (orden=' + args.order_by + ')')
+    js_lines.append('// ' + str(n_sub) + ' pts | ' + str(tk_r) + ' km | progIni:'
+                    + str(prog_ini) + ' | progFin:' + str(prog_fin))
     js_lines.append('// Gaps reales (es_gap=1): ' + str(n_real) + ' [GAPS_RP' + rn + ']')
     js_lines.append('// Gaps auto-detectados:   ' + str(n_auto) + ' [GAPS_AUTO_RP' + rn + ']')
     js_lines.append('// =================================================================')
     js_lines.append('')
-    js_lines.append('const CHAIN_' + var + '=' + sub_j + ';')
-    js_lines.append('const ANCHORS_' + var + '=' + anch_j + ';')
-    js_lines.append('const MOJONES_' + var + '=' + mf_j + ';')
-    js_lines.append('const MOJONES_' + var + '_TODOS=' + tod_j + ';')
+    js_lines.append('const CHAIN_RP' + rn + '=' + sub_j + ';')
+    js_lines.append('const ANCHORS_RP' + rn + '=' + anch_j + ';')
+    js_lines.append('const MOJONES_RP' + rn + '=' + mf_j + ';')
+    js_lines.append('const MOJONES_RP' + rn + '_TODOS=' + tod_j + ';')
     js_lines.append('// GAPS_RPxx: solo gaps reales (es_gap=1 en QGIS)')
-    js_lines.append('const GAPS_' + var + '=' + gaps_real_j + ';')
+    js_lines.append('const GAPS_RP' + rn + '=' + gaps_real_j + ';')
     js_lines.append('// GAPS_AUTO_RPxx: saltos auto-detectados, solo informativo (dev/tests)')
-    js_lines.append('const GAPS_AUTO_' + var + '=' + gaps_auto_j + ';')
-    js_lines.append('const META_' + var + '={')
-    js_lines.append("  ruta:'" + rn + "',label:'RP " + rn + "',color:'" + args.color + "',weight:5,")
-    js_lines.append("  clase:'Mixto',progIni:" + str(prog_ini) + ',progFin:' + str(prog_fin) + ',')
+    js_lines.append('const GAPS_AUTO_RP' + rn + '=' + gaps_auto_j + ';')
+    js_lines.append('const META_RP' + rn + '={')
+    js_lines.append("  ruta:'" + rn + "',label:'RP " + rn + "',color:'"
+                    + args.color + "',weight:5,")
+    js_lines.append("  clase:'" + args.clase + "',progIni:" + str(prog_ini)
+                    + ',progFin:' + str(prog_fin) + ',')
     js_lines.append('  longGis:' + str(tk_r) + ',')
     js_lines.append('  mojonesF:' + str(n_mf) + ',mojonesS:' + str(n_ms) + ',')
     js_lines.append('  gapsReales:' + str(n_real) + ',gapsAuto:' + str(n_auto))
     js_lines.append('};')
-    js = '\n'.join(js_lines) + '\n'
 
-    out = Path(args.out_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    datos_dir = out / 'datos'
-    datos_dir.mkdir(exist_ok=True)
-    js_path = datos_dir / ('rutas_rp' + rn + '.js')
-    js_path.write_text(js, encoding='utf-8')
-
-    print('\nOK: ' + str(js_path) + ' (' + str(js_path.stat().st_size // 1024) + ' KB)')
+    out_dir = Path(args.out_dir)
+    (out_dir / 'datos').mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / 'datos' / ('rutas_rp' + rn + '.js')
+    out_path.write_text('\n'.join(js_lines) + '\n', encoding='utf-8')
+    size_kb = out_path.stat().st_size // 1024
+    print('')
+    print('OK: ' + str(out_path).replace('\\\\', '/') + ' (' + str(size_kb) + ' KB)')
 
 
 if __name__ == '__main__':
