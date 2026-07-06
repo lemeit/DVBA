@@ -631,7 +631,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.33';
+const APP_VERSION = 'v7.34';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2943,8 +2943,19 @@ function autoDetectarCampos(lat, lng) {
       });
     });
   }
-  // Decidir: camino gana si está más cerca que la ruta más cercana
-  const usarCamino = caminoMasCercano && distCam < distRuta;
+  // v7.34 — La decisión respeta el tipo_via que el usuario tiene ACTIVO en el form.
+  //   • Si el toggle está en "RP" → SIEMPRE elige la RP más cercana (ignora caminos)
+  //   • Si el toggle está en "camino" → SIEMPRE elige el camino más cercano (ignora RPs)
+  // Así no hay interferencia entre capas: el usuario decide qué está relevando.
+  const tipoViaActivo = (document.getElementById('ftipo-via')?.value || 'rp');
+  const usarCamino = (tipoViaActivo === 'camino') && !!caminoMasCercano;
+  const usarRP     = (tipoViaActivo !== 'camino') && !!rutaMasCercana;
+  console.log('[autoDetect] tipo_via=' + tipoViaActivo,
+    '| RP=' + rutaMasCercana, 'd=' + (distRuta*111000).toFixed(0) + 'm',
+    '| Cno=' + (caminoMasCercano ? caminoMasCercano.properties.NOMEMCLATURA : '-'),
+    'd=' + (distCam*111000).toFixed(0) + 'm',
+    '→ usa=' + (usarCamino ? 'camino' : (usarRP ? 'RP' : 'ninguno'))
+  );
   if (usarCamino) {
     const p = caminoMasCercano.properties;
     document.getElementById('fruta').value = p.NOMEMCLATURA;
@@ -2967,9 +2978,9 @@ function autoDetectarCampos(lat, lng) {
       }
     } catch(ex) { console.warn('[autoDetect camino] error progresiva:', ex); }
     if(p.PARTIDO_NOMBRE) document.getElementById('fpartido').value = p.PARTIDO_NOMBRE;
-  } else if (rutaMasCercana) {
+  } else if (usarRP) {
     document.getElementById('fruta').value = rutaMasCercana;
-    const el = document.getElementById('ftipo-via'); if(el) el.value='rp';
+    // No forzamos tipo_via='rp' aquí — respetamos el toggle que ya tiene el user
     try {
       const p = calcProg(rutaMasCercana, L.latLng(lat, lng));
       if (p && p.prog) document.getElementById('fprog').value = p.prog;
@@ -4582,7 +4593,8 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
   </div>
 </div>
 
-<!-- Modal "Editar datos del sello" v7.4 -->
+
+<!-- Modal "Editar datos del sello" v7.4 (v7.34 — reparado tras truncado por OneDrive sync) -->
 <div class="mov-sello" id="modal-sello-ov">
   <div class="modal-sello">
     <div class="ms-h"><span class="ms-h-icon">DV</span>Editar datos del sello</div>
@@ -4603,4 +4615,16 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
         <div><label>Fecha</label><input type="date" id="ms-fecha"></div>
         <div><label>Hora</label><input type="time" id="ms-hora" step="1"></div>
       </div>
-      <label>Altura (m) <span style="font-weight:400;color:#999;text-transfo
+      <label>Altura (m) <span style="font-weight:400;color:#999;text-transform:none;letter-spacing:0">— opcional</span></label>
+      <input type="text" id="ms-alt" inputmode="decimal" placeholder="Tomada del GPS">
+      <div class="ms-hint">El QR del sello apunta a Google Maps con las coordenadas. Lo que dejes vacío no aparecerá.</div>
+    </div>
+    <div class="ms-f">
+      <button class="ms-canc" id="ms-cancel">Sin sello</button>
+      <button class="ms-ok" id="ms-aplicar">Aplicar y guardar</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
