@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 """
-gen_ruta_bundle.py v2.10 - DVBA Zona VI Saladillo
+gen_ruta_bundle.py v2.11 - DVBA Zona VI Saladillo
 Genera datos/rutas_rpXX.js desde dos GeoJSON (traza + mojones).
+
+v2.11 (2026-07-06): mojones sinteticos interpolados con anchors.
+      Antes: acc = km - prog_ini (lineal). Al diferir la longitud
+      dibujada de la progresiva oficial acumulada, cada moj sintetico
+      se desviaba. RP51 llegaba a 2km de error.
+      Ahora: km->acc via anchors (inverso de calcProg del portal). Los
+      moj sinteticos km 250, 300, etc. caen donde estan los oficiales.
 
 v2.10 (2026-07-06): si --ini-lng/lat o --fin-lng/lat NO coinciden con un
       vertex existente (dist > 5m), el punto se INSERTA en la cadena
@@ -488,6 +495,20 @@ def main():
     print('prog_ini: km' + str(prog_ini))
 
     anchors.sort(key=lambda a: a['km'])
+    # v2.11 - Filtrar anchors NO MONOTONICOS. Si un mojon oficial cae en un
+    # acc menor que el anchor anterior (ej: km 300 en acc 46 despues de
+    # km 250 en acc 97), descartarlo. Sin esto, la interpolacion km->acc
+    # da saltos y los mojones sinteticos caen desordenados.
+    filtered = []
+    last_acc = -1e18
+    for a in anchors:
+        if a['acc'] < last_acc:
+            print('  ! Anchor descartado por no-monotonico: km' + str(a['km'])
+                  + ' acc=' + str(a['acc']) + ' (anterior acc=' + str(last_acc) + ')')
+            continue
+        filtered.append(a)
+        last_acc = a['acc']
+    anchors = filtered
     # v2.7 — Agregar anchor inicial {km: prog_ini, acc: 0} si no existe.
     # Esto permite al portal interpolar correctamente entre el inicio de la
     # cadena (entrada Zona VI = km prog_ini) y el primer mojon fisico.
@@ -498,13 +519,47 @@ def main():
     anchors.append({'km': round(prog_ini + total_km, 1), 'acc': round(total_km, 4)})
     moj_fis.sort(key=lambda m: m['km'])
 
+    # v2.11 (2026-07-06) - Interpolar km->acc usando anchors, NO lineal.
+    # Antes: acc = km - prog_ini (asumia que 1 km oficial = 1 km de traza).
+    # Problema: la traza dibujada y la progresiva oficial acumulan error,
+    # el mojon sintetico "km 250" quedaba desplazado hasta 2km del oficial.
+    # Ahora: interpolar km->acc con los anchors (mismo criterio que
+    # calcProg del portal pero inverso: dado km, devolver acc).
+    def _acc_from_km(km_target, anchors_):
+        if not anchors_:
+            return km_target - prog_ini
+        # Si esta antes del primer anchor, extrapolar con progIni
+        if km_target <= anchors_[0]['km']:
+            if abs(anchors_[0]['km'] - prog_ini) < 1e-6:
+                return anchors_[0]['acc']
+            # Extrapolacion lineal (raro, solo si prog_ini > km_target)
+            return anchors_[0]['acc'] + (km_target - anchors_[0]['km'])
+        # Si esta despues del ultimo anchor, extrapolar con ultimo tramo
+        if km_target >= anchors_[-1]['km']:
+            n = len(anchors_) - 1
+            if n == 0:
+                return anchors_[0]['acc'] + (km_target - anchors_[0]['km'])
+            dkm = anchors_[n]['km'] - anchors_[n-1]['km']
+            dacc = anchors_[n]['acc'] - anchors_[n-1]['acc']
+            sc = dacc / dkm if abs(dkm) > 1e-6 else 1.0
+            return anchors_[n]['acc'] + (km_target - anchors_[n]['km']) * sc
+        # Interpolar entre los dos anchors que rodean el km
+        for i in range(len(anchors_) - 1):
+            if anchors_[i]['km'] <= km_target <= anchors_[i+1]['km']:
+                dkm = anchors_[i+1]['km'] - anchors_[i]['km']
+                if abs(dkm) < 1e-6:
+                    return anchors_[i]['acc']
+                t = (km_target - anchors_[i]['km']) / dkm
+                return anchors_[i]['acc'] + t * (anchors_[i+1]['acc'] - anchors_[i]['acc'])
+        return km_target - prog_ini  # fallback
+
     paso = args.paso
     km_start = math.ceil(prog_ini / paso) * paso if prog_ini > 0 else 0.0
     moj_sint = []
     km = km_start
     while km <= prog_ini + total_km + 0.01:
-        acc = km - prog_ini
-        if acc < 0 or acc > total_km + 0.01:
+        acc = _acc_from_km(km, anchors)
+        if acc is None or acc < 0 or acc > total_km + 0.01:
             km = round(km + paso, 4)
             continue
         acc = min(acc, total_km)
@@ -536,12 +591,10 @@ def main():
     n_ms = len(moj_sint)
 
     js_lines = []
-    js_lines = []
     js_lines.append('// =================================================================')
     js_lines.append('// datos/rutas_rp' + rn + '.js  -  RP' + rn + ' DVBA Zona VI')
-    js_lines.append('// Generado por gen_ruta_bundle.py v2.10 (orden=' + args.order_by + ')')
-    js_lines.append('// ' + str(n_sub) + ' pts | ' + str(tk_r) + ' km | progIni:'
-                    + str(prog_ini) + ' | progFin:' + str(prog_fin))
+    js_lines.append('// Generado por gen_ruta_bundle.py v2.11 (orden=' + args.order_by + ')')
+    js_lines.append('// ' + str(n_sub) + ' pts | ' + str(tk_r) + ' km | progIni:' + str(prog_ini) + ' | progFin:' + str(prog_fin))
     js_lines.append('// Gaps reales (es_gap=1): ' + str(n_real) + ' [GAPS_RP' + rn + ']')
     js_lines.append('// Gaps auto-detectados:   ' + str(n_auto) + ' [GAPS_AUTO_RP' + rn + ']')
     js_lines.append('// =================================================================')
@@ -550,15 +603,11 @@ def main():
     js_lines.append('const ANCHORS_RP' + rn + '=' + anch_j + ';')
     js_lines.append('const MOJONES_RP' + rn + '=' + mf_j + ';')
     js_lines.append('const MOJONES_RP' + rn + '_TODOS=' + tod_j + ';')
-    js_lines.append('// GAPS_RPxx: solo gaps reales (es_gap=1 en QGIS)')
     js_lines.append('const GAPS_RP' + rn + '=' + gaps_real_j + ';')
-    js_lines.append('// GAPS_AUTO_RPxx: saltos auto-detectados, solo informativo')
     js_lines.append('const GAPS_AUTO_RP' + rn + '=' + gaps_auto_j + ';')
     js_lines.append('const META_RP' + rn + '={')
-    js_lines.append("  ruta:'" + rn + "',label:'RP " + rn + "',color:'"
-                    + args.color + "',weight:5,")
-    js_lines.append("  clase:'" + args.clase + "',progIni:" + str(prog_ini)
-                    + ',progFin:' + str(prog_fin) + ',')
+    js_lines.append("  ruta:'" + rn + "',label:'RP " + rn + "',color:'" + args.color + "',weight:5,")
+    js_lines.append("  clase:'" + args.clase + "',progIni:" + str(prog_ini) + ',progFin:' + str(prog_fin) + ',')
     js_lines.append('  longGis:' + str(tk_r) + ',')
     js_lines.append('  mojonesF:' + str(n_mf) + ',mojonesS:' + str(n_ms) + ',')
     js_lines.append('  gapsReales:' + str(n_real) + ',gapsAuto:' + str(n_auto))
@@ -569,8 +618,7 @@ def main():
     out_path = out_dir / 'datos' / ('rutas_rp' + rn + '.js')
     out_path.write_text('\n'.join(js_lines) + '\n', encoding='utf-8')
     size_kb = out_path.stat().st_size // 1024
-    print('')
-    print('OK: ' + str(out_path) + ' (' + str(size_kb) + ' KB)')
+    print('OK bundle generado.')
 
 
 if __name__ == '__main__':
