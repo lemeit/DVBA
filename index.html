@@ -631,7 +631,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.34';
+const APP_VERSION = 'v7.35';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1595,14 +1595,13 @@ function _mostrarCursorSobreRuta(rid, latlng){
   } else {
     _cursorRuta.setLatLng([p.lat,p.lng]);
   }
-  if(PROG_HOVER_ACTIVO){
-    const meta=RUTA_META[rid]||{label:'RP '+rid};
-    const prog=calcProg(rid,{lng:p.lng,lat:p.lat});
-    _actualizarTooltipCursor(p.lat,p.lng, `<b style="color:#c25a2a">${meta.label}</b> · <b>${prog.prog}</b> (${prog.km} km)`);
-    if(_cursorTargetKey!==key){
-      _cursorTargetKey=key;
-      _mostrarProgresivasSobre(chain, '#003366');
-    }
+  // v7.35 — Tooltip con progresiva SIEMPRE visible al hover sobre RP.
+  const meta=RUTA_META[rid]||{label:'RP '+rid};
+  const prog=calcProg(rid,{lng:p.lng,lat:p.lat});
+  _actualizarTooltipCursor(p.lat,p.lng, `<b style="color:#c25a2a">${meta.label}</b> · <b>${prog.prog}</b> (${prog.km} km)`);
+  if(PROG_HOVER_ACTIVO && _cursorTargetKey!==key){
+    _cursorTargetKey=key;
+    _mostrarProgresivasSobre(chain, '#c25a2a');  // v7.35 — usa color de RP (ladrillo)
   }
 }
 function _ocultarCursorSobreRuta(){
@@ -1639,11 +1638,12 @@ function _mostrarCursorSobreCamino(feat, layer, latlng){
   } else {
     _cursorRuta.setLatLng([proj.lat,proj.lng]);
   }
+  // v7.35 — Tooltip con el km SIEMPRE visible al hover sobre camino.
+  // El checkbox "Progresivas al hover" solo controla los círculos cada N km.
+  const segM=_haversineM(coords[proj.seg-1][0],coords[proj.seg-1][1],coords[proj.seg][0],coords[proj.seg][1]);
+  const km=(cumm[proj.seg-1]+proj.t*segM)/1000;
+  _actualizarTooltipCursor(proj.lat, proj.lng, `<b style="color:#7050b0">Cno. ${p.NOMEMCLATURA}</b> · <b>${km.toFixed(2)} km</b>`);
   if(PROG_HOVER_ACTIVO){
-    // Km sobre la cadena
-    const segM=_haversineM(coords[proj.seg-1][0],coords[proj.seg-1][1],coords[proj.seg][0],coords[proj.seg][1]);
-    const km=(cumm[proj.seg-1]+proj.t*segM)/1000;
-    _actualizarTooltipCursor(proj.lat, proj.lng, `<b style="color:#7050b0">Cno. ${p.NOMEMCLATURA}</b> · <b>${km.toFixed(2)} km</b>`);
     const key='cam:'+(p._fid||p.NOMEMCLATURA);
     if(_cursorTargetKey!==key){
       _cursorTargetKey=key;
@@ -2950,7 +2950,8 @@ function autoDetectarCampos(lat, lng) {
   const tipoViaActivo = (document.getElementById('ftipo-via')?.value || 'rp');
   const usarCamino = (tipoViaActivo === 'camino') && !!caminoMasCercano;
   const usarRP     = (tipoViaActivo !== 'camino') && !!rutaMasCercana;
-  console.log('[autoDetect] tipo_via=' + tipoViaActivo,
+  // v7.35 — log removido para no ensuciar consola. Reactivar poniendo window.__DVBA_DEBUG=true
+  if (window.__DVBA_DEBUG) console.log('[autoDetect] tipo_via=' + tipoViaActivo,
     '| RP=' + rutaMasCercana, 'd=' + (distRuta*111000).toFixed(0) + 'm',
     '| Cno=' + (caminoMasCercano ? caminoMasCercano.properties.NOMEMCLATURA : '-'),
     'd=' + (distCam*111000).toFixed(0) + 'm',
@@ -3907,10 +3908,18 @@ function csBuildTagList(){
   const c = document.getElementById('cs-tags');
   const cnt = document.getElementById('cs-count');
   if (!c) return;
+  // v7.35 — asegurar estado consistente antes de listar
+  if (!csSelClases || csSelClases.size === 0) csSelClases = new Set(CS_CLASES);
   const visibles = csListarVisibles();
   if (cnt) cnt.textContent = '(' + visibles.length + ')';
   if (!visibles.length) {
-    c.innerHTML = '<div style="padding:8px;color:#888;font-size:9px;text-align:center">Sin caminos en los filtros activos</div>';
+    // Diagnóstico útil sobre por qué está vacío
+    const nPart = (typeof selP !== 'undefined' && selP) ? selP.size : 0;
+    const nCla  = csSelClases.size;
+    const mot = nPart === 0 ? 'Ningún <b>partido</b> activo — reseleccioná'
+              : nCla === 0  ? 'Ninguna <b>clase</b> activa — reseleccioná'
+              : 'Sin caminos que coincidan con los filtros';
+    c.innerHTML = `<div style="padding:8px;color:#888;font-size:9px;text-align:center;line-height:1.5">${mot}<br><button onclick="csResetFiltros()" style="margin-top:4px;background:#7050b0;color:#fff;border:none;border-radius:3px;padding:3px 8px;font-size:9px;cursor:pointer">↻ Ver todos los caminos</button></div>`;
     return;
   }
   c.innerHTML = visibles.map(c => {
@@ -3948,12 +3957,30 @@ function csToggleKey(key){
 function csAllOn(){
   if (typeof RED_VIAL === 'undefined') return;
   csSelKeys = new Set(RED_VIAL.listarCaminos().map(c => c.key));
-  csBuildTagList();
+  // v7.35 — asegurar que filtros de clase estén al máximo (todos activos)
+  if (!csSelClases || csSelClases.size === 0) csSelClases = new Set(CS_CLASES);
+  csBuildClaseChips(); csBuildTagList();
   if (_caminosSecVisible) csRefrescarLayer();
 }
 
 function csAllOff(){
   csSelKeys = new Set();
+  csBuildTagList();
+  if (_caminosSecVisible) csRefrescarLayer();
+}
+
+// v7.35 — Botón de emergencia: resetea TODOS los filtros de caminos y
+// vuelve a mostrar todos los chips. Evita que el user quede atascado sin ver caminos.
+function csResetFiltros(){
+  if (typeof RED_VIAL === 'undefined') return;
+  csSelKeys   = new Set(RED_VIAL.listarCaminos().map(c => c.key));
+  csSelClases = new Set(CS_CLASES);
+  // Reactivar todos los partidos también (para que los caminos aparezcan)
+  if (typeof PARTIDOS_LIST !== 'undefined' && typeof selP !== 'undefined') {
+    PARTIDOS_LIST.forEach(n => { selP.add(n); document.getElementById('pb-'+n)?.classList.add('on'); });
+    if (typeof drawPartidos === 'function') drawPartidos();
+  }
+  csBuildClaseChips();
   csBuildTagList();
   if (_caminosSecVisible) csRefrescarLayer();
 }
