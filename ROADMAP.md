@@ -21,6 +21,17 @@ Este documento es la base para el **proyecto de congreso** — describe qué est
 
 ## 🔴 Bloqueadores / bugs de fondo (arreglar primero)
 
+### 0. RP30 + RP46 + RP51: auditoría 2026-07-06 detectó recortes incompletos
+
+Ejecutado `scripts/recortar_zonavi.py` sobre las 8 RPs con `_traza_completa`:
+
+**OK**: RP41, RP47, RP91 (match exacto con bundle actual).
+**Menor**: RP40 (diferencia 3 km en prog_ini).
+**Problema real**:
+- **RP30** — bundle actual 172 km / prog 246→418; auditoría da 2020 km lineales (imposible). El `_traza_completa` tiene 54 features con fid sin orden geográfico → mismo bug que RP61. **Acción (task #188)**: renumerar fid en QGIS.
+- **RP46** — bundle 33.9 km; auditoría 267 km (imposible). Mismo bug. **Acción**: renumerar fid en QGIS.
+- **RP51** — bundle prog_ini=215.23 pero auditoría dice 332.4. Δ 117 km. Este es el bug reportado (RP51 se corta antes del límite de Alvear/Tapalqué). Longitud Zona VI 131.8 km sí coincide. **Acción (task #189)**: verificar mojón km 0 real en QGIS.
+
 ### 1. RP61: parcialmente resuelto, falta renumerar fid en QGIS
 
 **Recorrido real verificado (E→O)**:
