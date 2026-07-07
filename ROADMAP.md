@@ -155,6 +155,18 @@ Web Push API con VAPID → cuando hay > N pendientes se notifica al revisor.
 
 ### 16. Dashboard estadístico
 
+Panel **"📈 Estado de la red"** con:
+- Cantidad de registros por partido / RP / mes.
+- Distribución de tipos (bache, señal, banquina...).
+- Heatmap de intervenciones.
+- KPIs comparativos año-a-año.
+
+Fuente de datos: tabla `relevamientos` de Supabase (ya poblada con miles de items) + nueva tabla `partes_diarios` (ver feature siguiente).
+
+Implementación sugerida: nuevo tab **"📈 Dashboard"** en el portal escritorio con gráficos Chart.js embebido (sin dependencias externas más allá del CDN). Filtros por partido / RP / rango de fechas / tipo. Export PDF opcional para reportes mensuales institucionales.
+
+### 16. Dashboard estadístico
+
 Panel "📈 Estado de la red" con:
 - Cantidad de registros por partido/RP/mes.
 - Distribución de tipos (bache, señal, banquina...).
@@ -164,6 +176,140 @@ Panel "📈 Estado de la red" con:
 ### 17. Integración expedientes DVBA
 
 Exportar registros como PDF firmable + enlace a expediente digital de vialidad. Cierra el circuito administrativo.
+
+### 18. **Partes Diarios integrados** ⭐ FEATURE PRIORITARIA (7 julio 2026)
+
+Actualmente el registro semanal de tareas se hace en un Google Form oficial + planilla espejo en Google Sheets — flujo tedioso y desconectado del resto del sistema. Migrar a un **módulo web dinámico integrado** en el portal escritorio, con sincronización opcional al Sheet para no romper el flujo administrativo.
+
+#### Fuente de datos actual (Google Sheet)
+
+Columnas del sheet: `Enviado | Fecha | Tarea | Ruta | Prog. Inicial | Prog. Final | Maquinaria 1..5 | ID1..5 | N°ID1..5 | Observaciones | Imágenes previas | Imágenes posteriores | km`
+
+Catálogo de tareas observado en el sheet: `MANTENIMIENTO DE PAVIMENTOS`, `SEÑALIZACIÓN Y DEMARCACIÓN (Horizontal / Vertical)`, `CORTE DE PASTO`, `REPARACIÓN DE ALCANTARILLAS`, y presumiblemente más.
+
+Catálogo de maquinarias: `MOTONIVELADORA`, `TRACTOR`, `DESMALEZADORA`, `RETROEXCAVADORA`, `PALA CARGADORA FRONTAL`, `MINI CARGADORA`, `TOPADORA`, `CAMIÓN`, `CAMIONETA`, `APLANADORA`.
+
+Cada vehículo tiene un `identificador` (`O.I.` = Organismo, `R.O.` = Reg. Oficial u otros) y `N°ID` (número de inventario/patente).
+
+#### Arquitectura propuesta
+
+**Nuevo tab en portal escritorio**: **"🚧 Partes Diarios"** (al lado de Registros / Reportes).
+
+**Modelo Supabase** (3 tablas + 2 catálogos):
+
+```sql
+CREATE TABLE partes_diarios (
+  id BIGSERIAL PRIMARY KEY,
+  fecha DATE NOT NULL,
+  tarea_id BIGINT REFERENCES catalogo_tareas(id),
+  tipo_via TEXT NOT NULL,           -- 'rp' | 'camino'
+  ruta TEXT NOT NULL,                -- '51' | '093-08'
+  prog_ini NUMERIC(8,3),
+  prog_fin NUMERIC(8,3),
+  km_recorridos NUMERIC(8,3)         -- = prog_fin - prog_ini
+    GENERATED ALWAYS AS (prog_fin - prog_ini) STORED,
+  observaciones TEXT,
+  foto_previa_url TEXT,
+  foto_posterior_url TEXT,
+  responsable_id UUID REFERENCES auth.users(id),
+  enviado_admin BOOLEAN DEFAULT false,   -- se envió al Google Form/Sheet oficial
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE parte_maquinarias (
+  parte_id BIGINT REFERENCES partes_diarios(id) ON DELETE CASCADE,
+  orden SMALLINT,                    -- 1..5 (Maquinaria 1, 2, 3, 4, 5)
+  vehiculo_id BIGINT REFERENCES vehiculos(id),
+  PRIMARY KEY (parte_id, orden)
+);
+
+CREATE TABLE vehiculos (
+  id BIGSERIAL PRIMARY KEY,
+  identificador TEXT NOT NULL,       -- 'O.I.', 'R.O.', 'RUR.', etc.
+  numero TEXT NOT NULL,              -- '21202'
+  tipo_maquinaria TEXT NOT NULL,     -- 'CAMIÓN', 'MOTONIVELADORA'
+  descripcion TEXT,
+  activo BOOLEAN DEFAULT true,
+  UNIQUE(identificador, numero)
+);
+
+CREATE TABLE catalogo_tareas (
+  id BIGSERIAL PRIMARY KEY,
+  nombre TEXT UNIQUE NOT NULL,       -- 'MANTENIMIENTO DE PAVIMENTOS'
+  categoria TEXT,                    -- 'Mantenimiento', 'Señalización', ...
+  activo BOOLEAN DEFAULT true
+);
+
+CREATE TABLE catalogo_maquinarias (
+  tipo TEXT PRIMARY KEY,             -- 'MOTONIVELADORA', 'CAMIÓN'
+  activo BOOLEAN DEFAULT true
+);
+```
+
+**UI del formulario de carga**:
+
+```
+┌─ Nuevo Parte Diario ─────────────────────────────────┐
+│ Fecha:   [7/7/2026]                                  │
+│ Tarea:   [MANTENIMIENTO DE PAVIMENTOS ▾]             │
+│                                                       │
+│ Vía:    ○ RP  ● Camino Sec.                          │
+│ Ruta:   [093-08 ▾]  ← lista dinámica según Vía       │
+│ Prog. inicial: [1.10]  km                             │
+│ Prog. final:   [4.20]  km                             │
+│ km recorridos: 3.10 (auto)                            │
+│ [📍 Marcar en mapa]   → abre mapa con la RP/Camino    │
+│                          seleccionado y permite pin   │
+│                          en ambos extremos            │
+│                                                       │
+│ Maquinaria:                                           │
+│   [MINI CARGADORA ▾]   [O.I. ▾]  [21202 ▾]           │
+│   [CAMIÓN         ▾]   [R.O. ▾]  [4099 ▾]            │
+│   [+ Agregar]                                        │
+│                                                       │
+│ Observaciones: [                                    ] │
+│                                                       │
+│ 📷 Foto previa:      [Adjuntar]                       │
+│ 📷 Foto posterior:   [Adjuntar]                       │
+│                                                       │
+│ [Guardar como borrador]  [Guardar y enviar al Form]   │
+└──────────────────────────────────────────────────────┘
+```
+
+**Integración con el sistema existente**:
+- **Selector Ruta**: usa el mismo `RED_VIAL.listar*()` que el form principal.
+- **Progresivas**: auto-completa desde el mapa con nuestro sistema de anchors (mismo `calcProg`).
+- **Selector maquinaria dependiente**: al elegir `MINI CARGADORA` → filtra vehículos donde `tipo_maquinaria='MINI CARGADORA'` → carga sus identificadores + números.
+- **Vista lista con filtros**: fecha / tarea / partido / responsable / maquinaria.
+- **Vista mapa opcional**: capa Leaflet con **tramos coloreados** según la última tarea realizada en cada segmento (color por tipo de tarea, opacidad por antigüedad).
+- **Export CSV compatible con Google Form**: botón que genera CSV con las columnas exactas del sheet actual, listo para pegar en la administración.
+
+**Sync bidireccional futuro** (opcional): Google Sheets API con service account permite leer/escribir el sheet oficial directamente. Se puede implementar en una segunda fase; por ahora export CSV manual es suficiente.
+
+#### ¿Cómo empezar?
+
+**Fase 1** (poblar catálogos, sin UI):
+1. Exportar el sheet como CSV (o compartir el CSV).
+2. Cargar `vehiculos`, `catalogo_tareas` desde el CSV a Supabase.
+3. Migrar los partes históricos como bulk insert.
+
+**Fase 2** (UI escritorio):
+1. Nuevo tab en `index.html`.
+2. Form de carga con selectores dependientes.
+3. Vista lista con paginación + filtros.
+
+**Fase 3** (integración móvil):
+1. Wizard en `dvba_campo.html` para cargar parte desde el campo (con GPS auto-fill).
+
+**Fase 4** (dashboard y export):
+1. Gráficos de km/mes por tarea.
+2. Export CSV compatible.
+3. Integración eventual con Google Sheets API.
+
+**Nota sobre Google Sheets**: no tengo acceso directo a Google desde este entorno. La forma más simple de empezar:
+- **Compartís el sheet como público** o me pasás la URL de descarga CSV.
+- **O exportás el sheet como CSV** (`Archivo → Descargar → Valores separados por comas`) y lo adjuntás.
+- Con eso genero el SQL de bulk insert para catálogo + histórico.
 
 ---
 

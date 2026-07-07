@@ -98,8 +98,8 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <h1>📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial</h1>
   <div class="sub">DVBA · Zona Departamental VI Saladillo</div>
   <div class="meta">
-    <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">24 de junio de 2026</span></div>
-    <div><span class="lbl">Versión bitácora</span><span class="val">v4.3 — apps v9.19 / v7.14</span></div>
+    <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">6 de julio de 2026</span></div>
+    <div><span class="lbl">Versión bitácora</span><span class="val">v4.4 — apps v9.49 / v7.45</span></div>
     <div><span class="lbl">Responsable</span><span class="val">Ing. Luciano Lamaita</span></div>
     <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></span></div>
     <div><span class="lbl">Estado general</span><span class="val">🟢 En desarrollo activo</span></div>
@@ -722,6 +722,58 @@ git push origin main
       <tr><td><strong>🖥 App Escritorio</strong></td><td><span class="badge b-ok">v7.14</span></td><td><code>index.html</code> + <code>datos/dvba_estados.js</code> + <code>datos/qrcode.min.js</code> + <code>datos/armonizador.js</code></td><td>Manual en <code>const APP_VERSION</code></td></tr>
       <tr><td><strong>🛣 Caminos Secundarios</strong></td><td><span class="badge b-ok">v1.1</span></td><td><code>caminos_secundarios.html</code></td><td>—</td></tr>
     </table>
+
+    <h3>v9.45–v9.49 / v7.28–v7.45 · 1–6 julio 2026 — Sprint integración caminos + rediseño UI + scripts v2.11</h3>
+    <p><strong>Sprint intenso</strong> con 3 ejes: integrar completamente la red de caminos secundarios al portal principal, rediseñar la visualización del mapa, y mejorar el pipeline de generación de bundles con recorte exacto de límite de partido.</p>
+
+    <h4>🛣 Integración de red vial completa</h4>
+    <ul>
+      <li><strong>Caminos secundarios integrados</strong>: los 100 caminos (129 tramos) de los 8 partidos aparecen en el mapa principal junto con las RPs. Filtros por partido, clase (pavimentado / mixto / tierra / sin abrir) y chips individuales.</li>
+      <li><strong>Renderizado doble capa (HALO + BASE)</strong> portado desde <code>caminos_secundarios.html</code> — trazas nítidas sin offset visual sobre OSM/Oscura/Satélite.</li>
+      <li><strong>Detección de caminos en app móvil (v9.32+)</strong>: <code>datos/armonizador.js</code> extendido con <code>caminoMasCercano()</code> y <code>viaMasCercana()</code>. El wizard móvil ahora sugiere <em>"★ Vía sugerida: Cno. 093-13 · km 4.5"</em> si el GPS cae sobre camino secundario.</li>
+    </ul>
+
+    <h4>🎯 Cursor + progresivas al hover</h4>
+    <ul>
+      <li><strong>Cursor naranja flotante</strong> que se posiciona sobre la cadena real al pasar el mouse.</li>
+      <li><strong>Tooltip permanente</strong>: <code>RP 91 · 15+041 (15.04 km)</code> o <code>Cno. 093-13 · km 4.87</code>.</li>
+      <li><strong>Círculos de progresiva cada N km</strong> (1 / 5 / 10) activables con <em>🎯 Progresivas al hover</em>.</li>
+      <li><strong>Densidad de mojones configurable</strong>: 5 / 10 / 20 / 50 km / Ninguno. Default 50 (modo minimalista).</li>
+      <li><strong>Modo detallado</strong>: atajo que pone mojones cada 10 km + progresivas ON con paso 5.</li>
+    </ul>
+
+    <h4>🎨 Unificación visual</h4>
+    <ul>
+      <li><strong>RPs color único</strong> <code>#c25a2a</code> (rojizo ladrillo). Diferencia por label, no por color arcoíris.</li>
+      <li><strong>Partidos color único</strong> <code>#3a5a7a</code> con opacidad baja — fondo administrativo.</li>
+      <li><strong>Caminos por clase</strong>: azul pavimentado / violeta mixto / gris sin abrir / marrón tierra.</li>
+      <li><strong>Panel "🗺 Capas" plegable</strong> reemplaza los botones sueltos: Fondo + Capas + Visualización + Leyenda.</li>
+    </ul>
+
+    <h4>🔧 Workflow del sellado saneado (v7.34 → v7.38)</h4>
+    <ul>
+      <li><strong>Fix crítico modal escritorio</strong>: <code>modal-sello-ov</code> de <code>index.html</code> estaba incompleto desde task #76 (v7.4) — le faltaban 10 inputs + botones + cierres. Reconstruido.</li>
+      <li><strong>Guard anti-doble-sello</strong>: si la foto ya contiene <code>_sello.</code> en la URL o tiene <code>sello_version='v3'</code>, no se re-sella. Aplica a <code>guardar()</code> post-edición y a <code>aprobarRegistro()</code> desde la cola.</li>
+      <li><strong>Modo pin no muestra círculo naranja</strong>: al activar modo pin, el cursor se oculta para no confundir con la cruz.</li>
+      <li><strong>Auto-detección inteligente al hacer pin</strong>: click sobre camino → toggle → 'camino' + <code>Cno. XX-YY</code>. Click sobre RP → 'rp' + progresiva. En hover normal se respeta el toggle actual.</li>
+    </ul>
+
+    <h4>⚙ Scripts <code>gen_ruta_bundle.py v2.11</code> + <code>recortar_zonavi.py v1.1</code></h4>
+    <ul>
+      <li><strong>v2.9 — Descarte anchors en gap</strong>: si el mojón físico snap cae dentro de un tramo <code>es_gap=1</code>, no se usa como anchor. Corrige el "estiramiento" que producía rectas visuales en RP61 v7.39.</li>
+      <li><strong>v2.10 — Cruce exacto en el borde del partido</strong>: <code>recortar_zonavi.py</code> ahora calcula el punto exacto de intersección segment-polygon. <code>gen_ruta_bundle.py</code> INSERTA ese punto como vertex real. RP47 ganó +2.9km al borde Navarro/Mercedes, RP51 +1.2km en Alvear/Tapalqué, RP61 +141m.</li>
+      <li><strong>v2.11 — Mojones sintéticos interpolados con anchors</strong>: antes usaban <code>acc = km - prog_ini</code> (lineal); ahora km→acc via anchors (inverso de <code>calcProg</code>). Los mojones km 250, 300, etc. caen sobre las progresivas oficiales sin desplazamiento acumulado.</li>
+      <li><strong>Filtro anchors no-monotónicos</strong>: si un anchor rompe la monotonicidad (RP51 tenía km 300 con acc menor que km 250), se descarta con warning en consola.</li>
+    </ul>
+
+    <h4>🗺 RP61 canónica</h4>
+    <p>Recorrido real verificado (E→O): Gral Belgrano → Las Flores urbana → <strong>Gap RN3/RP30 hasta RP91</strong> → camino de tierra → Gral Alvear → <strong>Gap RN205 (~280m)</strong> → tierra → 9 de Julio. Renumerar fids en QGIS en orden geográfico eliminó el zigzag inicial.</p>
+
+    <h4>🐛 Deuda técnica pendiente</h4>
+    <ul>
+      <li><strong>RP30 y RP46</strong>: al regenerar con <code>_traza_completa</code> dieron resultados inaceptables (zigzag y mala longitud). Se revirtieron al bundle previo (v7.40). Requieren revisión en QGIS del orden geográfico de fids del <code>_traza_completa.geojson</code> antes de regenerar.</li>
+      <li>Task #195 marca este pendiente para próxima sesión con abordaje uno a uno.</li>
+    </ul>
 
     <h3>v9.19 / v7.14 · 30 junio 2026 — Workflow "campo → oficina" + armonización geoespacial 🎯</h3>
     <p><strong>Cambio mayor de paradigma:</strong> la foto se captura cruda en campo y se sella SOLO al aprobar en oficina, con armonización automática contra GPS. Cierra el ciclo de calidad de datos del sistema.</p>
