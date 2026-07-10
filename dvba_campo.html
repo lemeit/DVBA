@@ -517,6 +517,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <div class="gps-info">
     <div class="gps-coords buscando" id="gps-coords-bar">Buscando señal GPS…</div>
     <div class="gps-acc" id="gps-acc-bar"></div>
+    <a id="gps-open-settings" style="display:none;margin-top:6px;font-size:14px;font-weight:600;color:#fff;background:#e65100;padding:8px 12px;border-radius:6px;text-decoration:none;text-align:center" href="#">🔧 Abrir Ajustes GPS</a>
   </div>
   <button class="btn-usar" id="btn-usar" disabled onclick="usarCoordenadas()">↓ Usar</button>
 </div>
@@ -685,7 +686,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.51</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.52</span>
 </div>
 
 
@@ -1016,20 +1017,68 @@ function onGPSok(pos){
     '  ·  '+(age<=3?'en vivo':age+'s');
   document.getElementById('btn-usar').disabled=false;
   setGpsUI('ok','±'+gpsAcc+' m');
+  // v9.52 — Ocultar botón "Abrir Ajustes GPS" al obtener fix bueno
+  const btnSet = document.getElementById('gps-open-settings');
+  if (btnSet) btnSet.style.display='none';
   if(navigator.onLine)geocodificar(gpsLat,gpsLng);
   if(fotoOriginal)regenerarSello();
 }
 
 function onGPSerr(err){
-  const msgs={1:'GPS denegado — Ajustes › Chrome › Permisos › Ubicación',
-               2:'Sin señal GPS — salí al exterior',3:'GPS demorado'};
+  // v9.52 — Post-manifest v9.50: WebAPK dejó de invocar Play Services Location Dialog
+  // automáticamente. Compensamos con botón "Abrir Ajustes" (intent Android) +
+  // retry al volver a la app (visibilitychange).
+  const msgs={1:'GPS denegado — tocá Ajustes GPS abajo',
+               2:'GPS del sistema apagado — tocá Ajustes GPS',
+               3:'GPS demorado — esperá unos segundos'};
   setGpsUI('err','sin señal');
   document.getElementById('gps-coords-bar').textContent=msgs[err.code]||('Error GPS '+err.code);
   document.getElementById('gps-coords-bar').className='gps-coords buscando';
+  const btnSet = document.getElementById('gps-open-settings');
+  if (btnSet && (err.code===1 || err.code===2)) {
+    btnSet.style.display='block';
+    btnSet.textContent = err.code===1 ? '🔧 Abrir Ajustes de la app' : '🔧 Abrir Ajustes de ubicación';
+    btnSet.onclick = (e) => { e.preventDefault(); abrirAjustesGPS(err.code); };
+    _armarRetryGPS();
+  }
   if(err.code===1){
     toast(msgs[1],'err'); gpsActivo=false;
     if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}
   }
+}
+
+/* v9.52 — Lanza intent Android para abrir Ajustes de ubicación. */
+function abrirAjustesGPS(errCode){
+  const isAndroid = /Android/i.test(navigator.userAgent||'');
+  if (!isAndroid) {
+    toast('En iOS: Ajustes › Privacidad › Ubicación › Chrome', 'info');
+    return;
+  }
+  const intentUrl = (errCode===1)
+    ? 'intent://settings/#Intent;action=android.settings.APPLICATION_DETAILS_SETTINGS;S.package=com.android.chrome;end'
+    : 'intent://#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end';
+  try {
+    window.location.href = intentUrl;
+    toast('Activá el GPS y volvé a la app', 'info');
+  } catch(e) {
+    toast('Abrí Ajustes rápidos › Ubicación y activá el GPS', 'warn');
+  }
+}
+
+/* v9.52 — Retry automático al volver a la app tras activar GPS. */
+let _gpsRetryArmed = false;
+function _armarRetryGPS(){
+  if (_gpsRetryArmed) return;
+  _gpsRetryArmed = true;
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (!gpsActivo || (gpsLat && gpsLng)) return;
+    setTimeout(() => {
+      const btnSet = document.getElementById('gps-open-settings');
+      if (btnSet) btnSet.style.display='none';
+      iniciarGPS();
+    }, 400);
+  });
 }
 
 function setGpsUI(e,t){
