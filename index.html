@@ -657,7 +657,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.50';
+const APP_VERSION = 'v7.51';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4177,20 +4177,22 @@ function editReg(id) {
       iconAnchor: [11,11]
     });
     pinMarker = L.marker([reg.lat, reg.lng], { icon: pinIcon, draggable: true }).addTo(map);
+    // v7.51 — Al mover el pin en edición, autodetectar ruta+progresiva+partido
+    // desde las coordenadas. Antes se pasaba reg.ruta (con prefijo "RP N") a
+    // actualizarPanelPos → calcProg buscaba CHAINS_DATA['RP N'] que no existe
+    // y devolvía '---'. Ahora usamos autoDetectarCampos con forzarAuto:true,
+    // que detecta la RP o Camino más cercano y calcula la progresiva bien.
     pinMarker.on('drag', function(ev){
       const pos = ev.target.getLatLng();
-      const rid = document.getElementById('fruta').value;
-      if (rid) actualizarPanelPos(rid, pos);
-      else {
-        document.getElementById('flat').value = pos.lat.toFixed(6);
-        document.getElementById('flng').value = pos.lng.toFixed(6);
-      }
+      document.getElementById('flat').value = pos.lat.toFixed(6);
+      document.getElementById('flng').value = pos.lng.toFixed(6);
+      autoDetectarCampos(pos.lat, pos.lng, { forzarAuto: true });
     });
     pinMarker.on('dragend', function(ev){
       const pos = ev.target.getLatLng();
-      autoDetectarCampos(pos.lat, pos.lng);
-      const rid = document.getElementById('fruta').value;
-      if (rid) actualizarPanelPos(rid, pos);
+      document.getElementById('flat').value = pos.lat.toFixed(6);
+      document.getElementById('flng').value = pos.lng.toFixed(6);
+      autoDetectarCampos(pos.lat, pos.lng, { forzarAuto: true });
     });
     map.setView([reg.lat, reg.lng], Math.max(map.getZoom(), 13));
   }
