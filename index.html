@@ -489,6 +489,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="button" id="btn-rot-cw"  onclick="rotarFotoPreview(1)"  title="Rotar 90° a la derecha"  style="padding:6px 10px;border:1px solid #2a4050;background:#0d2030;color:var(--p);border-radius:4px;cursor:pointer;font-size:14px">↻ 90°</button>
       <button type="button" id="btn-rot-reset" onclick="rotarFotoPreview(0)" style="padding:6px 8px;border:1px solid #2a4050;background:#0d2030;color:#7aacbc;border-radius:4px;cursor:pointer;font-size:11px">Reset</button>
       <button type="button" id="btn-re-sellar" onclick="reSellarFotoEditada()" title="Aplicar sello v3 con los datos actuales del formulario" style="padding:6px 10px;border:1px solid #6aaa40;background:#1a2a10;color:#c4ffb0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;flex:1">🖋 Re-sellar</button>
+      <button type="button" id="btn-borrar-backup" onclick="borrarBackupOriginal()" title="Eliminar el archivo original del Storage — libera espacio pero el registro no podrá re-sellarse limpio después" style="display:none;padding:6px 8px;border:1px solid #a04040;background:#1a0d0d;color:#d07070;border-radius:4px;cursor:pointer;font-size:11px">🗑 Backup</button>
       <span id="rot-lbl" style="font-size:10px;color:#7aacbc;width:100%">Rotá la foto si se ve de costado, luego "Re-sellar"</span>
     </div>
     <div id="coords-row">
@@ -573,6 +574,23 @@ body.modo-campo #campo-fab{display:flex}
 
       <div id="rep-tabla" style="margin-top:8px"></div>
     </div>
+
+    <!-- v7.50 — Mantenimiento de Storage: limpieza masiva de backups -->
+    <div class="sec" style="border-top:1px solid var(--light);margin-top:8px;padding-top:8px">
+      <div class="sec-title">🧹 Mantenimiento Storage</div>
+      <div style="font-size:9px;color:#8d6a3a;margin-bottom:6px;padding:5px 7px;background:#1f1a0a;border-radius:4px;border-left:3px solid #c48b4a;line-height:1.4">
+        Elimina los backups originales de registros aprobados. Después de esto los registros pasan a legacy (no re-sellables limpio).
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <label style="font-size:10px;color:#7aacbc;flex-shrink:0">Aprobados hace más de</label>
+        <input type="number" id="clean-days" value="30" min="1" max="3650" style="width:60px;padding:4px 6px;background:#0d1a1a;color:#c4e0d0;border:1px solid #2a4a4a;border-radius:4px;font-size:11px">
+        <label style="font-size:10px;color:#7aacbc">días</label>
+      </div>
+      <button class="btn btn-xs" onclick="limpiarBackupsMasivo()" style="background:#2a1a10;border:1px solid #c48b4a;color:#c4ffb0;font-weight:600;width:100%;padding:6px">
+        🧹 Limpiar backups viejos
+      </button>
+      <div id="clean-result" style="font-size:10px;color:#7aacbc;margin-top:6px"></div>
+    </div>
       </div>
     </div>
 
@@ -639,7 +657,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.49';
+const APP_VERSION = 'v7.50';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -3927,6 +3945,89 @@ function rotarFotoPreview(delta){
   }
 }
 
+// v7.50 — Borrar el archivo original de Storage para un registro dado.
+// Devuelve true si se pudo borrar (o si no había original), false si falló.
+async function borrarOriginalDeReg(reg){
+  if (!reg || !reg.foto || !_supa) return false;
+  const originalUrl = getOriginalUrl(reg.foto);
+  const originalPathMatch = originalUrl.match(/\/object\/public\/relevamientos\/(.+?)(\?|$)/);
+  if (!originalPathMatch) return false;
+  const originalPath = decodeURIComponent(originalPathMatch[1]);
+  // Solo borra si es distinto al sellado (evita borrar el sellado por accidente)
+  const selloPath = getSelloPathFromOriginal(originalPath);
+  if (originalPath === selloPath) return false;  // no hay original separado
+  try {
+    const { error } = await _supa.storage.from('relevamientos').remove([originalPath]);
+    if (error) { console.warn('[borrarOriginal]', originalPath, error); return false; }
+    return true;
+  } catch(e) { console.warn('[borrarOriginal]', e); return false; }
+}
+
+// Botón manual "🗑 Backup" del sidebar de edición
+async function borrarBackupOriginal(){
+  if (!_regEditandoFoto) return;
+  const reg = _regEditandoFoto;
+  if (!esFotoSellada(reg.foto)) {
+    alert('Este registro no tiene sello moderno — no hay backup separado para eliminar.');
+    return;
+  }
+  if (!confirm('¿Eliminar el backup del original de este registro?\n\nDespués de esto:\n• Se libera espacio en Storage\n• El registro pasa a "legacy"\n• NO se podrá re-sellar limpio (solo acumulando banners)\n\n¿Continuar?')) return;
+  const btn = document.getElementById('btn-borrar-backup');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
+  const ok = await borrarOriginalDeReg(reg);
+  if (btn) { btn.disabled = false; btn.textContent = '🗑 Backup'; }
+  if (ok) {
+    alert('✓ Backup original eliminado. Registro ahora es legacy.');
+    if (btn) btn.style.display = 'none';
+    // Deshabilitar re-sellar (ya no hay original)
+    const btnRe = document.getElementById('btn-re-sellar');
+    const lblRot = document.getElementById('rot-lbl');
+    if (btnRe && lblRot) {
+      btnRe.disabled = true;
+      btnRe.style.opacity = '0.4';
+      btnRe.style.cursor = 'not-allowed';
+      btnRe.title = 'Backup eliminado — registro sin original guardado';
+      lblRot.textContent = '🔒 Backup eliminado — registro sin original';
+      lblRot.style.color = '#c48b4a';
+    }
+    // Marcar en memoria (para que si vuelve a editar el mismo reg, no aparezca el botón)
+    reg._backup_borrado = true;
+  } else {
+    alert('No se pudo eliminar el backup — puede que ya haya sido eliminado, o hubo un problema de permisos.');
+  }
+}
+
+// Botón masivo "🧹 Limpiar backups > N días" en tab Reportes
+async function limpiarBackupsMasivo(){
+  const dias = parseInt(document.getElementById('clean-days').value, 10) || 30;
+  if (dias < 1) { alert('Ingresá un número de días válido'); return; }
+  const cutoff = Date.now() - dias * 86400 * 1000;
+  // Candidatos: registros aprobados, con sello moderno, más viejos que cutoff
+  const candidatos = regs.filter(r =>
+    r.estado_registro === 'aprobado' &&
+    esFotoSellada(r.foto) &&
+    r.fechaISO && new Date(r.fechaISO).getTime() < cutoff &&
+    !r._backup_borrado
+  );
+  if (candidatos.length === 0) {
+    document.getElementById('clean-result').textContent = 'ℹ No hay backups viejos para limpiar.';
+    return;
+  }
+  if (!confirm(`Se encontraron ${candidatos.length} registros aprobados hace más de ${dias} días.\n\nSe van a eliminar los backups originales de todos ellos.\nDespués de esto NO se pueden re-sellar limpio.\n\n¿Continuar?`)) return;
+  const resultDiv = document.getElementById('clean-result');
+  resultDiv.textContent = '⏳ Procesando…';
+  let ok = 0, fail = 0;
+  for (let i = 0; i < candidatos.length; i++) {
+    const reg = candidatos[i];
+    const done = await borrarOriginalDeReg(reg);
+    if (done) { ok++; reg._backup_borrado = true; }
+    else fail++;
+    if (i % 5 === 0) resultDiv.textContent = `⏳ ${i+1}/${candidatos.length}…`;
+  }
+  resultDiv.innerHTML = `<b style="color:#4aaa6a">✓ Limpieza completa:</b> ${ok} backups eliminados${fail > 0 ? `, ${fail} fallaron` : ''}.`;
+  console.log('[Limpieza masiva]', { total: candidatos.length, ok, fail });
+}
+
 async function reSellarFotoEditada(){
   if (!_regEditandoFoto || !_regEditandoFoto.foto) {
     alert('No hay foto para re-sellar en este registro.');
@@ -4039,6 +4140,7 @@ function editReg(id) {
     // v7.49 — Deshabilitar re-sellar si el registro es legacy (sin backup del original)
     const btnRe = document.getElementById('btn-re-sellar');
     const lblRot = document.getElementById('rot-lbl');
+    const btnBackup = document.getElementById('btn-borrar-backup');
     if (btnRe && lblRot) {
       if (esRegistroLegacy(reg)) {
         btnRe.disabled = true;
@@ -4047,6 +4149,7 @@ function editReg(id) {
         btnRe.title = 'Registro sellado con el sistema viejo — sin backup del original. No se puede re-sellar sin acumular banners.';
         lblRot.textContent = '🔒 Registro legacy — sin original guardado, no re-sellable';
         lblRot.style.color = '#c48b4a';
+        if (btnBackup) btnBackup.style.display = 'none';
       } else {
         btnRe.disabled = false;
         btnRe.style.opacity = '';
@@ -4054,6 +4157,8 @@ function editReg(id) {
         btnRe.title = 'Aplicar sello v3 con los datos actuales del formulario';
         lblRot.textContent = 'Rotá la foto si se ve de costado, luego "Re-sellar"';
         lblRot.style.color = '#7aacbc';
+        // v7.50 — Mostrar botón "🗑 Backup" solo si el reg tiene sello moderno (hay original separado)
+        if (btnBackup) btnBackup.style.display = (esFotoSellada(reg.foto) && !reg._backup_borrado) ? 'inline-block' : 'none';
       }
     }
   } else {
@@ -4131,6 +4236,8 @@ function cancelarEdit() {
   // v7.48 — Ocultar herramientas de rotación al cancelar edición
   const tools = document.getElementById('foto-tools');
   if (tools) tools.style.display = 'none';
+  const btnBackup = document.getElementById('btn-borrar-backup');
+  if (btnBackup) btnBackup.style.display = 'none';
   _rotacionPreview = 0;
   _regEditandoFoto = null;
   if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
