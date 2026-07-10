@@ -517,7 +517,6 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <div class="gps-info">
     <div class="gps-coords buscando" id="gps-coords-bar">Buscando señal GPS…</div>
     <div class="gps-acc" id="gps-acc-bar"></div>
-    <a id="gps-open-settings" style="display:none;margin-top:6px;font-size:14px;font-weight:600;color:#fff;background:#e65100;padding:8px 12px;border-radius:6px;text-decoration:none;text-align:center" href="#">🔧 Abrir Ajustes GPS</a>
   </div>
   <button class="btn-usar" id="btn-usar" disabled onclick="usarCoordenadas()">↓ Usar</button>
 </div>
@@ -713,12 +712,6 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
       </div>
       <label>Altura (m) <span style="font-weight:400;color:#999;text-transform:none;letter-spacing:0">— opcional</span></label>
       <input type="text" id="ms-alt" inputmode="decimal" placeholder="Tomada del GPS">
-      <label style="margin-top:12px">Rotar foto <span id="ms-rot-lbl" style="font-weight:400;color:#999;text-transform:none;letter-spacing:0">— si se ve de costado</span></label>
-      <div style="display:flex;gap:8px;margin-top:2px;align-items:center">
-        <button type="button" id="ms-rot-ccw" title="Rotar 90° a la izquierda" style="padding:8px 12px;font-size:15px">↺ 90°</button>
-        <button type="button" id="ms-rot-cw"  title="Rotar 90° a la derecha"  style="padding:8px 12px;font-size:15px">↻ 90°</button>
-        <button type="button" id="ms-rot-reset" style="padding:8px 12px;font-size:14px">Reset</button>
-      </div>
       <div class="ms-hint">El QR del sello apunta a Google Maps con las coordenadas. Lo que dejes vacío no aparecerá.</div>
     </div>
     <div class="ms-f">
@@ -1017,68 +1010,20 @@ function onGPSok(pos){
     '  ·  '+(age<=3?'en vivo':age+'s');
   document.getElementById('btn-usar').disabled=false;
   setGpsUI('ok','±'+gpsAcc+' m');
-  // v9.52 — Ocultar botón "Abrir Ajustes GPS" al obtener fix bueno
-  const btnSet = document.getElementById('gps-open-settings');
-  if (btnSet) btnSet.style.display='none';
   if(navigator.onLine)geocodificar(gpsLat,gpsLng);
   if(fotoOriginal)regenerarSello();
 }
 
 function onGPSerr(err){
-  // v9.52 — Post-manifest v9.50: WebAPK dejó de invocar Play Services Location Dialog
-  // automáticamente. Compensamos con botón "Abrir Ajustes" (intent Android) +
-  // retry al volver a la app (visibilitychange).
-  const msgs={1:'GPS denegado — tocá Ajustes GPS abajo',
-               2:'GPS del sistema apagado — tocá Ajustes GPS',
-               3:'GPS demorado — esperá unos segundos'};
+  const msgs={1:'GPS denegado — Ajustes › Chrome › Permisos › Ubicación',
+               2:'Sin señal GPS — salí al exterior',3:'GPS demorado'};
   setGpsUI('err','sin señal');
   document.getElementById('gps-coords-bar').textContent=msgs[err.code]||('Error GPS '+err.code);
   document.getElementById('gps-coords-bar').className='gps-coords buscando';
-  const btnSet = document.getElementById('gps-open-settings');
-  if (btnSet && (err.code===1 || err.code===2)) {
-    btnSet.style.display='block';
-    btnSet.textContent = err.code===1 ? '🔧 Abrir Ajustes de la app' : '🔧 Abrir Ajustes de ubicación';
-    btnSet.onclick = (e) => { e.preventDefault(); abrirAjustesGPS(err.code); };
-    _armarRetryGPS();
-  }
   if(err.code===1){
     toast(msgs[1],'err'); gpsActivo=false;
     if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}
   }
-}
-
-/* v9.52 — Lanza intent Android para abrir Ajustes de ubicación. */
-function abrirAjustesGPS(errCode){
-  const isAndroid = /Android/i.test(navigator.userAgent||'');
-  if (!isAndroid) {
-    toast('En iOS: Ajustes › Privacidad › Ubicación › Chrome', 'info');
-    return;
-  }
-  const intentUrl = (errCode===1)
-    ? 'intent://settings/#Intent;action=android.settings.APPLICATION_DETAILS_SETTINGS;S.package=com.android.chrome;end'
-    : 'intent://#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end';
-  try {
-    window.location.href = intentUrl;
-    toast('Activá el GPS y volvé a la app', 'info');
-  } catch(e) {
-    toast('Abrí Ajustes rápidos › Ubicación y activá el GPS', 'warn');
-  }
-}
-
-/* v9.52 — Retry automático al volver a la app tras activar GPS. */
-let _gpsRetryArmed = false;
-function _armarRetryGPS(){
-  if (_gpsRetryArmed) return;
-  _gpsRetryArmed = true;
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState !== 'visible') return;
-    if (!gpsActivo || (gpsLat && gpsLng)) return;
-    setTimeout(() => {
-      const btnSet = document.getElementById('gps-open-settings');
-      if (btnSet) btnSet.style.display='none';
-      iniciarGPS();
-    }, 400);
-  });
 }
 
 function setGpsUI(e,t){
@@ -1448,19 +1393,7 @@ function mostrarModalSello(datos){
     $('ms-prog').value=datos.prog||'';
     $('ms-tipo').value=datos.tipo||'';
     const ov=$('modal-sello-ov'), btnOk=$('ms-aplicar'), btnNo=$('ms-cancel');
-    // v9.51 — cablear botones de rotación manual
-    _rotacionManualSello = 0;
-    const btnCcw=$('ms-rot-ccw'), btnCw=$('ms-rot-cw'), btnRst=$('ms-rot-reset'), lblRot=$('ms-rot-lbl');
-    const _updRotLbl=()=>{
-      if(!lblRot) return;
-      const r=_rotacionManualSello;
-      lblRot.textContent = r===0 ? '— si se ve de costado' : ' ('+(r*90)+'° manual)';
-    };
-    if(btnCcw) btnCcw.onclick=()=>{_rotacionManualSello=(_rotacionManualSello+3)%4; _updRotLbl();};
-    if(btnCw)  btnCw.onclick =()=>{_rotacionManualSello=(_rotacionManualSello+1)%4; _updRotLbl();};
-    if(btnRst) btnRst.onclick=()=>{_rotacionManualSello=0; _updRotLbl();};
-    _updRotLbl();
-    const limpiar=()=>{ov.classList.remove('on'); btnOk.onclick=null; btnNo.onclick=null; if(btnCcw)btnCcw.onclick=null; if(btnCw)btnCw.onclick=null; if(btnRst)btnRst.onclick=null;};
+    const limpiar=()=>{ov.classList.remove('on'); btnOk.onclick=null; btnNo.onclick=null;};
     btnOk.onclick=()=>{
       const r={
         localidad:$('ms-localidad').value.trim(),
@@ -1494,86 +1427,23 @@ async function agregarSelloInteractivo(b64){
 }
 
 // Sello v3 — 3 columnas (logo izq + texto blanco centro + QR Google Maps der)
-// v9.51 — Rotación de fotos según EXIF Orientation + rotación manual del modal.
-let _rotacionManualSello = 0;
-
-function _exifOrientation(base64){
-  try {
-    const parts = base64.split(',');
-    const b = atob(parts.length > 1 ? parts[1] : parts[0]);
-    if (b.charCodeAt(0) !== 0xFF || b.charCodeAt(1) !== 0xD8) return 1;
-    let off = 2;
-    while (off + 4 < b.length) {
-      if (b.charCodeAt(off) !== 0xFF) return 1;
-      const marker = b.charCodeAt(off + 1);
-      const size = (b.charCodeAt(off + 2) << 8) | b.charCodeAt(off + 3);
-      if (marker === 0xE1 && b.substr(off + 4, 4) === 'Exif') {
-        const tiff = off + 10;
-        const little = b.substr(tiff, 2) === 'II';
-        const g16 = o => little
-          ? (b.charCodeAt(tiff+o) | (b.charCodeAt(tiff+o+1)<<8))
-          : ((b.charCodeAt(tiff+o)<<8) | b.charCodeAt(tiff+o+1));
-        const g32 = o => little
-          ? (b.charCodeAt(tiff+o) | (b.charCodeAt(tiff+o+1)<<8) | (b.charCodeAt(tiff+o+2)<<16) | (b.charCodeAt(tiff+o+3)<<24))
-          : ((b.charCodeAt(tiff+o)<<24) | (b.charCodeAt(tiff+o+1)<<16) | (b.charCodeAt(tiff+o+2)<<8) | b.charCodeAt(tiff+o+3));
-        const ifd0 = g32(4);
-        const n = g16(ifd0);
-        for (let i = 0; i < n; i++) {
-          const e = ifd0 + 2 + i * 12;
-          if (g16(e) === 0x0112) return g16(e + 8);
-        }
-        return 1;
-      }
-      off += 2 + size;
-    }
-  } catch(e) { console.warn('[EXIF]', e.message); }
-  return 1;
-}
-
-function _combinarOrientacion(exif, rotStep){
-  const rotarCW = { 1:6, 2:7, 3:8, 4:5, 5:2, 6:3, 7:4, 8:1 };
-  let o = exif;
-  for (let i = 0; i < ((rotStep % 4) + 4) % 4; i++) o = rotarCW[o] || 1;
-  return o;
-}
-
-function _aplicarOrientCanvas(ctx, orient, W, H){
-  switch (orient) {
-    case 2: ctx.transform(-1, 0, 0, 1, W, 0);  return {W, H};
-    case 3: ctx.transform(-1, 0, 0,-1, W, H);  return {W, H};
-    case 4: ctx.transform( 1, 0, 0,-1, 0, H);  return {W, H};
-    case 5: ctx.transform( 0, 1, 1, 0, 0, 0);  return {W:H, H:W};
-    case 6: ctx.transform( 0, 1,-1, 0, H, 0);  return {W:H, H:W};
-    case 7: ctx.transform( 0,-1,-1, 0, H, W);  return {W:H, H:W};
-    case 8: ctx.transform( 0,-1, 1, 0, 0, W);  return {W:H, H:W};
-    default: return {W, H};
-  }
-}
-
+// v9.53 — Sin rotación en móvil (se hace en escritorio al aprobar).
 function agregarSello(base64,datos){
   datos=datos||{};
   return new Promise((res,rej)=>{
     const img=new Image();
     img.onload=()=>{
       try{
-        // v9.51 — Rotación EXIF + manual antes del sello
-        const exifOrient = _exifOrientation(base64);
-        const orient     = _combinarOrientacion(exifOrient, _rotacionManualSello);
-        const isPortrait = orient >= 5 && orient <= 8;
-        const W = isPortrait ? img.height : img.width;
-        const H = isPortrait ? img.width  : img.height;
+        const W=img.width, H=img.height;
         // v3.1: banner como footer AGREGADO debajo (no tapa la foto)
         const bH=Math.max(200, Math.min(Math.round(W*0.22), 340));
         const totalH=H+bH;
         const C=document.createElement('canvas'); C.width=W; C.height=totalH;
         const ctx=C.getContext('2d');
         ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
-        // Fondo extendido + foto arriba (con rotación aplicada)
+        // Fondo extendido + foto arriba
         ctx.fillStyle='#0a0a0a'; ctx.fillRect(0,0,W,totalH);
-        ctx.save();
-        _aplicarOrientCanvas(ctx, orient, img.width, img.height);
         ctx.drawImage(img,0,0);
-        ctx.restore();
         // Banner abajo (fondo sólido, sin transparencia — la foto no se ve detrás porque está arriba)
         const y0=H;
         const grad=ctx.createLinearGradient(0,y0,0,totalH);
