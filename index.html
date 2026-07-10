@@ -483,6 +483,14 @@ body.modo-campo #campo-fab{display:flex}
     <label style="font-size:9px;color:#3d6a88;display:block;margin-bottom:2px">Adjuntar foto</label>
     <input type="file" id="ffoto" accept="image/*" onchange="prevFoto(this)">
     <img id="iprev" class="fprev">
+    <!-- v7.48 — Controles rotación + re-sellar foto (solo aparecen en modo edición) -->
+    <div id="foto-tools" style="display:none;gap:6px;margin-top:4px;flex-wrap:wrap;align-items:center">
+      <button type="button" id="btn-rot-ccw" onclick="rotarFotoPreview(-1)" title="Rotar 90° a la izquierda" style="padding:6px 10px;border:1px solid #2a4050;background:#0d2030;color:var(--p);border-radius:4px;cursor:pointer;font-size:14px">↺ 90°</button>
+      <button type="button" id="btn-rot-cw"  onclick="rotarFotoPreview(1)"  title="Rotar 90° a la derecha"  style="padding:6px 10px;border:1px solid #2a4050;background:#0d2030;color:var(--p);border-radius:4px;cursor:pointer;font-size:14px">↻ 90°</button>
+      <button type="button" id="btn-rot-reset" onclick="rotarFotoPreview(0)" style="padding:6px 8px;border:1px solid #2a4050;background:#0d2030;color:#7aacbc;border-radius:4px;cursor:pointer;font-size:11px">Reset</button>
+      <button type="button" id="btn-re-sellar" onclick="reSellarFotoEditada()" title="Aplicar sello v3 con los datos actuales del formulario" style="padding:6px 10px;border:1px solid #6aaa40;background:#1a2a10;color:#c4ffb0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;flex:1">🖋 Re-sellar</button>
+      <span id="rot-lbl" style="font-size:10px;color:#7aacbc;width:100%">Rotá la foto si se ve de costado, luego "Re-sellar"</span>
+    </div>
     <div id="coords-row">
       <input type="text" id="flat" placeholder="Lat (manual o pin)" style="flex:1;font-size:10px;color:#7aacbc" oninput="onCoordsManual()">
       <input type="text" id="flng" placeholder="Lng (manual o pin)" style="flex:1;font-size:10px;color:#7aacbc" oninput="onCoordsManual()">
@@ -631,7 +639,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.47';
+const APP_VERSION = 'v7.48';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -3880,6 +3888,96 @@ function generarMapaSVG(ridsArr, W, H) {
 // ─── EDICIÓN DE REGISTROS ────────────────────────────────────────
 let _editandoId = null;
 
+// v7.48 — Rotación + re-sellar foto desde el sidebar de edición
+let _rotacionPreview = 0;   // pasos de 90° adicionales para la foto en edición
+let _regEditandoFoto = null; // referencia al registro con la foto que se está editando
+
+function rotarFotoPreview(delta){
+  // delta: -1 = CCW, +1 = CW, 0 = reset
+  if (delta === 0) _rotacionPreview = 0;
+  else _rotacionPreview = (_rotacionPreview + delta + 4) % 4;
+  const prev = document.getElementById('iprev');
+  const lbl  = document.getElementById('rot-lbl');
+  if (prev) prev.style.transform = 'rotate(' + (_rotacionPreview * 90) + 'deg)';
+  if (lbl) {
+    lbl.textContent = _rotacionPreview === 0
+      ? 'Rotá la foto si se ve de costado, luego "Re-sellar"'
+      : `Rotación: ${_rotacionPreview * 90}° — tocá "Re-sellar" para aplicar`;
+  }
+}
+
+async function reSellarFotoEditada(){
+  if (!_regEditandoFoto || !_regEditandoFoto.foto) {
+    alert('No hay foto para re-sellar en este registro.');
+    return;
+  }
+  if (!confirm(`Se va a rotar la foto ${_rotacionPreview * 90}° y aplicar un sello nuevo con los datos actuales del formulario.\n\n¿Continuar?`)) return;
+  const btn = document.getElementById('btn-re-sellar');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Sellando...'; }
+  try {
+    // Datos actuales del formulario
+    const partido = document.getElementById('fpartido').value.trim();
+    const ruta    = document.getElementById('fruta').value.trim();
+    const prog    = document.getElementById('fprog').value.trim();
+    const tipoVia = document.getElementById('f-tipo-via')?.value || 'rp';
+    const tipo    = (typeof z6TipoGetValor === 'function') ? z6TipoGetValor() : (document.getElementById('ftipo')?.value || '');
+    const latN    = parseFloat(document.getElementById('flat').value);
+    const lngN    = parseFloat(document.getElementById('flng').value);
+    const reg     = _regEditandoFoto;
+    const fechaISO = reg.fechaISO || new Date().toISOString();
+    const datosSello = {
+      localidad: partido ? partido + ', Buenos Aires, Argentina' : 'Saladillo, Buenos Aires, Argentina',
+      ruta: _prefijoRutaSello(ruta, tipoVia),
+      prog: prog,
+      tipo: tipo,
+      lat: isFinite(latN) ? latN.toFixed(6) : '',
+      lng: isFinite(lngN) ? lngN.toFixed(6) : '',
+      fecha: new Date(fechaISO).toISOString().slice(0, 10),
+      hora:  new Date(fechaISO).toTimeString().slice(0, 8)
+    };
+    // Bajar la foto original como base64
+    const blob = await (await fetch(reg.foto)).blob();
+    const reader = new FileReader();
+    const b64Orig = await new Promise((res, rej) => {
+      reader.onload = e => res(e.target.result);
+      reader.onerror = rej;
+      reader.readAsDataURL(blob);
+    });
+    // Rotar los pasos manuales antes de sellar (EXIF + manual se aplica en aplicarSelloDVBA)
+    const rotBefore = _rotacionManualSello;
+    _rotacionManualSello = _rotacionPreview;
+    const b64Sellada = await aplicarSelloDVBA(b64Orig, datosSello);
+    _rotacionManualSello = rotBefore;
+    // Subir sobre el mismo path
+    const blobSellada = await (await fetch(b64Sellada)).blob();
+    const pathMatch = reg.foto.match(/\/object\/public\/relevamientos\/(.+?)(\?|$)/);
+    if (pathMatch && _supa) {
+      const path = decodeURIComponent(pathMatch[1]);
+      const { error: upErr } = await _supa.storage.from('relevamientos')
+        .update(path, blobSellada, { contentType: 'image/jpeg' });
+      if (upErr) throw upErr;
+      // Refrescar preview con cache-bust
+      const baseUrl = reg.foto.split('?')[0];
+      const nuevaUrl = baseUrl + '?v=' + Date.now();
+      const prev = document.getElementById('iprev');
+      if (prev) { prev.src = nuevaUrl; prev.style.transform = ''; }
+      _rotacionPreview = 0;
+      reg.foto = nuevaUrl;
+      _regEditandoFoto.foto = nuevaUrl;
+      // Actualizar también sello_version en BD
+      await _supa.from('relevamientos').update({ sello_version: 'v3' }).eq('id', reg.id);
+      alert('✓ Foto re-sellada y subida correctamente.');
+    } else {
+      alert('No se pudo determinar el path de la foto en Supabase Storage.');
+    }
+  } catch(e) {
+    console.error('[re-sellar]', e);
+    alert('Error al re-sellar la foto: ' + (e.message || e));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🖋 Re-sellar'; }
+  }
+}
+
 function editReg(id) {
   const reg = regs.find(r => r.id === id);
   if (!reg) return;
@@ -3903,8 +4001,17 @@ function editReg(id) {
   if (reg.foto) {
     const prev = document.getElementById('iprev');
     prev.src = reg.foto; prev.style.display = 'block';
+    prev.style.transform = '';  // reset rotación visual
+    // v7.48 — Mostrar herramientas de rotación + re-sellar
+    _rotacionPreview = 0;
+    const tools = document.getElementById('foto-tools');
+    if (tools) tools.style.display = 'flex';
+    _regEditandoFoto = reg;  // guardar referencia para re-sellar
   } else {
     document.getElementById('iprev').style.display = 'none';
+    const tools = document.getElementById('foto-tools');
+    if (tools) tools.style.display = 'none';
+    _regEditandoFoto = null;
   }
 
   // Colocar pin en la posición actual del registro (arrastrable)
@@ -3972,6 +4079,11 @@ function cancelarEdit() {
   document.getElementById('flng').value = '';
   document.getElementById('ffoto').value = '';
   document.getElementById('iprev').style.display = 'none';
+  // v7.48 — Ocultar herramientas de rotación al cancelar edición
+  const tools = document.getElementById('foto-tools');
+  if (tools) tools.style.display = 'none';
+  _rotacionPreview = 0;
+  _regEditandoFoto = null;
   if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
 }
 
