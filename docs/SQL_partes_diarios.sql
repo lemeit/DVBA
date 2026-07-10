@@ -251,32 +251,52 @@ ALTER TABLE vehiculos               ENABLE ROW LEVEL SECURITY;
 ALTER TABLE partes_diarios          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE parte_maquinarias       ENABLE ROW LEVEL SECURITY;
 
+-- NOTA: Postgres NO soporta CREATE POLICY IF NOT EXISTS.
+-- Usar DROP + CREATE (idempotente al re-ejecutar el script).
+
 -- Lectura pública para catálogos (uso en dropdowns del form)
-CREATE POLICY IF NOT EXISTS catalogos_read_auth ON catalogo_tareas
+DROP POLICY IF EXISTS catalogos_read_auth   ON catalogo_tareas;
+CREATE POLICY catalogos_read_auth ON catalogo_tareas
   FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY IF NOT EXISTS catalogos_read_auth_m ON catalogo_maquinarias
+
+DROP POLICY IF EXISTS catalogos_read_auth_m ON catalogo_maquinarias;
+CREATE POLICY catalogos_read_auth_m ON catalogo_maquinarias
   FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY IF NOT EXISTS catalogos_read_auth_i ON catalogo_identificadores
+
+DROP POLICY IF EXISTS catalogos_read_auth_i ON catalogo_identificadores;
+CREATE POLICY catalogos_read_auth_i ON catalogo_identificadores
   FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY IF NOT EXISTS vehiculos_read_auth ON vehiculos
+
+DROP POLICY IF EXISTS vehiculos_read_auth ON vehiculos;
+CREATE POLICY vehiculos_read_auth ON vehiculos
   FOR SELECT USING (auth.role() = 'authenticated' AND activo = true);
 
 -- Partes: los usuarios autenticados pueden crear y editar los suyos
-CREATE POLICY IF NOT EXISTS partes_read_auth ON partes_diarios
+DROP POLICY IF EXISTS partes_read_auth   ON partes_diarios;
+CREATE POLICY partes_read_auth ON partes_diarios
   FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY IF NOT EXISTS partes_insert_auth ON partes_diarios
+
+DROP POLICY IF EXISTS partes_insert_auth ON partes_diarios;
+CREATE POLICY partes_insert_auth ON partes_diarios
   FOR INSERT WITH CHECK (auth.uid() = responsable_id);
-CREATE POLICY IF NOT EXISTS partes_update_own ON partes_diarios
+
+DROP POLICY IF EXISTS partes_update_own  ON partes_diarios;
+CREATE POLICY partes_update_own ON partes_diarios
   FOR UPDATE USING (auth.uid() = responsable_id);
 
-CREATE POLICY IF NOT EXISTS parte_maq_read_auth ON parte_maquinarias
+DROP POLICY IF EXISTS parte_maq_read_auth ON parte_maquinarias;
+CREATE POLICY parte_maq_read_auth ON parte_maquinarias
   FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY IF NOT EXISTS parte_maq_insert_auth ON parte_maquinarias
+
+DROP POLICY IF EXISTS parte_maq_insert_auth ON parte_maquinarias;
+CREATE POLICY parte_maq_insert_auth ON parte_maquinarias
   FOR INSERT WITH CHECK (
     EXISTS (SELECT 1 FROM partes_diarios p
             WHERE p.id = parte_maquinarias.parte_id AND p.responsable_id = auth.uid())
   );
-CREATE POLICY IF NOT EXISTS parte_maq_del_own ON parte_maquinarias
+
+DROP POLICY IF EXISTS parte_maq_del_own ON parte_maquinarias;
+CREATE POLICY parte_maq_del_own ON parte_maquinarias
   FOR DELETE USING (
     EXISTS (SELECT 1 FROM partes_diarios p
             WHERE p.id = parte_maquinarias.parte_id AND p.responsable_id = auth.uid())

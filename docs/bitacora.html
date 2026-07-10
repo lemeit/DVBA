@@ -723,6 +723,14 @@ git push origin main
       <tr><td><strong>🛣 Caminos Secundarios</strong></td><td><span class="badge b-ok">v1.1</span></td><td><code>caminos_secundarios.html</code></td><td>—</td></tr>
     </table>
 
+    <h3>v9.50 · 7 julio 2026 — Fix instalación PWA (WebAPK id / start_url)</h3>
+    <p><strong>Fix operativo:</strong> el <code>manifest.json</code> tenía un desajuste menor entre <code>"id"</code> y <code>"start_url"</code> que hacía que Android considerara el WebAPK como inseguro (app "fantasma" en algunos celulares — se instalaba pero no reconocía como válida). Unificados ambas rutas → Chrome instala la PWA sin interrupciones.</p>
+
+    <h4>Efecto secundario detectado (task #201, pendiente)</h4>
+    <p>Al reinstalar el WebAPK con el nuevo <code>id</code>, se perdió el <strong>diálogo del sistema para activar GPS cuando está apagado</strong>. Antes: tocar "sin señal" abría el prompt nativo de Android. Ahora: solo muestra "GPS denegado, ir a ajustes".</p>
+    <p><strong>Causa probable:</strong> el WebAPK con nuevo <code>id</code> se considera "app nueva" → perdió el nivel de confianza que Chrome le daba antes para pasar la solicitud a Play Services (que sí muestra el diálogo). Cae en la Geolocation API estándar que <em>no puede activar el GPS del sistema por diseño</em>.</p>
+    <p>Solución en el ROADMAP: implementar botón "🔧 Abrir ajustes de ubicación" con intent Android <code>android.settings.LOCATION_SOURCE_SETTINGS</code> + reintentar automáticamente al volver del ajuste vía <code>visibilitychange</code>.</p>
+
     <h3>v9.45–v9.49 / v7.28–v7.45 · 1–6 julio 2026 — Sprint integración caminos + rediseño UI + scripts v2.11</h3>
     <p><strong>Sprint intenso</strong> con 3 ejes: integrar completamente la red de caminos secundarios al portal principal, rediseñar la visualización del mapa, y mejorar el pipeline de generación de bundles con recorte exacto de límite de partido.</p>
 

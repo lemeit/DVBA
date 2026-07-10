@@ -21,6 +21,29 @@ Este documento es la base para el **proyecto de congreso** — describe qué est
 
 ## 🔴 Bloqueadores / bugs de fondo (arreglar primero)
 
+### 0. Fix manifest `id` + `start_url` (aplicado 7 jul 2026) → efecto secundario en GPS
+
+**Fix aplicado**: `manifest.json` tenía un desajuste entre `"id"` y `"start_url"` que hacía que Android considerara el WebAPK como inseguro (app "fantasma" en algunos celulares). Unificados ambas rutas → Chrome instala la PWA sin interrupciones.
+
+**Efecto secundario detectado**: la app **perdió el diálogo del sistema para activar GPS** cuando está apagado. Antes: tocar "sin señal" abría el diálogo nativo de Android para activar la ubicación. Ahora: solo muestra "GPS denegado, ir a ajustes".
+
+**Análisis técnico**:
+- La Geolocation API estándar **no puede activar el GPS del sistema por JS** (limitación de seguridad web).
+- El comportamiento previo era una capacidad **extra** del WebAPK cuando Chrome lo consideraba "confiable" — pasaba la solicitud a Play Services que sí muestra el diálogo.
+- Al cambiar el `id` del manifest, Android probablemente:
+  - Reinstaló el WebAPK como "nueva app" y perdió los permisos previos concedidos, **o**
+  - Bajó el nivel de "confianza" del WebAPK y ahora cae en la API web plana.
+- Chrome también endureció el comportamiento de estos diálogos en versiones recientes (endurecimiento UX + privacy).
+
+**Solución sugerida (task #201)**:
+1. Detectar el error específico (`code === 2` PositionUnavailable con GPS off) vs `code === 1` PERMISSION_DENIED.
+2. Mostrar botón **"🔧 Abrir ajustes de ubicación"** que abra el intent Android:
+   `intent://settings/#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end`
+3. Después de que el user active y vuelva a la app, escuchar `visibilitychange` para reintentar automáticamente.
+4. Como fallback en desktop o navegadores no-Android, mostrar instrucción textual con captura.
+
+### Otros bloqueadores (arreglar primero)
+
 ### 0. RP30 + RP46 + RP51: auditoría 2026-07-06 detectó recortes incompletos
 
 Ejecutado `scripts/recortar_zonavi.py` sobre las 8 RPs con `_traza_completa`:
@@ -73,6 +96,40 @@ Los logs muestran que la detección funciona bien pero en cierta zona de Saladil
 ---
 
 ## 🟠 Prioridad alta (esencial para el congreso)
+
+### 3.5 Edición de fotos post-captura (reubicar + rotar + re-sellar)
+
+Feature con 3 componentes independientes:
+
+**A) Reubicar registro no aprobado + sello con progresiva final**
+
+Escenario: el operador subió fotos SIN progresiva (o con progresiva vieja) por errores de GPS. En el portal escritorio quiere abrir el registro, arrastrar el pin al lugar real en el mapa, y que **al aprobar se estampe el sello v3 con la progresiva correcta**.
+
+Verificar si ya funciona (post-v7.34):
+- El pin es arrastrable (`draggable:true`), `dragend` dispara `autoDetectarCampos({forzarAuto:true})` → autocompleta ruta / partido / progresiva desde nuestro sistema de anchors.
+- Al aprobar desde la cola, el sello v3 se estampa con los datos del modal editado.
+- **Confirmar en producción**: subir una foto sin sello desde móvil, editar en escritorio, arrastrar pin, aprobar → chequear el sello final.
+
+**B) Fotos ya aprobadas con sello viejo — ¿re-sellar o sello complementario?**
+
+Hoy el guard `yaTieneSello` (v7.36) evita re-sellado para no duplicar. Pero si el revisor detecta después que la progresiva del sello es incorrecta, el sello viejo queda ahí.
+
+Dos opciones:
+- **Opción A**: agregar botón **"🔄 Re-sellar"** en el modo edición que fuerza descargar la foto original de Storage (si se guardó separadamente), reaplicar sello con datos nuevos, y sobrescribir. Requiere: mantener siempre la foto cruda en un bucket paralelo `fotos_originales`.
+- **Opción B**: **sello complementario**: mantener el sello v3 original + agregar una banda pequeña en la esquina con "✓ Corregido a RP XX · km YYY el DD/MM" que sobreescribe solo la línea de la progresiva.
+
+Recomiendo A si el objetivo es que la foto final siempre refleje la verdad; B si el objetivo es trazabilidad histórica del proceso.
+
+**C) Rotación / ajuste de fotos giradas 90°**
+
+Fotos tomadas con el celular de costado se ven rotadas. Feature nueva:
+- Botones **↺ 90° / ↻ 90° / voltear H / voltear V** en el modal de edición.
+- **Lectura automática del EXIF Orientation** al cargar (JPEG estándar tiene el bit `Orientation` en el header, la mayoría de celulares lo setea correctamente y solo hay que respetarlo).
+- Implementación con `canvas.rotate()` + `context.drawImage()`.
+- Aplicar **antes** del sello v3 (para que el sello quede orientado con la foto rotada).
+- Botón "Ajustar tamaño" para recortar/redimensionar si aplica.
+
+Todas estas tasks quedan documentadas: #202 (reubicar + re-sellar), #203 (rotación).
 
 ### 4. Reportes desde el portal (task #125)
 
