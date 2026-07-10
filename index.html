@@ -631,7 +631,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.46';
+const APP_VERSION = 'v7.47';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4494,7 +4494,17 @@ async function aprobarRegistro(id, opts){
           reader.onerror = rej;
           reader.readAsDataURL(blob);
         });
-        const b64Sellada = await aplicarSelloDVBA(b64, datosSello);
+        // v7.47 — Abrir modal para permitir edición + rotación manual de foto
+        // antes de sellar. Preserva fecha/hora originales del registro
+        // (no las reescribe con new Date() como haría aplicarSelloDVBAInteractivo).
+        const editados = await mostrarModalSello(datosSello);
+        if (!editados) {
+          // Canceló → aprobar sin sellar la foto
+          fotoSellada = reg.foto;
+          throw new Error('__cancel_sello__');  // atrapado abajo como no-error
+        }
+        ultimoSelloDatos = editados;
+        const b64Sellada = await aplicarSelloDVBA(b64, editados);
         // Subir sobre el mismo path con update() — v7.14, evita conflict con RLS
         const blobSellada = await (await fetch(b64Sellada)).blob();
         const pathMatch = reg.foto.match(/\/object\/public\/relevamientos\/(.+?)(\?|$)/);
@@ -4509,7 +4519,14 @@ async function aprobarRegistro(id, opts){
             console.warn('Upload sellado:', upErr);
           }
         }
-      } catch(e) { console.warn('Sellado al aprobar:', e); }
+      } catch(e) {
+        // v7.47 — Cancelar sello (user cerró modal) no es un error real
+        if (e && e.message === '__cancel_sello__') {
+          console.log('[Aprobar] Sello cancelado por el user — aprobando sin sellar');
+        } else {
+          console.warn('Sellado al aprobar:', e);
+        }
+      }
     } else if (yaTieneSello2) {
       console.log('[Aprobar] Foto ya tenía sello v3 — no re-sellar. Solo aprobar.');
     }
