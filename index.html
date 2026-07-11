@@ -489,7 +489,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="button" id="btn-rot-cw"  onclick="rotarFotoPreview(1)"  title="Rotar 90° a la derecha"  style="padding:6px 10px;border:1px solid #2a4050;background:#0d2030;color:var(--p);border-radius:4px;cursor:pointer;font-size:14px">↻ 90°</button>
       <button type="button" id="btn-rot-reset" onclick="rotarFotoPreview(0)" style="padding:6px 8px;border:1px solid #2a4050;background:#0d2030;color:#7aacbc;border-radius:4px;cursor:pointer;font-size:11px">Reset</button>
       <button type="button" id="btn-re-sellar" onclick="reSellarFotoEditada()" title="Aplicar sello v3 con los datos actuales del formulario" style="padding:6px 10px;border:1px solid #6aaa40;background:#1a2a10;color:#c4ffb0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;flex:1">🖋 Re-sellar</button>
-      <button type="button" id="btn-borrar-backup" onclick="borrarBackupOriginal()" title="Eliminar el archivo original del Storage — libera espacio pero el registro no podrá re-sellarse limpio después" style="display:none;padding:6px 8px;border:1px solid #a04040;background:#1a0d0d;color:#d07070;border-radius:4px;cursor:pointer;font-size:11px">🗑 Backup</button>
+      <button type="button" id="btn-borrar-backup" onclick="borrarBackupOriginal()" title="Eliminar el archivo original SOLO de este registro — libera espacio pero no podrá re-sellarse limpio después" style="display:none;padding:6px 8px;border:1px solid #a04040;background:#1a0d0d;color:#d07070;border-radius:4px;cursor:pointer;font-size:11px">🗑 Backup de esta foto</button>
       <span id="rot-lbl" style="font-size:10px;color:#7aacbc;width:100%">Rotá la foto si se ve de costado, luego "Re-sellar"</span>
     </div>
     <div id="coords-row">
@@ -657,7 +657,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.51';
+const APP_VERSION = 'v7.52';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -3975,7 +3975,7 @@ async function borrarBackupOriginal(){
   const btn = document.getElementById('btn-borrar-backup');
   if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
   const ok = await borrarOriginalDeReg(reg);
-  if (btn) { btn.disabled = false; btn.textContent = '🗑 Backup'; }
+  if (btn) { btn.disabled = false; btn.textContent = '🗑 Backup de esta foto'; }
   if (ok) {
     alert('✓ Backup original eliminado. Registro ahora es legacy.');
     if (btn) btn.style.display = 'none';
@@ -4048,6 +4048,9 @@ async function reSellarFotoEditada(){
     const prog    = document.getElementById('fprog').value.trim();
     const tipoVia = document.getElementById('f-tipo-via')?.value || 'rp';
     const tipo    = (typeof z6TipoGetValor === 'function') ? z6TipoGetValor() : (document.getElementById('ftipo')?.value || '');
+    // v7.52 — incluir estado ("faltante", "roto", etc.) junto al tipo en el sello
+    const estado  = (document.getElementById('festado')?.value || '').trim();
+    const tipoEstado = [tipo, estado].filter(Boolean).join(' · ');
     const latN    = parseFloat(document.getElementById('flat').value);
     const lngN    = parseFloat(document.getElementById('flng').value);
     const reg     = _regEditandoFoto;
@@ -4056,7 +4059,7 @@ async function reSellarFotoEditada(){
       localidad: partido ? partido + ', Buenos Aires, Argentina' : 'Saladillo, Buenos Aires, Argentina',
       ruta: _prefijoRutaSello(ruta, tipoVia),
       prog: prog,
-      tipo: tipo,
+      tipo: tipoEstado,
       lat: isFinite(latN) ? latN.toFixed(6) : '',
       lng: isFinite(lngN) ? lngN.toFixed(6) : '',
       fecha: new Date(fechaISO).toISOString().slice(0, 10),
@@ -4746,11 +4749,13 @@ async function aprobarRegistro(id, opts){
       reg.sello_version === 'v3';
     if (reg.foto && !yaTieneSello2 && typeof aplicarSelloDVBA === 'function') {
       try {
+        // v7.52 — combinar tipo + estado (ej: "Encrucijada en T · faltante")
+        const _tipoEstado = [datosFinales.tipo, datosFinales.estado].filter(Boolean).join(' · ');
         const datosSello = {
           localidad: datosFinales.partido ? datosFinales.partido + ', Buenos Aires, Argentina' : 'Saladillo, Buenos Aires, Argentina',
           ruta: _prefijoRutaSello(datosFinales.ruta, datosFinales.tipo_via),
           prog: datosFinales.prog,
-          tipo: datosFinales.tipo,
+          tipo: _tipoEstado,
           lat: datosFinales.lat ? datosFinales.lat.toFixed(6) : '',
           lng: datosFinales.lng ? datosFinales.lng.toFixed(6) : '',
           fecha: new Date(reg.fechaISO || Date.now()).toISOString().slice(0, 10),
