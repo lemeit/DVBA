@@ -32,6 +32,10 @@ header .user{font-size:11px;display:flex;align-items:center;gap:8px}
 header .user #email{font-weight:600}
 header .btn-hdr{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none}
 header .btn-hdr:hover{background:rgba(255,255,255,.25)}
+header .hbadge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:9px;margin-left:5px;letter-spacing:.5px;vertical-align:middle}
+header .hversion{font-size:9px;color:rgba(255,255,255,.6);padding-right:10px;border-right:1px solid rgba(255,255,255,.2);margin-left:8px}
+header .dot{width:6px;height:6px;border-radius:50%;background:#4caf72;flex-shrink:0;animation:pulse 3s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* TOOLBAR */
 .toolbar{background:var(--w);padding:10px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--light);flex-shrink:0}
@@ -144,12 +148,15 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 <header>
   <div class="logo"><img src="datos/img/logo_dvba_circular.png" alt="DVBA"></div>
   <div class="t">
-    <h1>Partes Diarios de Trabajo</h1>
-    <p>DVBA · Zona Departamental VI Saladillo</p>
+    <h1>DVBA &mdash; <span style="color:#ffd060">ZONA VI</span> <span class="hbadge">Saladillo</span></h1>
+    <p>Dirección de Vialidad de la Prov. de Buenos Aires &nbsp;&middot;&nbsp; Partes Diarios de Trabajo</p>
   </div>
   <div class="user">
-    <span id="email">—</span>
     <a class="btn-hdr" href="index.html">← Volver al portal</a>
+    <span id="email">—</span>
+    <button onclick="pdLogout()" title="Cerrar sesión" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer">salir</button>
+    <span class="hversion">Desarrollado por Ing. Luciano Lamaita &nbsp;&middot;&nbsp; <span id="app-ver">v7.66</span></span>
+    <span style="font-size:9px;color:rgba(255,255,255,.7)">EN LINEA</span><div class="dot"></div>
   </div>
 </header>
 
@@ -203,6 +210,37 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <tbody id="tbody"></tbody>
   </table>
   <div class="empty" id="empty" style="display:none">Sin partes en este filtro.</div>
+</div>
+
+<!-- ═══════════ FOOTER INSTITUCIONAL ═══════════ -->
+<footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.75);padding:14px 20px;font-size:10.5px;line-height:1.55;display:none;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;border-top:2px solid var(--pd)">
+  <div style="flex:1;min-width:280px">
+    <div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:3px">© 2026 DVBA · Zona VI Saladillo</div>
+    <div>Sistema de Relevamiento y Gestión de la Red Vial Provincial · Uso interno institucional.</div>
+    <div style="margin-top:4px">
+      <a href="#" onclick="pdMostrarLegal('terminos');return false" style="color:#8ac6ff;text-decoration:none;margin-right:12px">📄 Términos de uso</a>
+      <a href="#" onclick="pdMostrarLegal('privacidad');return false" style="color:#8ac6ff;text-decoration:none;margin-right:12px">🔒 Política de privacidad</a>
+      <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none">⚙ Tecnologías</a>
+    </div>
+  </div>
+  <div style="text-align:right;font-size:9.5px;color:rgba(255,255,255,.5)">
+    Desarrollado por <b style="color:rgba(255,255,255,.85)">Ing. Luciano Lamaita</b> · División Técnica DVBA<br>
+    Última actualización: <span id="app-ver-footer">v7.66</span> · Julio 2026
+  </div>
+</footer>
+
+<!-- Modal Legal -->
+<div class="modal-ov" id="modalLegal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-h">
+      <h2 id="legalTitulo">—</h2>
+      <button class="x" onclick="document.getElementById('modalLegal').classList.remove('on')">×</button>
+    </div>
+    <div class="modal-b" id="legalCuerpo" style="font-size:12px;line-height:1.55;color:#333"></div>
+    <div class="modal-f">
+      <button class="btn btn-vd" onclick="document.getElementById('modalLegal').classList.remove('on')">Cerrar</button>
+    </div>
+  </div>
 </div>
 
 <!-- ═══════════ MODAL NUEVO/EDITAR PARTE ═══════════ -->
@@ -846,8 +884,96 @@ async function pdEliminarDirecto(id){
   pdCargar();
 }
 
+// v7.66 — Textos legales
+const _TEXTOS_LEGALES = {
+  terminos: {
+    tit: '📄 Términos de uso',
+    body: `<p><b>Uso interno institucional</b></p>
+    <p>Esta aplicación es de uso exclusivo del personal autorizado de la Dirección de Vialidad de la Provincia de Buenos Aires (DVBA) · Zona Departamental VI Saladillo.</p>
+    <p>Los datos aquí registrados forman parte del sistema oficial de relevamiento y gestión vial. La información cargada debe reflejar fielmente las tareas ejecutadas en campo, así como los recursos utilizados.</p>
+    <p>El acceso está restringido por autenticación. Cualquier uso indebido, alteración maliciosa o divulgación no autorizada de la información puede constituir falta grave conforme a la normativa vigente.</p>
+    <p>El sistema se ofrece "tal cual", sin garantía comercial. Su función es asistir la gestión operativa; no reemplaza los registros oficiales requeridos por las Gerencias.</p>`
+  },
+  privacidad: {
+    tit: '🔒 Política de privacidad',
+    body: `<p><b>Datos que recopila el sistema</b></p>
+    <ul>
+      <li>Datos de sesión: email del usuario autorizado, timestamps de acceso.</li>
+      <li>Datos operativos: fechas, rutas, tareas, equipos utilizados, observaciones, fotografías con geolocalización.</li>
+      <li>Metadatos técnicos: coordenadas GPS, hora de captura, orientación de imagen (EXIF).</li>
+    </ul>
+    <p><b>Almacenamiento</b></p>
+    <p>Los datos se almacenan en servidores gestionados por Supabase Inc. (infraestructura AWS EU), cifrados en tránsito (TLS) y en reposo. El acceso está restringido por políticas RLS (Row-Level Security).</p>
+    <p><b>Fotografías</b></p>
+    <p>Las imágenes cargadas se guardan en Supabase Storage con URLs públicas de solo lectura. Al aplicar el sello institucional se registran metadatos de fecha, hora y coordenadas.</p>
+    <p><b>Uso de terceros</b></p>
+    <p>Se utiliza OpenStreetMap para la cartografía base y Google Maps para verificación puntual de coordenadas (via QR de sello). Ningún dato personal se comparte con estos servicios más allá de la solicitud HTTP estándar.</p>
+    <p><b>Retención y baja</b></p>
+    <p>Los datos se conservan por tiempo indefinido para fines históricos de gestión. Si un usuario solicita baja, su email se anonimiza pero los registros operativos permanecen (auditoría).</p>`
+  },
+  tecnologias: {
+    tit: '⚙ Tecnologías empleadas',
+    body: `<p><b>Stack técnico del sistema</b></p>
+    <ul>
+      <li><b>Frontend</b>: HTML5, CSS3, JavaScript (Vanilla, sin frameworks).</li>
+      <li><b>Cartografía</b>: <a href="https://leafletjs.com/" target="_blank">Leaflet 1.9.4</a> · <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a>.</li>
+      <li><b>Backend</b>: <a href="https://supabase.com/" target="_blank">Supabase</a> (PostgreSQL + Auth + Storage + RLS).</li>
+      <li><b>PWA</b>: Service Worker con estrategia network-first + cache offline (móvil).</li>
+      <li><b>Datos oficiales</b>: geojsons procesados desde QGIS 3.34 con PyQGIS.</li>
+      <li><b>Sello institucional v3</b>: canvas 2D con QR ofline generado por <code>qrcode.js</code> embebido.</li>
+      <li><b>Autenticación</b>: Supabase Auth con JWT + refresh token, sesión persistente en localStorage.</li>
+      <li><b>Hosting</b>: <a href="https://pages.github.com/" target="_blank">GitHub Pages</a> con dominio <code>lemeit.github.io/DVBA/</code>.</li>
+      <li><b>Control de versiones</b>: Git + GitHub · repo público <a href="https://github.com/lemeit/DVBA" target="_blank">lemeit/DVBA</a>.</li>
+    </ul>
+    <p><b>Datos de referencia oficiales</b></p>
+    <ul>
+      <li>Red vial DVBA: SALADILLO_RED.csv (2025) — 15 RPs + 100 caminos secundarios.</li>
+      <li>Mojones georreferenciados: procesados desde QGIS con validación manual.</li>
+      <li>Partidos: geojson IGN adaptado a los 8 partidos de Zona VI.</li>
+    </ul>
+    <p style="margin-top:10px;font-style:italic;color:#666">Sistema en constante evolución. Reportar bugs o sugerencias a la División Técnica.</p>`
+  }
+};
+function pdMostrarLegal(cual){
+  const t = _TEXTOS_LEGALES[cual];
+  if (!t) return;
+  document.getElementById('legalTitulo').textContent = t.tit;
+  document.getElementById('legalCuerpo').innerHTML = t.body;
+  document.getElementById('modalLegal').classList.add('on');
+}
+
+async function pdLogout(){
+  if (!confirm('¿Cerrar sesión?')) return;
+  await _supa.auth.signOut();
+  localStorage.removeItem('dvba_session');
+  location.href = 'index.html';
+}
+
+// Indicador ONLINE/LOCAL igual que el portal principal
+function pdActualizarRed(){
+  const online = navigator.onLine;
+  const spans = document.querySelectorAll('header span');
+  const dot = document.querySelector('header .dot');
+  if (dot) dot.style.background = online ? '#4caf72' : '#d4a820';
+  spans.forEach(sp => {
+    const t = (sp.textContent||'').trim();
+    if (t === 'EN LINEA' || t === 'LOCAL') sp.textContent = online ? 'EN LINEA' : 'LOCAL';
+  });
+}
+window.addEventListener('online', pdActualizarRed);
+window.addEventListener('offline', pdActualizarRed);
+
 // Arranque
 document.addEventListener('DOMContentLoaded', pdInit);
+// Mostrar footer cuando la app cargó exitosamente
+const _origInit = pdInit;
+pdInit = async function(){
+  await _origInit();
+  if (document.getElementById('toolbar').style.display === 'flex') {
+    document.getElementById('footerInst').style.display = 'flex';
+  }
+  pdActualizarRed();
+};
 </script>
 </body>
 </html>
