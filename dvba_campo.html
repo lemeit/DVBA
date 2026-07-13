@@ -183,248 +183,102 @@ textarea{resize:none;min-height:80px}
 .acc-toggle .acc-icon{font-size:1.4rem}
 .acc-toggle .acc-txt{display:none}
 
-/* ─── v9.54 · body.tema-sol: MODO DÍA ALTO CONTRASTE ────────────────
-   Diseño limpio para uso a sol directo en exteriores.
-   Fondo blanco puro + texto negro + bordes fuertes.
-   Sin agrandar botones (para eso está body.accesible). ── */
-body.tema-sol{
+/* ─── body.accesible v2 · MODO SOL (contraste alto sin gigantismo) ───
+   v9.55 — Rediseño: mantiene el enfoque de sol directo pero SIN
+   agrandar tipografía + botones a extremos que hacen ilegibles los
+   detalles. Enfoque: colores de alto contraste + bordes definidos +
+   fuente ligeramente mayor (15-16px), sin uppercase forzado. ── */
+body.accesible{
   background:#ffffff !important;
   color:#000000 !important;
+  font-size:15px !important;
+  line-height:1.4 !important;
 }
-body.tema-sol .hdr{background:#000000 !important;color:#ffffff !important;border-bottom:3px solid #ffcc00}
-body.tema-sol .hdr h1{color:#ffffff !important;font-weight:800}
-body.tema-sol .hdr p{color:#ffcc00 !important}
-body.tema-sol .hdr-r .net,body.tema-sol .hdr-r .gps-hdr{background:#333 !important;color:#fff !important;border:1px solid #666}
-body.tema-sol .gps-bar{background:#ffffff !important;border-bottom:3px solid #000 !important}
-body.tema-sol .gps-coords{color:#000 !important;font-weight:800}
-body.tema-sol .btn-usar{background:#000 !important;color:#ffcc00 !important;border:2px solid #000;font-weight:800}
-body.tema-sol .tabs,body.tema-sol .tab-list{background:#f0f0f0 !important;border-bottom:2px solid #000}
-body.tema-sol .tab,body.tema-sol .tab-w{color:#555 !important;font-weight:700}
-body.tema-sol .tab.active,body.tema-sol .tab-w.active,body.tema-sol .tab.activa,body.tema-sol .tab-w.activa{color:#000 !important;border-bottom:4px solid #000 !important}
-body.tema-sol .panel{background:#ffffff !important}
-body.tema-sol .label-input,body.tema-sol label{color:#000 !important;font-weight:700}
-body.tema-sol select,body.tema-sol input[type=text],body.tema-sol input[type=date],body.tema-sol input[type=time],body.tema-sol textarea{
-  background:#ffffff !important;color:#000 !important;
-  border:2px solid #000 !important;font-weight:600 !important
-}
-body.tema-sol select:focus,body.tema-sol input:focus,body.tema-sol textarea:focus{
-  background:#fffbea !important;outline:3px solid #ffcc00 !important;outline-offset:0
-}
-body.tema-sol .gps-box{background:#ffffff !important;border:2px solid #000 !important}
-body.tema-sol .gps-v .coords{color:#000 !important;font-weight:900}
-body.tema-sol .btn{border-width:2px !important;font-weight:700 !important}
-body.tema-sol .btn-prev{background:#ffffff !important;color:#000 !important;border:2px solid #000 !important}
-body.tema-sol .btn-next{background:#000 !important;color:#ffcc00 !important;border:2px solid #000 !important}
-body.tema-sol .bot-nav{background:#ffffff !important;border-top:2px solid #000 !important}
-body.tema-sol .app-ver{color:#333 !important;background:#ffffff !important;font-weight:600}
-body.tema-sol .pwa-bar{background:#fffbea !important;border:2px solid #000 !important}
-body.tema-sol .pwa-bar .pt b{color:#000 !important}
-body.tema-sol .toast{background:#000 !important;color:#ffcc00 !important;border:2px solid #ffcc00}
-body.tema-sol .btn-foto-op{background:#ffffff !important;color:#000 !important;border:2px solid #000 !important}
-body.tema-sol .btn-foto-op span{color:#000 !important}
-/* Botón toggle del header: cuando el tema está activo, el propio botón cambia */
-body.tema-sol #btn-tema-dia{background:#ffcc00 !important;color:#000 !important}
+body.accesible *{font-family:'Encode Sans',Arial,sans-serif !important;letter-spacing:0 !important}
 
-/* Botón toggle día en el header (siempre presente, solo cambia visual con estado activo) */
-#btn-tema-dia{
-  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
-  color:#fff;font-size:16px;padding:5px 9px;border-radius:12px;
-  cursor:pointer;margin-right:4px;transition:all .15s
-}
-#btn-tema-dia:active{transform:scale(.92)}
+/* Header — negro con acento amarillo institucional (no señalización) */
+body.accesible .hdr{background:#1a1a1a !important;color:#fff !important;border-bottom:3px solid #ffc107 !important;padding:10px 14px !important}
+body.accesible .hdr h1{color:#fff !important;font-size:15px !important;font-weight:700}
+body.accesible .hdr p{color:#ffc107 !important;font-size:11px !important;font-weight:500}
+body.accesible .hdr-logo{width:40px !important;height:40px !important}
 
-/* ─── body.accesible: REDISEÑO COMPLETO ─── */
-body.accesible{
-  font-size:17px !important;
-  line-height:1.45 !important;
-  background:#fffde7 !important;  /* amarillo claro - alto contraste con sol */
-  color:#000 !important;
-}
-body.accesible *{font-family:Arial,'Liberation Sans',sans-serif !important}
+/* Toggle sol: sigue siendo amarillo cuando está activo */
+body.accesible .acc-toggle{background:#ffc107 !important;border-color:#000 !important;color:#000 !important;width:38px !important;height:38px !important;font-size:1.1rem !important}
 
-/* Header más grande y contrastado */
-body.accesible .hdr{padding:14px 14px;background:#000 !important;border-bottom:5px solid #ffeb3b}
-body.accesible .hdr h1{font-size:1.3rem !important;color:#fff !important;font-weight:800}
-body.accesible .hdr p{font-size:1rem !important;color:#ffeb3b !important}
-body.accesible .hdr-logo{width:50px !important;height:50px !important}
+/* Badges GPS/ONLINE del header */
+body.accesible .hdr-r .net{background:#333 !important;color:#fff !important;border:1px solid #666 !important}
+body.accesible .hdr-r .gps-hdr{background:#333 !important;color:#fff !important;border:1px solid #666 !important}
+body.accesible .gps-bar{background:#fff !important;border-bottom:3px solid #000 !important}
+body.accesible .gps-coords{color:#000 !important;font-weight:700}
+body.accesible .btn-usar{background:#000 !important;color:#ffc107 !important;border:2px solid #000 !important;font-weight:700;font-size:13px !important}
 
-/* Toggle: en modo accesible es un sol grande amarillo */
-body.accesible .acc-toggle{background:#ffeb3b;border-color:#000;width:42px;height:42px;font-size:1.3rem}
-
-/* Tabs del wizard COMO BOTONES GRANDES separados */
-body.accesible .tabs,body.accesible .tab-list{padding:8px;gap:6px;display:flex;background:#000}
+/* Tabs del wizard: contraste con borde inferior grueso pero SIN agrandar tanto */
+body.accesible .tabs,body.accesible .tab-list{background:#f8f8f8 !important;border-bottom:2px solid #000;padding:4px !important;gap:2px}
 body.accesible .tab,body.accesible .tab-w{
-  flex:1;padding:18px 6px !important;font-size:1.05rem !important;font-weight:800 !important;
-  min-height:62px;background:#333 !important;color:#ccc !important;
-  border:3px solid #555 !important;border-radius:14px;
-  text-transform:uppercase;letter-spacing:.5px
+  padding:10px 6px !important;font-size:.85rem !important;font-weight:700 !important;
+  color:#666 !important;background:transparent !important;border:none !important;
+  min-height:auto !important;text-transform:none !important
 }
-body.accesible .tab.active,body.accesible .tab-w.active,
-body.accesible .tab.activa,body.accesible .tab-w.activa{
-  background:#ffeb3b !important;color:#000 !important;border-color:#000 !important;
-  box-shadow:0 0 0 4px #fff inset
+body.accesible .tab.active,body.accesible .tab-w.active,body.accesible .tab.activa,body.accesible .tab-w.activa{
+  color:#000 !important;border-bottom:4px solid #000 !important
 }
 
-/* TODOS los SELECT se transforman a apariencia de botón GRANDE */
-body.accesible select{
-  min-height:64px !important;font-size:1.15rem !important;font-weight:800 !important;
-  padding:14px 18px !important;background:#fff !important;color:#000 !important;
-  border:5px solid #000 !important;border-radius:16px !important;
-  appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='%23000'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
-  background-repeat:no-repeat !important;
-  background-position:right 16px center !important;
-  background-size:32px !important;padding-right:60px !important;
-  cursor:pointer
-}
-body.accesible select:focus{outline:none;background-color:#ffeb3b !important}
-
-/* Inputs: bordes negros gruesos, fondo blanco */
-body.accesible input,body.accesible textarea{
-  min-height:54px !important;font-size:1.1rem !important;font-weight:600 !important;
-  padding:16px 18px !important;background:#fff !important;color:#000 !important;
-  border:4px solid #000 !important;border-radius:14px !important
-}
-body.accesible textarea{min-height:120px !important}
-body.accesible input:focus,body.accesible textarea:focus,
-body.accesible select:focus{outline:4px solid #ffeb3b !important;outline-offset:2px}
-
-/* Labels grandes y oscuros */
+/* Panels */
+body.accesible .panel{background:#fff !important}
 body.accesible .label-input,body.accesible label{
-  font-size:1.05rem !important;font-weight:800 !important;color:#000 !important;
-  text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:block
+  font-size:12px !important;font-weight:700 !important;color:#000 !important;
+  text-transform:none !important;margin-bottom:4px !important
 }
 
-/* TODOS los botones — gigantes, alto contraste */
+/* Inputs / selects: bordes negros gruesos para definir área tocable
+   pero fuente NORMAL para leer valores largos */
+body.accesible select,body.accesible input[type=text],body.accesible input[type=date],body.accesible input[type=time],body.accesible input[type=number],body.accesible textarea{
+  background:#ffffff !important;color:#000 !important;
+  border:2px solid #000 !important;border-radius:8px !important;
+  font-size:15px !important;font-weight:500 !important;
+  padding:11px 12px !important;min-height:auto !important
+}
+body.accesible textarea{min-height:90px !important}
+body.accesible select:focus,body.accesible input:focus,body.accesible textarea:focus{
+  outline:3px solid #ffc107 !important;outline-offset:0;background:#fffdea !important
+}
+
+/* Botones: altos y bordeados pero sin uppercase ni fuente gigante */
 body.accesible button:not(.acc-toggle):not(.tab-w):not(.tab){
-  min-height:60px !important;font-size:1.25rem !important;font-weight:800 !important;
-  padding:20px 24px !important;border-radius:16px !important;
-  border-width:4px !important;text-transform:uppercase;letter-spacing:.5px;
-  box-shadow:0 4px 0 #000;
-  transition:transform .1s
+  padding:12px 16px !important;font-size:14px !important;font-weight:700 !important;
+  border-width:2px !important;border-radius:10px !important;
+  text-transform:none !important;min-height:auto !important;
+  letter-spacing:0 !important
 }
-body.accesible button:not(.acc-toggle):not(.tab-w):not(.tab):active{
-  transform:translateY(3px);box-shadow:0 1px 0 #000
+/* Botón primario amarillo institucional */
+body.accesible .btn:not(.btn-sec):not(.btn-save),body.accesible button.primary{
+  background:#ffc107 !important;color:#000 !important;border:2px solid #000 !important
 }
+body.accesible .btn-sec{background:#fff !important;color:#000 !important;border:2px solid #000 !important}
+body.accesible .btn-save{background:#1a8a4a !important;color:#fff !important;border:2px solid #1a8a4a !important}
+body.accesible .btn-next{background:#000 !important;color:#ffc107 !important;border:2px solid #000 !important}
+body.accesible .btn-prev{background:#fff !important;color:#000 !important;border:2px solid #000 !important}
 
-/* Botón primario: amarillo + negro */
-body.accesible .btn:not(.btn-sec):not(.btn-save),
-body.accesible button.primary{
-  background:#ffeb3b !important;color:#000 !important;border:4px solid #000 !important
-}
-/* Botón secundario: blanco + negro */
-body.accesible .btn-sec{
-  background:#fff !important;color:#000 !important;border:4px solid #000 !important
-}
-/* Botón guardar: verde fuerte */
-body.accesible .btn-save{
-  background:#1b5e20 !important;color:#fff !important;border:4px solid #000 !important;
-  min-height:76px !important;font-size:1.25rem !important
-}
+/* Toast */
+body.accesible .toast{background:#000 !important;color:#ffc107 !important;border:2px solid #ffc107 !important;font-size:14px !important}
 
-/* Selector de TIPO como tarjetas gigantes (cuando se renderiza como lista) */
-body.accesible .tipo-list{
-  display:grid !important;grid-template-columns:1fr;gap:10px !important;
-  background:transparent !important;max-height:none !important;padding:6px
-}
-body.accesible .tipo-item{
-  background:#fff !important;color:#000 !important;
-  padding:22px 18px !important;font-size:1.15rem !important;font-weight:700 !important;
-  border:4px solid #000 !important;border-radius:14px !important;
-  display:flex;align-items:center;min-height:62px;
-  box-shadow:0 3px 0 #000
-}
-body.accesible .tipo-item:active,body.accesible .tipo-item.sel{
-  background:#ffeb3b !important;color:#000 !important;
-  box-shadow:0 1px 0 #000;transform:translateY(2px)
-}
+/* Bottom nav */
+body.accesible .bot-nav{background:#fff !important;border-top:2px solid #000 !important}
 
-/* Categorías en grilla 2x: tarjetas grandes con ícono enorme */
-body.accesible .cat-grid,body.accesible #cat-grid{
-  display:grid !important;grid-template-columns:1fr 1fr !important;gap:10px !important
-}
-body.accesible .cat-card{
-  background:#fff !important;color:#000 !important;
-  padding:18px 8px !important;font-size:1.05rem !important;font-weight:800 !important;
-  border:4px solid #000 !important;border-radius:14px !important;
-  text-align:center;min-height:90px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-  box-shadow:0 3px 0 #000;text-transform:uppercase
-}
-body.accesible .cat-card .ico{font-size:1.6rem !important;display:block !important;margin-bottom:4px}
-body.accesible .cat-card.sel{
-  background:#ffeb3b !important;color:#000 !important;
-  box-shadow:0 1px 0 #000;transform:translateY(2px)
-}
+/* GPS box */
+body.accesible .gps-box{background:#fff !important;border:2px solid #000 !important}
+body.accesible .gps-v .coords{color:#000 !important;font-weight:800}
 
-/* GPS card: enorme, datos legibles */
-body.accesible .gps-card{
-  padding:18px 20px !important;background:#fff !important;
-  border:4px solid #000 !important;border-radius:14px !important;
-  box-shadow:0 3px 0 #000
-}
-body.accesible .gps-card .row{margin:8px 0;font-size:1.1rem}
-body.accesible .gps-card .label{font-size:.95rem !important;font-weight:700 !important;color:#000 !important}
-body.accesible .gps-card .val{font-size:1.25rem !important;font-weight:800 !important;color:#000 !important}
-body.accesible .gps-card .precision{color:#1b5e20 !important;font-weight:800 !important}
+/* Footer versión */
+body.accesible .app-ver{color:#000 !important;background:#fff !important;font-weight:600}
 
-/* Toast: grande y visible */
-body.accesible .toast{
-  padding:22px 28px !important;font-size:1.2rem !important;font-weight:800 !important;
-  background:#000 !important;color:#ffeb3b !important;
-  border:4px solid #ffeb3b !important;border-radius:14px !important
-}
+/* Foto opciones */
+body.accesible .btn-foto-op{background:#fff !important;color:#000 !important;border:2px solid #000 !important}
+body.accesible .btn-foto-op span{color:#000 !important;font-size:12px !important}
 
-/* FAB enorme amarillo */
-body.accesible #campo-fab,body.accesible .fab{
-  width:64px !important;height:64px !important;font-size:1.5rem !important;
-  background:#ffeb3b !important;color:#000 !important;
-  border:5px solid #000 !important;
-  box-shadow:0 5px 0 #000 !important
-}
-
-/* Cards y wizard-step más espaciados */
-body.accesible .card,body.accesible .wizard-step{
-  padding:22px 18px !important;margin-bottom:18px !important;
-  background:#fff !important;border:3px solid #000 !important;
-  border-radius:14px !important
-}
-
-/* Modal */
-body.accesible .modal{
-  padding:26px !important;border:5px solid #000 !important;border-radius:18px !important
-}
-body.accesible .modal h2,body.accesible .modal h3{font-size:1.4rem !important;font-weight:900 !important}
-
-/* Footer apenas visible en accesible (ahorrar espacio) */
-body.accesible #app-ver{font-size:1rem !important;font-weight:800 !important;color:#000 !important}
-body.accesible footer,body.accesible .ftr{font-size:.95rem !important;color:#000 !important;background:#ffeb3b !important;padding:8px 12px}
-
-/* Banner de actualización: alto contraste */
-body.accesible .banner,body.accesible .alert{
-  background:#000 !important;color:#ffeb3b !important;
-  border:4px solid #ffeb3b !important;padding:18px 22px !important;
-  font-size:1.15rem !important;font-weight:800 !important
-}
-
-
-/* Botón flotante ☀ modo accesible (esquina inf izquierda) */
-#btn-accesible-fab{
-  position:fixed;left:14px;bottom:90px;z-index:9999;
-  width:48px;height:48px;border-radius:50%;
-  background:rgba(255,255,255,.9);border:2px solid rgba(0,0,0,.15);
-  font-size:1.5rem;line-height:1;color:#f9a825;
-  box-shadow:0 3px 10px rgba(0,0,0,.2);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;padding:0;
-  transition:all .15s
-}
-#btn-accesible-fab:active{transform:scale(.92)}
-#btn-accesible-fab.activo{background:#ffeb3b;border-color:#000;color:#000;box-shadow:0 0 14px rgba(255,235,59,.7)}
-body.accesible #btn-accesible-fab{
-  background:#ffeb3b;border:3px solid #000;color:#000;
-  width:54px;height:54px;font-size:1.6rem;
-  box-shadow:0 4px 0 #000
-}
+/* PWA install bar */
+body.accesible .pwa-bar{background:#fffdea !important;border:2px solid #000 !important}
+body.accesible .pwa-bar .pt b{color:#000 !important}
 
 /* ── Modal de Login ─────────────────────────────────────── */
 #login-ov{position:fixed;inset:0;background:linear-gradient(135deg,#003366 0%,#001a33 100%);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
@@ -555,7 +409,6 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
     </div>
   </div>
   <div class="hdr-r">
-    <button id="btn-tema-dia" onclick="toggleTemaDia()" title="Modo día · alto contraste para sol directo" aria-label="Modo día">☀</button>
     <div class="net net-on" id="net-badge">● ONLINE</div>
     <button class="gps-hdr" id="btn-gps-hdr" onclick="toggleGPS()">
       <div class="led s" id="gps-led"></div>
@@ -2148,34 +2001,7 @@ document.addEventListener('DOMContentLoaded', () => { tipoInit(); }, { once: tru
   };
 })();
 
-/* v9.54 — Modo día alto contraste (blanco puro + negro elegante, sin agrandar botones).
-   Independiente del modo accesible. Toggle en el header. */
-(function(){
-  const KEY = 'dvba_tema_sol';
-  const body = document.body;
-  function aplicarSol(activo){
-    if (activo) body.classList.add('tema-sol');
-    else body.classList.remove('tema-sol');
-    const btn = document.getElementById('btn-tema-dia');
-    if (btn) btn.textContent = activo ? '☀' : '🌗';
-  }
-  // Auto-detect al primer arranque: si el user reporta light y no eligió antes, activar tema-sol
-  let inicial = null;
-  try { inicial = localStorage.getItem(KEY); } catch(e){}
-  if (inicial === null) {
-    // Primera vez — auto-detect
-    inicial = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? '1' : '0';
-  }
-  aplicarSol(inicial === '1');
-  window.toggleTemaDia = function(){
-    const activo = !body.classList.contains('tema-sol');
-    aplicarSol(activo);
-    try { localStorage.setItem(KEY, activo ? '1' : '0'); } catch(e){}
-    if (typeof toast === 'function') {
-      toast(activo ? '☀ Modo día activado · alto contraste' : 'Modo normal');
-    }
-  };
-})();
+
 </script>
 </body>
 </html>
