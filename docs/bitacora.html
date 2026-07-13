@@ -98,8 +98,8 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <h1>📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial</h1>
   <div class="sub">DVBA · Zona Departamental VI Saladillo</div>
   <div class="meta">
-    <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">6 de julio de 2026</span></div>
-    <div><span class="lbl">Versión bitácora</span><span class="val">v4.4 — apps v9.49 / v7.45</span></div>
+    <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">13 de julio de 2026</span></div>
+    <div><span class="lbl">Versión bitácora</span><span class="val">v4.5 — apps v9.53 / v7.57</span></div>
     <div><span class="lbl">Responsable</span><span class="val">Ing. Luciano Lamaita</span></div>
     <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></span></div>
     <div><span class="lbl">Estado general</span><span class="val">🟢 En desarrollo activo</span></div>
@@ -730,6 +730,51 @@ git push origin main
     <p>Al reinstalar el WebAPK con el nuevo <code>id</code>, se perdió el <strong>diálogo del sistema para activar GPS cuando está apagado</strong>. Antes: tocar "sin señal" abría el prompt nativo de Android. Ahora: solo muestra "GPS denegado, ir a ajustes".</p>
     <p><strong>Causa probable:</strong> el WebAPK con nuevo <code>id</code> se considera "app nueva" → perdió el nivel de confianza que Chrome le daba antes para pasar la solicitud a Play Services (que sí muestra el diálogo). Cae en la Geolocation API estándar que <em>no puede activar el GPS del sistema por diseño</em>.</p>
     <p>Solución en el ROADMAP: implementar botón "🔧 Abrir ajustes de ubicación" con intent Android <code>android.settings.LOCATION_SOURCE_SETTINGS</code> + reintentar automáticamente al volver del ajuste vía <code>visibilitychange</code>.</p>
+
+    <h3>v9.50–v9.53 / v7.46–v7.57 · 7–13 julio 2026 — Sprint SIG Vial + gestión de fotos originales + UX del portal</h3>
+    <p><strong>Sprint enfocado en 4 ejes:</strong> (1) preservar originales y sistema de re-sello editable, (2) rediseño UI del portal con paleta cálida y agrupación inteligente, (3) <strong>modal SIG Vial tipo DNV</strong> para RPs y caminos secundarios con datos oficiales, (4) hotfixes de bugs críticos que rompieron dos veces la app.</p>
+
+    <h4>📸 Sistema de fotos originales preservadas + re-sellado (v7.47 → v7.50)</h4>
+    <ul>
+      <li><strong>Convención de paths (Opción A):</strong> el archivo <code>{path}.jpg</code> es el <strong>original</strong> y NUNCA se sobreescribe. El sellado se guarda como <code>{path}_sello.jpg</code>. Helpers <code>getOriginalUrl()</code>, <code>getSelloPathFromOriginal()</code>, <code>esRegistroLegacy()</code>.</li>
+      <li><strong>Aprobar registro pendiente</strong> ahora abre el modal SIG para editar datos + rotar la foto (EXIF + manual con botones ↺ ↻ Reset) antes de sellar. Preserva <code>fechaISO</code> original del registro.</li>
+      <li><strong>Sidebar de edición con botones rotación + re-sellar</strong>: al hacer ✏ Editar sobre un registro, aparece bajo el preview de foto un bloque con <code>↺ 90°</code> <code>↻ 90°</code> <code>Reset</code> <code>🖋 Re-sellar</code>. Rotación visual instantánea con CSS transform + re-sello contra el original.</li>
+      <li><strong>Registros legacy</strong> (sellados con sistema viejo que sobreescribió el original): botón re-sellar deshabilitado con tooltip explicativo. No se puede re-sellar sin acumular banners.</li>
+      <li><strong>Sello incluye estado</strong> además de tipo: la Línea 3 combina <code>tipo · estado</code> (ej: "Encrucijada en T · faltante") desde <code>aprobarRegistro</code> y <code>reSellarFotoEditada</code>.</li>
+      <li><strong>Gestión de backups:</strong> botón "🗑 Backup de esta foto" en edición individual + sección "🧹 Mantenimiento Storage" en tab Reportes para limpieza masiva de originales de registros aprobados hace más de N días. Nunca borra el archivo <code>_sello.jpg</code>.</li>
+    </ul>
+
+    <h4>🎨 Rediseño UI del portal (v7.53)</h4>
+    <ul>
+      <li><strong>Pills de registros agrupadas</strong> por Partido / Ruta / Mes / Tipo, con grupos colapsables y contadores <code>activos/total</code>. Botones +/− por grupo para activar/desactivar sin abrir. Escala con 1000+ registros sin llenar visualmente el sidebar.</li>
+      <li><strong>Paleta cálida por RP</strong>: 15 colores dentro de la gama terracota/rojizo/anaranjado oxidado (<code>RP_COLORES_CALIDOS</code>). Cada RP con su propio tono. Reemplaza el rojizo único (v7.31) que quedaba monótono.</li>
+      <li><strong>Ancho de trazas armonizado</strong>: todas las RPs a <code>weight: 4</code> uniforme.</li>
+      <li><strong>Mojones colapsados</strong> en sidebar (<code>&lt;details&gt;</code> nativo) — antes llenaba el panel al seleccionar RP.</li>
+    </ul>
+
+    <h4>🏛 Modal SIG Vial tipo DNV (v7.54 → v7.57)</h4>
+    <ul>
+      <li><strong>Nuevo bundle <code>datos/caracteristicas_viales.js</code></strong> generado desde <code>SALADILLO_RED.csv</code>. 15 RPs con longitud oficial (agregada por tramos), clases (PAVIMENTADO/CONSOLIDADO/TIERRA), partidos por los que pasa, doble vía (solo RP6), 96 tramos oficiales con sección_vial, denominación, longitud, clase, partido. Placeholders <code>null</code> para ancho calzada, banquinas (D e I), TMDA, pavimento específico, estado — completables vía sistema colaborativo (Fase futura).</li>
+      <li><strong>Modal centrado tipo SIG Vial DNV al hacer click en una RP</strong>: header con color de la RP + progresiva en el punto clickeado + ubicación + longitud oficial vs GIS con diferencia coloreada + características viales + tabla colapsable de tramos oficiales con nowrap y tooltip para textos largos. Reemplaza el popup viejo que listaba mojones + últimos 2 registros.</li>
+      <li><strong>Modal también para caminos secundarios (v7.57)</strong>: header violeta, mismos campos + Denominación (Gral Alvear - Mamaguita) + Transitabilidad (PERMANENTE / TEMPORARIO) + Datos GIS colapsables (puntos inicio/fin, N° líneas, N° vértices) + banner ⚠ si <code>ALERTA:REVISAR</code>. Info tomada del geojson de red secundaria.</li>
+      <li><strong>Bugfix mapeo partidos (v7.55)</strong>: los códigos DVBA sin cero (34, 41, 93) estaban mapeados mal — 034=General Alvear (no Cañuelas), reforzados con <code>PARTIDOS_TABLA</code> real del index.html.</li>
+      <li><strong>Botón "Editar datos viales"</strong> como placeholder para futura UI colaborativa (tabla Supabase <code>caract_viales</code>).</li>
+    </ul>
+
+    <h4>🐛 Hotfixes críticos</h4>
+    <ul>
+      <li><strong>v7.51 progresiva --- al mover pin</strong>: en edición, <code>#fruta.value</code> tenía prefijo "RP N" que <code>calcProg("RP N")</code> no encontraba. Reemplazado por <code>autoDetectarCampos(pos.lat, pos.lng, { forzarAuto: true })</code>.</li>
+      <li><strong>v7.53a TDZ</strong>: <code>RP_COLORES_CALIDOS</code> se accedía en for-loop de <code>META_DATA</code> antes de declararse → JS entero no ejecutaba, mapa en blanco. Declaración movida arriba.</li>
+      <li><strong>v7.53a armonizador.js truncado</strong>: fragmentos duplicados tras <code>module.exports</code> rompían syntax. Cortado al cierre real.</li>
+      <li><strong>v7.54a modal SIG Vial mal ubicado</strong>: Python <code>.replace('&lt;/body&gt;')</code> tomó el primer match, que era una string dentro del template literal de <code>exportReporteHTML</code>. Modal insertado <em>dentro</em> del script, rompiendo todo. Rescatado con <code>rfind('&lt;/body&gt;')</code>.</li>
+    </ul>
+
+    <h4>📱 App móvil (v9.50 → v9.53)</h4>
+    <ul>
+      <li><strong>v9.50 fix manifest PWA fantasma</strong>: <code>id</code> y <code>start_url</code> unificados. Instalación en celulares que la rechazaban antes.</li>
+      <li><strong>v9.53 sin rotación de fotos en móvil</strong>: se hace en escritorio al aprobar/re-sellar. Móvil captura la foto tal cual la sacó el celular.</li>
+      <li><strong>Sin botón intent GPS en móvil</strong>: v9.52 lo probó pero se removió — solo el mensaje de error clásico.</li>
+    </ul>
 
     <h3>v9.45–v9.49 / v7.28–v7.45 · 1–6 julio 2026 — Sprint integración caminos + rediseño UI + scripts v2.11</h3>
     <p><strong>Sprint intenso</strong> con 3 ejes: integrar completamente la red de caminos secundarios al portal principal, rediseñar la visualización del mapa, y mejorar el pipeline de generación de bundles con recorte exacto de límite de partido.</p>

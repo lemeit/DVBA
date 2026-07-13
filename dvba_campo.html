@@ -183,6 +183,56 @@ textarea{resize:none;min-height:80px}
 .acc-toggle .acc-icon{font-size:1.4rem}
 .acc-toggle .acc-txt{display:none}
 
+/* ─── v9.54 · body.tema-sol: MODO DÍA ALTO CONTRASTE ────────────────
+   Diseño limpio para uso a sol directo en exteriores.
+   Fondo blanco puro + texto negro + bordes fuertes.
+   Sin agrandar botones (para eso está body.accesible). ── */
+body.tema-sol{
+  background:#ffffff !important;
+  color:#000000 !important;
+}
+body.tema-sol .hdr{background:#000000 !important;color:#ffffff !important;border-bottom:3px solid #ffcc00}
+body.tema-sol .hdr h1{color:#ffffff !important;font-weight:800}
+body.tema-sol .hdr p{color:#ffcc00 !important}
+body.tema-sol .hdr-r .net,body.tema-sol .hdr-r .gps-hdr{background:#333 !important;color:#fff !important;border:1px solid #666}
+body.tema-sol .gps-bar{background:#ffffff !important;border-bottom:3px solid #000 !important}
+body.tema-sol .gps-coords{color:#000 !important;font-weight:800}
+body.tema-sol .btn-usar{background:#000 !important;color:#ffcc00 !important;border:2px solid #000;font-weight:800}
+body.tema-sol .tabs,body.tema-sol .tab-list{background:#f0f0f0 !important;border-bottom:2px solid #000}
+body.tema-sol .tab,body.tema-sol .tab-w{color:#555 !important;font-weight:700}
+body.tema-sol .tab.active,body.tema-sol .tab-w.active,body.tema-sol .tab.activa,body.tema-sol .tab-w.activa{color:#000 !important;border-bottom:4px solid #000 !important}
+body.tema-sol .panel{background:#ffffff !important}
+body.tema-sol .label-input,body.tema-sol label{color:#000 !important;font-weight:700}
+body.tema-sol select,body.tema-sol input[type=text],body.tema-sol input[type=date],body.tema-sol input[type=time],body.tema-sol textarea{
+  background:#ffffff !important;color:#000 !important;
+  border:2px solid #000 !important;font-weight:600 !important
+}
+body.tema-sol select:focus,body.tema-sol input:focus,body.tema-sol textarea:focus{
+  background:#fffbea !important;outline:3px solid #ffcc00 !important;outline-offset:0
+}
+body.tema-sol .gps-box{background:#ffffff !important;border:2px solid #000 !important}
+body.tema-sol .gps-v .coords{color:#000 !important;font-weight:900}
+body.tema-sol .btn{border-width:2px !important;font-weight:700 !important}
+body.tema-sol .btn-prev{background:#ffffff !important;color:#000 !important;border:2px solid #000 !important}
+body.tema-sol .btn-next{background:#000 !important;color:#ffcc00 !important;border:2px solid #000 !important}
+body.tema-sol .bot-nav{background:#ffffff !important;border-top:2px solid #000 !important}
+body.tema-sol .app-ver{color:#333 !important;background:#ffffff !important;font-weight:600}
+body.tema-sol .pwa-bar{background:#fffbea !important;border:2px solid #000 !important}
+body.tema-sol .pwa-bar .pt b{color:#000 !important}
+body.tema-sol .toast{background:#000 !important;color:#ffcc00 !important;border:2px solid #ffcc00}
+body.tema-sol .btn-foto-op{background:#ffffff !important;color:#000 !important;border:2px solid #000 !important}
+body.tema-sol .btn-foto-op span{color:#000 !important}
+/* Botón toggle del header: cuando el tema está activo, el propio botón cambia */
+body.tema-sol #btn-tema-dia{background:#ffcc00 !important;color:#000 !important}
+
+/* Botón toggle día en el header (siempre presente, solo cambia visual con estado activo) */
+#btn-tema-dia{
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+  color:#fff;font-size:16px;padding:5px 9px;border-radius:12px;
+  cursor:pointer;margin-right:4px;transition:all .15s
+}
+#btn-tema-dia:active{transform:scale(.92)}
+
 /* ─── body.accesible: REDISEÑO COMPLETO ─── */
 body.accesible{
   font-size:17px !important;
@@ -505,6 +555,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
     </div>
   </div>
   <div class="hdr-r">
+    <button id="btn-tema-dia" onclick="toggleTemaDia()" title="Modo día · alto contraste para sol directo" aria-label="Modo día">☀</button>
     <div class="net net-on" id="net-badge">● ONLINE</div>
     <button class="gps-hdr" id="btn-gps-hdr" onclick="toggleGPS()">
       <div class="led s" id="gps-led"></div>
@@ -2093,6 +2144,35 @@ document.addEventListener('DOMContentLoaded', () => { tipoInit(); }, { once: tru
     try { localStorage.setItem(KEY, activo ? '1' : '0'); } catch(e){}
     if (typeof toast === 'function') {
       toast(activo ? '☀ Modo SOL activado · botones grandes' : 'Modo normal');
+    }
+  };
+})();
+
+/* v9.54 — Modo día alto contraste (blanco puro + negro elegante, sin agrandar botones).
+   Independiente del modo accesible. Toggle en el header. */
+(function(){
+  const KEY = 'dvba_tema_sol';
+  const body = document.body;
+  function aplicarSol(activo){
+    if (activo) body.classList.add('tema-sol');
+    else body.classList.remove('tema-sol');
+    const btn = document.getElementById('btn-tema-dia');
+    if (btn) btn.textContent = activo ? '☀' : '🌗';
+  }
+  // Auto-detect al primer arranque: si el user reporta light y no eligió antes, activar tema-sol
+  let inicial = null;
+  try { inicial = localStorage.getItem(KEY); } catch(e){}
+  if (inicial === null) {
+    // Primera vez — auto-detect
+    inicial = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? '1' : '0';
+  }
+  aplicarSol(inicial === '1');
+  window.toggleTemaDia = function(){
+    const activo = !body.classList.contains('tema-sol');
+    aplicarSol(activo);
+    try { localStorage.setItem(KEY, activo ? '1' : '0'); } catch(e){}
+    if (typeof toast === 'function') {
+      toast(activo ? '☀ Modo día activado · alto contraste' : 'Modo normal');
     }
   };
 })();

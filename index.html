@@ -658,7 +658,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.56';
+const APP_VERSION = 'v7.57';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4562,13 +4562,10 @@ function csRefrescarLayer(){
   _caminosSecLayer = L.geoJSON(fc, {
     style: f => CS_ESTILO_BASE(f.properties.CLASE),
     onEachFeature: (feat, layer) => {
-      const p = feat.properties;
-      const den = p.DENOMINACION ? '<br>' + p.DENOMINACION : '';
-      const km = p.LONGITUD_KM_WGS84 ? '<br><b>' + p.LONGITUD_KM_WGS84.toFixed(2) + ' km</b>' : '';
-      const cls = p.CLASE ? '<br><i style="color:#888">' + p.CLASE + '</i>' : '';
-      layer.bindPopup(`<b style="color:#7050b0">🚜 ${p.NOMEMCLATURA}</b>${den}${km}${cls}<br><span style="color:#888;font-size:10px">${p.PARTIDO_NOMBRE}</span>`);
+      // v7.57 — Modal SIG Vial (mismo formato que RP) al click sobre el camino
+      layer.on('click', e => mostrarModalSIGVialCamino(feat, e.latlng));
       layer.on('mouseover', e => e.target.setStyle({ weight:5 }));
-      layer.on('mouseout',  e => { e.target.setStyle(CS_ESTILO_BASE(p.CLASE)); _ocultarCursorSobreRuta(); });
+      layer.on('mouseout',  e => { e.target.setStyle(CS_ESTILO_BASE(feat.properties.CLASE)); _ocultarCursorSobreRuta(); });
       // v7.31 — cursor flotante + tooltip progresivas sobre caminos (mismo criterio que RPs)
       layer.on('mousemove', e => _mostrarCursorSobreCamino(feat, layer, e.latlng));
     }
@@ -5344,22 +5341,142 @@ function mostrarModalSIGVial(rid, latlng){
       Fuente: ${c.fuente_datos || 'DVBA'} · Última actualización: ${upd}
     </div>
   `;
+  // v7.57 — reset botón editar al modo RP
+  const btnEdRP = document.getElementById('sig-editar');
+  if (btnEdRP) btnEdRP.onclick = editarCaractRP;
   document.getElementById('modal-sigvial').style.display = 'flex';
 }
 
 function cerrarModalSIGVial(){
   document.getElementById('modal-sigvial').style.display = 'none';
   _sigRPActiva = null;
+  _sigCaminoActivo = null;  // v7.57
 }
 
 function editarCaractRP(){
   if (!_sigRPActiva) return;
-  // v7.54 — Placeholder. La UI de edición completa vendrá en v7.55 con backend Supabase.
-  // Por ahora abrimos un modal chico de edición local (session storage).
   alert('Edición colaborativa de datos viales:\n\n' +
     'La UI de edición se implementará en la próxima iteración con tabla Supabase caract_viales.\n\n' +
-    'Por ahora podés editar caracteristicas_viales.js directamente en /datos/.\n\n' +
-    'Ver instrucciones en el próximo mensaje del asistente.');
+    'Por ahora podés editar caracteristicas_viales.js directamente en /datos/.');
+}
+
+// v7.57 — Modal SIG Vial para CAMINOS SECUNDARIOS (mismo formato que RP)
+let _sigCaminoActivo = null;
+
+function mostrarModalSIGVialCamino(feat, latlng){
+  const p = feat.properties;
+  if (!p) return;
+  _sigCaminoActivo = p.NOMEMCLATURA;
+  _sigRPActiva = null;
+  const meta = document.getElementById('sig-h');
+  // Header — violeta/púrpura para caminos (paridad con estilo actual de caminos secundarios)
+  const colorCno = '#7050b0';
+  if (meta) meta.style.background = `linear-gradient(135deg, ${colorCno}, ${colorCno}dd)`;
+  const titulo = 'Cno. ' + (p.NOMEMCLATURA || '—');
+  const subTit = (p.DENOMINACION || '') + (p.TRAMO_NUM && p.TRAMO_NUM !== 'null' && p.TRAMO_NUM !== '0' ? ' · Tramo ' + p.TRAMO_NUM : '');
+  document.getElementById('sig-titulo').textContent = titulo;
+  document.getElementById('sig-subtitulo').textContent = subTit || ('Zona VI Saladillo · DVBA');
+  // Progresiva sobre el camino (usa _proyectarCursor si está disponible)
+  let progFmt = '—', progKm = '—';
+  try {
+    const geo = feat.geometry;
+    const segs = geo.type === 'LineString' ? [geo.coordinates]
+                : geo.type === 'MultiLineString' ? geo.coordinates : [];
+    if (segs.length && typeof _proyectarCursor === 'function') {
+      // Aplanar y buscar la mejor proyección km acumulado
+      let mejorSeg = null, mejorDist = Infinity, mejorProj = null;
+      segs.forEach(seg => {
+        const proj = _proyectarCursor(seg, latlng);
+        if (proj && proj.dist < mejorDist) { mejorDist = proj.dist; mejorProj = proj; mejorSeg = seg; }
+      });
+      if (mejorProj && mejorSeg) {
+        let cumm = 0;
+        for (let i = 1; i < mejorProj.seg; i++) cumm += _haversineM(mejorSeg[i-1][0], mejorSeg[i-1][1], mejorSeg[i][0], mejorSeg[i][1]);
+        const segM = _haversineM(mejorSeg[mejorProj.seg-1][0], mejorSeg[mejorProj.seg-1][1], mejorSeg[mejorProj.seg][0], mejorSeg[mejorProj.seg][1]);
+        const km = (cumm + mejorProj.t * segM) / 1000;
+        const ki = Math.floor(km), m = Math.round((km - ki) * 1000);
+        progFmt = `${ki}+${String(m).padStart(3,'0')}`;
+        progKm = km.toFixed(2);
+      }
+    }
+  } catch(e) { console.warn('[SIG Cno] prog', e); }
+  const partido = p.PARTIDO_NOMBRE || '—';
+  const clase = p.CLASE || '—';
+  const trans = p.TRANSITABIlIDAD || p.TRANSITABILIDAD || '—';  // typo en el geojson
+  const longOrig = (typeof p.LONGITUD_KM_ORIG === 'number') ? p.LONGITUD_KM_ORIG.toFixed(3) + ' km' : '—';
+  const longGis  = (typeof p.LONGITUD_KM_WGS84 === 'number') ? p.LONGITUD_KM_WGS84.toFixed(3) + ' km' : '—';
+  const diffPct  = (typeof p.DIFF_PCT === 'number') ? p.DIFF_PCT.toFixed(1) + ' %' : '—';
+  const alerta = (p.ALERTA === 'REVISAR');
+  const puntoIni = (p.LAT_INI && p.LON_INI) ? `${p.LAT_INI.toFixed(5)}, ${p.LON_INI.toFixed(5)}` : '—';
+  const puntoFin = (p.LAT_FIN && p.LON_FIN) ? `${p.LAT_FIN.toFixed(5)}, ${p.LON_FIN.toFixed(5)}` : '—';
+  const nVert = p.N_VERTICES != null ? p.N_VERTICES : '—';
+  const nLin  = p.N_LINEAS   != null ? p.N_LINEAS   : '—';
+  // Placeholders
+  const pav = '<span style="color:#c48b4a">s/d</span>';
+  const anCal = '<span style="color:#c48b4a">s/d</span>';
+  const banD = '<span style="color:#c48b4a">s/d</span>';
+  const banI = '<span style="color:#c48b4a">s/d</span>';
+  const tmda = '<span style="color:#c48b4a">s/d</span>';
+  const estGen = '<span style="color:#c48b4a">s/d</span>';
+  document.getElementById('sig-b').innerHTML = `
+    ${alerta ? `<div style="background:#fff3cd;border-left:3px solid #ff9800;padding:8px 10px;margin-bottom:12px;font-size:11px;color:#8a4b00">⚠ Este camino está marcado con <b>ALERTA: REVISAR</b> — la geometría GIS puede tener errores que requieren corrección en QGIS.</div>` : ''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="background:#f0f4f8;padding:10px;border-radius:6px;border-left:3px solid ${colorCno}">
+        <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px">Progresiva en punto</div>
+        <div style="font-size:20px;font-weight:800;color:${colorCno};font-family:monospace;letter-spacing:1px">${progFmt}</div>
+        <div style="font-size:9px;color:#7a8a9a">km ${progKm}</div>
+      </div>
+      <div style="background:#f0f4f8;padding:10px;border-radius:6px">
+        <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px">Ubicación</div>
+        <div style="font-size:11px;font-weight:600;color:#333;margin-top:3px">${partido}</div>
+        <div style="font-size:9px;color:#7a8a9a;margin-top:2px">${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:700">Longitud</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <tr><td style="padding:3px 6px;color:#666;width:45%">Oficial DVBA</td><td style="padding:3px 6px;font-weight:700;font-family:monospace">${longOrig}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">GIS (WGS84)</td><td style="padding:3px 6px;font-weight:700;font-family:monospace">${longGis}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Diferencia</td><td style="padding:3px 6px;font-weight:700;font-family:monospace;color:${Math.abs(parseFloat(diffPct))<2 ? '#4aaa6a' : '#c25a2a'}">${diffPct}</td></tr>
+      </table>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:700">Características viales</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <tr><td style="padding:3px 6px;color:#666;width:45%">Clase</td><td style="padding:3px 6px;font-weight:700"><span style="background:${clase==='PAVIMENTADO'?'#d4edda':clase==='CONSOLIDADO'?'#fff3cd':clase==='MIXTO'?'#fce4b0':'#f8d7da'};padding:2px 8px;border-radius:8px">${clase}</span></td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Transitabilidad</td><td style="padding:3px 6px;font-weight:700">${trans}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Tipo de pavimento</td><td style="padding:3px 6px;font-weight:700">${pav}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Ancho de calzada</td><td style="padding:3px 6px;font-weight:700">${anCal}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Ancho banquina (D)</td><td style="padding:3px 6px;font-weight:700">${banD}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Ancho banquina (I)</td><td style="padding:3px 6px;font-weight:700">${banI}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">TMDA</td><td style="padding:3px 6px;font-weight:700">${tmda}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Estado general</td><td style="padding:3px 6px;font-weight:700">${estGen}</td></tr>
+      </table>
+    </div>
+    <details style="margin-bottom:10px">
+      <summary style="cursor:pointer;color:${colorCno};font-size:11px;font-weight:700;padding:5px 0;user-select:none">Datos geométricos GIS</summary>
+      <table style="width:100%;border-collapse:collapse;font-size:10.5px;margin-top:5px">
+        <tr><td style="padding:3px 6px;color:#666;width:45%">Punto inicio (LAT, LNG)</td><td style="padding:3px 6px;font-family:monospace">${puntoIni}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Punto fin (LAT, LNG)</td><td style="padding:3px 6px;font-family:monospace">${puntoFin}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">N° líneas (MultiLineString)</td><td style="padding:3px 6px">${nLin}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">N° vértices totales</td><td style="padding:3px 6px">${nVert}</td></tr>
+      </table>
+    </details>
+    <div style="font-size:9px;color:#8a9aaa;padding-top:8px;border-top:1px solid #e8ecef">
+      Fuente: red_secundaria_zonaVI_final.geojson · DVBA Zona VI
+    </div>
+  `;
+  // El botón "Editar" del footer cambia de comportamiento según sea RP o camino
+  const btnEd = document.getElementById('sig-editar');
+  if (btnEd) btnEd.onclick = editarCaractCamino;
+  document.getElementById('modal-sigvial').style.display = 'flex';
+}
+
+function editarCaractCamino(){
+  if (!_sigCaminoActivo) return;
+  alert('Edición colaborativa de caminos secundarios:\n\n' +
+    'La UI se implementará junto con la de RPs (tabla Supabase caract_caminos).\n\n' +
+    'Por ahora se pueden editar campos en QGIS y regenerar el geojson.');
 }
 </script>
 

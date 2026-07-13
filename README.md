@@ -12,10 +12,10 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 | URL | Archivo | Versión | Descripción |
 |---|---|---|---|
-| https://lemeit.github.io/DVBA/ | `index.html` | **v7.39** | App de escritorio: mapa, sidebar de registros, **caminos secundarios integrados con progresivas**, panel Capas + Visualización, cola de pendientes con sellado v3 al aprobar |
-| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | **v9.42** | App móvil PWA: relevamiento GPS de campo, captura cruda + pre-fill GPS automático, sincronización offline |
+| https://lemeit.github.io/DVBA/ | `index.html` | **v7.57** | App de escritorio: mapa, sidebar con pills agrupadas, **modal SIG Vial tipo DNV** al click en RP o camino con datos oficiales, cola de pendientes con sellado + rotación al aprobar, sistema de originales preservados y re-sellado |
+| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | **v9.53** | App móvil PWA: relevamiento GPS de campo, captura cruda + pre-fill GPS automático, sincronización offline. Móvil sube foto sin sellar (el sellado y rotación se hacen en escritorio al aprobar) |
 | https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte (subruta legacy — el portal principal ya cubre este flujo) |
-| https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.3 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
+| https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.5 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
 | https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html | guía de usuario | — | Manual de la app de campo |
 | https://lemeit.github.io/DVBA/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
 
@@ -45,6 +45,17 @@ Aparecen automáticamente según la categoría:
 Para el detalle completo (matriz Tipo→Estados, guía de extensibilidad, flujo en cada app), ver **[`docs/MODELO_TIPOS_ESTADOS.md`](docs/MODELO_TIPOS_ESTADOS.md)**.
 
 ---
+
+## Novedades v7.46 → v7.57 · v9.50 → v9.53 (7–13 julio 2026)
+
+**Sprint SIG Vial + gestión de fotos + rediseño UI**. Detalle completo en la [bitácora tab Changelog](docs/bitacora.html).
+
+- **Modal SIG Vial tipo DNV** al click sobre una RP o camino en el mapa: progresiva del punto, longitud oficial vs GIS con diferencia %, características viales (clase, transitabilidad, placeholders `s/d` para ancho calzada / banquinas / TMDA / pavimento / estado), tabla colapsable de tramos oficiales. Adaptado para caminos con Denominación + Transitabilidad + banner `⚠ ALERTA: REVISAR` si corresponde.
+- **Bundle `datos/caracteristicas_viales.js`** generado desde `SALADILLO_RED.csv` — 15 RPs con 96 tramos oficiales. Los campos editables (ancho, TMDA, etc.) se completarán vía UI colaborativa contra Supabase en una próxima iteración.
+- **Sistema de fotos originales preservadas**: el archivo `{path}.jpg` es el ORIGINAL y nunca se sobreescribe; el sellado se guarda como `{path}_sello.jpg`. Re-sellar N veces siempre parte del original limpio. Botón individual "🗑 Backup de esta foto" + sección "🧹 Mantenimiento Storage" para limpieza masiva.
+- **Rotación + re-sellado en escritorio**: al aprobar un pendiente o editar un registro, botones ↺ ↻ Reset + "🖋 Re-sellar" en el sidebar. EXIF Orientation automático + manual. El móvil ya NO rota (v9.53).
+- **Sello incluye estado** además de tipo (ej: `Encrucijada en T · faltante`).
+- **UI portal renovado**: pills de registros agrupadas por Partido/Ruta/Mes/Tipo con contadores y +/− por grupo, paleta cálida con un color distinto por RP (`RP_COLORES_CALIDOS`), ancho de trazas armonizado (weight=4), mojones colapsados por defecto en sidebar.
 
 ## Novedades v7.28 → v7.39 (julio 2026)
 
