@@ -462,31 +462,3 @@ const ARMONIZADOR = (() => {
 })();
 
 if (typeof module !== 'undefined') module.exports = ARMONIZADOR;
-rden[severidad]) severidad = c.severidad;
-    }
-
-    return { cambios, consistentes, sugerencias, severidad };
-  }
-
-  // ── Auto-inicializar al cargar (mejor para uso interactivo) ──────
-  init().catch(() => {/* silenciado, ya se loguea en init() */});
-
-  // ── API pública ──────────────────────────────────────────────────
-  return {
-    init,
-    detectarPartido,
-    distAlLimitePartido,
-    rutaMasCercana,
-    caminoMasCercano,   // v9.32 — camino secundario más cercano al GPS
-    viaMasCercana,      // v9.32 — RP o camino, lo que esté más cerca (bias camino)
-    progresivaEnRuta,
-    mojonMasCercano,
-    armonizar,
-    haversineM,
-    umbralRuta,
-    umbralProgresiva,
-    umbralPartidoLim
-  };
-})();
-
-if (typeof module !== 'undefined') module.exports = ARMONIZADOR;

@@ -37,7 +37,8 @@ const CACHE_URLS = [
   './datos/rutas_rp47.js',
   './datos/rutas_rp51.js',
   './datos/rutas_rp61.js',
-  './datos/rutas_rp91.js'
+  './datos/rutas_rp91.js',
+  './datos/caracteristicas_viales.js'
 ];
 
 self.addEventListener('install', e => {
