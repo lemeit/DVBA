@@ -658,7 +658,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.60';
+const APP_VERSION = 'v7.62';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4220,7 +4220,19 @@ async function reSellarFotoEditada(){
     };
     // v7.49 — SIEMPRE partimos del ORIGINAL, no de la versión sellada previa
     const originalUrl = getOriginalUrl(reg.foto);
-    const blob = await (await fetch(originalUrl)).blob();
+    // v7.62 — Verificar que el original exista antes de intentar bajarlo (HEAD)
+    let respOrig;
+    try {
+      respOrig = await fetch(originalUrl, { method: 'GET' });
+    } catch(fetchErr) {
+      alert('No se pudo bajar la foto original (red o CORS).\n\nURL: ' + originalUrl + '\n\nError: ' + fetchErr.message);
+      return;
+    }
+    if (!respOrig.ok) {
+      alert(`La foto original no está en Storage (HTTP ${respOrig.status}).\n\nProbablemente el registro se subió sin foto o la sincronización nunca terminó.\n\nNo se puede re-sellar. Podés eliminar el registro y volver a cargarlo desde el móvil.`);
+      return;
+    }
+    const blob = await respOrig.blob();
     const reader = new FileReader();
     const b64Orig = await new Promise((res, rej) => {
       reader.onload = e => res(e.target.result);
@@ -4913,7 +4925,13 @@ async function aprobarRegistro(id, opts){
         };
         // v7.49 — SIEMPRE partimos del ORIGINAL (no de una versión sellada previa).
         const originalUrl = getOriginalUrl(reg.foto);
-        const blob = await (await fetch(originalUrl)).blob();
+        // v7.62 — Chequear existencia antes de fetch
+        const respOrig = await fetch(originalUrl);
+        if (!respOrig.ok) {
+          console.warn('[Aprobar] Foto original no accesible (HTTP ' + respOrig.status + ') — aprobando SIN sellar');
+          throw new Error('__cancel_sello__');
+        }
+        const blob = await respOrig.blob();
         const reader = new FileReader();
         const b64 = await new Promise((res, rej) => {
           reader.onload = e => res(e.target.result);
