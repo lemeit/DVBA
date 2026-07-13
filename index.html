@@ -658,7 +658,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.57';
+const APP_VERSION = 'v7.58';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1882,18 +1882,25 @@ function drawRutas(){
     if(!selR.has(rid)||!RUTAS_DATA[rid]) return;
     const meta=RUTA_META[rid];
     const geo={type:'Feature',properties:{},geometry:{type:'MultiLineString',coordinates:RUTAS_DATA[rid]}};
+    // v7.58 — Capa "hit" transparente MÁS GRUESA para capturar mouse events con
+    // más margen de tolerancia. El user puede alejarse ~20px de la traza sin
+    // que el cursor naranja se pierda. La capa visible sigue con weight normal.
+    const HIT_WEIGHT = 22;
+    const hitLayer = L.geoJSON(geo, {
+      style: { color:'#000', weight:HIT_WEIGHT, opacity:0, lineJoin:'round', lineCap:'round' }
+    }).addTo(map);
     const ly=L.geoJSON(geo,{style:{color:meta.color,weight:meta.w,opacity:.85,lineJoin:'round',lineCap:'round'}}).addTo(map);
-    ly.on('mousemove',function(e){
+    // Eventos van en la capa hit (invisible y gruesa), no en la visible
+    hitLayer.on('mousemove',function(e){
       actualizarPanelPos(rid, e.latlng);
       ly.setStyle({weight:meta.w+3,opacity:1});
-      // v7.25 — puntero naranja flotante que se posiciona sobre la traza
       _mostrarCursorSobreRuta(rid, e.latlng);
     });
-    ly.on('mouseout',()=>{
+    hitLayer.on('mouseout',()=>{
       ly.setStyle({weight:meta.w,opacity:.85});
       _ocultarCursorSobreRuta();
     });
-    ly.on('click',function(e){
+    hitLayer.on('click',function(e){
       // v7.54 — Abrir modal SIG Vial tipo DNV en vez del popup viejo
       mostrarModalSIGVial(rid, e.latlng);
       return;
@@ -1914,7 +1921,7 @@ function drawRutas(){
          <b style="font-size:9px;color:#5a8aaa">REGISTROS</b>${rH}`
       ).openOn(map);
     });
-    capasR[rid]=[ly];
+    capasR[rid]=[ly, hitLayer];
   });
   updateLbls();
 }
