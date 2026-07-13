@@ -23,8 +23,8 @@ body{display:flex;flex-direction:column}
 
 /* HEADER */
 header{background:var(--p);border-bottom:2px solid var(--pd);color:#fff;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0}
-header .logo{width:44px;height:44px;background:#fff;border-radius:50%;padding:4px;display:flex;align-items:center;justify-content:center}
-header .logo img{width:100%;height:100%;object-fit:contain}
+header .logo{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+header .logo img{width:100%;height:100%;object-fit:contain;border-radius:50%}
 header .t{flex:1}
 header .t h1{margin:0;font-size:16px;font-weight:800;letter-spacing:.3px}
 header .t p{margin:2px 0 0 0;font-size:10px;opacity:.9}
@@ -148,14 +148,14 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 <header>
   <div class="logo"><img src="datos/img/logo_dvba_circular.png" alt="DVBA"></div>
   <div class="t">
-    <h1>DVBA &mdash; <span style="color:#ffd060">ZONA VI</span> <span class="hbadge">Saladillo</span></h1>
+    <h1>DVBA &mdash; <span style="color:#ffd060" id="hZona">ZONA VI</span> <span class="hbadge" id="hPartido">Saladillo</span></h1>
     <p>Dirección de Vialidad de la Prov. de Buenos Aires &nbsp;&middot;&nbsp; Partes Diarios de Trabajo</p>
   </div>
   <div class="user">
     <a class="btn-hdr" href="index.html">← Volver al portal</a>
     <span id="email">—</span>
     <button onclick="pdLogout()" title="Cerrar sesión" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer">salir</button>
-    <span class="hversion">Desarrollado por Ing. Luciano Lamaita &nbsp;&middot;&nbsp; <span id="app-ver">v7.66</span></span>
+    <span class="hversion">Desarrollado por Ing. Luciano Lamaita &nbsp;&middot;&nbsp; <span id="app-ver">v7.67</span></span>
     <span style="font-size:9px;color:rgba(255,255,255,.7)">EN LINEA</span><div class="dot"></div>
   </div>
 </header>
@@ -225,7 +225,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
   </div>
   <div style="text-align:right;font-size:9.5px;color:rgba(255,255,255,.5)">
     Desarrollado por <b style="color:rgba(255,255,255,.85)">Ing. Luciano Lamaita</b> · División Técnica DVBA<br>
-    Última actualización: <span id="app-ver-footer">v7.66</span> · Julio 2026
+    Última actualización: <span id="app-ver-footer">v7.67</span> · Julio 2026
   </div>
 </footer>
 
@@ -399,6 +399,33 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 // Fotos: solo asociar registros existentes (etapa 1). Upload y sellado → etapa 2.
 // ═══════════════════════════════════════════════════════════════════
 
+// v7.67 — Catálogo de las 12 zonas de la DVBA + partido donde se administra.
+// Cuando el user pase el listado completo con partidos, reemplazamos aquí.
+// La zona activa se define por: (a) localStorage['dvba_zona'] (b) default 'VI'
+const ZONAS_DVBA = {
+  'I':   { nombre: 'ZONA I',   partido: 'Arrecifes' },
+  'II':  { nombre: 'ZONA II',  partido: 'Morón' },
+  'III': { nombre: 'ZONA III', partido: 'Ensenada' },
+  'IV':  { nombre: 'ZONA IV',  partido: 'Junín' },
+  'V':   { nombre: 'ZONA V',   partido: 'Chivilcoy' },
+  'VI':  { nombre: 'ZONA VI',  partido: 'Saladillo' },
+  'VII': { nombre: 'ZONA VII', partido: 'Dolores' },
+  'VIII':{ nombre: 'ZONA VIII',partido: 'Pehuajó' },
+  'IX':  { nombre: 'ZONA IX',  partido: 'Azul' },
+  'X':   { nombre: 'ZONA X',   partido: 'Mar del Plata' },
+  'XI':  { nombre: 'ZONA XI',  partido: 'Bahía Blanca' },
+  'XII': { nombre: 'ZONA XII', partido: 'Necochea' }
+};
+function pdSetZona(codZona){
+  const z = ZONAS_DVBA[codZona];
+  if (!z) return;
+  const el1 = document.getElementById('hZona');
+  const el2 = document.getElementById('hPartido');
+  if (el1) el1.textContent = z.nombre;
+  if (el2) el2.textContent = z.partido;
+  try { localStorage.setItem('dvba_zona', codZona); } catch(e){}
+}
+
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 let _supa = null;
@@ -483,6 +510,10 @@ async function pdInit(){
   console.log('[pd] sesión activa:', user.email);
   document.getElementById('authGuard').style.display = 'none';  // v7.65 fix
   document.getElementById('email').textContent = user.email;
+  // v7.67 — Aplicar zona guardada (o default 'VI'). En el futuro se puede
+  // derivar del email/rol del usuario en una tabla usuarios_zonas.
+  const zonaActiva = localStorage.getItem('dvba_zona') || 'VI';
+  pdSetZona(zonaActiva);
   document.getElementById('toolbar').style.display = 'flex';
   document.getElementById('resumen').style.display = 'block';
   document.getElementById('tablaWrap').style.display = 'block';
@@ -963,17 +994,18 @@ function pdActualizarRed(){
 window.addEventListener('online', pdActualizarRed);
 window.addEventListener('offline', pdActualizarRed);
 
-// Arranque
-document.addEventListener('DOMContentLoaded', pdInit);
-// Mostrar footer cuando la app cargó exitosamente
+// v7.67 — Wrapper del pdInit ANTES del addEventListener, así el DOMContentLoaded
+// dispara la versión nueva (que muestra el footer institucional al final).
 const _origInit = pdInit;
 pdInit = async function(){
   await _origInit();
-  if (document.getElementById('toolbar').style.display === 'flex') {
-    document.getElementById('footerInst').style.display = 'flex';
-  }
+  // Mostrar footer aunque haya authGuard visible (informativo siempre útil)
+  document.getElementById('footerInst').style.display = 'flex';
   pdActualizarRed();
 };
+
+// Arranque
+document.addEventListener('DOMContentLoaded', pdInit);
 </script>
 </body>
 </html>
