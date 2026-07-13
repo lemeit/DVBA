@@ -3717,139 +3717,7 @@ function exportReportePDF() {
 
 <script>window.onload = function() { window.print(); }<\/script>
 
-<!-- v7.54 — Modal SIG Vial tipo DNV: datos oficiales por RP -->
-<div class="mov-sello" id="modal-sigvial" style="display:none">
-  <div class="modal-sello" style="max-width:520px;background:#fff">
-    <div class="ms-h" id="sig-h" style="background:linear-gradient(135deg,#003366,#004080);color:#fff">
-      <div style="flex:1">
-        <div style="font-size:18px;font-weight:800" id="sig-titulo">RP —</div>
-        <div style="font-size:11px;opacity:.9;margin-top:2px" id="sig-subtitulo">Zona VI Saladillo · DVBA</div>
-      </div>
-      <button onclick="cerrarModalSIGVial()" style="background:transparent;border:0;color:#fff;font-size:22px;cursor:pointer;padding:0 8px" title="Cerrar">×</button>
-    </div>
-    <div class="ms-b" id="sig-b" style="max-height:65vh;overflow-y:auto;padding:14px 16px">
-      <!-- Contenido dinámico -->
-    </div>
-    <div class="ms-f" id="sig-f" style="padding:10px 16px;border-top:1px solid #e8ecef;background:#fafbfc;display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="editarCaractRP()" id="sig-editar" style="padding:7px 14px;border:1px solid #003366;background:#fff;color:#003366;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">✏ Editar datos viales</button>
-      <button onclick="cerrarModalSIGVial()" style="padding:7px 14px;border:0;background:#003366;color:#fff;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">Cerrar</button>
-    </div>
-  </div>
-</div>
 
-<script>
-// v7.54 — Modal SIG Vial tipo DNV
-let _sigRPActiva = null;
-
-function mostrarModalSIGVial(rid, latlng){
-  const c = (typeof CARACT_VIALES !== 'undefined') ? CARACT_VIALES[rid] : null;
-  if (!c) { alert('Sin datos oficiales cargados para RP ' + rid); return; }
-  _sigRPActiva = rid;
-  const meta = (typeof RUTA_META !== 'undefined') ? RUTA_META[rid] : {color:'#003366'};
-  // Header con color de la RP
-  const hdr = document.getElementById('sig-h');
-  if (hdr) hdr.style.background = `linear-gradient(135deg, ${meta.color}, ${meta.color}dd)`;
-  document.getElementById('sig-titulo').textContent = c.ruta_oficial + (c.doble_via ? ' (doble vía)' : '');
-  document.getElementById('sig-subtitulo').textContent = 'Zona VI Saladillo · DVBA';
-  // Progresiva en el punto clickeado
-  let progFmt = '—', progKm = '—';
-  try {
-    const p = calcProg(rid, latlng);
-    if (p) { progFmt = p.prog; progKm = p.km; }
-  } catch(e) {}
-  const partidos = (c.partidos||[]).join(', ') || '—';
-  const clases = (c.clases||[]).join(', ') || '—';
-  // Métricas resumen (comparación con GIS si existe)
-  const gis = (typeof EXTREMOS_DATA !== 'undefined' && EXTREMOS_DATA[rid]) ? EXTREMOS_DATA[rid].longGis : null;
-  const gisTxt = gis ? gis.toFixed(3) + ' km' : '—';
-  const dif = (gis && c.longitud_oficial_km) ? ((gis - c.longitud_oficial_km)*1000).toFixed(0) + ' m' : '—';
-  const pav = c.tipo_pavimento || '<span style="color:#c48b4a">s/d</span>';
-  const anCal = c.ancho_calzada_m != null ? c.ancho_calzada_m + ' m' : '<span style="color:#c48b4a">s/d</span>';
-  const banD = c.ancho_banquina_der_m != null ? c.ancho_banquina_der_m + ' m' : '<span style="color:#c48b4a">s/d</span>';
-  const banI = c.ancho_banquina_izq_m != null ? c.ancho_banquina_izq_m + ' m' : '<span style="color:#c48b4a">s/d</span>';
-  const tmda = c.tmda != null ? Number(c.tmda).toLocaleString('es-AR') + ' veh/día' : '<span style="color:#c48b4a">s/d</span>';
-  const estGen = c.estado_general || '<span style="color:#c48b4a">s/d</span>';
-  const upd = c.ultima_actualizacion || '—';
-  // Tramos (colapsable)
-  const tramosHTML = (c.tramos||[]).map(t =>
-    `<tr>
-      <td style="font-family:monospace;font-size:10px;color:#003366">${t.seccion_vial}</td>
-      <td style="font-size:10.5px">${t.denominacion}</td>
-      <td style="font-size:10px;text-align:right">${t.longitud_km.toFixed(3)} km</td>
-      <td style="font-size:10px"><span style="background:${t.clase==='PAVIMENTADO'?'#d4edda':t.clase==='CONSOLIDADO'?'#fff3cd':'#f8d7da'};padding:1px 6px;border-radius:8px;font-weight:600">${t.clase}</span></td>
-      <td style="font-size:10px;color:#666">${t.partido||'—'}</td>
-    </tr>`
-  ).join('');
-  document.getElementById('sig-b').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
-      <div style="background:#f0f4f8;padding:10px;border-radius:6px;border-left:3px solid ${meta.color}">
-        <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px">Progresiva en punto</div>
-        <div style="font-size:20px;font-weight:800;color:${meta.color};font-family:monospace;letter-spacing:1px">${progFmt}</div>
-        <div style="font-size:9px;color:#7a8a9a">km ${progKm}</div>
-      </div>
-      <div style="background:#f0f4f8;padding:10px;border-radius:6px">
-        <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px">Ubicación</div>
-        <div style="font-size:11px;font-weight:600;color:#333;margin-top:3px">${partidos}</div>
-        <div style="font-size:9px;color:#7a8a9a;margin-top:2px">${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}</div>
-      </div>
-    </div>
-    <div style="margin-bottom:12px">
-      <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:700">Longitud</div>
-      <table style="width:100%;border-collapse:collapse;font-size:11px">
-        <tr><td style="padding:3px 6px;color:#666;width:45%">Oficial DVBA</td><td style="padding:3px 6px;font-weight:700;font-family:monospace">${c.longitud_oficial_km.toFixed(3)} km</td></tr>
-        <tr><td style="padding:3px 6px;color:#666">GIS (traza actual)</td><td style="padding:3px 6px;font-weight:700;font-family:monospace">${gisTxt}</td></tr>
-        <tr><td style="padding:3px 6px;color:#666">Diferencia</td><td style="padding:3px 6px;font-weight:700;font-family:monospace;color:${dif==='—'||Math.abs(parseInt(dif))<200?'#4aaa6a':'#c25a2a'}">${dif}</td></tr>
-      </table>
-    </div>
-    <div style="margin-bottom:12px">
-      <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:700">Características viales</div>
-      <table style="width:100%;border-collapse:collapse;font-size:11px">
-        <tr><td style="padding:3px 6px;color:#666;width:45%">Tipo de pavimento</td><td style="padding:3px 6px;font-weight:700">${pav}</td></tr>
-        <tr><td style="padding:3px 6px;color:#666">Clase (oficial)</td><td style="padding:3px 6px">${clases}</td></tr>
-        <tr><td style="padding:3px 6px;color:#666">Ancho de calzada</td><td style="padding:3px 6px;font-weight:700">${anCal}</td></tr>
-        <tr><td style="padding:3px 6px;color:#666">Ancho banquina (D)</td><td style="padding:3px 6px;font-weight:700">${banD}</td></tr>
-        <tr><td style="padding:3px 6px;color:#666">Ancho banquina (I)</td><td style="padding:3px 6px;font-weight:700">${banI}</td></tr>
-        <tr><td style="padding:3px 6px;color:#666">TMDA</td><td style="padding:3px 6px;font-weight:700">${tmda}</td></tr>
-        <tr><td style="padding:3px 6px;color:#666">Estado general</td><td style="padding:3px 6px;font-weight:700">${estGen}</td></tr>
-      </table>
-    </div>
-    <details style="margin-bottom:10px">
-      <summary style="cursor:pointer;color:#003366;font-size:11px;font-weight:700;padding:5px 0">▸ Tramos oficiales (${(c.tramos||[]).length})</summary>
-      <table style="width:100%;border-collapse:collapse;margin-top:5px">
-        <thead>
-          <tr style="background:#f0f4f8">
-            <th style="padding:5px 6px;text-align:left;font-size:9px;color:#003366;border-bottom:1px solid #d0d8e0">Sección vial</th>
-            <th style="padding:5px 6px;text-align:left;font-size:9px;color:#003366;border-bottom:1px solid #d0d8e0">Denominación</th>
-            <th style="padding:5px 6px;text-align:right;font-size:9px;color:#003366;border-bottom:1px solid #d0d8e0">Long.</th>
-            <th style="padding:5px 6px;text-align:left;font-size:9px;color:#003366;border-bottom:1px solid #d0d8e0">Clase</th>
-            <th style="padding:5px 6px;text-align:left;font-size:9px;color:#003366;border-bottom:1px solid #d0d8e0">Partido</th>
-          </tr>
-        </thead>
-        <tbody>${tramosHTML}</tbody>
-      </table>
-    </details>
-    <div style="font-size:9px;color:#8a9aaa;padding-top:8px;border-top:1px solid #e8ecef">
-      Fuente: ${c.fuente_datos || 'DVBA'} · Última actualización: ${upd}
-    </div>
-  `;
-  document.getElementById('modal-sigvial').style.display = 'flex';
-}
-
-function cerrarModalSIGVial(){
-  document.getElementById('modal-sigvial').style.display = 'none';
-  _sigRPActiva = null;
-}
-
-function editarCaractRP(){
-  if (!_sigRPActiva) return;
-  // v7.54 — Placeholder. La UI de edición completa vendrá en v7.55 con backend Supabase.
-  // Por ahora abrimos un modal chico de edición local (session storage).
-  alert('Edición colaborativa de datos viales:\n\n' +
-    'La UI de edición se implementará en la próxima iteración con tabla Supabase caract_viales.\n\n' +
-    'Por ahora podés editar caracteristicas_viales.js directamente en /datos/.\n\n' +
-    'Ver instrucciones en el próximo mensaje del asistente.');
-}
-</script>
 </body></html>`;
 
   const blob = new Blob([pdfHtml], { type: 'text/html;charset=utf-8' });
@@ -5359,6 +5227,141 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
     </div>
   </div>
 </div>
+
+
+<!-- v7.54 — Modal SIG Vial tipo DNV: datos oficiales por RP -->
+<div class="mov-sello" id="modal-sigvial" style="display:none">
+  <div class="modal-sello" style="max-width:520px;background:#fff">
+    <div class="ms-h" id="sig-h" style="background:linear-gradient(135deg,#003366,#004080);color:#fff">
+      <div style="flex:1">
+        <div style="font-size:18px;font-weight:800" id="sig-titulo">RP —</div>
+        <div style="font-size:11px;opacity:.9;margin-top:2px" id="sig-subtitulo">Zona VI Saladillo · DVBA</div>
+      </div>
+      <button onclick="cerrarModalSIGVial()" style="background:transparent;border:0;color:#fff;font-size:22px;cursor:pointer;padding:0 8px" title="Cerrar">×</button>
+    </div>
+    <div class="ms-b" id="sig-b" style="max-height:65vh;overflow-y:auto;padding:14px 16px">
+      <!-- Contenido dinámico -->
+    </div>
+    <div class="ms-f" id="sig-f" style="padding:10px 16px;border-top:1px solid #e8ecef;background:#fafbfc;display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="editarCaractRP()" id="sig-editar" style="padding:7px 14px;border:1px solid #003366;background:#fff;color:#003366;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">✏ Editar datos viales</button>
+      <button onclick="cerrarModalSIGVial()" style="padding:7px 14px;border:0;background:#003366;color:#fff;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// v7.54 — Modal SIG Vial tipo DNV
+let _sigRPActiva = null;
+
+function mostrarModalSIGVial(rid, latlng){
+  const c = (typeof CARACT_VIALES !== 'undefined') ? CARACT_VIALES[rid] : null;
+  if (!c) { alert('Sin datos oficiales cargados para RP ' + rid); return; }
+  _sigRPActiva = rid;
+  const meta = (typeof RUTA_META !== 'undefined') ? RUTA_META[rid] : {color:'#003366'};
+  // Header con color de la RP
+  const hdr = document.getElementById('sig-h');
+  if (hdr) hdr.style.background = `linear-gradient(135deg, ${meta.color}, ${meta.color}dd)`;
+  document.getElementById('sig-titulo').textContent = c.ruta_oficial + (c.doble_via ? ' (doble vía)' : '');
+  document.getElementById('sig-subtitulo').textContent = 'Zona VI Saladillo · DVBA';
+  // Progresiva en el punto clickeado
+  let progFmt = '—', progKm = '—';
+  try {
+    const p = calcProg(rid, latlng);
+    if (p) { progFmt = p.prog; progKm = p.km; }
+  } catch(e) {}
+  const partidos = (c.partidos||[]).join(', ') || '—';
+  const clases = (c.clases||[]).join(', ') || '—';
+  // Métricas resumen (comparación con GIS si existe)
+  const gis = (typeof EXTREMOS_DATA !== 'undefined' && EXTREMOS_DATA[rid]) ? EXTREMOS_DATA[rid].longGis : null;
+  const gisTxt = gis ? gis.toFixed(3) + ' km' : '—';
+  const dif = (gis && c.longitud_oficial_km) ? ((gis - c.longitud_oficial_km)*1000).toFixed(0) + ' m' : '—';
+  const pav = c.tipo_pavimento || '<span style="color:#c48b4a">s/d</span>';
+  const anCal = c.ancho_calzada_m != null ? c.ancho_calzada_m + ' m' : '<span style="color:#c48b4a">s/d</span>';
+  const banD = c.ancho_banquina_der_m != null ? c.ancho_banquina_der_m + ' m' : '<span style="color:#c48b4a">s/d</span>';
+  const banI = c.ancho_banquina_izq_m != null ? c.ancho_banquina_izq_m + ' m' : '<span style="color:#c48b4a">s/d</span>';
+  const tmda = c.tmda != null ? Number(c.tmda).toLocaleString('es-AR') + ' veh/día' : '<span style="color:#c48b4a">s/d</span>';
+  const estGen = c.estado_general || '<span style="color:#c48b4a">s/d</span>';
+  const upd = c.ultima_actualizacion || '—';
+  // Tramos (colapsable)
+  const tramosHTML = (c.tramos||[]).map(t =>
+    `<tr>
+      <td style="font-family:monospace;font-size:10px;color:#003366">${t.seccion_vial}</td>
+      <td style="font-size:10.5px">${t.denominacion}</td>
+      <td style="font-size:10px;text-align:right">${t.longitud_km.toFixed(3)} km</td>
+      <td style="font-size:10px"><span style="background:${t.clase==='PAVIMENTADO'?'#d4edda':t.clase==='CONSOLIDADO'?'#fff3cd':'#f8d7da'};padding:1px 6px;border-radius:8px;font-weight:600">${t.clase}</span></td>
+      <td style="font-size:10px;color:#666">${t.partido||'—'}</td>
+    </tr>`
+  ).join('');
+  document.getElementById('sig-b').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="background:#f0f4f8;padding:10px;border-radius:6px;border-left:3px solid ${meta.color}">
+        <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px">Progresiva en punto</div>
+        <div style="font-size:20px;font-weight:800;color:${meta.color};font-family:monospace;letter-spacing:1px">${progFmt}</div>
+        <div style="font-size:9px;color:#7a8a9a">km ${progKm}</div>
+      </div>
+      <div style="background:#f0f4f8;padding:10px;border-radius:6px">
+        <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px">Ubicación</div>
+        <div style="font-size:11px;font-weight:600;color:#333;margin-top:3px">${partidos}</div>
+        <div style="font-size:9px;color:#7a8a9a;margin-top:2px">${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:700">Longitud</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <tr><td style="padding:3px 6px;color:#666;width:45%">Oficial DVBA</td><td style="padding:3px 6px;font-weight:700;font-family:monospace">${c.longitud_oficial_km.toFixed(3)} km</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">GIS (traza actual)</td><td style="padding:3px 6px;font-weight:700;font-family:monospace">${gisTxt}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Diferencia</td><td style="padding:3px 6px;font-weight:700;font-family:monospace;color:${dif==='—'||Math.abs(parseInt(dif))<200?'#4aaa6a':'#c25a2a'}">${dif}</td></tr>
+      </table>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:700">Características viales</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <tr><td style="padding:3px 6px;color:#666;width:45%">Tipo de pavimento</td><td style="padding:3px 6px;font-weight:700">${pav}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Clase (oficial)</td><td style="padding:3px 6px">${clases}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Ancho de calzada</td><td style="padding:3px 6px;font-weight:700">${anCal}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Ancho banquina (D)</td><td style="padding:3px 6px;font-weight:700">${banD}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Ancho banquina (I)</td><td style="padding:3px 6px;font-weight:700">${banI}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">TMDA</td><td style="padding:3px 6px;font-weight:700">${tmda}</td></tr>
+        <tr><td style="padding:3px 6px;color:#666">Estado general</td><td style="padding:3px 6px;font-weight:700">${estGen}</td></tr>
+      </table>
+    </div>
+    <details style="margin-bottom:10px">
+      <summary style="cursor:pointer;color:#003366;font-size:11px;font-weight:700;padding:5px 0">▸ Tramos oficiales (${(c.tramos||[]).length})</summary>
+      <table style="width:100%;border-collapse:collapse;margin-top:5px">
+        <thead>
+          <tr style="background:#f0f4f8">
+            <th style="padding:5px 6px;text-align:left;font-size:9px;color:#003366;border-bottom:1px solid #d0d8e0">Sección vial</th>
+            <th style="padding:5px 6px;text-align:left;font-size:9px;color:#003366;border-bottom:1px solid #d0d8e0">Denominación</th>
+            <th style="padding:5px 6px;text-align:right;font-size:9px;color:#003366;border-bottom:1px solid #d0d8e0">Long.</th>
+            <th style="padding:5px 6px;text-align:left;font-size:9px;color:#003366;border-bottom:1px solid #d0d8e0">Clase</th>
+            <th style="padding:5px 6px;text-align:left;font-size:9px;color:#003366;border-bottom:1px solid #d0d8e0">Partido</th>
+          </tr>
+        </thead>
+        <tbody>${tramosHTML}</tbody>
+      </table>
+    </details>
+    <div style="font-size:9px;color:#8a9aaa;padding-top:8px;border-top:1px solid #e8ecef">
+      Fuente: ${c.fuente_datos || 'DVBA'} · Última actualización: ${upd}
+    </div>
+  `;
+  document.getElementById('modal-sigvial').style.display = 'flex';
+}
+
+function cerrarModalSIGVial(){
+  document.getElementById('modal-sigvial').style.display = 'none';
+  _sigRPActiva = null;
+}
+
+function editarCaractRP(){
+  if (!_sigRPActiva) return;
+  // v7.54 — Placeholder. La UI de edición completa vendrá en v7.55 con backend Supabase.
+  // Por ahora abrimos un modal chico de edición local (session storage).
+  alert('Edición colaborativa de datos viales:\n\n' +
+    'La UI de edición se implementará en la próxima iteración con tabla Supabase caract_viales.\n\n' +
+    'Por ahora podés editar caracteristicas_viales.js directamente en /datos/.\n\n' +
+    'Ver instrucciones en el próximo mensaje del asistente.');
+}
+</script>
 
 </body>
 </html>
