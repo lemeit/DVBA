@@ -658,7 +658,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.58';
+const APP_VERSION = 'v7.59';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -5376,31 +5376,31 @@ function mostrarModalSIGVialCamino(feat, latlng){
   _sigCaminoActivo = p.NOMEMCLATURA;
   _sigRPActiva = null;
   const meta = document.getElementById('sig-h');
-  // Header — violeta/púrpura para caminos (paridad con estilo actual de caminos secundarios)
-  const colorCno = '#7050b0';
+  // v7.59 — Usar el color REAL del camino según su CLASE (paleta existente)
+  //   DE TIERRA=#a07842, PAVIMENTADO=#3a7bd5, MIXTO=#7050b0, SIN ABRIR=#888888
+  const colorCno = (typeof CS_COLOR_CLASE !== 'undefined' && CS_COLOR_CLASE[p.CLASE]) || '#a07842';
   if (meta) meta.style.background = `linear-gradient(135deg, ${colorCno}, ${colorCno}dd)`;
   const titulo = 'Cno. ' + (p.NOMEMCLATURA || '—');
   const subTit = (p.DENOMINACION || '') + (p.TRAMO_NUM && p.TRAMO_NUM !== 'null' && p.TRAMO_NUM !== '0' ? ' · Tramo ' + p.TRAMO_NUM : '');
   document.getElementById('sig-titulo').textContent = titulo;
   document.getElementById('sig-subtitulo').textContent = subTit || ('Zona VI Saladillo · DVBA');
-  // Progresiva sobre el camino (usa _proyectarCursor si está disponible)
+  // v7.59 — Progresiva sobre el camino: aplanar coords y proyectar con _proyectarCursor
+  // (mismo algoritmo que autoDetectarCampos y actualizarPanelPosCamino).
+  // _proyectarCursor devuelve {d, lat, lng, seg, t} — NO tiene "dist", usa "d".
   let progFmt = '—', progKm = '—';
   try {
     const geo = feat.geometry;
-    const segs = geo.type === 'LineString' ? [geo.coordinates]
-                : geo.type === 'MultiLineString' ? geo.coordinates : [];
-    if (segs.length && typeof _proyectarCursor === 'function') {
-      // Aplanar y buscar la mejor proyección km acumulado
-      let mejorSeg = null, mejorDist = Infinity, mejorProj = null;
-      segs.forEach(seg => {
-        const proj = _proyectarCursor(seg, latlng);
-        if (proj && proj.dist < mejorDist) { mejorDist = proj.dist; mejorProj = proj; mejorSeg = seg; }
-      });
-      if (mejorProj && mejorSeg) {
+    const coords = geo.type === 'LineString' ? geo.coordinates
+                 : geo.type === 'MultiLineString' ? geo.coordinates.flat() : [];
+    if (coords.length >= 2 && typeof _proyectarCursor === 'function') {
+      const proj = _proyectarCursor(coords, latlng);
+      if (proj) {
         let cumm = 0;
-        for (let i = 1; i < mejorProj.seg; i++) cumm += _haversineM(mejorSeg[i-1][0], mejorSeg[i-1][1], mejorSeg[i][0], mejorSeg[i][1]);
-        const segM = _haversineM(mejorSeg[mejorProj.seg-1][0], mejorSeg[mejorProj.seg-1][1], mejorSeg[mejorProj.seg][0], mejorSeg[mejorProj.seg][1]);
-        const km = (cumm + mejorProj.t * segM) / 1000;
+        for (let i = 1; i < proj.seg; i++) {
+          cumm += _haversineM(coords[i-1][0], coords[i-1][1], coords[i][0], coords[i][1]);
+        }
+        const segM = _haversineM(coords[proj.seg-1][0], coords[proj.seg-1][1], coords[proj.seg][0], coords[proj.seg][1]);
+        const km = (cumm + proj.t * segM) / 1000;
         const ki = Math.floor(km), m = Math.round((km - ki) * 1000);
         progFmt = `${ki}+${String(m).padStart(3,'0')}`;
         progKm = km.toFixed(2);
