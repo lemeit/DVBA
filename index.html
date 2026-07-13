@@ -658,7 +658,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.59';
+const APP_VERSION = 'v7.60';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1780,6 +1780,50 @@ function _ocultarCursorSobreRuta(){
 }
 
 // Cursor sobre Camino: mismo estilo, tooltip con NM · km X.XX
+// v7.60 — Offset acumulado por tramo dentro del mismo camino (NOMEMCLATURA)
+// El tramo 2 empieza en km = suma_longitudes(tramos con NUM < 2), y así.
+// Cachea por camino en _offsetTramoCache la primera vez.
+let _offsetTramoCache = null;
+function _tramoNumSort(t){
+  // Normaliza TRAMO_NUM a número para ordenar (puede venir como '1', 1, 1.0, null)
+  if (t === null || t === undefined || t === '') return 0;
+  const n = parseFloat(t);
+  return isFinite(n) ? n : 0;
+}
+function _getProgOffsetTramo(feat){
+  if (!feat || !feat.properties) return 0;
+  const p = feat.properties;
+  const nm = p.NOMEMCLATURA;
+  const miNum = _tramoNumSort(p.TRAMO_NUM);
+  if (!nm || miNum <= 1) return 0;  // primer tramo o sin tramo → 0
+  // Construir cache si no existe
+  if (!_offsetTramoCache) {
+    _offsetTramoCache = {};
+    if (_caminosGeoJSON_cache && _caminosGeoJSON_cache.features) {
+      // Agrupar features por NOMEMCLATURA
+      const porNm = {};
+      _caminosGeoJSON_cache.features.forEach(f => {
+        const q = f.properties;
+        if (!q || !q.NOMEMCLATURA) return;
+        (porNm[q.NOMEMCLATURA] = porNm[q.NOMEMCLATURA] || []).push({
+          num: _tramoNumSort(q.TRAMO_NUM),
+          longKm: parseFloat(q.LONGITUD_KM_WGS84) || 0
+        });
+      });
+      // Para cada NOMEMCLATURA, ordenar por num y calcular offset acumulado
+      Object.keys(porNm).forEach(k => {
+        const lst = porNm[k].sort((a,b) => a.num - b.num);
+        let acc = 0;
+        lst.forEach(t => {
+          _offsetTramoCache[k + '|' + t.num] = acc;
+          acc += t.longKm;
+        });
+      });
+    }
+  }
+  return _offsetTramoCache[nm + '|' + miNum] || 0;
+}
+
 function _mostrarCursorSobreCamino(feat, layer, latlng){
   const p=feat.properties;
   // Cache de coords + cumm por _fid del feature
@@ -1812,9 +1856,10 @@ function _mostrarCursorSobreCamino(feat, layer, latlng){
   // v7.35 — Tooltip con el km SIEMPRE visible al hover sobre camino.
   // El checkbox "Progresivas al hover" solo controla los círculos cada N km.
   const segM=_haversineM(coords[proj.seg-1][0],coords[proj.seg-1][1],coords[proj.seg][0],coords[proj.seg][1]);
-  const km=(cumm[proj.seg-1]+proj.t*segM)/1000;
+  const kmLocal=(cumm[proj.seg-1]+proj.t*segM)/1000;
+  // v7.60 — Sumar offset de tramos anteriores con la misma NOMEMCLATURA
+  const km = kmLocal + _getProgOffsetTramo(feat);
   _actualizarTooltipCursor(proj.lat, proj.lng, `<b style="color:#7050b0">Cno. ${p.NOMEMCLATURA}</b> · <b>${km.toFixed(2)} km</b>`);
-  // v7.36 — actualizar también el panel superior "Posición" (antes solo funcionaba con RPs)
   if (typeof actualizarPanelPosCamino === 'function') actualizarPanelPosCamino(feat, latlng, km);
   if(PROG_HOVER_ACTIVO){
     const key='cam:'+(p._fid||p.NOMEMCLATURA);
@@ -3292,8 +3337,8 @@ function autoDetectarCampos(lat, lng, opts) {
         let cumm=0;
         for(let i=1;i<proj.seg;i++){ cumm += _haversineM(coords[i-1][0],coords[i-1][1],coords[i][0],coords[i][1]); }
         const segM=_haversineM(coords[proj.seg-1][0],coords[proj.seg-1][1],coords[proj.seg][0],coords[proj.seg][1]);
-        const km = (cumm + proj.t*segM)/1000;
-        // Formato XX+YYY como las RP
+        // v7.60 — sumar offset de tramos anteriores
+        const km = (cumm + proj.t*segM)/1000 + _getProgOffsetTramo(caminoMasCercano);
         const ki=Math.floor(km), m=Math.round((km-ki)*1000);
         document.getElementById('fprog').value = `${ki}+${String(m).padStart(3,'0')}`;
       }
@@ -5400,7 +5445,8 @@ function mostrarModalSIGVialCamino(feat, latlng){
           cumm += _haversineM(coords[i-1][0], coords[i-1][1], coords[i][0], coords[i][1]);
         }
         const segM = _haversineM(coords[proj.seg-1][0], coords[proj.seg-1][1], coords[proj.seg][0], coords[proj.seg][1]);
-        const km = (cumm + proj.t * segM) / 1000;
+        // v7.60 — sumar offset de tramos anteriores con la misma NOMEMCLATURA
+        const km = (cumm + proj.t * segM) / 1000 + _getProgOffsetTramo(feat);
         const ki = Math.floor(km), m = Math.round((km - ki) * 1000);
         progFmt = `${ki}+${String(m).padStart(3,'0')}`;
         progKm = km.toFixed(2);

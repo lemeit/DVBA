@@ -183,6 +183,25 @@ textarea{resize:none;min-height:80px}
 .acc-toggle .acc-icon{font-size:1.4rem}
 .acc-toggle .acc-txt{display:none}
 
+/* v9.56 — FAB flotante del modo sol en esquina inferior izquierda.
+   Sutil (baja opacidad) hasta que se activa; no tapa botones del bot-nav. */
+#btn-accesible-fab{
+  position:fixed;bottom:calc(88px + env(safe-area-inset-bottom,0px));left:12px;z-index:30;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,235,59,.85);border:2px solid rgba(200,150,0,.6);
+  color:#5a3d00;font-size:1.4rem;line-height:1;
+  cursor:pointer;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 10px rgba(0,0,0,.25);
+  transition:all .15s;opacity:.75
+}
+#btn-accesible-fab:hover{opacity:1}
+#btn-accesible-fab:active{transform:scale(.92)}
+#btn-accesible-fab.activo{background:#ffeb3b;border-color:#f57f17;color:#000;opacity:1;box-shadow:0 0 14px rgba(255,235,59,.65),0 3px 8px rgba(0,0,0,.3)}
+/* En modo accesible activo, el FAB queda dorado brillante */
+body.accesible #btn-accesible-fab{background:#ffeb3b !important;border-color:#f57f17 !important;color:#000 !important;opacity:1 !important}
+
+
 /* ─── body.accesible v2 · MODO SOL (contraste alto sin gigantismo) ───
    v9.55 — Rediseño: mantiene el enfoque de sol directo pero SIN
    agrandar tipografía + botones a extremos que hacen ilegibles los
