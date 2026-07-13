@@ -3,11 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Partes Diarios · DVBA Zona VI Saladillo</title>
+<title>Plan de Seguridad en la Circulación · DVBA Zona VI Saladillo</title>
 <link rel="icon" href="datos/img/logo_dvba_circular.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="datos/auth.js"></script>
 <script src="datos/red_vial.js" defer></script>
+<!-- v7.70 · bundles RP para interpolar progresiva → coords → partido -->
+<script src="datos/rutas_rp30.js" defer></script>
+<script src="datos/rutas_rp40.js" defer></script>
+<script src="datos/rutas_rp41.js" defer></script>
+<script src="datos/rutas_rp46.js" defer></script>
+<script src="datos/rutas_rp47.js" defer></script>
+<script src="datos/rutas_rp51.js" defer></script>
+<script src="datos/rutas_rp61.js" defer></script>
+<script src="datos/rutas_rp91.js" defer></script>
 <style>
 :root{
   /* Colores institucionales DVBA — matching index.html */
@@ -88,9 +97,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 .modal-b textarea{resize:vertical;min-height:70px}
 .modal-b .sec-title{font-size:11px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px 0;padding-bottom:5px;border-bottom:2px solid var(--p)}
 .modal-b .sec-title .cnt{background:var(--p);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:8px;font-weight:700}
-.modal-b .toggle-tv{display:flex;gap:0;background:#eef3f8;border-radius:5px;padding:2px;border:1px solid #cdd9e6}
-.modal-b .toggle-tv button{flex:1;padding:6px;border:0;background:transparent;color:#5a6a7a;font-size:11px;font-weight:600;border-radius:4px;cursor:pointer}
-.modal-b .toggle-tv button.active{background:var(--p);color:#fff}
+/* v7.70 — CSS .toggle-tv removido: el dropdown único mezcla primaria + secundaria */
 
 /* EQUIPOS LIST */
 .equipos-search{margin-bottom:8px;position:relative}
@@ -149,20 +156,20 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
   <div class="logo"><img src="datos/img/logo_dvba_circular.png" alt="DVBA"></div>
   <div class="t">
     <h1>DVBA &mdash; <span style="color:#ffd060" id="hZona">ZONA VI</span> <span class="hbadge" id="hPartido">Saladillo</span></h1>
-    <p>Dirección de Vialidad de la Prov. de Buenos Aires &nbsp;&middot;&nbsp; Partes Diarios de Trabajo</p>
+    <p>Dirección de Vialidad de la Prov. de Buenos Aires &nbsp;&middot;&nbsp; Plan de Seguridad en la Circulación</p>
   </div>
   <div class="user">
     <a class="btn-hdr" href="index.html">← Volver al portal</a>
     <span id="email">—</span>
     <button onclick="pdLogout()" title="Cerrar sesión" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer">salir</button>
-    <span class="hversion">Desarrollado por Ing. Luciano Lamaita &nbsp;&middot;&nbsp; <span id="app-ver">v7.67</span></span>
+    <span class="hversion">Desarrollado por Ing. Luciano Lamaita &nbsp;&middot;&nbsp; <span id="app-ver">v7.70</span></span>
     <span style="font-size:9px;color:rgba(255,255,255,.7)">EN LINEA</span><div class="dot"></div>
   </div>
 </header>
 
 <!-- Toolbar -->
 <div class="toolbar" id="toolbar" style="display:none">
-  <button class="btn-primary" onclick="pdAbrirNuevo()">+ Nuevo Parte</button>
+  <button class="btn-primary" onclick="pdAbrirNuevo()">+ Nuevo registro</button>
   <span style="width:12px"></span>
   <label>Mes</label>
   <input type="month" id="fMes" onchange="pdCargar()">
@@ -175,6 +182,18 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <option value="">Todas</option>
     <option value="rp">Solo RP</option>
     <option value="camino">Solo Caminos</option>
+  </select>
+  <label>Partido</label>
+  <select id="fPartido" onchange="pdCargar()">
+    <option value="">Todos</option>
+    <option value="General Alvear">Gral. Alvear</option>
+    <option value="General Las Heras">Gral. Las Heras</option>
+    <option value="Las Flores">Las Flores</option>
+    <option value="Lobos">Lobos</option>
+    <option value="Monte">Monte</option>
+    <option value="Roque Pérez">Roque Pérez</option>
+    <option value="Saladillo">Saladillo</option>
+    <option value="25 de Mayo">25 de Mayo</option>
   </select>
   <label>Ruta</label>
   <input type="text" id="fRuta" placeholder="Ej: RP 51" onkeyup="if(event.key==='Enter')pdCargar()">
@@ -199,6 +218,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
         <th style="width:100px">Fecha</th>
         <th>Tarea</th>
         <th style="width:110px">Ruta</th>
+        <th style="width:110px">Partido</th>
         <th style="width:80px" class="num">Prog. ini</th>
         <th style="width:80px" class="num">Prog. fin</th>
         <th style="width:70px" class="num">km</th>
@@ -225,7 +245,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
   </div>
   <div style="text-align:right;font-size:9.5px;color:rgba(255,255,255,.5)">
     Desarrollado por <b style="color:rgba(255,255,255,.85)">Ing. Luciano Lamaita</b> · División Técnica DVBA<br>
-    Última actualización: <span id="app-ver-footer">v7.67</span> · Julio 2026
+    Última actualización: <span id="app-ver-footer">v7.70</span> · Julio 2026
   </div>
 </footer>
 
@@ -247,7 +267,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 <div class="modal-ov" id="modalParte">
   <div class="modal">
     <div class="modal-h">
-      <h2 id="modalTit">Nuevo Parte Diario</h2>
+      <h2 id="modalTit">Nuevo registro · Plan de Seguridad en la Circulación</h2>
       <button class="x" onclick="pdCerrar()">×</button>
     </div>
     <div class="modal-b">
@@ -267,33 +287,24 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
         </div>
       </div>
 
-      <!-- 2. RUTA -->
-      <div class="grid2" style="margin-top:12px">
-        <div class="fld">
-          <label>Tipo de vía</label>
-          <div class="toggle-tv" id="tvBtns">
-            <button type="button" data-tv="rp"     onclick="pdSetTV('rp')" class="active">🛣 Ruta Provincial</button>
-            <button type="button" data-tv="camino" onclick="pdSetTV('camino')">🚜 Camino Secundario</button>
-          </div>
-          <input type="hidden" id="tipoVia" value="rp">
-        </div>
-        <div class="fld">
-          <label>Ruta / Camino</label>
-          <select id="ruta">
-            <option value="">— Elegir vía primero —</option>
-          </select>
-        </div>
+      <!-- 2. RUTA · v7.70 dropdown único Primaria + Secundaria (formato Google Form oficial) -->
+      <div class="fld" style="margin-top:12px">
+        <label>Ruta Provincial (Red Primaria o Secundaria)</label>
+        <select id="ruta" onchange="pdSetTipoViaAuto()">
+          <option value="">— Elegir vía —</option>
+        </select>
+        <input type="hidden" id="tipoVia" value="rp">
       </div>
 
-      <!-- 3. PROGRESIVAS -->
+      <!-- 3. PROGRESIVAS (formato coma decimal, form oficial pide menor/mayor) -->
       <div class="grid3" style="margin-top:12px">
         <div class="fld">
-          <label>Prog. Inicial (km)</label>
-          <input type="number" id="progIni" step="0.01" placeholder="318.80">
+          <label>Progresiva menor (km)</label>
+          <input type="text" id="progIni" inputmode="decimal" placeholder="100,01" oninput="pdCalcKm()">
         </div>
         <div class="fld">
-          <label>Prog. Final (km)</label>
-          <input type="number" id="progFin" step="0.01" placeholder="319.00" oninput="pdCalcKm()">
+          <label>Progresiva mayor (km)</label>
+          <input type="text" id="progFin" inputmode="decimal" placeholder="200,01" oninput="pdCalcKm()">
         </div>
         <div class="fld">
           <label>km recorridos</label>
@@ -399,7 +410,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 // Fotos: solo asociar registros existentes (etapa 1). Upload y sellado → etapa 2.
 // ═══════════════════════════════════════════════════════════════════
 
-// v7.67 — Catálogo de las 12 zonas de la DVBA + partido donde se administra.
+// v7.70 — Catálogo de las 12 zonas de la DVBA + partido donde se administra.
 // Cuando el user pase el listado completo con partidos, reemplazamos aquí.
 // La zona activa se define por: (a) localStorage['dvba_zona'] (b) default 'VI'
 const ZONAS_DVBA = {
@@ -467,6 +478,7 @@ function esRP(txt){
 
 // Estado global
 let _tareas = [];
+let _userId = null;       // v7.70 · UID del usuario logueado (para responsable_id)
 let _vehiculos = [];      // ordenados por ranking (uso histórico)
 let _rutasRP = ['RP 6','RP 20','RP 24','RP 30','RP 40','RP 41','RP 42','RP 43','RP 44','RP 46','RP 47','RP 48','RP 51','RP 61','RP 91'];
 let _caminos = [];         // se cargan de red_vial si está disponible
@@ -508,9 +520,10 @@ async function pdInit(){
     document.getElementById('authGuard').style.display = 'block'; return;
   }
   console.log('[pd] sesión activa:', user.email);
+  _userId = user.id;  // v7.70 · guardar UID para responsable_id
   document.getElementById('authGuard').style.display = 'none';  // v7.65 fix
   document.getElementById('email').textContent = user.email;
-  // v7.67 — Aplicar zona guardada (o default 'VI'). En el futuro se puede
+  // v7.70 — Aplicar zona guardada (o default 'VI'). En el futuro se puede
   // derivar del email/rol del usuario en una tabla usuarios_zonas.
   const zonaActiva = localStorage.getItem('dvba_zona') || 'VI';
   pdSetZona(zonaActiva);
@@ -543,7 +556,7 @@ async function pdInit(){
 
   const hoy = new Date();
   document.getElementById('fMes').value = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
-  pdSetTV('rp');  // rutas RP por default
+  pdPoblarRutasMix();  // v7.70 · dropdown único primaria + secundaria
   pdCargar();
 }
 
@@ -556,14 +569,16 @@ async function pdCargar(){
   const [ano, m] = mes.split('-').map(Number);
   const desde = `${ano}-${String(m).padStart(2,'0')}-01`;
   const hasta = new Date(ano, m, 1).toISOString().slice(0,10);
+  const partidoF = document.getElementById('fPartido') ? document.getElementById('fPartido').value : '';
   let q = _supa.from('partes_diarios')
-    .select(`id, fecha, tarea_id, tipo_via, ruta, prog_ini, prog_fin, km_recorridos, observaciones,
+    .select(`id, fecha, tarea_id, tipo_via, ruta, partido, prog_ini, prog_fin, km_recorridos, observaciones,
              combustible_l, mezcla_asfaltica_tn,
              parte_maquinarias(vehiculo_id, vehiculos(tipo_maquinaria, identificador, numero))`)
     .gte('fecha', desde).lt('fecha', hasta)
     .order('fecha', {ascending:false}).order('id', {ascending:false});
   if (tareaId) q = q.eq('tarea_id', Number(tareaId));
   if (via) q = q.eq('tipo_via', via);
+  if (partidoF) q = q.eq('partido', partidoF);
   if (ruta) {
     // Normalizar y crear patrones flexibles para RP y caminos
     const norm = normRuta(ruta);
@@ -611,6 +626,7 @@ async function pdCargar(){
       <td>${fFmt}</td>
       <td>${tareasMap[p.tarea_id] || '<i style="color:var(--am)">— sin tarea —</i>'}</td>
       <td><b>${p.ruta||'—'}</b></td>
+      <td>${p.partido ? `<span style="font-size:10.5px;color:var(--pd)">${p.partido}</span>` : '<span style="color:var(--mut);font-size:10px">—</span>'}</td>
       <td class="num">${p.prog_ini != null ? Number(p.prog_ini).toFixed(2) : '—'}</td>
       <td class="num">${p.prog_fin != null ? Number(p.prog_fin).toFixed(2) : '—'}</td>
       <td class="num">${p.km_recorridos != null ? Math.abs(Number(p.km_recorridos)).toFixed(2) : '—'}</td>
@@ -624,46 +640,186 @@ async function pdCargar(){
   }).join('');
 }
 
-function pdSetTV(tv){
-  document.getElementById('tipoVia').value = tv;
-  document.querySelectorAll('#tvBtns button').forEach(b => b.classList.toggle('active', b.dataset.tv === tv));
+// v7.70 — Un solo dropdown que mezcla Red Primaria + Secundaria con etiqueta [P]/[S].
+// El formulario oficial DVBA "Plan de Seguridad en la Circulación" usa un único
+// selector "Ruta Provincial (Red Primaria o Secundaria)"; replicamos ese formato.
+function pdPoblarRutasMix(){
   const sel = document.getElementById('ruta');
-  sel.innerHTML = '<option value="">— Seleccionar —</option>';
-  if (tv === 'rp') {
-    _rutasRP.forEach(r => sel.insertAdjacentHTML('beforeend', `<option value="${r}">${r}</option>`));
-  } else {
-    // v7.65 — poblar con los 100 caminos secundarios agrupados por partido
-    if (typeof RED_VIAL !== 'undefined' && RED_VIAL.listarCaminos) {
-      const caminos = RED_VIAL.listarCaminos() || [];
-      // Agrupar por partido
-      const porPart = {};
-      caminos.forEach(c => {
-        const p = c.partido || 'Sin partido';
-        (porPart[p] = porPart[p] || []).push(c);
+  sel.innerHTML = '<option value="">— Elegir vía —</option>';
+  // Grupo 1: Red Primaria (RPs)
+  const grpP = document.createElement('optgroup');
+  grpP.label = `Red Primaria (RPs) · ${_rutasRP.length}`;
+  _rutasRP.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r;                     // ej: "RP 51"
+    opt.textContent = `${r} [P]`;
+    opt.dataset.tipo = 'rp';
+    grpP.appendChild(opt);
+  });
+  sel.appendChild(grpP);
+  // Grupo 2: Red Secundaria (caminos por partido)
+  // v7.70 — sólo código en el texto; la denominación va como title (tooltip
+  // al pasar el mouse). Antes se mostraba con todos los tramos concatenados,
+  // pero eso ensuciaba visualmente. Igual queda accesible al hover.
+  if (typeof RED_VIAL !== 'undefined' && RED_VIAL.listarCaminos) {
+    const caminos = RED_VIAL.listarCaminos() || [];
+    const porPart = {};
+    caminos.forEach(c => {
+      const p = c.partido || 'Sin partido';
+      (porPart[p] = porPart[p] || []).push(c);
+    });
+    Object.entries(porPart).sort().forEach(([partido, lista]) => {
+      const grp = document.createElement('optgroup');
+      grp.label = `Red Secundaria · ${partido} (${lista.length})`;
+      lista.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.key;             // ej: "093-13"
+        opt.textContent = `${c.key} [S]`;
+        opt.title = c.denominacion || '';  // hover: nombre completo
+        opt.dataset.tipo = 'camino';
+        grp.appendChild(opt);
       });
-      Object.entries(porPart).sort().forEach(([partido, lista]) => {
-        const grp = document.createElement('optgroup');
-        grp.label = `${partido} (${lista.length})`;
-        lista.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.key;  // ej: '093-13'
-          opt.textContent = c.tooltip ? `${c.key} · ${c.tooltip.slice(0,50)}` : c.key;
-          grp.appendChild(opt);
-        });
-        sel.appendChild(grp);
-      });
-    } else {
-      sel.insertAdjacentHTML('beforeend', `<option value="">(red_vial.js no disponible aún)</option>`);
-    }
+      sel.appendChild(grp);
+    });
   }
 }
+// Al elegir una opción, deducir tipo_via del data-tipo del <option>.
+function pdSetTipoViaAuto(){
+  const sel = document.getElementById('ruta');
+  const opt = sel.options[sel.selectedIndex];
+  const tipo = (opt && opt.dataset.tipo) || 'rp';
+  document.getElementById('tipoVia').value = tipo;
+}
+// Compat: si algo llama al viejo pdSetTV, lo mapeamos a repoblado.
+function pdSetTV(tv){
+  document.getElementById('tipoVia').value = tv || 'rp';
+  pdPoblarRutasMix();
+}
 
+// v7.70 — Acepta coma decimal (formato oficial DVBA: "100,01") o punto.
+// Devuelve número o NaN. Vacío → NaN.
+function pdParseProg(txt){
+  if (txt == null) return NaN;
+  const s = String(txt).trim().replace(',', '.');
+  if (!s) return NaN;
+  return parseFloat(s);
+}
 function pdCalcKm(){
-  const pi = parseFloat(document.getElementById('progIni').value);
-  const pf = parseFloat(document.getElementById('progFin').value);
+  const pi = pdParseProg(document.getElementById('progIni').value);
+  const pf = pdParseProg(document.getElementById('progFin').value);
   const km = document.getElementById('kmCalc');
-  // v7.65 — valor absoluto (progresivas pueden ser descendentes)
-  km.value = (isFinite(pi) && isFinite(pf)) ? Math.abs(pf - pi).toFixed(2) : '';
+  // v7.65 — valor absoluto. Aunque el form pide menor/mayor, mantenemos ABS
+  // por si el usuario los invierte (defensivo).
+  km.value = (isFinite(pi) && isFinite(pf)) ? Math.abs(pf - pi).toFixed(2).replace('.', ',') : '';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// v7.70 · Detección automática de partido a partir de ruta + progresiva
+// ═══════════════════════════════════════════════════════════════════
+// Los caminos secundarios tienen código único NNN-NN por partido → trivial.
+// Las RPs atraviesan varios partidos → interpolamos el punto medio del tramo
+// sobre CHAIN_RPxx (usando ANCHORS_RPxx con km↔acc) y hacemos point-in-polygon
+// contra datos/partidos_zona_vi.geojson.
+
+let _partidosGeoJSON = null;
+
+async function pdCargarPartidos(){
+  if (_partidosGeoJSON) return _partidosGeoJSON;
+  try {
+    const r = await fetch('datos/partidos_zona_vi.geojson');
+    _partidosGeoJSON = await r.json();
+  } catch(e) { console.warn('[pd partidos] no se pudo cargar geojson', e); }
+  return _partidosGeoJSON;
+}
+
+function _haversineKm(lat1, lon1, lat2, lon2){
+  const R = 6371, toRad = x => x * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+// Interpola progresiva (km oficial) → {lat, lon} usando CHAIN + ANCHORS.
+function pdInterpolarProgresiva(rutaNum, prog){
+  const chain = window['CHAIN_RP'+rutaNum];
+  const anch  = window['ANCHORS_RP'+rutaNum];
+  if (!chain || !anch || anch.length < 2 || !isFinite(prog)) return null;
+  // Ordenar anchors por km ascendente (por si el sentido está invertido)
+  const sorted = [...anch].sort((a,b) => a.km - b.km);
+  // Clamp al rango real de la ruta en Zona VI
+  const kmMin = sorted[0].km, kmMax = sorted[sorted.length-1].km;
+  const p = Math.max(kmMin, Math.min(kmMax, prog));
+  // Segmento donde cae p
+  let i = 0;
+  for (; i < sorted.length - 1; i++) if (sorted[i+1].km >= p) break;
+  if (i >= sorted.length - 1) i = sorted.length - 2;
+  const a = sorted[i], b = sorted[i+1];
+  const t = (b.km === a.km) ? 0 : (p - a.km) / (b.km - a.km);
+  const targetAcc = a.acc + t * (b.acc - a.acc);
+  // Recorrer chain acumulando distancia hasta llegar a targetAcc
+  let acc = 0;
+  for (let j = 1; j < chain.length; j++){
+    const [lonA, latA] = chain[j-1], [lonB, latB] = chain[j];
+    const d = _haversineKm(latA, lonA, latB, lonB);
+    if (acc + d >= targetAcc){
+      const frac = d > 0 ? (targetAcc - acc) / d : 0;
+      return { lat: latA + frac*(latB-latA), lon: lonA + frac*(lonB-lonA) };
+    }
+    acc += d;
+  }
+  const last = chain[chain.length-1];
+  return { lat: last[1], lon: last[0] };
+}
+
+function _pointInPolygon(lat, lon, ring){
+  let inside = false;
+  for (let i = 0, j = ring.length-1; i < ring.length; j = i++){
+    const [xi, yi] = ring[i], [xj, yj] = ring[j];
+    const intersect = ((yi > lat) !== (yj > lat)) &&
+                      (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+async function pdPartidoDeLatLon(lat, lon){
+  const gj = await pdCargarPartidos();
+  if (!gj) return null;
+  for (const f of gj.features){
+    const g = f.geometry;
+    if (!g) continue;
+    if (g.type === 'Polygon'){
+      if (_pointInPolygon(lat, lon, g.coordinates[0])) return f.properties.partido || null;
+    } else if (g.type === 'MultiPolygon'){
+      for (const poly of g.coordinates){
+        if (_pointInPolygon(lat, lon, poly[0])) return f.properties.partido || null;
+      }
+    }
+  }
+  return null;
+}
+
+// Orquestador. Devuelve nombre de partido o null.
+async function pdDetectarPartido(tipo_via, ruta, prog_ini, prog_fin){
+  if (!ruta) return null;
+  if (tipo_via === 'camino'){
+    // Caminos: código NNN-NN es único por partido
+    if (typeof RED_VIAL !== 'undefined' && RED_VIAL.listarCaminos){
+      const c = (RED_VIAL.listarCaminos() || []).find(c => c.key === ruta);
+      return c && c.partido ? c.partido : null;
+    }
+    return null;
+  }
+  // RPs: extraer número, interpolar punto medio, point-in-polygon
+  const num = String(ruta).replace(/[^\d]/g,'');
+  if (!num) return null;
+  const pi = isFinite(prog_ini) ? prog_ini : null;
+  const pf = isFinite(prog_fin) ? prog_fin : null;
+  const pMedio = (pi != null && pf != null) ? (pi + pf) / 2 : (pi != null ? pi : pf);
+  if (pMedio == null) return null;
+  const ll = pdInterpolarProgresiva(num, pMedio);
+  if (!ll) return null;
+  return await pdPartidoDeLatLon(ll.lat, ll.lon);
 }
 
 function pdRenderEquipos(seleccionados = new Set()){
@@ -701,12 +857,13 @@ function pdActualizarCntEq(){
 }
 
 function pdAbrirNuevo(){
-  document.getElementById('modalTit').textContent = 'Nuevo Parte Diario';
+  document.getElementById('modalTit').textContent = 'Nuevo registro · Plan de Seguridad en la Circulación';
   document.getElementById('editId').value = '';
   document.getElementById('btnEliminar').style.display = 'none';
   document.getElementById('fecha').value = new Date().toISOString().slice(0,10);
   document.getElementById('tarea').value = '';
-  pdSetTV('rp');
+  pdPoblarRutasMix();
+  document.getElementById('tipoVia').value = 'rp';
   document.getElementById('ruta').value = '';
   ['progIni','progFin','combustible','mezcla','obs','qEq','kmCalc'].forEach(id => document.getElementById(id).value = '');
   _fotosSeleccionadas = { previa: [], posterior: [] };
@@ -721,20 +878,26 @@ async function pdEditarParte(id){
              parte_fotos(relevamiento_id, momento, orden)`)
     .eq('id', id).single();
   if (error) { alert('Error: '+error.message); return; }
-  document.getElementById('modalTit').textContent = `Editar Parte #${id}`;
+  document.getElementById('modalTit').textContent = `Editar registro #${id} · Plan de Seguridad en la Circulación`;
   document.getElementById('editId').value = id;
   document.getElementById('btnEliminar').style.display = 'inline-block';
   document.getElementById('fecha').value = p.fecha;
   document.getElementById('tarea').value = p.tarea_id || '';
-  pdSetTV(p.tipo_via || 'rp');
-  // Si la ruta no está en el dropdown de RPs, agregarla
+  // v7.70 — dropdown único con [P]/[S]. tipo_via se deriva del <option> seleccionado.
+  pdPoblarRutasMix();
   const sel = document.getElementById('ruta');
   if (p.ruta && ![...sel.options].some(o => o.value === p.ruta)) {
-    sel.insertAdjacentHTML('beforeend', `<option value="${p.ruta}" selected>${p.ruta}</option>`);
+    // Ruta legacy que no matchea el catálogo actual — agregarla suelta
+    const tipoLegacy = p.tipo_via || 'rp';
+    const tag = tipoLegacy === 'rp' ? '[P]' : '[S]';
+    sel.insertAdjacentHTML('beforeend',
+      `<option value="${p.ruta}" data-tipo="${tipoLegacy}" selected>${p.ruta} ${tag}</option>`);
   }
   sel.value = p.ruta || '';
-  document.getElementById('progIni').value = p.prog_ini ?? '';
-  document.getElementById('progFin').value = p.prog_fin ?? '';
+  pdSetTipoViaAuto();  // derivar tipoVia del option elegido
+  // v7.70 — mostrar con coma decimal (formato oficial DVBA)
+  document.getElementById('progIni').value = (p.prog_ini != null) ? String(p.prog_ini).replace('.', ',') : '';
+  document.getElementById('progFin').value = (p.prog_fin != null) ? String(p.prog_fin).replace('.', ',') : '';
   document.getElementById('combustible').value = p.combustible_l ?? '';
   document.getElementById('mezcla').value = p.mezcla_asfaltica_tn ?? '';
   document.getElementById('obs').value = p.observaciones || '';
@@ -840,8 +1003,11 @@ async function pdGuardar(){
   const tarea_id = document.getElementById('tarea').value;
   const tipo_via = document.getElementById('tipoVia').value;
   const ruta = document.getElementById('ruta').value.trim();
-  const prog_ini = document.getElementById('progIni').value;
-  const prog_fin = document.getElementById('progFin').value;
+  // v7.70 — inputs vienen como texto con coma decimal
+  const prog_ini_raw = document.getElementById('progIni').value;
+  const prog_fin_raw = document.getElementById('progFin').value;
+  const prog_ini_num = pdParseProg(prog_ini_raw);
+  const prog_fin_num = pdParseProg(prog_fin_raw);
   const comb = document.getElementById('combustible').value;
   const mezcla = document.getElementById('mezcla').value;
   const obs = document.getElementById('obs').value.trim();
@@ -849,10 +1015,13 @@ async function pdGuardar(){
   const btn = document.getElementById('btnGuardar');
   btn.disabled = true; btn.textContent = '⏳ Guardando…';
   try {
+    // v7.70 — detectar partido antes de armar payload
+    const partidoAuto = await pdDetectarPartido(tipo_via, ruta, prog_ini_num, prog_fin_num);
     const payload = {
       fecha, tarea_id: Number(tarea_id), tipo_via, ruta,
-      prog_ini: prog_ini ? Number(prog_ini) : null,
-      prog_fin: prog_fin ? Number(prog_fin) : null,
+      partido: partidoAuto,
+      prog_ini: isFinite(prog_ini_num) ? prog_ini_num : null,
+      prog_fin: isFinite(prog_fin_num) ? prog_fin_num : null,
       combustible_l: comb ? Number(comb) : null,
       mezcla_asfaltica_tn: mezcla ? Number(mezcla) : null,
       observaciones: obs || null,
@@ -866,7 +1035,9 @@ async function pdGuardar(){
       await _supa.from('parte_maquinarias').delete().eq('parte_id', parteId);
       await _supa.from('parte_fotos').delete().eq('parte_id', parteId);
     } else {
-      const { data, error } = await _supa.from('partes_diarios').insert(payload).select('id').single();
+      // v7.70 · llenar responsable_id (auditoría) — el UID viene de pdInit
+      const insertPayload = { ...payload, responsable_id: _userId };
+      const { data, error } = await _supa.from('partes_diarios').insert(insertPayload).select('id').single();
       if (error) throw error;
       parteId = data.id;
     }
@@ -994,7 +1165,7 @@ function pdActualizarRed(){
 window.addEventListener('online', pdActualizarRed);
 window.addEventListener('offline', pdActualizarRed);
 
-// v7.67 — Wrapper del pdInit ANTES del addEventListener, así el DOMContentLoaded
+// v7.70 — Wrapper del pdInit ANTES del addEventListener, así el DOMContentLoaded
 // dispara la versión nueva (que muestra el footer institucional al final).
 const _origInit = pdInit;
 pdInit = async function(){
