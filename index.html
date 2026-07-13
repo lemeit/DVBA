@@ -257,6 +257,12 @@ body.modo-campo #campo-fab{display:flex}
 
 /* v7.12 — Badge cola de pendientes en header */
 #cola-badge{display:none;align-items:center;gap:5px;background:linear-gradient(135deg,#f0a500,#f57c00);color:#fff;border:none;font-size:.66rem;font-weight:700;padding:4px 10px;border-radius:12px;cursor:pointer;margin-right:8px;box-shadow:0 2px 6px rgba(245,124,0,.4);animation:colaPulse 2s ease-in-out infinite}
+#btn-partes{background:rgba(26,138,74,.85);color:#fff;border:1px solid rgba(255,255,255,.3);
+  padding:5px 12px;border-radius:14px;font-size:10px;font-weight:700;text-decoration:none;
+  display:inline-flex;align-items:center;gap:4px;cursor:pointer;letter-spacing:.3px;
+  transition:all .15s;margin-left:6px;font-family:inherit}
+#btn-partes:hover{background:rgba(26,138,74,1);box-shadow:0 2px 8px rgba(26,138,74,.35)}
+
 #cola-badge.show{display:inline-flex}
 #cola-badge:hover{filter:brightness(1.1)}
 #cola-badge.urgente{background:linear-gradient(135deg,#e53935,#b71c1c)}
@@ -339,12 +345,14 @@ body.modo-campo #campo-fab{display:flex}
     <button id="cola-badge" title="Registros pendientes de revisión" onclick="abrirColaPendientes()">
       🔔 <span id="cola-count">0</span> pendientes
     </button>
+    <a id="btn-partes" href="partes_diarios.html" title="Ir a Partes Diarios">
+      📋 Partes Diarios
+    </a>
     <div id="user-info" title="Usuario autenticado">
       <span id="user-email">—</span>
       <button onclick="hacerLogout()">salir</button>
     </div>
-    <span class="hversion">Desarrollado por Ing. Luciano Lamaita &nbsp;&middot;&nbsp; <span id="app-ver"></span>
-    <a class="hversion" href="partes_diarios.html" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:4px 12px;border-radius:12px;text-decoration:none;color:#fff;font-weight:700;margin-left:8px" title="Partes Diarios">📋 Partes Diarios</a></span>
+    <span class="hversion">Desarrollado por Ing. Luciano Lamaita &nbsp;&middot;&nbsp; <span id="app-ver"></span></span>
     <span style="font-size:9px;color:#2a3a4a">EN LINEA</span><div class="dot"></div>
   </div>
 </header>

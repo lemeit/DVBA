@@ -395,16 +395,38 @@ let _relSelTmp = new Set(); // ids seleccionados temporalmente
 let _relMomentoTmp = null;
 
 async function pdInit(){
-  _supa = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-  // Restaurar sesión guardada por auth.js (localStorage)
-  const raw = localStorage.getItem('dvba_supa_session');
-  if (!raw) { document.getElementById('authGuard').style.display = 'block'; return; }
+  _supa = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
+    auth: { persistSession: true, storageKey: 'dvba_session', storage: window.localStorage }
+  });
+  // Restaurar sesión guardada por auth.js (clave 'dvba_session')
+  const raw = localStorage.getItem('dvba_session');
+  if (!raw) {
+    console.warn('[pd] no hay sesión guardada en localStorage');
+    document.getElementById('authGuard').style.display = 'block'; return;
+  }
+  let sess;
+  try { sess = JSON.parse(raw); } catch(e) {
+    console.warn('[pd] JSON inválido en dvba_session', e);
+    document.getElementById('authGuard').style.display = 'block'; return;
+  }
+  // La sesión puede venir directa {access_token, refresh_token, ...} o anidada en .session
+  const s = sess.session || sess;
+  if (!s || !s.access_token) {
+    console.warn('[pd] sesión sin access_token', sess);
+    document.getElementById('authGuard').style.display = 'block'; return;
+  }
   try {
-    const sess = JSON.parse(raw);
-    await _supa.auth.setSession({ access_token: sess.access_token, refresh_token: sess.refresh_token });
-  } catch(e) { console.warn('[pd] sesión inválida', e); document.getElementById('authGuard').style.display = 'block'; return; }
-  const { data: { user } } = await _supa.auth.getUser();
-  if (!user) { document.getElementById('authGuard').style.display = 'block'; return; }
+    await _supa.auth.setSession({ access_token: s.access_token, refresh_token: s.refresh_token });
+  } catch(e) {
+    console.warn('[pd] setSession falló', e);
+    document.getElementById('authGuard').style.display = 'block'; return;
+  }
+  const { data: { user }, error: uErr } = await _supa.auth.getUser();
+  if (uErr || !user) {
+    console.warn('[pd] getUser falló', uErr);
+    document.getElementById('authGuard').style.display = 'block'; return;
+  }
+  console.log('[pd] sesión activa:', user.email);
   document.getElementById('email').textContent = user.email;
   document.getElementById('toolbar').style.display = 'flex';
   document.getElementById('resumen').style.display = 'block';
