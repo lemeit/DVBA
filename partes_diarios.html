@@ -715,11 +715,11 @@ async function pdEditarParte(id){
   _fotosSeleccionadas = { previa: [], posterior: [] };
   if (fotos.length) {
     const relIds = fotos.map(f => f.relevamiento_id);
-    const { data: relevs } = await _supa.from('relevamientos').select('id, foto_url, ruta, prog, fecha').in('id', relIds);
+    const { data: relevs } = await _supa.from('relevamientos').select('id, foto_url, ruta, progresiva, fecha').in('id', relIds);
     const relMap = Object.fromEntries((relevs||[]).map(r => [r.id, r]));
     fotos.forEach(f => {
       const r = relMap[f.relevamiento_id];
-      if (r) _fotosSeleccionadas[f.momento].push({ relevamiento_id: r.id, foto_url: r.foto_url, ruta: r.ruta, prog: r.prog, fecha: r.fecha });
+      if (r) _fotosSeleccionadas[f.momento].push({ relevamiento_id: r.id, foto_url: r.foto_url, ruta: r.ruta, prog: r.progresiva, fecha: r.fecha });
     });
   }
   pdRenderFotos();
@@ -760,7 +760,7 @@ async function pdSelFotosDe(momento){
   document.getElementById('relLista').innerHTML = '';
   document.getElementById('modalRel').classList.add('on');
   const { desde, hasta } = habilesAntesDespues(fecha, 5);
-  let q = _supa.from('relevamientos').select('id, foto_url, ruta, prog, fecha, partido, tipo')
+  let q = _supa.from('relevamientos').select('id, foto_url, ruta, progresiva, fecha, partido, tipo')
     .gte('fecha', desde).lte('fecha', hasta)
     .not('foto_url','is',null)
     .order('fecha', {ascending:false});
@@ -797,7 +797,7 @@ function pdTogRel(id, el){
 }
 function pdConfirmarRel(){
   _relCandidatos.filter(r => _relSelTmp.has(r.id)).forEach(r => {
-    _fotosSeleccionadas[_relMomentoTmp].push({ relevamiento_id: r.id, foto_url: r.foto_url, ruta: r.ruta, prog: r.prog, fecha: r.fecha });
+    _fotosSeleccionadas[_relMomentoTmp].push({ relevamiento_id: r.id, foto_url: r.foto_url, ruta: r.ruta, prog: r.progresiva, fecha: r.fecha });
   });
   pdCerrarRel();
   pdRenderFotos();
