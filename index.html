@@ -343,7 +343,8 @@ body.modo-campo #campo-fab{display:flex}
       <span id="user-email">—</span>
       <button onclick="hacerLogout()">salir</button>
     </div>
-    <span class="hversion">Desarrollado por Ing. Luciano Lamaita &nbsp;&middot;&nbsp; <span id="app-ver"></span></span>
+    <span class="hversion">Desarrollado por Ing. Luciano Lamaita &nbsp;&middot;&nbsp; <span id="app-ver"></span>
+    <a class="hversion" href="partes_diarios.html" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:4px 12px;border-radius:12px;text-decoration:none;color:#fff;font-weight:700;margin-left:8px" title="Partes Diarios">📋 Partes Diarios</a></span>
     <span style="font-size:9px;color:#2a3a4a">EN LINEA</span><div class="dot"></div>
   </div>
 </header>
@@ -373,7 +374,6 @@ body.modo-campo #campo-fab{display:flex}
   <div class="panel-tabs">
     <div class="ptab on"      id="ptab-mapa" onclick="showPtab('mapa',this)">🗺 Mapa</div>
     <div class="ptab tab-reg" id="ptab-regs" onclick="showPtab('regs',this)">📋 Registros</div>
-    <div class="ptab tab-part" id="ptab-partes" onclick="showPtab('partes',this);pdInit()">📋 Partes</div>
     <div class="ptab tab-rep" id="ptab-rep"  onclick="showPtab('rep',this)" >📊 Reportes</div>
   </div>
   <div class="panel-body">
@@ -519,28 +519,6 @@ body.modo-campo #campo-fab{display:flex}
       </div>
     </div>
 
-    <!-- ══ TAB PARTES DIARIOS ══════════════════════════════════════ -->
-    <div class="pane" id="pane-partes">
-      <div class="sec">
-        <div class="sec-title" style="display:flex;justify-content:space-between;align-items:center">
-          <span>Partes Diarios</span>
-          <button class="btn btn-xs" onclick="pdAbrirNuevo()" style="background:#1a8a4a;color:#fff;border:none;padding:5px 10px;font-weight:700">+ Nuevo</button>
-        </div>
-        <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">
-          <label style="font-size:9px;color:#7a8a9a;font-weight:700">Mes:</label>
-          <input type="month" id="pd-filtro-mes" onchange="pdCargarPartes()" style="flex:1;padding:5px 8px;background:#0d1a1a;color:#c4e0d0;border:1px solid #2a4a4a;border-radius:4px;font-size:11px">
-        </div>
-        <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">
-          <label style="font-size:9px;color:#7a8a9a;font-weight:700">Tarea:</label>
-          <select id="pd-filtro-tarea" onchange="pdCargarPartes()" style="flex:1;padding:5px 8px;background:#0d1a1a;color:#c4e0d0;border:1px solid #2a4a4a;border-radius:4px;font-size:11px">
-            <option value="">Todas</option>
-          </select>
-        </div>
-        <div id="pd-resumen" style="font-size:10px;color:#7a9ab0;padding:6px 8px;background:#0a1f12;border-radius:4px;margin-bottom:8px">Cargando…</div>
-        <div id="pd-lista" style="max-height:calc(100vh - 340px);overflow-y:auto;font-size:10px"></div>
-      </div>
-    </div>
-
     <!-- ══ TAB REPORTES ═══════════════════════════════════════════ -->
     <div class="pane" id="pane-rep">
       <div class="sec" style="border-bottom:none">
@@ -681,7 +659,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.63';
+const APP_VERSION = 'v7.64';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -5575,261 +5553,7 @@ function editarCaractCamino(){
 </script>
 
 
-<!-- ═══════════ v7.63 · Modal Nuevo/Editar Parte Diario ═══════════ -->
-<div class="mov-sello" id="modal-parte" style="display:none">
-  <div class="modal-sello" style="max-width:600px;background:#fff">
-    <div class="ms-h" style="background:linear-gradient(135deg,#1a8a4a,#0f6035);color:#fff">
-      <div style="flex:1">
-        <div style="font-size:16px;font-weight:800" id="pd-modal-titulo">Nuevo Parte Diario</div>
-        <div style="font-size:10px;opacity:.9;margin-top:2px">DVBA Zona VI Saladillo</div>
-      </div>
-      <button onclick="pdCerrarModal()" style="background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer;padding:0 8px">×</button>
-    </div>
-    <div class="ms-b" style="max-height:70vh;overflow-y:auto;padding:14px 16px;color:#333;font-size:12px">
-      <input type="hidden" id="pd-edit-id" value="">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 12px">
-        <div>
-          <label style="font-weight:700;color:#333;display:block;margin-bottom:3px">Fecha</label>
-          <input type="date" id="pd-fecha" style="width:100%;padding:7px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px">
-        </div>
-        <div>
-          <label style="font-weight:700;color:#333;display:block;margin-bottom:3px">Tarea</label>
-          <select id="pd-tarea" style="width:100%;padding:7px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px">
-            <option value="">— Seleccionar —</option>
-          </select>
-        </div>
-        <div>
-          <label style="font-weight:700;color:#333;display:block;margin-bottom:3px">Tipo de vía</label>
-          <div style="display:flex;gap:0;background:#eef3f8;border-radius:5px;padding:2px;border:1px solid #cdd9e6">
-            <button type="button" class="pd-tv" data-tv="rp" onclick="pdSetTipoVia('rp')" style="flex:1;padding:6px;border:none;background:#003366;color:#fff;font-size:11px;font-weight:600;border-radius:4px;cursor:pointer">🛣 RP</button>
-            <button type="button" class="pd-tv" data-tv="camino" onclick="pdSetTipoVia('camino')" style="flex:1;padding:6px;border:none;background:transparent;color:#5a6a7a;font-size:11px;font-weight:600;border-radius:4px;cursor:pointer">🚜 Camino</button>
-          </div>
-          <input type="hidden" id="pd-tipo-via" value="rp">
-        </div>
-        <div>
-          <label style="font-weight:700;color:#333;display:block;margin-bottom:3px">Ruta / Camino</label>
-          <input type="text" id="pd-ruta" placeholder="Ej: RP51 o 093-13" style="width:100%;padding:7px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px">
-        </div>
-        <div>
-          <label style="font-weight:700;color:#333;display:block;margin-bottom:3px">Prog. inicial (km)</label>
-          <input type="number" id="pd-prog-ini" step="0.01" placeholder="318.80" style="width:100%;padding:7px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px">
-        </div>
-        <div>
-          <label style="font-weight:700;color:#333;display:block;margin-bottom:3px">Prog. final (km)</label>
-          <input type="number" id="pd-prog-fin" step="0.01" placeholder="319.00" style="width:100%;padding:7px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px">
-          <div style="font-size:9px;color:#7a8a9a;margin-top:2px">km recorridos = final − inicial</div>
-        </div>
-        <div>
-          <label style="font-weight:700;color:#333;display:block;margin-bottom:3px">Combustible (l)</label>
-          <input type="number" id="pd-combustible" step="0.1" placeholder="Opcional" style="width:100%;padding:7px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px">
-        </div>
-        <div>
-          <label style="font-weight:700;color:#333;display:block;margin-bottom:3px">Mezcla asfáltica (tn)</label>
-          <input type="number" id="pd-mezcla" step="0.01" placeholder="Opcional" style="width:100%;padding:7px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px">
-        </div>
-      </div>
-      <div style="margin-top:12px">
-        <label style="font-weight:700;color:#333;display:block;margin-bottom:3px">Equipos usados <span style="font-weight:400;color:#7a8a9a">(ordenados por uso histórico)</span></label>
-        <div id="pd-vehiculos" style="max-height:180px;overflow-y:auto;border:1px solid #ccc;border-radius:4px;padding:6px;background:#fafafa">
-          <div style="color:#888;font-size:10px">Cargando vehículos…</div>
-        </div>
-      </div>
-      <div style="margin-top:12px">
-        <label style="font-weight:700;color:#333;display:block;margin-bottom:3px">Observaciones</label>
-        <textarea id="pd-obs" rows="3" style="width:100%;padding:7px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px;resize:vertical" placeholder="Detalles de la tarea, anomalías, etc."></textarea>
-      </div>
-    </div>
-    <div class="ms-f" style="padding:10px 16px;border-top:1px solid #e8ecef;background:#fafbfc;display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="pdCerrarModal()" style="padding:8px 16px;border:1px solid #ccc;background:#fff;color:#333;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer">Cancelar</button>
-      <button onclick="pdGuardarParte()" id="pd-btn-guardar" style="padding:8px 18px;border:0;background:#1a8a4a;color:#fff;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">💾 Guardar</button>
-    </div>
-  </div>
-</div>
 
-<script>
-// ═══════════════════════ v7.63 · Partes Diarios ═══════════════════════
-let _pdTareas = [];      // catalogo_tareas
-let _pdVehiculos = [];   // vehiculos con ranking histórico
-let _pdInicializado = false;
-
-async function pdInit(){
-  if (_pdInicializado) return;
-  _pdInicializado = true;
-  // Setear mes actual en el filtro
-  const hoy = new Date();
-  const mes = String(hoy.getMonth()+1).padStart(2,'0');
-  document.getElementById('pd-filtro-mes').value = `${hoy.getFullYear()}-${mes}`;
-  // Cargar catálogos (tareas)
-  if (!_supa) { document.getElementById('pd-resumen').textContent = 'Necesitás iniciar sesión.'; return; }
-  const { data: tareas, error: te } = await _supa.from('catalogo_tareas').select('id, nombre, categoria').eq('activo', true).order('id');
-  if (te) { console.error('[pd] tareas:', te); document.getElementById('pd-resumen').textContent = 'Error cargando catálogos'; return; }
-  _pdTareas = tareas || [];
-  // Poblar filtro y modal
-  const selFiltro = document.getElementById('pd-filtro-tarea');
-  const selModal  = document.getElementById('pd-tarea');
-  _pdTareas.forEach(t => {
-    const nombre = t.nombre.length > 40 ? t.nombre.slice(0,37)+'…' : t.nombre;
-    selFiltro.innerHTML += `<option value="${t.id}">${nombre}</option>`;
-    selModal.innerHTML += `<option value="${t.id}">${t.nombre}</option>`;
-  });
-  // Cargar vehículos con ranking (equipos más usados primero)
-  const { data: vehi, error: ve } = await _supa.from('vehiculos').select('id, identificador, numero, tipo_maquinaria, marca, modelo').eq('activo', true).order('tipo_maquinaria').order('numero');
-  if (!ve) _pdVehiculos = vehi || [];
-  pdCargarPartes();
-}
-
-async function pdCargarPartes(){
-  const mesInput = document.getElementById('pd-filtro-mes').value;
-  const tareaId  = document.getElementById('pd-filtro-tarea').value;
-  const lista = document.getElementById('pd-lista');
-  const resumen = document.getElementById('pd-resumen');
-  if (!mesInput) { lista.innerHTML = ''; return; }
-  const [ano, mes] = mesInput.split('-').map(Number);
-  const desde = `${ano}-${String(mes).padStart(2,'0')}-01`;
-  const hastaFecha = new Date(ano, mes, 1); // primer día del mes siguiente
-  const hasta = hastaFecha.toISOString().slice(0,10);
-  let q = _supa.from('partes_diarios')
-    .select('id, fecha, tarea_id, tipo_via, ruta, prog_ini, prog_fin, km_recorridos, observaciones, combustible_l, mezcla_asfaltica_tn, enviado_admin, parte_maquinarias(vehiculo_id, vehiculos(tipo_maquinaria, identificador, numero))')
-    .gte('fecha', desde).lt('fecha', hasta)
-    .order('fecha', {ascending:false}).order('id', {ascending:false});
-  if (tareaId) q = q.eq('tarea_id', Number(tareaId));
-  const { data: partes, error } = await q;
-  if (error) { resumen.textContent = 'Error: '+error.message; return; }
-  const tareasMap = Object.fromEntries(_pdTareas.map(t => [t.id, t.nombre]));
-  const kmTotal = (partes||[]).reduce((s,p) => s + (Number(p.km_recorridos)||0), 0);
-  const nomMes = new Date(ano, mes-1, 1).toLocaleDateString('es-AR', {month:'long', year:'numeric'});
-  resumen.innerHTML = `<b>${(partes||[]).length}</b> partes en <b>${nomMes}</b> · <b>${kmTotal.toFixed(2)}</b> km recorridos`;
-  if (!partes || !partes.length) { lista.innerHTML = '<div style="padding:12px;color:#888;text-align:center;font-size:10px">Sin partes en este mes.</div>'; return; }
-  lista.innerHTML = partes.map(p => {
-    const eqs = (p.parte_maquinarias||[]).map(pm => pm.vehiculos ? `${pm.vehiculos.tipo_maquinaria}` : '').filter(Boolean);
-    const eqsHTML = eqs.length ? eqs.slice(0,3).map(e => `<span style="background:#e8f7f9;color:#003366;padding:1px 4px;border-radius:3px;font-size:8.5px;margin-right:2px">${e}</span>`).join('') + (eqs.length>3?`<span style="font-size:8px;color:#888">+${eqs.length-3}</span>`:'') : '<span style="color:#c48b4a;font-size:8.5px">sin equipos</span>';
-    const km = p.km_recorridos != null ? Number(p.km_recorridos).toFixed(2)+' km' : '—';
-    return `<div style="padding:6px 8px;border-bottom:1px solid #e8ecef;cursor:pointer" onclick="pdEditarParte(${p.id})">
-      <div style="display:flex;justify-content:space-between;font-weight:700;color:#003366">
-        <span>${p.fecha} · ${p.ruta}</span>
-        <span style="font-family:monospace;color:#1a8a4a">${km}</span>
-      </div>
-      <div style="font-size:9.5px;color:#555;margin-top:2px">${tareasMap[p.tarea_id]||'(sin tarea)'}</div>
-      <div style="margin-top:3px">${eqsHTML}</div>
-    </div>`;
-  }).join('');
-}
-
-function pdSetTipoVia(tv){
-  document.getElementById('pd-tipo-via').value = tv;
-  document.querySelectorAll('.pd-tv').forEach(b => {
-    const activo = b.dataset.tv === tv;
-    b.style.background = activo ? '#003366' : 'transparent';
-    b.style.color      = activo ? '#fff' : '#5a6a7a';
-  });
-}
-
-function pdRenderVehiculos(){
-  const cont = document.getElementById('pd-vehiculos');
-  if (!_pdVehiculos.length) { cont.innerHTML = '<div style="color:#888">Sin vehículos cargados.</div>'; return; }
-  cont.innerHTML = _pdVehiculos.map(v => `
-    <label style="display:flex;align-items:center;gap:6px;padding:3px;cursor:pointer;font-size:11px">
-      <input type="checkbox" class="pd-veh-chk" value="${v.id}" style="cursor:pointer">
-      <span><b>${v.tipo_maquinaria}</b> <span style="color:#666">${v.identificador} ${v.numero}${v.marca?' · '+v.marca:''}${v.modelo?' '+v.modelo:''}</span></span>
-    </label>
-  `).join('');
-}
-
-function pdAbrirNuevo(){
-  if (!_supa) { alert('Necesitás iniciar sesión.'); return; }
-  document.getElementById('pd-modal-titulo').textContent = 'Nuevo Parte Diario';
-  document.getElementById('pd-edit-id').value = '';
-  const hoy = new Date().toISOString().slice(0,10);
-  document.getElementById('pd-fecha').value = hoy;
-  document.getElementById('pd-tarea').value = '';
-  pdSetTipoVia('rp');
-  ['pd-ruta','pd-prog-ini','pd-prog-fin','pd-combustible','pd-mezcla','pd-obs'].forEach(id => document.getElementById(id).value = '');
-  pdRenderVehiculos();
-  document.getElementById('modal-parte').style.display = 'flex';
-}
-
-async function pdEditarParte(id){
-  // Cargar el parte y sus maquinarias
-  const { data: p, error } = await _supa.from('partes_diarios')
-    .select('*, parte_maquinarias(vehiculo_id)')
-    .eq('id', id).single();
-  if (error) { alert('Error cargando: '+error.message); return; }
-  document.getElementById('pd-modal-titulo').textContent = `Editar Parte #${id}`;
-  document.getElementById('pd-edit-id').value = id;
-  document.getElementById('pd-fecha').value = p.fecha;
-  document.getElementById('pd-tarea').value = p.tarea_id || '';
-  pdSetTipoVia(p.tipo_via || 'rp');
-  document.getElementById('pd-ruta').value = p.ruta || '';
-  document.getElementById('pd-prog-ini').value = p.prog_ini ?? '';
-  document.getElementById('pd-prog-fin').value = p.prog_fin ?? '';
-  document.getElementById('pd-combustible').value = p.combustible_l ?? '';
-  document.getElementById('pd-mezcla').value = p.mezcla_asfaltica_tn ?? '';
-  document.getElementById('pd-obs').value = p.observaciones || '';
-  pdRenderVehiculos();
-  // Tildar los vehículos ya asociados
-  const idsAsoc = new Set((p.parte_maquinarias||[]).map(pm => pm.vehiculo_id));
-  document.querySelectorAll('.pd-veh-chk').forEach(chk => { if (idsAsoc.has(Number(chk.value))) chk.checked = true; });
-  document.getElementById('modal-parte').style.display = 'flex';
-}
-
-function pdCerrarModal(){
-  document.getElementById('modal-parte').style.display = 'none';
-}
-
-async function pdGuardarParte(){
-  const btn = document.getElementById('pd-btn-guardar');
-  const editId = document.getElementById('pd-edit-id').value.trim();
-  const fecha = document.getElementById('pd-fecha').value;
-  const tareaId = document.getElementById('pd-tarea').value;
-  const tipoVia = document.getElementById('pd-tipo-via').value;
-  const ruta = document.getElementById('pd-ruta').value.trim();
-  const progIni = document.getElementById('pd-prog-ini').value;
-  const progFin = document.getElementById('pd-prog-fin').value;
-  const comb = document.getElementById('pd-combustible').value;
-  const mezcla = document.getElementById('pd-mezcla').value;
-  const obs = document.getElementById('pd-obs').value.trim();
-  if (!fecha || !tareaId || !tipoVia || !ruta) { alert('Faltan campos obligatorios: fecha, tarea, tipo de vía, ruta.'); return; }
-  const vehiculosSel = [...document.querySelectorAll('.pd-veh-chk:checked')].map(c => Number(c.value));
-  btn.disabled = true; btn.textContent = '⏳ Guardando…';
-  try {
-    const payload = {
-      fecha, tarea_id: Number(tareaId), tipo_via: tipoVia, ruta,
-      prog_ini: progIni ? Number(progIni) : null,
-      prog_fin: progFin ? Number(progFin) : null,
-      combustible_l: comb ? Number(comb) : null,
-      mezcla_asfaltica_tn: mezcla ? Number(mezcla) : null,
-      observaciones: obs || null,
-      enviado_admin: false
-    };
-    let parteId;
-    if (editId) {
-      const { error } = await _supa.from('partes_diarios').update(payload).eq('id', editId);
-      if (error) throw error;
-      parteId = Number(editId);
-      // Reemplazar maquinarias: borrar y volver a insertar
-      await _supa.from('parte_maquinarias').delete().eq('parte_id', parteId);
-    } else {
-      const { data, error } = await _supa.from('partes_diarios').insert(payload).select('id').single();
-      if (error) throw error;
-      parteId = data.id;
-    }
-    if (vehiculosSel.length) {
-      const rows = vehiculosSel.map((vid, i) => ({parte_id: parteId, orden: i+1, vehiculo_id: vid}));
-      const { error: mErr } = await _supa.from('parte_maquinarias').insert(rows);
-      if (mErr) throw mErr;
-    }
-    pdCerrarModal();
-    pdCargarPartes();
-    alert(editId ? '✓ Parte actualizado' : '✓ Parte guardado');
-  } catch(e) {
-    console.error('[pd guardar]', e);
-    alert('Error guardando el parte: ' + (e.message || e));
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '💾 Guardar';
-  }
-}
-</script>
 
 </body>
 </html>

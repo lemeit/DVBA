@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Partes Diarios · DVBA Zona VI Saladillo</title>
+<link rel="icon" href="datos/img/logo_dvba_circular.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="datos/auth.js"></script>
+<style>
+:root{
+  --p:#003366; --pd:#001a33; --pl:#003d80;
+  --acc:#c25a2a; --vd:#1a8a4a; --am:#c47a00; --ro:#b20900;
+  --txt:#1a2a3a; --mut:#6a7a8a; --light:#e2e8ef;
+  --bg:#f7f9fc; --w:#fff; --r:6px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;font-family:'Encode Sans','Segoe UI',Arial,sans-serif;font-size:13px;color:var(--txt);background:var(--bg)}
+body{display:flex;flex-direction:column}
+
+/* HEADER */
+header{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+header .logo{width:44px;height:44px;background:#fff;border-radius:50%;padding:4px;display:flex;align-items:center;justify-content:center}
+header .logo img{width:100%;height:100%;object-fit:contain}
+header .t{flex:1}
+header .t h1{margin:0;font-size:16px;font-weight:800;letter-spacing:.3px}
+header .t p{margin:2px 0 0 0;font-size:10px;opacity:.9}
+header .user{font-size:11px;display:flex;align-items:center;gap:8px}
+header .user #email{font-weight:600}
+header .btn-hdr{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none}
+header .btn-hdr:hover{background:rgba(255,255,255,.25)}
+
+/* TOOLBAR */
+.toolbar{background:var(--w);padding:10px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--light);flex-shrink:0}
+.toolbar label{font-size:10px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-right:4px}
+.toolbar input, .toolbar select{padding:6px 8px;border:1px solid var(--light);border-radius:var(--r);font-size:12px;color:var(--txt);background:var(--w)}
+.toolbar .btn-primary{background:var(--vd);color:#fff;border:0;padding:8px 14px;border-radius:var(--r);font-size:12px;font-weight:700;cursor:pointer}
+.toolbar .btn-primary:hover{background:#146637}
+.toolbar .sep{flex:1}
+
+/* RESUMEN */
+.resumen{padding:8px 20px;background:#eff5fb;font-size:11px;color:var(--p);border-bottom:1px solid var(--light);flex-shrink:0}
+.resumen b{color:var(--pd)}
+.resumen .badges{display:inline-block;margin-left:10px}
+.resumen .badge{display:inline-block;background:var(--w);border:1px solid var(--light);border-radius:10px;padding:1px 8px;margin:0 2px;font-size:10px;color:var(--p)}
+
+/* TABLA */
+.wrap{flex:1;overflow:auto;padding:8px 20px}
+table.partes{width:100%;border-collapse:collapse;background:var(--w);box-shadow:0 1px 3px rgba(0,0,0,.05);border-radius:var(--r);overflow:hidden}
+table.partes thead{background:var(--p);color:#fff}
+table.partes th{padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left;white-space:nowrap}
+table.partes th.num{text-align:right}
+table.partes th.center{text-align:center}
+table.partes td{padding:7px 8px;border-bottom:1px solid #eef2f7;font-size:11.5px;vertical-align:top}
+table.partes tbody tr:hover{background:#f8fbff;cursor:pointer}
+table.partes td.num{text-align:right;font-family:'SF Mono',Menlo,monospace;font-weight:600}
+table.partes td.center{text-align:center}
+table.partes .badge-eq{display:inline-block;background:#e8f7f9;color:var(--p);padding:1px 6px;border-radius:3px;font-size:9.5px;margin-right:2px;font-weight:600}
+table.partes .badge-count{color:var(--mut);font-size:9.5px}
+table.partes .acc-btn{padding:3px 6px;border:1px solid var(--light);background:var(--w);border-radius:3px;font-size:11px;cursor:pointer;margin-right:2px}
+table.partes .acc-btn:hover{background:#f0f4f8}
+table.partes .acc-btn.del:hover{background:#fee;border-color:#faa;color:#c00}
+table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{padding:40px 20px;text-align:center;color:var(--mut);font-size:12px}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-ov.on{display:flex}
+.modal{background:var(--w);border-radius:10px;max-width:820px;width:100%;max-height:calc(100vh - 40px);display:flex;flex-direction:column;box-shadow:0 15px 60px rgba(0,0,0,.35)}
+.modal-h{background:linear-gradient(135deg,var(--vd),#146637);color:#fff;padding:14px 20px;border-radius:10px 10px 0 0;display:flex;align-items:center;gap:10px}
+.modal-h h2{margin:0;font-size:16px;font-weight:800;flex:1}
+.modal-h .x{background:transparent;border:0;color:#fff;font-size:22px;cursor:pointer;padding:0 8px;line-height:1}
+.modal-b{flex:1;overflow-y:auto;padding:18px 22px;font-size:12.5px}
+.modal-f{background:#fafbfc;padding:12px 22px;border-top:1px solid var(--light);border-radius:0 0 10px 10px;display:flex;justify-content:flex-end;gap:8px}
+.modal-b .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.modal-b .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 16px}
+.modal-b .fld{display:flex;flex-direction:column;gap:3px}
+.modal-b label{font-size:10px;font-weight:700;color:var(--txt);text-transform:uppercase;letter-spacing:.3px}
+.modal-b input, .modal-b select, .modal-b textarea{padding:8px 10px;border:1px solid #c8d0dc;border-radius:5px;font-size:12.5px;font-family:inherit;color:var(--txt);background:var(--w)}
+.modal-b input:focus, .modal-b select:focus, .modal-b textarea:focus{outline:none;border-color:var(--vd);box-shadow:0 0 0 3px rgba(26,138,74,.15)}
+.modal-b textarea{resize:vertical;min-height:70px}
+.modal-b .sec-title{font-size:11px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px 0;padding-bottom:5px;border-bottom:2px solid var(--p)}
+.modal-b .sec-title .cnt{background:var(--p);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:8px;font-weight:700}
+.modal-b .toggle-tv{display:flex;gap:0;background:#eef3f8;border-radius:5px;padding:2px;border:1px solid #cdd9e6}
+.modal-b .toggle-tv button{flex:1;padding:6px;border:0;background:transparent;color:#5a6a7a;font-size:11px;font-weight:600;border-radius:4px;cursor:pointer}
+.modal-b .toggle-tv button.active{background:var(--p);color:#fff}
+
+/* EQUIPOS LIST */
+.equipos-search{margin-bottom:8px;position:relative}
+.equipos-search input{width:100%;padding:8px 10px 8px 32px;border:1px solid var(--light);border-radius:5px;font-size:12px}
+.equipos-search::before{content:'🔍';position:absolute;left:10px;top:8px;font-size:12px;opacity:.5}
+.equipos-list{max-height:260px;overflow-y:auto;border:1px solid var(--light);border-radius:5px;background:var(--w)}
+.equipos-list .grupo{background:#f0f4f8;padding:5px 10px;font-size:10.5px;font-weight:800;color:var(--p);border-top:1px solid var(--light);text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;z-index:1}
+.equipos-list .veh{padding:6px 10px 6px 26px;font-size:11.5px;border-bottom:1px solid #eef2f7;display:flex;align-items:center;gap:8px;cursor:pointer}
+.equipos-list .veh:hover{background:#f0f4f8}
+.equipos-list .veh input[type=checkbox]{width:16px;height:16px;cursor:pointer;margin:0;flex-shrink:0}
+.equipos-list .veh .desc{flex:1;line-height:1.35}
+.equipos-list .veh .desc b{color:var(--p)}
+.equipos-list .veh .desc .meta{color:var(--mut);font-size:10.5px}
+.equipos-list .veh .rank{font-size:9.5px;color:var(--am);font-weight:700;white-space:nowrap}
+
+/* FOTOS */
+.fotos-sec{border:1px dashed var(--light);border-radius:6px;padding:10px;background:#fafbfc;margin-top:8px}
+.fotos-sec .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.fotos-sec .head b{font-size:11px;color:var(--p);text-transform:uppercase}
+.fotos-sec .head .btn-mini{background:var(--w);border:1px solid var(--p);color:var(--p);padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:600}
+.fotos-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin-top:6px}
+.foto-thumb{position:relative;padding-top:100%;background:#e2e8ef;border-radius:4px;overflow:hidden;cursor:pointer}
+.foto-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.foto-thumb .rm{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.55);color:#fff;border:0;width:20px;height:20px;border-radius:50%;font-size:12px;cursor:pointer;line-height:1;padding:0}
+.foto-empty{color:var(--mut);font-size:10.5px;padding:8px;text-align:center}
+
+/* BOTONES */
+.btn{padding:8px 16px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;border:0;font-family:inherit}
+.btn-vd{background:var(--vd);color:#fff}
+.btn-vd:hover{background:#146637}
+.btn-vd:disabled{opacity:.5;cursor:not-allowed}
+.btn-ghost{background:var(--w);color:var(--txt);border:1px solid var(--light)}
+.btn-ghost:hover{background:#f0f4f8}
+.btn-danger{background:#dc3545;color:#fff}
+.btn-danger:hover{background:#a71d2a}
+
+/* LOGIN / AUTH */
+.auth-guard{padding:40px 20px;text-align:center;color:var(--mut);font-size:14px}
+.auth-guard button{margin-top:14px;padding:10px 22px;background:var(--vd);color:#fff;border:0;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer}
+
+/* Selector fotos existentes */
+.mrel-modal .modal{max-width:900px}
+.rel-lista{max-height:400px;overflow-y:auto;border:1px solid var(--light);border-radius:5px}
+.rel-item{padding:8px 10px;border-bottom:1px solid #eef2f7;display:flex;gap:10px;cursor:pointer;align-items:center}
+.rel-item:hover{background:#f0f4f8}
+.rel-item.sel{background:#e6f4e8;border-left:3px solid var(--vd)}
+.rel-item img{width:60px;height:60px;object-fit:cover;border-radius:4px;flex-shrink:0}
+.rel-item .info{flex:1;font-size:11px}
+.rel-item .info b{color:var(--p)}
+.rel-item .info .meta{color:var(--mut);font-size:10px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><img src="datos/img/logo_dvba_circular.png" alt="DVBA"></div>
+  <div class="t">
+    <h1>Partes Diarios de Trabajo</h1>
+    <p>DVBA · Zona Departamental VI Saladillo</p>
+  </div>
+  <div class="user">
+    <span id="email">—</span>
+    <a class="btn-hdr" href="index.html">← Volver al portal</a>
+  </div>
+</header>
+
+<!-- Toolbar -->
+<div class="toolbar" id="toolbar" style="display:none">
+  <button class="btn-primary" onclick="pdAbrirNuevo()">+ Nuevo Parte</button>
+  <span style="width:12px"></span>
+  <label>Mes</label>
+  <input type="month" id="fMes" onchange="pdCargar()">
+  <label>Tarea</label>
+  <select id="fTarea" onchange="pdCargar()">
+    <option value="">Todas</option>
+  </select>
+  <label>Vía</label>
+  <select id="fVia" onchange="pdCargar()">
+    <option value="">Todas</option>
+    <option value="rp">Solo RP</option>
+    <option value="camino">Solo Caminos</option>
+  </select>
+  <label>Ruta</label>
+  <input type="text" id="fRuta" placeholder="Ej: RP 51" onkeyup="if(event.key==='Enter')pdCargar()">
+  <span class="sep"></span>
+  <button class="btn btn-ghost" onclick="pdCargar()">🔄 Refrescar</button>
+</div>
+
+<div class="resumen" id="resumen" style="display:none">Cargando…</div>
+
+<!-- Guard -->
+<div class="auth-guard" id="authGuard">
+  <p>Iniciá sesión para cargar y ver partes diarios.</p>
+  <button onclick="location.href='index.html'">Ir al portal para autenticarse</button>
+</div>
+
+<!-- Tabla -->
+<div class="wrap" id="tablaWrap" style="display:none">
+  <table class="partes">
+    <thead>
+      <tr>
+        <th style="width:60px">#</th>
+        <th style="width:100px">Fecha</th>
+        <th>Tarea</th>
+        <th style="width:110px">Ruta</th>
+        <th style="width:80px" class="num">Prog. ini</th>
+        <th style="width:80px" class="num">Prog. fin</th>
+        <th style="width:70px" class="num">km</th>
+        <th>Equipos</th>
+        <th>Observaciones</th>
+        <th style="width:90px" class="center">Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="empty" id="empty" style="display:none">Sin partes en este filtro.</div>
+</div>
+
+<!-- ═══════════ MODAL NUEVO/EDITAR PARTE ═══════════ -->
+<div class="modal-ov" id="modalParte">
+  <div class="modal">
+    <div class="modal-h">
+      <h2 id="modalTit">Nuevo Parte Diario</h2>
+      <button class="x" onclick="pdCerrar()">×</button>
+    </div>
+    <div class="modal-b">
+      <input type="hidden" id="editId">
+
+      <!-- 1. FECHA + TAREA -->
+      <div class="grid2">
+        <div class="fld">
+          <label>Fecha</label>
+          <input type="date" id="fecha">
+        </div>
+        <div class="fld">
+          <label>Tarea</label>
+          <select id="tarea">
+            <option value="">— Seleccionar —</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 2. RUTA -->
+      <div class="grid2" style="margin-top:12px">
+        <div class="fld">
+          <label>Tipo de vía</label>
+          <div class="toggle-tv" id="tvBtns">
+            <button type="button" data-tv="rp"     onclick="pdSetTV('rp')" class="active">🛣 Ruta Provincial</button>
+            <button type="button" data-tv="camino" onclick="pdSetTV('camino')">🚜 Camino Secundario</button>
+          </div>
+          <input type="hidden" id="tipoVia" value="rp">
+        </div>
+        <div class="fld">
+          <label>Ruta / Camino</label>
+          <select id="ruta">
+            <option value="">— Elegir vía primero —</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 3. PROGRESIVAS -->
+      <div class="grid3" style="margin-top:12px">
+        <div class="fld">
+          <label>Prog. Inicial (km)</label>
+          <input type="number" id="progIni" step="0.01" placeholder="318.80">
+        </div>
+        <div class="fld">
+          <label>Prog. Final (km)</label>
+          <input type="number" id="progFin" step="0.01" placeholder="319.00" oninput="pdCalcKm()">
+        </div>
+        <div class="fld">
+          <label>km recorridos</label>
+          <input type="text" id="kmCalc" readonly style="background:#eef5fb;color:var(--p);font-weight:700">
+        </div>
+      </div>
+
+      <!-- 4. EQUIPOS -->
+      <div class="sec-title">Equipos usados <span class="cnt" id="cntEq">0</span></div>
+      <div class="equipos-search">
+        <input type="text" id="qEq" placeholder="Buscar por tipo, número o marca…" oninput="pdFiltrarEq()">
+      </div>
+      <div class="equipos-list" id="equiposList">
+        <div style="padding:20px;text-align:center;color:var(--mut);font-size:11px">Cargando vehículos…</div>
+      </div>
+
+      <!-- 5. OBSERVACIONES -->
+      <div class="sec-title" style="margin-top:20px">Observaciones</div>
+      <textarea id="obs" rows="3" placeholder="Detalles de la tarea, incidencias, contexto…"></textarea>
+
+      <!-- 6. FOTOS -->
+      <div class="sec-title">
+        Fotos previas
+        <span class="cnt" id="cntFotoPrev">0</span>
+      </div>
+      <div class="fotos-sec">
+        <div class="head">
+          <b>Registros del mapa vinculados a este parte</b>
+          <button type="button" class="btn-mini" onclick="pdSelFotosDe('previa')">+ Asociar registro</button>
+        </div>
+        <div class="fotos-lista" id="fotosPrev">
+          <div class="foto-empty">Sin fotos vinculadas todavía.</div>
+        </div>
+      </div>
+
+      <div class="sec-title" style="margin-top:16px">
+        Fotos posteriores
+        <span class="cnt" id="cntFotoPost">0</span>
+      </div>
+      <div class="fotos-sec">
+        <div class="head">
+          <b>Registros del mapa vinculados a este parte</b>
+          <button type="button" class="btn-mini" onclick="pdSelFotosDe('posterior')">+ Asociar registro</button>
+        </div>
+        <div class="fotos-lista" id="fotosPost">
+          <div class="foto-empty">Sin fotos vinculadas todavía.</div>
+        </div>
+      </div>
+
+      <!-- 7. COMBUSTIBLE + MEZCLA (al final, como en el Google Form oficial) -->
+      <div class="sec-title" style="margin-top:20px">Consumos (opcional)</div>
+      <div class="grid2">
+        <div class="fld">
+          <label>Combustible (l)</label>
+          <input type="number" id="combustible" step="0.1" placeholder="Ej: 15.5">
+        </div>
+        <div class="fld">
+          <label>Mezcla asfáltica (tn)</label>
+          <input type="number" id="mezcla" step="0.01" placeholder="Ej: 3.20">
+        </div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-ghost" onclick="pdCerrar()">Cancelar</button>
+      <button class="btn btn-danger" id="btnEliminar" onclick="pdEliminar()" style="display:none">🗑 Eliminar</button>
+      <button class="btn btn-vd" id="btnGuardar" onclick="pdGuardar()">💾 Guardar Parte</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL SELECCIÓN REGISTROS (fotos) ═══════════ -->
+<div class="modal-ov mrel-modal" id="modalRel">
+  <div class="modal">
+    <div class="modal-h" style="background:linear-gradient(135deg,var(--p),var(--pd))">
+      <h2>Asociar registros del mapa <span id="mrelMomento" style="font-size:11px;opacity:.85;font-weight:600"></span></h2>
+      <button class="x" onclick="pdCerrarRel()">×</button>
+    </div>
+    <div class="modal-b">
+      <p style="font-size:11px;color:var(--mut);margin:0 0 10px 0">
+        Se muestran registros dentro de ±5 días hábiles (L-V) de la fecha del parte, sobre la misma ruta.
+        <span id="mrelInfo" style="color:var(--p);font-weight:600"></span>
+      </p>
+      <div id="mrelLoading" style="padding:20px;text-align:center;color:var(--mut);font-size:11px">Cargando registros…</div>
+      <div class="rel-lista" id="relLista"></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-ghost" onclick="pdCerrarRel()">Cancelar</button>
+      <button class="btn btn-vd" onclick="pdConfirmarRel()">Asociar seleccionados</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// PARTES DIARIOS · v7.63 Etapa 1
+// Estructura del módulo:
+//   pdInit()          → auth + cargar catálogos
+//   pdCargar()        → refrescar tabla según filtros
+//   pdAbrirNuevo()    → modal en blanco
+//   pdEditarParte()   → modal precargado
+//   pdGuardar()       → INSERT/UPDATE en partes_diarios + parte_maquinarias + parte_fotos
+//   pdEliminar()      → DELETE
+// Fotos: solo asociar registros existentes (etapa 1). Upload y sellado → etapa 2.
+// ═══════════════════════════════════════════════════════════════════
+
+const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
+let _supa = null;
+
+// Feriados AR (fijos 2025-2026, para filtro ±5 días hábiles)
+const FERIADOS = new Set([
+  '2025-01-01','2025-03-03','2025-03-04','2025-03-24','2025-04-02','2025-04-17','2025-04-18',
+  '2025-05-01','2025-05-25','2025-06-20','2025-07-09','2025-08-17','2025-10-12','2025-11-24','2025-12-08','2025-12-25',
+  '2026-01-01','2026-02-16','2026-02-17','2026-03-24','2026-04-02','2026-04-03',
+  '2026-05-01','2026-05-25','2026-06-15','2026-07-09','2026-08-17','2026-10-12','2026-11-23','2026-12-08','2026-12-25'
+]);
+function esHabil(d){
+  const day = d.getDay();
+  if (day === 0 || day === 6) return false;
+  const iso = d.toISOString().slice(0,10);
+  return !FERIADOS.has(iso);
+}
+function habilesAntesDespues(fechaStr, n){
+  const base = new Date(fechaStr + 'T12:00:00');
+  const before = []; let d = new Date(base); let c = 0;
+  while (c < n) { d.setDate(d.getDate()-1); if (esHabil(d)) { before.push(d.toISOString().slice(0,10)); c++; } }
+  const after = []; d = new Date(base); c = 0;
+  while (c < n) { d.setDate(d.getDate()+1); if (esHabil(d)) { after.push(d.toISOString().slice(0,10)); c++; } }
+  return { desde: before[before.length-1] || fechaStr, hasta: after[after.length-1] || fechaStr };
+}
+
+// Estado global
+let _tareas = [];
+let _vehiculos = [];      // ordenados por ranking (uso histórico)
+let _rutasRP = ['RP 6','RP 20','RP 24','RP 30','RP 40','RP 41','RP 42','RP 43','RP 44','RP 46','RP 47','RP 48','RP 51','RP 61','RP 91'];
+let _caminos = [];         // se cargan de red_vial si está disponible
+let _fotosSeleccionadas = { previa: [], posterior: [] };  // arrays de {relevamiento_id, foto_url, ruta, prog, fecha}
+let _relCandidatos = [];   // temp: registros encontrados en el modal de selección
+let _relSelTmp = new Set(); // ids seleccionados temporalmente
+let _relMomentoTmp = null;
+
+async function pdInit(){
+  _supa = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  // Restaurar sesión guardada por auth.js (localStorage)
+  const raw = localStorage.getItem('dvba_supa_session');
+  if (!raw) { document.getElementById('authGuard').style.display = 'block'; return; }
+  try {
+    const sess = JSON.parse(raw);
+    await _supa.auth.setSession({ access_token: sess.access_token, refresh_token: sess.refresh_token });
+  } catch(e) { console.warn('[pd] sesión inválida', e); document.getElementById('authGuard').style.display = 'block'; return; }
+  const { data: { user } } = await _supa.auth.getUser();
+  if (!user) { document.getElementById('authGuard').style.display = 'block'; return; }
+  document.getElementById('email').textContent = user.email;
+  document.getElementById('toolbar').style.display = 'flex';
+  document.getElementById('resumen').style.display = 'block';
+  document.getElementById('tablaWrap').style.display = 'block';
+
+  // Cargar catálogos + ranking de vehículos
+  const [{data:tareas},{data:vehi},{data:ranking}] = await Promise.all([
+    _supa.from('catalogo_tareas').select('id,nombre,categoria').eq('activo', true).order('id'),
+    _supa.from('vehiculos').select('id,identificador,numero,tipo_maquinaria,marca,modelo,activo').eq('activo', true),
+    _supa.from('parte_maquinarias').select('vehiculo_id').limit(5000)  // aprox — suficiente para calcular top
+  ]);
+  _tareas = tareas || [];
+  const rankMap = {};
+  (ranking||[]).forEach(r => { rankMap[r.vehiculo_id] = (rankMap[r.vehiculo_id]||0) + 1; });
+  _vehiculos = (vehi||[]).map(v => ({...v, uso: rankMap[v.id]||0}))
+                          .sort((a,b) => (b.uso - a.uso) || a.tipo_maquinaria.localeCompare(b.tipo_maquinaria));
+
+  // Cargar caminos secundarios si el bundle está en localStorage o disponible
+  // (por ahora hardcodeamos algunos comunes; el usuario puede tipear en el input libre)
+
+  // Poblar filtros y modal
+  const fT = document.getElementById('fTarea'), mT = document.getElementById('tarea');
+  _tareas.forEach(t => {
+    const nombre = t.nombre.length > 40 ? t.nombre.slice(0,37)+'…' : t.nombre;
+    fT.insertAdjacentHTML('beforeend', `<option value="${t.id}">${nombre}</option>`);
+    mT.insertAdjacentHTML('beforeend', `<option value="${t.id}">${t.nombre}</option>`);
+  });
+
+  const hoy = new Date();
+  document.getElementById('fMes').value = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
+  pdSetTV('rp');  // rutas RP por default
+  pdCargar();
+}
+
+async function pdCargar(){
+  const mes = document.getElementById('fMes').value;
+  const tareaId = document.getElementById('fTarea').value;
+  const via = document.getElementById('fVia').value;
+  const ruta = document.getElementById('fRuta').value.trim();
+  if (!mes || !_supa) return;
+  const [ano, m] = mes.split('-').map(Number);
+  const desde = `${ano}-${String(m).padStart(2,'0')}-01`;
+  const hasta = new Date(ano, m, 1).toISOString().slice(0,10);
+  let q = _supa.from('partes_diarios')
+    .select(`id, fecha, tarea_id, tipo_via, ruta, prog_ini, prog_fin, km_recorridos, observaciones,
+             combustible_l, mezcla_asfaltica_tn,
+             parte_maquinarias(vehiculo_id, vehiculos(tipo_maquinaria, identificador, numero))`)
+    .gte('fecha', desde).lt('fecha', hasta)
+    .order('fecha', {ascending:false}).order('id', {ascending:false});
+  if (tareaId) q = q.eq('tarea_id', Number(tareaId));
+  if (via) q = q.eq('tipo_via', via);
+  if (ruta) q = q.ilike('ruta', `%${ruta}%`);
+  const { data: partes, error } = await q;
+  if (error) { document.getElementById('resumen').textContent = 'Error: '+error.message; return; }
+  const tareasMap = Object.fromEntries(_tareas.map(t => [t.id, t.nombre]));
+  const kmTotal = (partes||[]).reduce((s,p) => s + (Number(p.km_recorridos)||0), 0);
+  const nomMes = new Date(ano, m-1, 1).toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+  // Desglose por tarea
+  const desgl = {};
+  (partes||[]).forEach(p => { const t = tareasMap[p.tarea_id] || 'Sin tarea'; desgl[t] = (desgl[t]||0)+1; });
+  const badges = Object.entries(desgl).sort((a,b)=>b[1]-a[1]).slice(0,6)
+    .map(([n,c]) => `<span class="badge">${n.slice(0,20)}${n.length>20?'…':''} <b>${c}</b></span>`).join('');
+  document.getElementById('resumen').innerHTML =
+    `📊 <b>${nomMes}</b>: <b>${(partes||[]).length}</b> partes · <b>${kmTotal.toFixed(2)}</b> km recorridos ` +
+    `<div class="badges">${badges}</div>`;
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('empty');
+  if (!partes || !partes.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = partes.map(p => {
+    const eqs = (p.parte_maquinarias||[]).map(pm => pm.vehiculos ? pm.vehiculos.tipo_maquinaria : '').filter(Boolean);
+    const eqsSet = [...new Set(eqs)];
+    const eqsHTML = eqsSet.slice(0,3).map(e => `<span class="badge-eq">${e}</span>`).join('') +
+                    (eqsSet.length>3 ? ` <span class="badge-count">+${eqsSet.length-3}</span>` : '');
+    const obs = (p.observaciones||'').trim();
+    const fFmt = new Date(p.fecha+'T12:00').toLocaleDateString('es-AR');
+    return `<tr onclick="pdEditarParte(${p.id})">
+      <td class="num">${p.id}</td>
+      <td>${fFmt}</td>
+      <td>${tareasMap[p.tarea_id] || '<i style="color:var(--am)">— sin tarea —</i>'}</td>
+      <td><b>${p.ruta||'—'}</b></td>
+      <td class="num">${p.prog_ini != null ? Number(p.prog_ini).toFixed(2) : '—'}</td>
+      <td class="num">${p.prog_fin != null ? Number(p.prog_fin).toFixed(2) : '—'}</td>
+      <td class="num">${p.km_recorridos != null ? Number(p.km_recorridos).toFixed(2) : '—'}</td>
+      <td>${eqsHTML || '<span style="color:var(--am);font-size:10px">sin equipos</span>'}</td>
+      <td><div class="obs-preview" title="${obs.replace(/"/g,'&quot;')}">${obs || '—'}</div></td>
+      <td class="center" onclick="event.stopPropagation()">
+        <button class="acc-btn" onclick="pdEditarParte(${p.id})" title="Editar">✏</button>
+        <button class="acc-btn del" onclick="pdEliminarDirecto(${p.id})" title="Eliminar">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function pdSetTV(tv){
+  document.getElementById('tipoVia').value = tv;
+  document.querySelectorAll('#tvBtns button').forEach(b => b.classList.toggle('active', b.dataset.tv === tv));
+  const sel = document.getElementById('ruta');
+  sel.innerHTML = '<option value="">— Seleccionar —</option>';
+  if (tv === 'rp') {
+    _rutasRP.forEach(r => sel.insertAdjacentHTML('beforeend', `<option value="${r}">${r}</option>`));
+  } else {
+    // Caminos — permitir texto libre por ahora
+    sel.insertAdjacentHTML('beforeend', `<option value="">(escribir en el input de abajo)</option>`);
+    // TODO etapa 2: cargar de red_vial.js con dropdown filtrado por partido
+  }
+}
+
+function pdCalcKm(){
+  const pi = parseFloat(document.getElementById('progIni').value);
+  const pf = parseFloat(document.getElementById('progFin').value);
+  const km = document.getElementById('kmCalc');
+  km.value = (isFinite(pi) && isFinite(pf)) ? (pf - pi).toFixed(2) : '';
+}
+
+function pdRenderEquipos(seleccionados = new Set()){
+  const q = (document.getElementById('qEq').value || '').toLowerCase().trim();
+  const filt = _vehiculos.filter(v => {
+    if (!q) return true;
+    return (v.tipo_maquinaria + ' ' + v.numero + ' ' + (v.marca||'') + ' ' + (v.modelo||'')).toLowerCase().includes(q);
+  });
+  // Agrupar por tipo_maquinaria
+  const porTipo = {};
+  filt.forEach(v => { (porTipo[v.tipo_maquinaria] = porTipo[v.tipo_maquinaria] || []).push(v); });
+  const cont = document.getElementById('equiposList');
+  if (!Object.keys(porTipo).length) { cont.innerHTML = '<div style="padding:20px;text-align:center;color:var(--mut);font-size:11px">Sin resultados.</div>'; return; }
+  cont.innerHTML = Object.entries(porTipo).map(([tipo, lst]) => `
+    <div class="grupo">${tipo} (${lst.length})</div>
+    ${lst.map(v => `
+      <label class="veh">
+        <input type="checkbox" class="pd-veh" value="${v.id}" ${seleccionados.has(v.id) ? 'checked' : ''} onchange="pdActualizarCntEq()">
+        <span class="desc">
+          <b>${v.identificador} ${v.numero}</b>
+          <span class="meta">· ${v.marca||''} ${v.modelo||''}</span>
+        </span>
+        ${v.uso > 0 ? `<span class="rank">⭐ ${v.uso}</span>` : ''}
+      </label>
+    `).join('')}
+  `).join('');
+  pdActualizarCntEq();
+}
+function pdFiltrarEq(){
+  const yaSel = new Set([...document.querySelectorAll('.pd-veh:checked')].map(c => Number(c.value)));
+  pdRenderEquipos(yaSel);
+}
+function pdActualizarCntEq(){
+  document.getElementById('cntEq').textContent = document.querySelectorAll('.pd-veh:checked').length;
+}
+
+function pdAbrirNuevo(){
+  document.getElementById('modalTit').textContent = 'Nuevo Parte Diario';
+  document.getElementById('editId').value = '';
+  document.getElementById('btnEliminar').style.display = 'none';
+  document.getElementById('fecha').value = new Date().toISOString().slice(0,10);
+  document.getElementById('tarea').value = '';
+  pdSetTV('rp');
+  document.getElementById('ruta').value = '';
+  ['progIni','progFin','combustible','mezcla','obs','qEq','kmCalc'].forEach(id => document.getElementById(id).value = '');
+  _fotosSeleccionadas = { previa: [], posterior: [] };
+  pdRenderFotos();
+  pdRenderEquipos(new Set());
+  document.getElementById('modalParte').classList.add('on');
+}
+
+async function pdEditarParte(id){
+  const { data: p, error } = await _supa.from('partes_diarios')
+    .select(`*, parte_maquinarias(vehiculo_id),
+             parte_fotos(relevamiento_id, momento, orden)`)
+    .eq('id', id).single();
+  if (error) { alert('Error: '+error.message); return; }
+  document.getElementById('modalTit').textContent = `Editar Parte #${id}`;
+  document.getElementById('editId').value = id;
+  document.getElementById('btnEliminar').style.display = 'inline-block';
+  document.getElementById('fecha').value = p.fecha;
+  document.getElementById('tarea').value = p.tarea_id || '';
+  pdSetTV(p.tipo_via || 'rp');
+  // Si la ruta no está en el dropdown de RPs, agregarla
+  const sel = document.getElementById('ruta');
+  if (p.ruta && ![...sel.options].some(o => o.value === p.ruta)) {
+    sel.insertAdjacentHTML('beforeend', `<option value="${p.ruta}" selected>${p.ruta}</option>`);
+  }
+  sel.value = p.ruta || '';
+  document.getElementById('progIni').value = p.prog_ini ?? '';
+  document.getElementById('progFin').value = p.prog_fin ?? '';
+  document.getElementById('combustible').value = p.combustible_l ?? '';
+  document.getElementById('mezcla').value = p.mezcla_asfaltica_tn ?? '';
+  document.getElementById('obs').value = p.observaciones || '';
+  pdCalcKm();
+  const idsSel = new Set((p.parte_maquinarias||[]).map(pm => pm.vehiculo_id));
+  pdRenderEquipos(idsSel);
+  // Cargar fotos ya vinculadas (traer datos de relevamientos)
+  const fotos = p.parte_fotos || [];
+  _fotosSeleccionadas = { previa: [], posterior: [] };
+  if (fotos.length) {
+    const relIds = fotos.map(f => f.relevamiento_id);
+    const { data: relevs } = await _supa.from('relevamientos').select('id, foto_url, ruta, prog, fecha').in('id', relIds);
+    const relMap = Object.fromEntries((relevs||[]).map(r => [r.id, r]));
+    fotos.forEach(f => {
+      const r = relMap[f.relevamiento_id];
+      if (r) _fotosSeleccionadas[f.momento].push({ relevamiento_id: r.id, foto_url: r.foto_url, ruta: r.ruta, prog: r.prog, fecha: r.fecha });
+    });
+  }
+  pdRenderFotos();
+  document.getElementById('modalParte').classList.add('on');
+}
+
+function pdRenderFotos(){
+  ['previa','posterior'].forEach(m => {
+    const cont = document.getElementById(m === 'previa' ? 'fotosPrev' : 'fotosPost');
+    const lst = _fotosSeleccionadas[m];
+    document.getElementById(m === 'previa' ? 'cntFotoPrev' : 'cntFotoPost').textContent = lst.length;
+    if (!lst.length) { cont.innerHTML = '<div class="foto-empty">Sin fotos vinculadas todavía.</div>'; return; }
+    cont.innerHTML = lst.map((f, i) => `
+      <div class="foto-thumb" title="${f.ruta||''} km ${f.prog||''} · ${f.fecha||''}" onclick="window.open('${f.foto_url}','_blank')">
+        <img src="${f.foto_url}" onerror="this.style.display='none'">
+        <button type="button" class="rm" onclick="event.stopPropagation();pdQuitarFoto('${m}',${i})" title="Quitar">×</button>
+      </div>
+    `).join('');
+  });
+}
+
+function pdQuitarFoto(momento, i){
+  _fotosSeleccionadas[momento].splice(i, 1);
+  pdRenderFotos();
+}
+
+function pdCerrar(){ document.getElementById('modalParte').classList.remove('on'); }
+function pdCerrarRel(){ document.getElementById('modalRel').classList.remove('on'); }
+
+async function pdSelFotosDe(momento){
+  _relMomentoTmp = momento;
+  const fecha = document.getElementById('fecha').value;
+  const ruta = document.getElementById('ruta').value.trim();
+  if (!fecha) { alert('Elegí una fecha primero.'); return; }
+  document.getElementById('mrelMomento').textContent = `· ${momento}`;
+  document.getElementById('mrelInfo').textContent = `Fecha del parte: ${fecha}${ruta ? ' · Ruta ' + ruta : ''}`;
+  document.getElementById('mrelLoading').style.display = 'block';
+  document.getElementById('relLista').innerHTML = '';
+  document.getElementById('modalRel').classList.add('on');
+  const { desde, hasta } = habilesAntesDespues(fecha, 5);
+  let q = _supa.from('relevamientos').select('id, foto_url, ruta, prog, fecha, partido, tipo')
+    .gte('fecha', desde).lte('fecha', hasta)
+    .not('foto_url','is',null)
+    .order('fecha', {ascending:false});
+  if (ruta) {
+    // Coincidencia flexible: puede ser "RP 51" o "51" en la BD
+    const rNorm = ruta.replace(/^RP\s*/i,'').trim();
+    q = q.or(`ruta.ilike.%${rNorm}%,ruta.ilike.%${ruta}%`);
+  }
+  const { data: relevs, error } = await q;
+  document.getElementById('mrelLoading').style.display = 'none';
+  if (error) { document.getElementById('relLista').innerHTML = `<div class="foto-empty">Error: ${error.message}</div>`; return; }
+  _relCandidatos = relevs || [];
+  // Excluir los que ya están vinculados a este momento
+  const yaVinc = new Set(_fotosSeleccionadas[momento].map(f => f.relevamiento_id));
+  _relCandidatos = _relCandidatos.filter(r => !yaVinc.has(r.id));
+  _relSelTmp.clear();
+  if (!_relCandidatos.length) {
+    document.getElementById('relLista').innerHTML = '<div class="foto-empty">Sin registros dentro del rango (±5 días hábiles). Cargalos primero desde el móvil o el portal.</div>';
+    return;
+  }
+  document.getElementById('relLista').innerHTML = _relCandidatos.map(r => `
+    <div class="rel-item" data-id="${r.id}" onclick="pdTogRel(${r.id}, this)">
+      <img src="${r.foto_url}" onerror="this.style.display='none'">
+      <div class="info">
+        <b>${r.ruta||'—'}</b> km ${r.prog||'—'}<br>
+        <span class="meta">${r.fecha} · ${r.partido||''} · ${r.tipo||''}</span>
+      </div>
+    </div>
+  `).join('');
+}
+function pdTogRel(id, el){
+  if (_relSelTmp.has(id)) { _relSelTmp.delete(id); el.classList.remove('sel'); }
+  else { _relSelTmp.add(id); el.classList.add('sel'); }
+}
+function pdConfirmarRel(){
+  _relCandidatos.filter(r => _relSelTmp.has(r.id)).forEach(r => {
+    _fotosSeleccionadas[_relMomentoTmp].push({ relevamiento_id: r.id, foto_url: r.foto_url, ruta: r.ruta, prog: r.prog, fecha: r.fecha });
+  });
+  pdCerrarRel();
+  pdRenderFotos();
+}
+
+async function pdGuardar(){
+  const editId = document.getElementById('editId').value.trim();
+  const fecha = document.getElementById('fecha').value;
+  const tarea_id = document.getElementById('tarea').value;
+  const tipo_via = document.getElementById('tipoVia').value;
+  const ruta = document.getElementById('ruta').value.trim();
+  const prog_ini = document.getElementById('progIni').value;
+  const prog_fin = document.getElementById('progFin').value;
+  const comb = document.getElementById('combustible').value;
+  const mezcla = document.getElementById('mezcla').value;
+  const obs = document.getElementById('obs').value.trim();
+  if (!fecha || !tarea_id || !tipo_via || !ruta) { alert('Faltan: fecha, tarea, tipo de vía o ruta.'); return; }
+  const btn = document.getElementById('btnGuardar');
+  btn.disabled = true; btn.textContent = '⏳ Guardando…';
+  try {
+    const payload = {
+      fecha, tarea_id: Number(tarea_id), tipo_via, ruta,
+      prog_ini: prog_ini ? Number(prog_ini) : null,
+      prog_fin: prog_fin ? Number(prog_fin) : null,
+      combustible_l: comb ? Number(comb) : null,
+      mezcla_asfaltica_tn: mezcla ? Number(mezcla) : null,
+      observaciones: obs || null,
+      enviado_admin: false
+    };
+    let parteId;
+    if (editId) {
+      const { error } = await _supa.from('partes_diarios').update(payload).eq('id', editId);
+      if (error) throw error;
+      parteId = Number(editId);
+      await _supa.from('parte_maquinarias').delete().eq('parte_id', parteId);
+      await _supa.from('parte_fotos').delete().eq('parte_id', parteId);
+    } else {
+      const { data, error } = await _supa.from('partes_diarios').insert(payload).select('id').single();
+      if (error) throw error;
+      parteId = data.id;
+    }
+    // Maquinarias
+    const vehIds = [...document.querySelectorAll('.pd-veh:checked')].map(c => Number(c.value));
+    if (vehIds.length) {
+      const rows = vehIds.map((vid, i) => ({ parte_id: parteId, orden: i+1, vehiculo_id: vid }));
+      const { error: eM } = await _supa.from('parte_maquinarias').insert(rows);
+      if (eM) throw eM;
+    }
+    // Fotos
+    const filas = [];
+    ['previa','posterior'].forEach(m => {
+      _fotosSeleccionadas[m].forEach((f, i) => {
+        filas.push({ parte_id: parteId, relevamiento_id: f.relevamiento_id, momento: m, orden: i+1 });
+      });
+    });
+    if (filas.length) {
+      const { error: eF } = await _supa.from('parte_fotos').insert(filas);
+      if (eF) throw eF;
+    }
+    pdCerrar();
+    pdCargar();
+  } catch(e) {
+    console.error('[pd guardar]', e);
+    alert('Error guardando: ' + (e.message || e));
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 Guardar Parte';
+  }
+}
+
+async function pdEliminar(){
+  const id = document.getElementById('editId').value;
+  if (!id) return;
+  if (!confirm(`¿Eliminar el parte #${id}?\n\nEsta acción no se puede deshacer.`)) return;
+  const { error } = await _supa.from('partes_diarios').delete().eq('id', id);
+  if (error) { alert('Error: '+error.message); return; }
+  pdCerrar();
+  pdCargar();
+}
+
+async function pdEliminarDirecto(id){
+  if (!confirm(`¿Eliminar el parte #${id}?`)) return;
+  const { error } = await _supa.from('partes_diarios').delete().eq('id', id);
+  if (error) { alert('Error: '+error.message); return; }
+  pdCargar();
+}
+
+// Arranque
+document.addEventListener('DOMContentLoaded', pdInit);
+</script>
+</body>
+</html>
