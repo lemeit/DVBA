@@ -23,7 +23,7 @@
 <script src="datos/rutas_rp51.js?v=7.29"></script>
 <script src="datos/rutas_rp61.js?v=7.29"></script>
 <script src="datos/rutas_rp91.js?v=7.29"></script>
-<script src="datos/caracteristicas_viales.js?v=7.54"></script>
+<script src="datos/caracteristicas_viales.js?v=7.55"></script>
 <style>
 :root{
   --p:#009aae;--pd:#007d90;--pl:#00b3c7;
@@ -658,7 +658,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.54';
+const APP_VERSION = 'v7.56';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -5231,7 +5231,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
 <!-- v7.54 — Modal SIG Vial tipo DNV: datos oficiales por RP -->
 <div class="mov-sello" id="modal-sigvial" style="display:none">
-  <div class="modal-sello" style="max-width:520px;background:#fff">
+  <div class="modal-sello" style="max-width:760px;background:#fff">
     <div class="ms-h" id="sig-h" style="background:linear-gradient(135deg,#003366,#004080);color:#fff">
       <div style="flex:1">
         <div style="font-size:18px;font-weight:800" id="sig-titulo">RP —</div>
@@ -5285,11 +5285,11 @@ function mostrarModalSIGVial(rid, latlng){
   // Tramos (colapsable)
   const tramosHTML = (c.tramos||[]).map(t =>
     `<tr>
-      <td style="font-family:monospace;font-size:10px;color:#003366">${t.seccion_vial}</td>
-      <td style="font-size:10.5px">${t.denominacion}</td>
-      <td style="font-size:10px;text-align:right">${t.longitud_km.toFixed(3)} km</td>
-      <td style="font-size:10px"><span style="background:${t.clase==='PAVIMENTADO'?'#d4edda':t.clase==='CONSOLIDADO'?'#fff3cd':'#f8d7da'};padding:1px 6px;border-radius:8px;font-weight:600">${t.clase}</span></td>
-      <td style="font-size:10px;color:#666">${t.partido||'—'}</td>
+      <td style="font-family:monospace;font-size:9.5px;color:#003366;white-space:nowrap;padding:3px 6px">${t.seccion_vial}</td>
+      <td style="font-size:9.5px;white-space:nowrap;padding:3px 6px;max-width:340px;overflow:hidden;text-overflow:ellipsis" title="${(t.denominacion||'').replace(/"/g,'&quot;')}">${t.denominacion}</td>
+      <td style="font-size:9.5px;text-align:right;white-space:nowrap;padding:3px 6px">${t.longitud_km.toFixed(3)} km</td>
+      <td style="font-size:9.5px;white-space:nowrap;padding:3px 6px"><span style="background:${t.clase==='PAVIMENTADO'?'#d4edda':t.clase==='CONSOLIDADO'?'#fff3cd':'#f8d7da'};padding:1px 6px;border-radius:8px;font-weight:600">${t.clase}</span></td>
+      <td style="font-size:9.5px;color:#666;white-space:nowrap;padding:3px 6px">${t.partido||'—'}</td>
     </tr>`
   ).join('');
   document.getElementById('sig-b').innerHTML = `
@@ -5326,7 +5326,7 @@ function mostrarModalSIGVial(rid, latlng){
       </table>
     </div>
     <details style="margin-bottom:10px">
-      <summary style="cursor:pointer;color:#003366;font-size:11px;font-weight:700;padding:5px 0">▸ Tramos oficiales (${(c.tramos||[]).length})</summary>
+      <summary style="cursor:pointer;color:#003366;font-size:11px;font-weight:700;padding:5px 0;user-select:none">Tramos oficiales (${(c.tramos||[]).length})</summary>
       <table style="width:100%;border-collapse:collapse;margin-top:5px">
         <thead>
           <tr style="background:#f0f4f8">

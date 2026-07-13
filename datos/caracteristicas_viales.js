@@ -1,9 +1,6 @@
-// datos/caracteristicas_viales.js — Generado desde SALADILLO_RED.csv
-// Fuente oficial DVBA Zona VI. Datos por RP con placeholders para completar
-// (ancho calzada, banquinas, TMDA, tipo pavimento específico, estado).
-// Editable vía UI colaborativa (ver sistema en próxima iteración).
-
-// Total RPs cargadas: 15. Tramos totales: 96.
+// datos/caracteristicas_viales.js — v7.55 (bugfix partidos)
+// Generado desde SALADILLO_RED.csv con mapping correcto de códigos DVBA.
+// Total RPs: 15. Tramos totales: 96.
 
 window.CARACT_VIALES = {
  "6": {
@@ -112,8 +109,8 @@ window.CARACT_VIALES = {
   "ruta_oficial": "RP 30",
   "longitud_oficial_km": 164.819,
   "clases": [
-   "CONSOLIDADO",
-   "PAVIMENTADO"
+   "PAVIMENTADO",
+   "CONSOLIDADO"
   ],
   "partidos": [
    "25 de Mayo",
@@ -237,8 +234,8 @@ window.CARACT_VIALES = {
   "ruta_oficial": "RP 40",
   "longitud_oficial_km": 163.027,
   "clases": [
-   "DE TIERRA",
-   "PAVIMENTADO"
+   "PAVIMENTADO",
+   "DE TIERRA"
   ],
   "partidos": [
    "25 de Mayo",
@@ -865,7 +862,7 @@ window.CARACT_VIALES = {
   ],
   "partidos": [
    "25 de Mayo",
-   "Cañuelas",
+   "General Alvear",
    "Saladillo"
   ],
   "doble_via": false,
@@ -1019,7 +1016,7 @@ window.CARACT_VIALES = {
     "denominacion": "Limite partido - RP 61",
     "clase": "PAVIMENTADO",
     "partido_cod": "34",
-    "partido": "Cañuelas",
+    "partido": "General Alvear",
     "longitud_km": 17.829,
     "sentido": "—"
    },
@@ -1028,7 +1025,7 @@ window.CARACT_VIALES = {
     "denominacion": "RP 61 - Limite partido",
     "clase": "PAVIMENTADO",
     "partido_cod": "34",
-    "partido": "Cañuelas",
+    "partido": "General Alvear",
     "longitud_km": 27.89,
     "sentido": "—"
    }
@@ -1052,7 +1049,7 @@ window.CARACT_VIALES = {
   ],
   "partidos": [
    "25 de Mayo",
-   "Cañuelas",
+   "General Alvear",
    "Las Flores"
   ],
   "doble_via": false,
@@ -1098,7 +1095,7 @@ window.CARACT_VIALES = {
     "denominacion": "Limite partido - RP 51",
     "clase": "DE TIERRA",
     "partido_cod": "34",
-    "partido": "Cañuelas",
+    "partido": "General Alvear",
     "longitud_km": 39.897,
     "sentido": "—"
    },
@@ -1107,7 +1104,7 @@ window.CARACT_VIALES = {
     "denominacion": "NODO RP 51/61",
     "clase": "PAVIMENTADO",
     "partido_cod": "34",
-    "partido": "Cañuelas",
+    "partido": "General Alvear",
     "longitud_km": 0.185,
     "sentido": "—"
    },
@@ -1116,7 +1113,7 @@ window.CARACT_VIALES = {
     "denominacion": "RP 51 - Gral. Alvear",
     "clase": "PAVIMENTADO",
     "partido_cod": "34",
-    "partido": "Cañuelas",
+    "partido": "General Alvear",
     "longitud_km": 11.011,
     "sentido": "—"
    },
@@ -1125,7 +1122,7 @@ window.CARACT_VIALES = {
     "denominacion": "Gral. Alvear URBANO",
     "clase": "PAVIMENTADO",
     "partido_cod": "34",
-    "partido": "Cañuelas",
+    "partido": "General Alvear",
     "longitud_km": 2.214,
     "sentido": "—"
    },
@@ -1134,7 +1131,7 @@ window.CARACT_VIALES = {
     "denominacion": "Gral. Alvear - RN 205",
     "clase": "PAVIMENTADO",
     "partido_cod": "34",
-    "partido": "Cañuelas",
+    "partido": "General Alvear",
     "longitud_km": 27.809,
     "sentido": "—"
    },
@@ -1143,7 +1140,7 @@ window.CARACT_VIALES = {
     "denominacion": "RN 205 - Limite partido",
     "clase": "DE TIERRA",
     "partido_cod": "34",
-    "partido": "Cañuelas",
+    "partido": "General Alvear",
     "longitud_km": 8.273,
     "sentido": "—"
    },
