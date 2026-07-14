@@ -12,8 +12,9 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 | URL | Archivo | Versión | Descripción |
 |---|---|---|---|
-| https://lemeit.github.io/DVBA/ | `index.html` | **v7.57** | App de escritorio: mapa, sidebar con pills agrupadas, **modal SIG Vial tipo DNV** al click en RP o camino con datos oficiales, cola de pendientes con sellado + rotación al aprobar, sistema de originales preservados y re-sellado |
-| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | **v9.53** | App móvil PWA: relevamiento GPS de campo, captura cruda + pre-fill GPS automático, sincronización offline. Móvil sube foto sin sellar (el sellado y rotación se hacen en escritorio al aprobar) |
+| https://lemeit.github.io/DVBA/ | `index.html` | **v7.79** | Portal principal: mapa, sidebar con pills agrupadas, modal SIG Vial tipo DNV, cola de pendientes con sellado + rotación, **capa 📋 Partes** que dibuja cada parte sobre la traza real (RP o camino) con color por antigüedad, picker de zona en header, panel-footer institucional fijo con resumen |
+| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v7.79** | **Nueva app** "Plan de Seguridad en la Circulación" — alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido (vía interpolación de progresiva + point-in-polygon), autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead |
+| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | **v9.56** | App móvil PWA: relevamiento GPS de campo, captura cruda + pre-fill GPS automático, sincronización offline. Móvil sube foto sin sellar (el sellado y rotación se hacen en escritorio al aprobar) |
 | https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte (subruta legacy — el portal principal ya cubre este flujo) |
 | https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.5 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
 | https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html | guía de usuario | — | Manual de la app de campo |
@@ -43,6 +44,57 @@ Aparecen automáticamente según la categoría:
 - Función `onTipoChange(tipoStr)` en ambas apps que repuebla el `<select>` de estado y muestra/oculta los condicionales
 
 Para el detalle completo (matriz Tipo→Estados, guía de extensibilidad, flujo en cada app), ver **[`docs/MODELO_TIPOS_ESTADOS.md`](docs/MODELO_TIPOS_ESTADOS.md)**.
+
+---
+
+## Novedades v7.62 → v7.79 (13 julio 2026)
+
+Sesión larga de 3 bloques que consolidó **el módulo "Plan de Seguridad en la Circulación"** (partes diarios oficiales), **la detección automática de partido**, y **la visualización de partes en el mapa del portal**. Detalle completo en la [bitácora tab Changelog](docs/bitacora.html).
+
+### Módulo Plan de Seguridad en la Circulación (`partes_diarios.html`)
+
+Nueva app alineada al Google Form oficial de Gerencia Ejecutiva DVBA. Reemplaza al workflow anterior de "partes por email":
+
+- **Detección automática de partido** al cargar un parte. Caminos: código único NNN-NN → partido directo. RPs: interpola el punto medio del tramo `prog_ini↔prog_fin` sobre `CHAIN_RPxx` y hace point-in-polygon vs `partidos_zona_vi.geojson`. Nueva columna `partido` en `partes_diarios` (SQL 6).
+- **Badge en vivo** "Partido detectado: X ✓" mientras se completa el form. Verde si detecta, ámbar con motivo si no ("ruta sin traza cargada", "cargá al menos una progresiva").
+- **Autocomplete custom de caminos** con recorrido encadenado ("Saladillo — La Barrancosa — Micheo" construido a partir de las denominaciones de tramos del geojson). Matching preciso: tipear "093" NO trae "091-XX".
+- **Dropdown único primaria + secundaria** con etiqueta `[P]`/`[S]` y typeahead nativo via `<datalist>`. Toggle 🛣/🚜 opcional.
+- **Progresivas con coma decimal** (formato oficial DVBA `100,01`) + labels "menor" / "mayor".
+- **Filtros de partido en la toolbar** + nueva columna Partido en la tabla.
+- **RLS relajado** a "authenticated-CRUD" para uso interno DVBA (SQL 5), con `responsable_id` llenado automáticamente al INSERT para auditoría.
+- **632 partes históricos** + 49 vehículos + 1203 vinculaciones cargados por bulk desde CSVs.
+
+### Capa 📋 Partes en el mapa del portal (`index.html`)
+
+Cierra el ciclo "cargo parte → aparece en el mapa":
+
+- **Nueva capa Leaflet toggleable** en el panel de capas del portal.
+- **Partes con foto**: pin sobre la posición GPS del relevamiento asociado (via `parte_fotos → relevamiento_id → lat/lon`).
+- **Partes sin foto**: polyline sobre la **traza real** del chain (RP o camino) entre `prog_ini` y `prog_fin`, más pin al punto medio. La polyline sigue la curva real — no dibuja rectas.
+- **Colores por antigüedad** (base para reportes): últimos 7 días → rojo, últimos 30 → dorado, últimos 90 → violeta, más viejo → gris. Aplica a pin, polyline y header del popup.
+- Soporta las 8 RPs con bundle procesado + los 100 caminos secundarios de Zona VI. Requiere sesión (RLS).
+
+### Portal + escritorio: UX refinada
+
+- **Picker de zona en el header** de ambos portales: label bonito `ZONA VI [Saladillo]` + ícono `▾` que despliega select nativo con las 12 zonas. Persiste en `localStorage['dvba_zona']`. Preparado para el escalado multi-zona.
+- **Panel-footer institucional fijo** en el sidebar del portal: bloque "Zona X · Resumen" (Partidos/Rutas/Caminos/Registros) siempre visible + info "© 2026 DVBA · Desarrollado por Ing. Luciano Lamaita · vX.YY". No scrollea con las tabs.
+- **Header sin "Desarrollado por"** (ya vive en el footer). Menos redundancia.
+- **Legales sin restricción "Zona VI Saladillo"**: los textos de Términos y Tecnologías reflejan que el sistema sirve a toda la DVBA (Zona VI como piloto).
+- **Convención unificada de versionado**: un único contador `v7.X` para toda la familia escritorio (`index.html` + `partes_diarios.html`). Se bumpean juntos aunque uno no cambie en el bump.
+
+### Fixes críticos
+
+- **v7.75 · const RP no cuelga de window**: los bundles `datos/rutas_rpXX.js` declaran `const CHAIN_RPxx` que no se expone en `window`. Fix con `typeof CHAIN_RPxx !== 'undefined'`. Mismo bug que resolvió v7.24 en el portal.
+- **v7.79 · RPs con progresivas invertidas**: RP51 y RP46 tienen `acc` decreciente cuando `km` crece. Sin swap de `accIni/accFin` la polyline se cortaba de una y dibujaba una recta. Fix con swap en `_partesTramoChain`.
+
+### Doc de diseño
+
+Nuevo **[`docs/PLAN_ROLES_MULTIZONA.md`](docs/PLAN_ROLES_MULTIZONA.md)** con la visión de 4 niveles (público / técnico zona / gerencia PDF oficial / admin) y roadmap de 5 fases para escalar el sistema a las 12 zonas provinciales. Se puede trabajar en paralelo al roadmap actual.
+
+### Base SQL agregada
+
+- `SQL_5_rls_partes_flexible.sql` · RLS flexibilizada para uso interno.
+- `SQL_6_partido_en_partes.sql` · Columna `partido` en `partes_diarios` + view export.
 
 ---
 

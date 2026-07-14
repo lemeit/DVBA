@@ -632,7 +632,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.78</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.79</span>
       </div>
     </div>
 
@@ -700,7 +700,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.78';
+const APP_VERSION = 'v7.79';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4889,9 +4889,15 @@ function _partesTramoChain(rutaNum, pIni, pFin){
   const chain = CHAINS_DATA[rid];
   if (!chain || chain.length < 2) return null;
   const pMin = Math.min(pIni, pFin), pMax = Math.max(pIni, pFin);
-  const accIni = _partesKmToAcc(rid, pMin);
-  const accFin = _partesKmToAcc(rid, pMax);
+  let accIni = _partesKmToAcc(rid, pMin);
+  let accFin = _partesKmToAcc(rid, pMax);
   if (accIni == null || accFin == null) return null;
+  // v7.79 · Fix crítico: en RPs con progresiva inversa al chain
+  // (RP46, RP51 — la progresiva DECRECE en el sentido del chain),
+  // acc(pMin) > acc(pMax). Sin swap, _partesSubChain corta apenas
+  // empieza y dibuja una recta hacia el otro extremo. Swap garantiza
+  // recorrido en el sentido natural del chain.
+  if (accIni > accFin){ const tmp = accIni; accIni = accFin; accFin = tmp; }
   return _partesSubChain(chain, accIni, accFin);
 }
 
@@ -4973,7 +4979,11 @@ function partesDibujar(partes, relMap){
     const relIds = (p.parte_fotos||[]).map(f => f.relevamiento_id);
     const relCon = relIds.map(id => relMap[id]).filter(r => r && r.latitud && r.longitud);
     const tarea = p.catalogo_tareas ? p.catalogo_tareas.nombre : 'Sin tarea';
-    const rutaLabel = (p.tipo_via === 'rp') ? ('RP ' + p.ruta) : ('Cno. ' + p.ruta);
+    // v7.79 · normalizar label: la BD puede tener "RP 51", "RP51" o solo "51"
+    // según cómo se cargó (histórico vs form nuevo). Strip prefijo y agregar
+    // limpio para evitar "RP RP 51".
+    const rutaNumTxt = String(p.ruta || '').replace(/^RP\s*/i, '').trim();
+    const rutaLabel = (p.tipo_via === 'rp') ? ('RP ' + rutaNumTxt) : ('Cno. ' + p.ruta);
     const equipos = (p.parte_maquinarias||[])
       .map(pm => pm.vehiculos && pm.vehiculos.tipo_maquinaria)
       .filter(Boolean);
