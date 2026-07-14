@@ -64,7 +64,7 @@ Este documento define los 4 niveles, el modelo de datos, la migración desde el 
 **Puede:**
 - Todo lo del técnico de zona, pero **sobre TODAS las zonas**.
 - Ver comparativos inter-zonales: qué zona ejecutó más km, qué tareas se hicieron dónde, uso de maquinaria.
-- **Generar reportes PDF oficiales** con el layout DVBA (el mismo formato del adjunto que compartiste): resumen mensual, listado de tareas por partido, tabla de luminarias LED, gráficos de barras, etc.
+- **Generar reportes PDF oficiales** con el layout DVBA definido en `docs/ANALISIS_INFORME_GERENCIAL_DVBA.md`: portada con km por zona, bar chart 8 tareas, 2 hojas por zona (administrativa + GIS), página especial luminarias LED con tabla ubicación/cantidad, paleta de 8 colores por categoría.
 - Exportar a Excel/CSV la vista consolidada.
 - Marcar partes como "enviado a admin" (workflow oficial).
 - Auditar quién cargó/editó qué (log de cambios).
@@ -212,7 +212,7 @@ Admin         → todo lo anterior + [👥 Usuarios] [⚙ Sistema]
 
 ### 4.4. Reportes PDF oficiales (nivel gerencia)
 
-Aprovechamos el layout del adjunto que compartiste para armar plantilla DVBA:
+Aprovechamos el layout ya analizado en `docs/ANALISIS_INFORME_GERENCIAL_DVBA.md` para armar plantilla DVBA:
 - Portada con logo + fecha + zona/período
 - Resumen ejecutivo (KPIs: km recorridos, partes, tareas, uso de flota)
 - Tabla de tareas por partido
@@ -291,7 +291,7 @@ Este plan se puede trabajar **en paralelo** al resto del roadmap sin bloquearlo.
 2. **¿Compartir datos entre zonas linderas?** Ej. Zona VI y Zona VII a veces trabajan en el borde (RP61). ¿El técnico VII puede ver los partes VI en su borde? Cross-zone read con permiso especial.
 3. **¿Un rol "supervisor de zona"** entre técnico y gerencia? Un jefe de zona que aprueba los partes de su equipo antes de enviar a admin central.
 4. **¿Auditoría / log de cambios?** ¿Guardamos quién editó qué y cuándo? Es una tabla `audit_log` que crece rápido.
-5. **¿Formato del PDF oficial?** Necesito que me pases el adjunto de reporte que mencionaste para replicar el layout exacto.
+5. **¿Formato del PDF oficial?** Ya tenemos analizado el layout — ver **[`docs/ANALISIS_INFORME_GERENCIAL_DVBA.md`](ANALISIS_INFORME_GERENCIAL_DVBA.md)**, que descompone la estructura del *Informe Mensual Gerencia Ejecutiva DVBA* (mayo 2026): portada con km totales por zona, bar chart 8 tareas, 2 hojas por zona (administrativa + GIS), página especial luminarias LED con tabla ubicación/cantidad, paleta de 8 colores por categoría. Es la referencia para la Fase 5.
 6. **¿Escalamos a las otras zonas ya (piloto)?** Si otra zona (VII u XI) quiere sumarse, ¿arrancamos con ellos como beta?
 
 ---
@@ -315,7 +315,7 @@ Este plan se puede trabajar **en paralelo** al resto del roadmap sin bloquearlo.
 
 1. **Vos**: revisar este doc, marcar disidencias, definir las 6 preguntas abiertas de la Sección 7.
 2. **Vos**: conseguir emails institucionales de contactos en otras zonas (para piloto Fase 2b).
-3. **Vos**: pasarme el adjunto del reporte PDF oficial (o describirlo con más detalle).
+3. ~~Pasar adjunto del reporte PDF oficial~~ ✅ Ya está analizado en `docs/ANALISIS_INFORME_GERENCIAL_DVBA.md` (Informe MAYO 2026 · Gerencia Ejecutiva).
 4. **Nosotros**: al arrancar la Fase 1, priorizar cerrar el trabajo pendiente actual (mapa con partes en v7.74+, módulo reportes básico) y arrancar Fase 1 en paralelo.
 
 ---

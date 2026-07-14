@@ -89,7 +89,7 @@ Cierra el ciclo "cargo parte → aparece en el mapa":
 
 ### Doc de diseño
 
-Nuevo **[`docs/PLAN_ROLES_MULTIZONA.md`](docs/PLAN_ROLES_MULTIZONA.md)** con la visión de 4 niveles (público / técnico zona / gerencia PDF oficial / admin) y roadmap de 5 fases para escalar el sistema a las 12 zonas provinciales. Se puede trabajar en paralelo al roadmap actual.
+Nuevo **[`docs/PLAN_ROLES_MULTIZONA.md`](docs/PLAN_ROLES_MULTIZONA.md)** con la visión de 4 niveles (público / técnico zona / gerencia PDF oficial / admin) y roadmap de 5 fases para escalar el sistema a las 12 zonas provinciales. Se puede trabajar en paralelo al roadmap actual. El layout del PDF Gerencia (Fase 5) ya está analizado en **[`docs/ANALISIS_INFORME_GERENCIAL_DVBA.md`](docs/ANALISIS_INFORME_GERENCIAL_DVBA.md)**.
 
 ### Base SQL agregada
 
