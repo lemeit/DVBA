@@ -74,6 +74,12 @@ header p{font-size:10px;color:rgba(255,255,255,.75);margin-top:1px;font-weight:5
 .ptab.on.tab-rep{color:var(--vd);border-bottom-color:var(--vd);background:rgba(26,138,74,.05)}
 
 .panel-body{flex:1;overflow:hidden;display:flex;flex-direction:column}
+/* v7.74 · Panel-footer fijo al pie del sidebar (resumen zona + info institucional). No scrollea. */
+.panel-footer{flex-shrink:0;border-top:1px solid var(--light);background:#f7f9fb;padding:7px 8px 8px}
+.panel-footer .pf-title{font-size:9px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;text-align:center}
+.panel-footer .pf-grid{margin-bottom:6px}
+.panel-footer .pf-inst{font-size:8.5px;color:var(--mut);text-align:center;line-height:1.4;padding-top:5px;border-top:1px dashed var(--light)}
+.panel-footer .pf-inst b{color:var(--txt);font-weight:700}
 .pane{display:none;flex-direction:column;flex:1;overflow-y:auto;min-height:0}
 .pane.on{display:flex}
 
@@ -362,7 +368,7 @@ body.modo-campo #campo-fab{display:flex}
         </select>
       </span>
     </h1>
-    <p>Direccion de Vialidad de la Prov. de Buenos Aires &nbsp;&middot;&nbsp; 8 Partidos &nbsp;&middot;&nbsp; 15 Rutas Provinciales &nbsp;&middot;&nbsp; <span id="hd-caminos">101 Caminos Secundarios</span></p>
+    <p>Dirección de Vialidad de la Provincia de Buenos Aires &nbsp;&middot;&nbsp; Sistema de Relevamiento y Gestión de la Red Vial</p>
   </div>
   <div class="hright">
     <!-- v7.12 — Badge cola de pendientes (visible solo logueado con registros estado_workflow=campo) -->
@@ -444,18 +450,7 @@ body.modo-campo #campo-fab{display:flex}
           <button class="btn btn-xs btn-ghost" onclick="toggleCaminosLayer()" id="btn-cs-map" style="margin-left:auto;color:#7050b0;border-color:#7050b0">🚜 Ver en mapa</button>
         </div>
       </div>
-      <div class="sec" style="border-bottom:none">
-        <div class="sec-title">Zona VI · Resumen</div>
-        <div class="sgrid">
-      <!-- v7.33 — Contador de mojones removido (confuso, era resto de la lógica cienkilométrica) -->
-      <div class="scard"><div class="sv">8</div><div class="sl">Partidos</div></div>
-      <div class="scard"><div class="sv">15</div><div class="sl">Rutas</div></div>
-      <div class="scard"><div class="sv" id="scam">101</div><div class="sl">Caminos</div></div>
-      <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
-    </div>
-  
-      </div>
-    </div>
+    </div><!-- /pane-mapa (bloque Resumen movido al panel-footer fijo en v7.74) -->
 
     <!-- ══ TAB REGISTROS ══════════════════════════════════════════ -->
     <div class="pane" id="pane-regs">
@@ -627,6 +622,20 @@ body.modo-campo #campo-fab{display:flex}
       </div>
     </div>
 
+    <!-- v7.74 · Panel-footer fijo: resumen zona + info institucional -->
+    <div class="panel-footer" id="panelFooter">
+      <div class="pf-title" id="pfZonaTitle">Zona VI · Resumen</div>
+      <div class="sgrid pf-grid">
+        <div class="scard"><div class="sv" id="pf-partidos">8</div><div class="sl">Partidos</div></div>
+        <div class="scard"><div class="sv">15</div><div class="sl">Rutas</div></div>
+        <div class="scard"><div class="sv" id="scam">101</div><div class="sl">Caminos</div></div>
+        <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
+      </div>
+      <div class="pf-inst">
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.74</span>
+      </div>
+    </div>
+
   </div>
 <div id="map">
   <div id="layer-btns">
@@ -690,7 +699,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.73';
+const APP_VERSION = 'v7.74';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4497,11 +4506,13 @@ document.addEventListener('click', function(e){
   });
 })();
 
-// Versión visible en modal de login (el header ya no la muestra desde v7.73)
+// Versión visible en modal de login + panel-footer (el header ya no la muestra desde v7.73)
 const _appVerEl = document.getElementById('app-ver');
 if (_appVerEl) _appVerEl.textContent = APP_VERSION;
 const loginVer = document.getElementById('login-app-ver');
 if (loginVer) loginVer.textContent = APP_VERSION;
+const footVer = document.getElementById('app-ver-footer');
+if (footVer) footVer.textContent = APP_VERSION;
 
 // v7.73 · Picker de zona en el header (mismo patrón que partes_diarios.html)
 const ZONAS_DVBA_PORTAL = {
@@ -4517,6 +4528,9 @@ function aplicarZonaPortal(cod){
   const e1 = document.getElementById('hZona');    if (e1) e1.textContent = z.n;
   const e2 = document.getElementById('hPartido'); if (e2) e2.textContent = z.p;
   const s  = document.getElementById('hSelZona'); if (s)  s.value = cod;
+  // v7.74 · título del panel-footer también refleja la zona activa
+  const pt = document.getElementById('pfZonaTitle');
+  if (pt) pt.textContent = z.n + ' · Resumen';
   try { localStorage.setItem('dvba_zona', cod); } catch(e){}
 }
 function cambiarZonaPortal(cod){
