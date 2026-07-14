@@ -632,7 +632,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.74</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.76</span>
       </div>
     </div>
 
@@ -644,6 +644,7 @@ body.modo-campo #campo-fab{display:flex}
     <button id="btn-dark" onclick="setLayer('dark')">Vista Oscura</button>
     <button id="btn-sat" onclick="setLayer('sat')">Satélite</button>
     <button id="btn-caminos" onclick="toggleCaminosLayer()" style="margin-top:4px;border-color:#7050b0;color:#7050b0">🚜 Caminos Sec.</button>
+    <button id="btn-partes-mapa" onclick="togglePartesLayer()" style="margin-top:4px;border-color:#c47a00;color:#c47a00" title="Ver los partes diarios cargados sobre el mapa">📋 Partes</button>
     <!-- v7.33 — Mini-panel plegable "Visualización" solo con opciones de mojones/progresivas -->
     <div id="vis-chip" onclick="toggleVisPanel()" title="Opciones de visualización">
       <span>⚙ Visualización</span><span id="vis-arrow">▸</span>
@@ -699,7 +700,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.75';
+const APP_VERSION = 'v7.76';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4750,6 +4751,204 @@ function _csUpdateBtnEstado(on){
 
 // Auto-init después del DOM
 document.addEventListener('DOMContentLoaded', () => setTimeout(csInit, 500));
+
+/* ═══════════════════════════════════════════════════════════════════
+   v7.76 · CAPA DE PARTES DIARIOS en el mapa
+   Cierra el ciclo "cargo en el portal Plan de Seguridad → aparece en el mapa"
+   ═══════════════════════════════════════════════════════════════════ */
+
+let _partesLayer   = null;   // LayerGroup con todos los markers/polylines
+let _partesVisible = false;
+let _partesCache   = null;   // array cacheado del último fetch
+const _PARTES_COLOR = '#c47a00';  // dorado institucional
+
+// Interpolar progresiva (km oficial) → {lat, lon} usando CHAINS_DATA + ANCHORS_DATA.
+// Reutiliza los mismos bundles que el portal ya carga con calcProg (sentido inverso).
+function _partesInterpolar(rutaNum, prog){
+  const rid = String(rutaNum);
+  const chain = CHAINS_DATA[rid];
+  const anch  = ANCHORS_DATA[rid];
+  if (!chain || chain.length < 2 || !isFinite(prog)) return null;
+  if (!anch || anch.length < 2){
+    // Sin anchors, usar la longitud lineal del chain como fallback
+    const meta = (typeof META_DATA !== 'undefined') ? META_DATA[rid] : null;
+    if (!meta) return null;
+    return _partesInterpolarLineal(chain, meta.progIni||0, meta.progFin||0, prog);
+  }
+  // Anchors ordenados por km ascendente
+  const sorted = [...anch].sort((a,b)=>a.km - b.km);
+  const kmMin = sorted[0].km, kmMax = sorted[sorted.length-1].km;
+  const p = Math.max(kmMin, Math.min(kmMax, prog));
+  let i = 0;
+  for (; i < sorted.length-1; i++) if (sorted[i+1].km >= p) break;
+  if (i >= sorted.length-1) i = sorted.length-2;
+  const a = sorted[i], b = sorted[i+1];
+  const t = (b.km === a.km) ? 0 : (p - a.km) / (b.km - a.km);
+  const targetAcc = a.acc + t*(b.acc - a.acc);
+  return _partesAvanzarChain(chain, targetAcc);
+}
+function _partesInterpolarLineal(chain, pIni, pFin, prog){
+  const totalKm = Math.abs(pFin - pIni);
+  const t = (prog - pIni) / (pFin - pIni);
+  if (!isFinite(t)) return null;
+  // Recorrer chain acumulando dist hasta llegar a t * totalKm
+  return _partesAvanzarChain(chain, t * totalKm);
+}
+function _partesAvanzarChain(chain, targetAcc){
+  const R = 6371, toRad = x => x*Math.PI/180;
+  const hav = (la1,lo1,la2,lo2)=>{
+    const dLat = toRad(la2-la1), dLon = toRad(lo2-lo1);
+    const s = Math.sin(dLat/2)**2 + Math.cos(toRad(la1))*Math.cos(toRad(la2))*Math.sin(dLon/2)**2;
+    return 2*R*Math.asin(Math.sqrt(s));
+  };
+  let acc = 0;
+  for (let j = 1; j < chain.length; j++){
+    const [lonA,latA]=chain[j-1], [lonB,latB]=chain[j];
+    const d = hav(latA,lonA,latB,lonB);
+    if (acc + d >= targetAcc){
+      const frac = d > 0 ? (targetAcc - acc)/d : 0;
+      return { lat: latA + frac*(latB-latA), lon: lonA + frac*(lonB-lonA) };
+    }
+    acc += d;
+  }
+  const last = chain[chain.length-1];
+  return { lat: last[1], lon: last[0] };
+}
+// Cortar un tramo del chain entre dos progresivas [pIni, pFin] → array de [lon,lat] listo para L.polyline
+function _partesTramoChain(rutaNum, pIni, pFin){
+  const rid = String(rutaNum);
+  const chain = CHAINS_DATA[rid];
+  if (!chain || chain.length < 2) return null;
+  const pMin = Math.min(pIni, pFin), pMax = Math.max(pIni, pFin);
+  const llIni = _partesInterpolar(rid, pMin);
+  const llFin = _partesInterpolar(rid, pMax);
+  if (!llIni || !llFin) return null;
+  // Aproximación simple: puntos ini + fin (polyline recta).
+  // Mejora futura: recorrer el chain entre ambos accs para dibujar la curva real.
+  return [[llIni.lat, llIni.lon], [llFin.lat, llFin.lon]];
+}
+
+async function partesCargar(){
+  if (!_supa) return { ok:false, msg:'Supabase no disponible' };
+  const { data: partes, error } = await _supa.from('partes_diarios')
+    .select(`id, fecha, tipo_via, ruta, partido, prog_ini, prog_fin, observaciones,
+             catalogo_tareas ( nombre ),
+             parte_fotos ( relevamiento_id ),
+             parte_maquinarias ( vehiculos ( tipo_maquinaria ) )`)
+    .order('fecha', {ascending:false})
+    .limit(2000);
+  if (error){ return { ok:false, msg: error.message }; }
+  // Para los que tienen fotos, resolver lat/lon del relevamiento asociado
+  const relIds = [];
+  (partes||[]).forEach(p => (p.parte_fotos||[]).forEach(f => relIds.push(f.relevamiento_id)));
+  const relMap = {};
+  if (relIds.length){
+    const { data: relevs } = await _supa.from('relevamientos')
+      .select('id, latitud, longitud, foto_url').in('id', relIds).limit(5000);
+    (relevs||[]).forEach(r => { relMap[r.id] = r; });
+  }
+  return { ok:true, partes: partes||[], relMap };
+}
+function partesDibujar(partes, relMap){
+  if (!_partesLayer) _partesLayer = L.layerGroup();
+  _partesLayer.clearLayers();
+  let conFoto = 0, sinFoto = 0, sinTraza = 0;
+  (partes||[]).forEach(p => {
+    const relIds = (p.parte_fotos||[]).map(f => f.relevamiento_id);
+    const relCon = relIds.map(id => relMap[id]).filter(r => r && r.latitud && r.longitud);
+    const tarea = p.catalogo_tareas ? p.catalogo_tareas.nombre : 'Sin tarea';
+    const rutaLabel = (p.tipo_via === 'rp') ? ('RP ' + p.ruta) : ('Cno. ' + p.ruta);
+    const equipos = (p.parte_maquinarias||[])
+      .map(pm => pm.vehiculos && pm.vehiculos.tipo_maquinaria)
+      .filter(Boolean);
+    const equiposSet = [...new Set(equipos)];
+    const fechaFmt = new Date(p.fecha+'T12:00').toLocaleDateString('es-AR');
+    const kmRec = (p.prog_ini != null && p.prog_fin != null)
+      ? Math.abs(Number(p.prog_fin) - Number(p.prog_ini)).toFixed(2) : '—';
+    const popupHTML = `
+      <div style="font-size:12px;min-width:220px;font-family:'Encode Sans',Arial,sans-serif">
+        <div style="background:${_PARTES_COLOR};color:#fff;padding:6px 8px;margin:-8px -8px 6px;font-weight:700">
+          📋 Parte #${p.id} · ${fechaFmt}
+        </div>
+        <div><b>Tarea:</b> ${tarea}</div>
+        <div><b>Vía:</b> ${rutaLabel} ${p.partido ? '· '+p.partido : ''}</div>
+        <div><b>Tramo:</b> ${p.prog_ini ?? '—'} → ${p.prog_fin ?? '—'} (${kmRec} km)</div>
+        ${equiposSet.length ? `<div><b>Equipos:</b> ${equiposSet.join(', ')}</div>` : ''}
+        ${p.observaciones ? `<div style="margin-top:4px;color:#555;font-style:italic">"${p.observaciones}"</div>` : ''}
+        ${!relCon.length ? `<div style="margin-top:4px;font-size:10.5px;color:#8a6d3b">⚠ Parte sin foto — posición interpolada</div>` : ''}
+      </div>`;
+    if (relCon.length){
+      // CON FOTO: pin sobre la posición del relevamiento (primero por si hay varios)
+      const r = relCon[0];
+      const m = L.circleMarker([r.latitud, r.longitud], {
+        radius: 7, color: '#fff', weight: 2, fillColor: _PARTES_COLOR, fillOpacity: .9
+      }).bindPopup(popupHTML);
+      _partesLayer.addLayer(m);
+      conFoto++;
+      return;
+    }
+    // SIN FOTO: intentar polyline + pin al punto medio interpolando la progresiva
+    if (p.tipo_via !== 'rp' || p.prog_ini == null || p.prog_fin == null){
+      sinFoto++; sinTraza++; return;  // sin datos suficientes para ubicar
+    }
+    const num = String(p.ruta).replace(/[^\d]/g,'');
+    const tramo = _partesTramoChain(num, Number(p.prog_ini), Number(p.prog_fin));
+    if (!tramo){ sinFoto++; sinTraza++; return; }
+    // Polyline
+    const line = L.polyline(tramo, {
+      color: _PARTES_COLOR, weight: 6, opacity: .55, dashArray: '8,6'
+    }).bindPopup(popupHTML);
+    // Pin al punto medio
+    const pMed = (Number(p.prog_ini)+Number(p.prog_fin))/2;
+    const ll = _partesInterpolar(num, pMed);
+    if (ll){
+      const m = L.circleMarker([ll.lat, ll.lon], {
+        radius: 6, color: '#fff', weight: 2, fillColor: _PARTES_COLOR, fillOpacity: .7
+      }).bindPopup(popupHTML);
+      _partesLayer.addLayer(m);
+    }
+    _partesLayer.addLayer(line);
+    sinFoto++;
+  });
+  console.log(`[Partes v7.76] dibujados: ${conFoto} con foto + ${sinFoto} sin foto (${sinTraza} sin traza cargada — ver RPs pendientes en bitácora)`);
+}
+
+async function togglePartesLayer(){
+  if (_partesVisible){
+    if (_partesLayer) map.removeLayer(_partesLayer);
+    _partesVisible = false;
+    _partesUpdateBtn(false);
+    return;
+  }
+  // Requiere sesión para cargar (RLS)
+  const raw = localStorage.getItem('dvba_session');
+  if (!raw){
+    alert('Iniciá sesión para ver los partes en el mapa.');
+    return;
+  }
+  if (!_partesCache){
+    _partesUpdateBtn(false, '⏳ Cargando...');
+    const res = await partesCargar();
+    if (!res.ok){
+      alert('Error cargando partes: ' + res.msg);
+      _partesUpdateBtn(false);
+      return;
+    }
+    _partesCache = res;
+  }
+  partesDibujar(_partesCache.partes, _partesCache.relMap);
+  _partesLayer.addTo(map);
+  _partesVisible = true;
+  _partesUpdateBtn(true);
+}
+function _partesUpdateBtn(on, text){
+  const b = document.getElementById('btn-partes-mapa');
+  if (!b) return;
+  if (text){ b.textContent = text; return; }
+  b.textContent = '📋 Partes';
+  if (on){ b.classList.add('active'); b.style.background = _PARTES_COLOR; b.style.color = '#fff'; }
+  else   { b.classList.remove('active'); b.style.background = ''; b.style.color = _PARTES_COLOR; }
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    v7.15 — TIPO DE VÍA (RP / Camino Secundario) en form escritorio
