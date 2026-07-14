@@ -632,7 +632,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.76</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.77</span>
       </div>
     </div>
 
@@ -700,7 +700,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.76';
+const APP_VERSION = 'v7.77';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4814,18 +4814,88 @@ function _partesAvanzarChain(chain, targetAcc){
   const last = chain[chain.length-1];
   return { lat: last[1], lon: last[0] };
 }
-// Cortar un tramo del chain entre dos progresivas [pIni, pFin] → array de [lon,lat] listo para L.polyline
+// Convierte progresiva (km oficial) → distancia acumulada sobre el chain.
+// Es la inversa de calcProg(). Necesitamos esto para saber en qué punto
+// del chain empezar y terminar la polyline del tramo.
+function _partesKmToAcc(rid, km){
+  const anch = ANCHORS_DATA[rid];
+  if (!anch || anch.length < 2) return null;
+  const sorted = [...anch].sort((a,b)=>a.km - b.km);
+  const kmMin = sorted[0].km, kmMax = sorted[sorted.length-1].km;
+  const k = Math.max(kmMin, Math.min(kmMax, km));
+  let i = 0;
+  for (; i < sorted.length-1; i++) if (sorted[i+1].km >= k) break;
+  if (i >= sorted.length-1) i = sorted.length-2;
+  const a = sorted[i], b = sorted[i+1];
+  const t = (b.km === a.km) ? 0 : (k - a.km) / (b.km - a.km);
+  return a.acc + t*(b.acc - a.acc);
+}
+
+// Cortar un tramo del chain entre dos progresivas [pIni, pFin].
+// v7.77 · Recorre el chain acumulando distancias. Cuando el acumulado
+// llega a accIni se interpola el punto exacto y se empieza a incluir
+// vértices. Cuando llega a accFin se interpola el último punto y se
+// corta. Resultado: array de [lat,lon] con TODOS los vértices reales
+// del chain entre las dos progresivas — la polyline sigue la curva real.
 function _partesTramoChain(rutaNum, pIni, pFin){
   const rid = String(rutaNum);
   const chain = CHAINS_DATA[rid];
   if (!chain || chain.length < 2) return null;
   const pMin = Math.min(pIni, pFin), pMax = Math.max(pIni, pFin);
-  const llIni = _partesInterpolar(rid, pMin);
-  const llFin = _partesInterpolar(rid, pMax);
-  if (!llIni || !llFin) return null;
-  // Aproximación simple: puntos ini + fin (polyline recta).
-  // Mejora futura: recorrer el chain entre ambos accs para dibujar la curva real.
-  return [[llIni.lat, llIni.lon], [llFin.lat, llFin.lon]];
+  const accIni = _partesKmToAcc(rid, pMin);
+  const accFin = _partesKmToAcc(rid, pMax);
+  if (accIni == null || accFin == null) return null;
+
+  const R = 6371, toRad = x => x*Math.PI/180;
+  const hav = (la1,lo1,la2,lo2)=>{
+    const dLat = toRad(la2-la1), dLon = toRad(lo2-lo1);
+    const s = Math.sin(dLat/2)**2 + Math.cos(toRad(la1))*Math.cos(toRad(la2))*Math.sin(dLon/2)**2;
+    return 2*R*Math.asin(Math.sqrt(s));
+  };
+
+  const pts = [];  // acumulador de [lat, lon]
+  let acc = 0;
+  let started = false;
+  for (let j = 1; j < chain.length; j++){
+    const [lonA,latA] = chain[j-1], [lonB,latB] = chain[j];
+    const d = hav(latA,lonA,latB,lonB);
+    const accNext = acc + d;
+
+    // ¿En este segmento entramos al tramo?
+    if (!started && accNext >= accIni){
+      const frac = d > 0 ? (accIni - acc) / d : 0;
+      pts.push([latA + frac*(latB-latA), lonA + frac*(lonB-lonA)]);
+      started = true;
+    }
+
+    if (started){
+      if (accNext >= accFin){
+        // ¿En este segmento salimos? Interpolar punto exacto y cortar.
+        const frac = d > 0 ? (accFin - acc) / d : 0;
+        pts.push([latA + frac*(latB-latA), lonA + frac*(lonB-lonA)]);
+        return pts;
+      } else {
+        // Vértice del chain totalmente dentro del tramo — incluir
+        pts.push([latB, lonB]);
+      }
+    }
+    acc = accNext;
+  }
+  return pts.length >= 2 ? pts : null;
+}
+
+// v7.77 · Color del parte según antigüedad (para preparar reportes).
+// Últimos 7 días → rojo · últimos 30 → dorado · últimos 90 → gris · más viejo → gris oscuro.
+// Devuelve {color, edad} para reusar en pin, polyline y popup.
+function _partesColorPorEdad(fechaStr){
+  const hoy = new Date();
+  const f = new Date(fechaStr + 'T12:00');
+  const diasMs = 1000*60*60*24;
+  const dias = Math.floor((hoy - f) / diasMs);
+  if (dias <= 7)  return { color: '#dc3545', edad: 'Última semana',   dias };
+  if (dias <= 30) return { color: '#c47a00', edad: 'Último mes',      dias };
+  if (dias <= 90) return { color: '#7050b0', edad: 'Últimos 3 meses', dias };
+  return                { color: '#5a6a7a', edad: 'Histórico',        dias };
 }
 
 async function partesCargar(){
@@ -4853,6 +4923,7 @@ function partesDibujar(partes, relMap){
   if (!_partesLayer) _partesLayer = L.layerGroup();
   _partesLayer.clearLayers();
   let conFoto = 0, sinFoto = 0, sinTraza = 0;
+  const conteoPorEdad = { 'Última semana':0, 'Último mes':0, 'Últimos 3 meses':0, 'Histórico':0 };
   (partes||[]).forEach(p => {
     const relIds = (p.parte_fotos||[]).map(f => f.relevamiento_id);
     const relCon = relIds.map(id => relMap[id]).filter(r => r && r.latitud && r.longitud);
@@ -4865,52 +4936,59 @@ function partesDibujar(partes, relMap){
     const fechaFmt = new Date(p.fecha+'T12:00').toLocaleDateString('es-AR');
     const kmRec = (p.prog_ini != null && p.prog_fin != null)
       ? Math.abs(Number(p.prog_fin) - Number(p.prog_ini)).toFixed(2) : '—';
+    // v7.77 · color según antigüedad
+    const cE = _partesColorPorEdad(p.fecha);
+    conteoPorEdad[cE.edad]++;
     const popupHTML = `
-      <div style="font-size:12px;min-width:220px;font-family:'Encode Sans',Arial,sans-serif">
-        <div style="background:${_PARTES_COLOR};color:#fff;padding:6px 8px;margin:-8px -8px 6px;font-weight:700">
+      <div style="font-size:12px;min-width:230px;font-family:'Encode Sans',Arial,sans-serif">
+        <div style="background:${cE.color};color:#fff;padding:6px 8px;margin:-8px -8px 6px;font-weight:700">
           📋 Parte #${p.id} · ${fechaFmt}
+          <span style="float:right;background:rgba(255,255,255,.25);padding:1px 6px;border-radius:9px;font-size:9.5px">${cE.edad}</span>
         </div>
         <div><b>Tarea:</b> ${tarea}</div>
         <div><b>Vía:</b> ${rutaLabel} ${p.partido ? '· '+p.partido : ''}</div>
         <div><b>Tramo:</b> ${p.prog_ini ?? '—'} → ${p.prog_fin ?? '—'} (${kmRec} km)</div>
         ${equiposSet.length ? `<div><b>Equipos:</b> ${equiposSet.join(', ')}</div>` : ''}
         ${p.observaciones ? `<div style="margin-top:4px;color:#555;font-style:italic">"${p.observaciones}"</div>` : ''}
-        ${!relCon.length ? `<div style="margin-top:4px;font-size:10.5px;color:#8a6d3b">⚠ Parte sin foto — posición interpolada</div>` : ''}
+        ${!relCon.length ? `<div style="margin-top:4px;font-size:10.5px;color:#8a6d3b">⚠ Parte sin foto — posición interpolada sobre la traza</div>` : ''}
       </div>`;
     if (relCon.length){
       // CON FOTO: pin sobre la posición del relevamiento (primero por si hay varios)
       const r = relCon[0];
       const m = L.circleMarker([r.latitud, r.longitud], {
-        radius: 7, color: '#fff', weight: 2, fillColor: _PARTES_COLOR, fillOpacity: .9
+        radius: 7, color: '#fff', weight: 2, fillColor: cE.color, fillOpacity: .9
       }).bindPopup(popupHTML);
       _partesLayer.addLayer(m);
       conFoto++;
       return;
     }
-    // SIN FOTO: intentar polyline + pin al punto medio interpolando la progresiva
+    // SIN FOTO: polyline SOBRE LA TRAZA REAL (v7.77) + pin al punto medio
     if (p.tipo_via !== 'rp' || p.prog_ini == null || p.prog_fin == null){
-      sinFoto++; sinTraza++; return;  // sin datos suficientes para ubicar
+      sinFoto++; sinTraza++; return;
     }
     const num = String(p.ruta).replace(/[^\d]/g,'');
     const tramo = _partesTramoChain(num, Number(p.prog_ini), Number(p.prog_fin));
     if (!tramo){ sinFoto++; sinTraza++; return; }
-    // Polyline
+    // Polyline siguiendo el chain real
     const line = L.polyline(tramo, {
-      color: _PARTES_COLOR, weight: 6, opacity: .55, dashArray: '8,6'
+      color: cE.color, weight: 7, opacity: .6, lineCap: 'round', lineJoin: 'round'
     }).bindPopup(popupHTML);
-    // Pin al punto medio
-    const pMed = (Number(p.prog_ini)+Number(p.prog_fin))/2;
-    const ll = _partesInterpolar(num, pMed);
-    if (ll){
-      const m = L.circleMarker([ll.lat, ll.lon], {
-        radius: 6, color: '#fff', weight: 2, fillColor: _PARTES_COLOR, fillOpacity: .7
+    // Pin al punto medio del recorrido (aprox: el vértice de la mitad del array)
+    const midIdx = Math.floor(tramo.length/2);
+    const midPt  = tramo[midIdx];
+    if (midPt){
+      const m = L.circleMarker(midPt, {
+        radius: 6, color: '#fff', weight: 2, fillColor: cE.color, fillOpacity: .85
       }).bindPopup(popupHTML);
       _partesLayer.addLayer(m);
     }
     _partesLayer.addLayer(line);
     sinFoto++;
   });
-  console.log(`[Partes v7.76] dibujados: ${conFoto} con foto + ${sinFoto} sin foto (${sinTraza} sin traza cargada — ver RPs pendientes en bitácora)`);
+  const resumen = Object.entries(conteoPorEdad)
+    .filter(([_,n]) => n>0)
+    .map(([k,n]) => `${k}:${n}`).join(' · ');
+  console.log(`[Partes v7.77] ${conFoto} con foto + ${sinFoto} sin foto (${sinTraza} sin traza) · ${resumen}`);
 }
 
 async function togglePartesLayer(){
