@@ -632,7 +632,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.77</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.78</span>
       </div>
     </div>
 
@@ -700,7 +700,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.77';
+const APP_VERSION = 'v7.78';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4831,12 +4831,59 @@ function _partesKmToAcc(rid, km){
   return a.acc + t*(b.acc - a.acc);
 }
 
-// Cortar un tramo del chain entre dos progresivas [pIni, pFin].
-// v7.77 · Recorre el chain acumulando distancias. Cuando el acumulado
-// llega a accIni se interpola el punto exacto y se empieza a incluir
-// vértices. Cuando llega a accFin se interpola el último punto y se
-// corta. Resultado: array de [lat,lon] con TODOS los vértices reales
-// del chain entre las dos progresivas — la polyline sigue la curva real.
+// Helper genérico: recorre un chain acumulando distancias y devuelve
+// el subarray de [lat,lon] entre accIni y accFin, interpolando los
+// puntos exactos de entrada/salida.
+function _partesSubChain(chain, accIni, accFin){
+  const R = 6371, toRad = x => x*Math.PI/180;
+  const hav = (la1,lo1,la2,lo2)=>{
+    const dLat = toRad(la2-la1), dLon = toRad(lo2-lo1);
+    const s = Math.sin(dLat/2)**2 + Math.cos(toRad(la1))*Math.cos(toRad(la2))*Math.sin(dLon/2)**2;
+    return 2*R*Math.asin(Math.sqrt(s));
+  };
+  const pts = [];
+  let acc = 0;
+  let started = false;
+  for (let j = 1; j < chain.length; j++){
+    const [lonA,latA] = chain[j-1], [lonB,latB] = chain[j];
+    const d = hav(latA,lonA,latB,lonB);
+    const accNext = acc + d;
+    if (!started && accNext >= accIni){
+      const frac = d > 0 ? (accIni - acc) / d : 0;
+      pts.push([latA + frac*(latB-latA), lonA + frac*(lonB-lonA)]);
+      started = true;
+    }
+    if (started){
+      if (accNext >= accFin){
+        const frac = d > 0 ? (accFin - acc) / d : 0;
+        pts.push([latA + frac*(latB-latA), lonA + frac*(lonB-lonA)]);
+        return pts;
+      } else {
+        pts.push([latB, lonB]);
+      }
+    }
+    acc = accNext;
+  }
+  return pts.length >= 2 ? pts : null;
+}
+
+// Longitud total (km) de un chain — se usa como fallback y para caminos.
+function _partesLargoChain(chain){
+  if (!chain || chain.length < 2) return 0;
+  const R = 6371, toRad = x => x*Math.PI/180;
+  const hav = (la1,lo1,la2,lo2)=>{
+    const dLat = toRad(la2-la1), dLon = toRad(lo2-lo1);
+    const s = Math.sin(dLat/2)**2 + Math.cos(toRad(la1))*Math.cos(toRad(la2))*Math.sin(dLon/2)**2;
+    return 2*R*Math.asin(Math.sqrt(s));
+  };
+  let acc = 0;
+  for (let j=1; j<chain.length; j++){
+    acc += hav(chain[j-1][1], chain[j-1][0], chain[j][1], chain[j][0]);
+  }
+  return acc;
+}
+
+// Tramo de RP: usa CHAIN + ANCHORS calibrados (progresivas oficiales DVBA).
 function _partesTramoChain(rutaNum, pIni, pFin){
   const rid = String(rutaNum);
   const chain = CHAINS_DATA[rid];
@@ -4845,43 +4892,41 @@ function _partesTramoChain(rutaNum, pIni, pFin){
   const accIni = _partesKmToAcc(rid, pMin);
   const accFin = _partesKmToAcc(rid, pMax);
   if (accIni == null || accFin == null) return null;
+  return _partesSubChain(chain, accIni, accFin);
+}
 
-  const R = 6371, toRad = x => x*Math.PI/180;
-  const hav = (la1,lo1,la2,lo2)=>{
-    const dLat = toRad(la2-la1), dLon = toRad(lo2-lo1);
-    const s = Math.sin(dLat/2)**2 + Math.cos(toRad(la1))*Math.cos(toRad(la2))*Math.sin(dLon/2)**2;
-    return 2*R*Math.asin(Math.sqrt(s));
-  };
-
-  const pts = [];  // acumulador de [lat, lon]
-  let acc = 0;
-  let started = false;
-  for (let j = 1; j < chain.length; j++){
-    const [lonA,latA] = chain[j-1], [lonB,latB] = chain[j];
-    const d = hav(latA,lonA,latB,lonB);
-    const accNext = acc + d;
-
-    // ¿En este segmento entramos al tramo?
-    if (!started && accNext >= accIni){
-      const frac = d > 0 ? (accIni - acc) / d : 0;
-      pts.push([latA + frac*(latB-latA), lonA + frac*(lonB-lonA)]);
-      started = true;
+// v7.78 · Tramo de camino secundario: reconstruye el chain concatenando
+// los features del geojson en orden de TRAMO_NUM, y usa interpolación
+// PROPORCIONAL (los caminos no tienen anchors calibrados por vértice —
+// la progresiva del parte va de 0 a longKm del camino).
+function _partesGetChainCamino(codigo){
+  if (typeof RED_VIAL === 'undefined' || !RED_VIAL.listarCaminos) return null;
+  const cam = (RED_VIAL.listarCaminos() || []).find(c => c.key === codigo);
+  if (!cam || !cam.featuresOrig) return null;
+  const feats = [...cam.featuresOrig].sort((a,b) =>
+    Number(a.properties.TRAMO_NUM||0) - Number(b.properties.TRAMO_NUM||0));
+  const chain = [];
+  feats.forEach(f => {
+    const g = f.geometry; if (!g) return;
+    if (g.type === 'LineString'){
+      g.coordinates.forEach(pt => chain.push(pt));
+    } else if (g.type === 'MultiLineString'){
+      g.coordinates.forEach(line => line.forEach(pt => chain.push(pt)));
     }
-
-    if (started){
-      if (accNext >= accFin){
-        // ¿En este segmento salimos? Interpolar punto exacto y cortar.
-        const frac = d > 0 ? (accFin - acc) / d : 0;
-        pts.push([latA + frac*(latB-latA), lonA + frac*(lonB-lonA)]);
-        return pts;
-      } else {
-        // Vértice del chain totalmente dentro del tramo — incluir
-        pts.push([latB, lonB]);
-      }
-    }
-    acc = accNext;
-  }
-  return pts.length >= 2 ? pts : null;
+  });
+  return { chain, longKm: cam.longKm || 0 };
+}
+function _partesTramoCamino(codigo, pIni, pFin){
+  const info = _partesGetChainCamino(codigo);
+  if (!info || !info.chain || info.chain.length < 2) return null;
+  const totalAcc = _partesLargoChain(info.chain);
+  if (totalAcc === 0) return null;
+  const longKm = info.longKm > 0 ? info.longKm : totalAcc;
+  // Escala: km oficial (0..longKm) → acc real del chain (0..totalAcc)
+  const scale = totalAcc / longKm;
+  const pMin = Math.max(0, Math.min(longKm, Math.min(pIni, pFin)));
+  const pMax = Math.max(0, Math.min(longKm, Math.max(pIni, pFin)));
+  return _partesSubChain(info.chain, pMin * scale, pMax * scale);
 }
 
 // v7.77 · Color del parte según antigüedad (para preparar reportes).
@@ -4962,12 +5007,18 @@ function partesDibujar(partes, relMap){
       conFoto++;
       return;
     }
-    // SIN FOTO: polyline SOBRE LA TRAZA REAL (v7.77) + pin al punto medio
-    if (p.tipo_via !== 'rp' || p.prog_ini == null || p.prog_fin == null){
+    // SIN FOTO: polyline sobre la traza real + pin al medio.
+    // v7.78 · Soporte para RP y camino (antes solo RP).
+    if (p.prog_ini == null || p.prog_fin == null){
       sinFoto++; sinTraza++; return;
     }
-    const num = String(p.ruta).replace(/[^\d]/g,'');
-    const tramo = _partesTramoChain(num, Number(p.prog_ini), Number(p.prog_fin));
+    let tramo = null;
+    if (p.tipo_via === 'rp'){
+      const num = String(p.ruta).replace(/[^\d]/g,'');
+      tramo = _partesTramoChain(num, Number(p.prog_ini), Number(p.prog_fin));
+    } else if (p.tipo_via === 'camino'){
+      tramo = _partesTramoCamino(String(p.ruta), Number(p.prog_ini), Number(p.prog_fin));
+    }
     if (!tramo){ sinFoto++; sinTraza++; return; }
     // Polyline siguiendo el chain real
     const line = L.polyline(tramo, {
