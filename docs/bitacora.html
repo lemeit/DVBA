@@ -171,7 +171,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
     <tr><td>RP 46</td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">rutas_rp46.js</span></td><td>—</td></tr>
     <tr><td>RP 51</td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">rutas_rp51.js</span></td><td>—</td></tr>
     <tr><td>RP 91</td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">✓</span></td><td><span class="badge b-ok">rutas_rp91.js</span></td><td>—</td></tr>
-    <tr><td>RP 6, 20, 24, 42, 43, 44, 47, 48, 61</td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td>9 rutas restantes para completar las 15 de Zona VI</td></tr>
+    <tr><td>RP 6, 20, 24, 42, 43, 44, 48</td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td><span class="badge b-pend">pendiente</span></td><td>7 rutas restantes para completar las 15 de Zona VI (RP 47 y 61 completadas)</td></tr>
   </table>
 
 </section>
@@ -679,34 +679,62 @@ git push origin main
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <section class="tab-pane" id="tab-pendientes">
 
+  <div class="card" style="background:#eaf5ea;border-left:4px solid #2d8a4a;padding:10px 14px;margin-bottom:16px">
+    <strong>✅ Actualizado a v7.75 · 13 julio 2026.</strong> El grueso de los pendientes históricos ya está resuelto (sello v3, caminos integrados, mudanza C:\DVBA, RLS Supabase). Los nuevos ejes son <em>reportes PDF oficiales</em>, <em>capa de partes en el mapa</em>, <em>escalado multi-zona</em>, y <em>completar las RPs faltantes en QGIS</em>.
+  </div>
+
   <h2>🔴 Alta Prioridad</h2>
   <div class="box warn">
     <ul>
-      <li><strong>Sello v3 con QR Google Maps</strong> (próxima iteración del 24/6): adaptar más fielmente al diseño de GPS Map Camera con texto principal en blanco grande + QR escaneable a la derecha que abra <code>https://www.google.com/maps?q=LAT,LNG</code> + logo institucional a la izquierda. Embeber lib QR vanilla (~10 KB) para funcionamiento offline.</li>
-      <li>Mover físicamente <code>C:\DVBA\</code> y <code>C:\Users\…\OneDrive\…\QGIS Files\Proyecto_Redes_Viales\</code> a <code>C:\DVBA_fuentes\</code> para liberar OneDrive de los 530 MB y consolidar todo en C: raíz.</li>
-      <li>Integrar <code>caminos_secundarios.html</code> en la app principal con selector de tabs <strong>Rutas Provinciales / Caminos Secundarios</strong>.</li>
+      <li><strong>Módulo Reportes (Bloque 3 · Sesión 3)</strong>: dashboard con métricas + reporte oficial DVBA en PDF con layout institucional (portada, resumen ejecutivo, tabla de tareas por partido, gráficos de barras, tabla luminarias LED, anexo fotográfico). Pendiente confirmar layout con adjunto del user. Es lo que faltaría para "presentación Gerencia".</li>
+      <li><strong>Capa de partes en el mapa del portal (v7.76 planeado)</strong>: nueva capa toggleable en <code>index.html</code> sobre panel Capas. Cada parte se dibuja como polyline del tramo <code>prog_ini↔prog_fin</code> sobre la traza RP + pin en el punto medio. Partes con foto usan el punto del relevamiento asociado. Sin foto: polyline gruesa + pin gris (necesita agregar columnas <code>lat</code>/<code>lon</code> o computar on-the-fly).</li>
+      <li><strong>[SQL] Correr <code>SQL_5_rls_partes_flexible.sql</code> y <code>SQL_6_partido_en_partes.sql</code></strong> en Supabase antes del próximo test end-to-end del portal Plan de Seguridad. El primero fixea el 403 al guardar; el segundo agrega columna <code>partido</code> y actualiza la view de export.</li>
+      <li><strong>Regenerar RP30 y RP46</strong> con calma en QGIS (task #195): el <code>_traza_completa</code> original tenía zigzag / mala longitud. Requiere revisar el orden geográfico de fids uno a uno antes de re-correr <code>gen_ruta_bundle.py</code>.</li>
+      <li><strong>Documentar bitácora entradas v7.62 → v7.75</strong>: sprint de módulo Partes Diarios (renombrado a "Plan de Seguridad en la Circulación"), detección automática de partido, dropdown único + typeahead nativo, sidebar-footer institucional, plan de roles multi-zona. Ver commits del 13/7.</li>
     </ul>
   </div>
 
   <h2>🔵 Media Prioridad</h2>
   <div class="box info">
     <ul>
-      <li><strong>Completar el historial de versiones entre v9.10 y v9.15 / v7.1 y v7.7</strong> en la bitácora. La bitácora que se restauró el 24/6 (desde commit <code>358409d</code>, "camino 075 incorporado") tiene el changelog actualizado hasta v9.10/v7.1, pero entre esa fecha y junio se hicieron varias iteraciones intermedias (≥5 versiones de cada app) cuyos detalles habría que reconstruir desde <code>git log</code> de los HTMLs y agregar al changelog para que no haya saltos.</li>
-      <li>Completar las <strong>9 rutas restantes</strong> de Zona VI: RP 6, 20, 24, 42, 43, 44, 47, 48, 61 (red total: 15 RPs).</li>
-      <li><strong>Verificación de campo</strong> de mojones físicos con GPS calibrado (los actuales son datos internos no medidos con odómetro).</li>
-      <li>Documentar las <strong>políticas RLS de Supabase</strong> para confirmar que la <code>anon key</code> está limitada a INSERT.</li>
-      <li>Bump consolidado del <code>&lt;span id='app-ver'&gt;</code> del footer móvil cuando se publique el próximo release "oficial" (sigue en v9.15 tras varios tweaks cosméticos con sufijos letra en sw.js).</li>
+      <li><strong>Completar las 7 RPs restantes en QGIS</strong>: RP 6, 20, 24, 42, 43, 44, 48 (de las 15 de Zona VI). Sin bundle procesado no hay detección de partido ni progresivas oficiales para estas rutas — el badge de v7.75 ya avisa "(ruta sin traza cargada — pendiente de procesar en QGIS)".</li>
+      <li><strong>Detección de partido en app móvil</strong> (<code>dvba_campo.html</code>): replicar <code>pdDetectarPartido</code> + <code>pdInterpolarProgresiva</code> del portal Plan de Seguridad usando el mismo <code>datos/partidos_zona_vi.geojson</code> y los bundles CHAIN. Reutilizar helpers <code>_pdGetChainRP</code> (patrón <code>typeof</code>, no <code>window</code>).</li>
+      <li><strong>Backfill columna <code>partido</code></strong> en los 632 partes históricos migrados. Un script Python + Supabase que corre point-in-polygon offline sobre las progresivas medias. O SQL con extensión PostGIS si está habilitada.</li>
+      <li><strong>Fase 1 del Plan de Roles</strong> (ver <code>docs/PLAN_ROLES_MULTIZONA.md</code>): crear tabla <code>usuarios_perfil</code>, columna <code>zona</code> en tablas operativas, funciones helper <code>current_user_zona()</code> / <code>current_user_rol()</code>. Preparación para Fase 3 (RLS zonal).</li>
+      <li><strong>Verificación de campo</strong> de mojones físicos con GPS calibrado (los actuales son datos internos no medidos con odómetro). Pendiente crónico — buena candidata para piloto colaborativo con Zona VII cuando arranquemos multi-zona.</li>
+      <li><strong>Completar historial v9.10 → v9.15 / v7.1 → v7.7</strong> en el changelog. Reconstruir desde <code>git log</code>.</li>
+      <li><strong>Renombrar CACHE_NAME del SW</strong> (task #153): actualmente <code>dvba-campo-vX.Y</code> aunque cachea AMBAS apps (móvil + escritorio). Confuso.</li>
     </ul>
   </div>
 
   <h2>⚪ Baja Prioridad / Futuro</h2>
   <div class="box">
     <ul>
+      <li><strong>Debounce del <code>oninput</code></strong> del selector de ruta y progresivas: mientras el user tipea "RP 91" pasa por estados intermedios ("RP 9", "RP") que generan warnings en consola. Inofensivo pero se puede pulir.</li>
+      <li><strong>Ocultar del datalist las RPs sin bundle procesado</strong> (o marcarlas visualmente como "no operativas") hasta que se resuelvan en QGIS.</li>
+      <li><strong>Panel Admin de usuarios</strong> (Fase 4 del Plan de Roles): página <code>admin_usuarios.html</code> con alta/baja/cambio de rol.</li>
+      <li><strong>Reportes PDF oficiales DVBA</strong> (Fase 5 del Plan de Roles): stack probable <code>jsPDF + jsPDF-autotable</code> client-side o Edge Function con <code>pdf-lib</code>. Bloqueado hasta que el user comparta el adjunto de referencia.</li>
+      <li><strong>Catálogo caminos editable</strong> (task #126): UI de escritorio + tabla Supabase para editar nombres locales sin tocar código.</li>
+      <li><strong>Reportes de caminos secundarios en tab Reportes</strong> (task #125): F5.</li>
+      <li><strong>Edición fotos post-captura en escritorio</strong>: reubicar el pin + re-sellar (task #202).</li>
       <li><strong>Piloto TMD</strong> (Tránsito Medio Diario) con cámara de video en rutas seleccionadas.</li>
       <li>Integración con <strong>acelerómetro RURAL IT</strong> para condición de pavimento.</li>
       <li>Medición <strong>V85</strong> (velocidad percentil 85) con LIDAR del colega.</li>
-      <li>Dashboard de reportes mensuales agregados desde Supabase.</li>
       <li>Integración con sistema de despacho de cuadrillas.</li>
+    </ul>
+  </div>
+
+  <h2 style="margin-top:20px">✅ Resueltos recientemente (referencia)</h2>
+  <div class="box" style="background:#eaf5ea;border-left:3px solid #2d8a4a">
+    <ul>
+      <li>Sello v3 con QR Google Maps → <em>completado v7.8+</em>.</li>
+      <li>Integrar caminos secundarios al portal → <em>completado v7.15–v7.45</em>.</li>
+      <li>Mudanza <code>C:\DVBA\</code> + <code>C:\GitHub\DVBA</code> → <em>hecho, ver memoria feedback_paths</em>.</li>
+      <li>Módulo Partes Diarios / Plan de Seguridad en la Circulación → <em>desarrollado v7.62–v7.75</em>.</li>
+      <li>Detección automática de partido en carga → <em>v7.70 (SQL_6) + v7.75 (fix bundles)</em>.</li>
+      <li>RLS Supabase documentada + flexibilizada para uso interno → <em>v7.69 (SQL_5)</em>.</li>
+      <li>Doc <code>PLAN_ROLES_MULTIZONA.md</code> con 4 niveles y roadmap 5 fases → <em>v7.73</em>.</li>
+      <li>Convención versionado unificado escritorio (index + partes juntos) → <em>v7.71 en adelante</em>.</li>
     </ul>
   </div>
 
