@@ -632,7 +632,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.79</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.80</span>
       </div>
     </div>
 
@@ -644,7 +644,7 @@ body.modo-campo #campo-fab{display:flex}
     <button id="btn-dark" onclick="setLayer('dark')">Vista Oscura</button>
     <button id="btn-sat" onclick="setLayer('sat')">Satélite</button>
     <button id="btn-caminos" onclick="toggleCaminosLayer()" style="margin-top:4px;border-color:#7050b0;color:#7050b0">🚜 Caminos Sec.</button>
-    <button id="btn-partes-mapa" onclick="togglePartesLayer()" style="margin-top:4px;border-color:#c47a00;color:#c47a00" title="Ver los partes diarios cargados sobre el mapa">📋 Partes</button>
+    <button id="btn-partes-mapa" onclick="togglePartesLayer()" style="margin-top:4px;border-color:#c47a00;color:#c47a00" title="Ver las tareas diarias cargadas sobre el mapa">📋 Tareas</button>
     <!-- v7.33 — Mini-panel plegable "Visualización" solo con opciones de mojones/progresivas -->
     <div id="vis-chip" onclick="toggleVisPanel()" title="Opciones de visualización">
       <span>⚙ Visualización</span><span id="vis-arrow">▸</span>
@@ -685,22 +685,22 @@ body.modo-campo #campo-fab{display:flex}
       border-radius:5px;padding:5px 10px;font-size:11px;cursor:pointer;
       backdrop-filter:blur(6px)">🗺</button>
   </div>
-  <!-- Popup leyenda flotante -->
+  <!-- Popup leyenda flotante — v7.80 paleta institucional blanca -->
   <div id="leyenda-popup" style="display:none;position:absolute;top:10px;right:148px;z-index:1001;
-    background:rgba(11,16,24,.96);border:1px solid #2a3e52;border-radius:7px;
-    padding:10px 12px;min-width:200px;max-height:calc(100vh - 120px);overflow-y:auto;
-    overflow-x:hidden;backdrop-filter:blur(8px);box-shadow:0 4px 18px rgba(0,0,0,.5);
+    background:rgba(255,255,255,.98);border:1px solid var(--light);border-radius:7px;
+    padding:10px 12px;min-width:220px;max-width:280px;max-height:calc(100vh - 120px);overflow-y:auto;
+    overflow-x:hidden;backdrop-filter:blur(8px);box-shadow:0 4px 18px rgba(0,0,0,.15);
     -webkit-overflow-scrolling:touch">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
-      <span style="font-size:9px;font-weight:700;color:#d4a820;text-transform:uppercase;letter-spacing:1px">Leyenda</span>
-      <span onclick="toggleLeyendaPopup()" style="cursor:pointer;color:#5a7a8a;font-size:12px;padding:0 2px">✕</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;border-bottom:2px solid var(--p);padding-bottom:5px">
+      <span style="font-size:10px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:1px">🗺 Leyenda</span>
+      <span onclick="toggleLeyendaPopup()" style="cursor:pointer;color:var(--mut);font-size:14px;padding:0 4px;font-weight:700" title="Cerrar">✕</span>
     </div>
     <div id="llegenda-popup"></div>
   </div>
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.79';
+const APP_VERSION = 'v7.80';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2072,24 +2072,79 @@ function allR(){RUTAS_LIST.forEach(r=>{selR.add(r);document.getElementById('rt-'
 function noneR(){RUTAS_LIST.forEach(r=>{selR.delete(r);document.getElementById('rt-'+r)?.classList.remove('on');});drawRutas();drawMojones();}
 
 function buildLeyenda(){
-  // v7.33 — Leyenda con colores CLAROS sobre fondo oscuro (antes eran ilegibles)
-  const c=document.getElementById('llegenda-popup')||document.getElementById('llegenda'); c.innerHTML='';
-  const addH=t=>{const d=document.createElement('div');d.style.cssText='font-size:9px;color:#d4a820;text-transform:uppercase;letter-spacing:1px;margin:8px 0 3px;font-weight:700';d.textContent=t;c.appendChild(d);};
+  // v7.80 · Leyenda rediseñada para paleta institucional (blanco/turquesa),
+  // sin lista de mojones (obsoleta — están en el modal SIG Vial al click),
+  // con las nuevas capas Tareas y Caminos Secundarios.
+  const c = document.getElementById('llegenda-popup') || document.getElementById('llegenda');
+  if (!c) return;
+  c.innerHTML = '';
+  const addH = t => {
+    const d = document.createElement('div');
+    d.style.cssText = 'font-size:9px;color:var(--p);text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px;font-weight:800;border-bottom:1px solid var(--light);padding-bottom:2px';
+    d.textContent = t;
+    c.appendChild(d);
+  };
+  const addRow = (html, onclick) => {
+    const d = document.createElement('div');
+    d.className = 'litem';
+    d.style.color = 'var(--txt)';
+    d.innerHTML = html;
+    if (onclick) d.onclick = onclick;
+    c.appendChild(d);
+  };
+
+  // 1. Rutas Provinciales (chip color + label, click para toggle)
   addH('Rutas Provinciales');
-  RUTAS_LIST.forEach(rid=>{
-    const m=RUTA_META[rid]||{color:'#888',label:'RP '+rid};
-    const mojs=MOJONES_DATA.filter(f=>f.ruta===rid&&f.km!==null);
-    const kms=mojs.map(f=>f.km).join(', ');
-    const d=document.createElement('div'); d.className='litem'; d.style.color='#c8d4e0';
-    d.innerHTML=`<div class="lline" style="background:${m.color}"></div><span style="font-weight:700;color:${m.color};min-width:36px">${m.label}</span><span style="color:#a0b0c0;font-size:9px">${mojs.length?'km '+kms:'sin mojones'}</span>`;
-    d.onclick=()=>togR(rid); c.appendChild(d);
+  RUTAS_LIST.forEach(rid => {
+    const m = RUTA_META[rid] || { color:'#888', label:'RP '+rid };
+    addRow(
+      `<div class="lline" style="background:${m.color}"></div>
+       <span style="font-weight:700;color:${m.color};min-width:44px">${m.label}</span>
+       <span style="color:var(--mut);font-size:9px">click para alternar</span>`,
+      () => togR(rid)
+    );
   });
+
+  // 2. Caminos Secundarios por clase (colores del portal — v7.32)
+  addH('Caminos Secundarios');
+  const clases = [
+    { nom:'Pavimentado',  col:'#2a6ec4' },
+    { nom:'Consolidado',  col:'#7a5aa4' },
+    { nom:'Tierra',       col:'#8a5a3a' },
+    { nom:'Sin abrir',    col:'#7a8a9a' }
+  ];
+  clases.forEach(cl => addRow(
+    `<div class="lline" style="background:${cl.col}"></div>
+     <span style="color:var(--txt)">${cl.nom}</span>`
+  ));
+
+  // 3. Tareas (capa 📋) — colores por antigüedad
+  addH('📋 Tareas (capa)');
+  const edades = [
+    { nom:'Última semana',   col:'#dc3545' },
+    { nom:'Último mes',      col:'#c47a00' },
+    { nom:'Últimos 3 meses', col:'#7050b0' },
+    { nom:'Histórico',       col:'#5a6a7a' }
+  ];
+  edades.forEach(e => addRow(
+    `<div style="width:12px;height:12px;border-radius:50%;background:${e.col};border:2px solid #fff;box-shadow:0 0 0 1px ${e.col};flex-shrink:0"></div>
+     <span style="color:var(--txt)">${e.nom}</span>`
+  ));
+  addRow(
+    `<div style="font-size:9px;color:var(--mut);font-style:italic;padding:2px 0">
+      Círculo = con foto · Línea = sin foto (interpolado sobre traza)
+     </div>`
+  );
+
+  // 4. Partidos
   addH('Partidos');
-  PARTIDOS_LIST.forEach(n=>{
-    const col=PARTIDO_COLORS[n]||'#888';
-    const d=document.createElement('div'); d.className='litem'; d.style.color='#c8d4e0';
-    d.innerHTML=`<div style="width:10px;height:10px;border-radius:2px;background:${col}30;border:2px solid ${col};flex-shrink:0"></div><span style="color:#c8d4e0">${n}</span>`;
-    d.onclick=()=>togP(n); c.appendChild(d);
+  PARTIDOS_LIST.forEach(n => {
+    const col = PARTIDO_COLORS[n] || '#888';
+    addRow(
+      `<div style="width:11px;height:11px;border-radius:2px;background:${col}30;border:2px solid ${col};flex-shrink:0"></div>
+       <span style="color:var(--txt)">${n}</span>`,
+      () => togP(n)
+    );
   });
 }
 
@@ -4997,7 +5052,7 @@ function partesDibujar(partes, relMap){
     const popupHTML = `
       <div style="font-size:12px;min-width:230px;font-family:'Encode Sans',Arial,sans-serif">
         <div style="background:${cE.color};color:#fff;padding:6px 8px;margin:-8px -8px 6px;font-weight:700">
-          📋 Parte #${p.id} · ${fechaFmt}
+          📋 Tarea #${p.id} · ${fechaFmt}
           <span style="float:right;background:rgba(255,255,255,.25);padding:1px 6px;border-radius:9px;font-size:9.5px">${cE.edad}</span>
         </div>
         <div><b>Tarea:</b> ${tarea}</div>
@@ -5005,7 +5060,7 @@ function partesDibujar(partes, relMap){
         <div><b>Tramo:</b> ${p.prog_ini ?? '—'} → ${p.prog_fin ?? '—'} (${kmRec} km)</div>
         ${equiposSet.length ? `<div><b>Equipos:</b> ${equiposSet.join(', ')}</div>` : ''}
         ${p.observaciones ? `<div style="margin-top:4px;color:#555;font-style:italic">"${p.observaciones}"</div>` : ''}
-        ${!relCon.length ? `<div style="margin-top:4px;font-size:10.5px;color:#8a6d3b">⚠ Parte sin foto — posición interpolada sobre la traza</div>` : ''}
+        ${!relCon.length ? `<div style="margin-top:4px;font-size:10.5px;color:#8a6d3b">⚠ Tarea sin foto — posición interpolada sobre la traza</div>` : ''}
       </div>`;
     if (relCon.length){
       // CON FOTO: pin sobre la posición del relevamiento (primero por si hay varios)
@@ -5049,7 +5104,7 @@ function partesDibujar(partes, relMap){
   const resumen = Object.entries(conteoPorEdad)
     .filter(([_,n]) => n>0)
     .map(([k,n]) => `${k}:${n}`).join(' · ');
-  console.log(`[Partes v7.77] ${conFoto} con foto + ${sinFoto} sin foto (${sinTraza} sin traza) · ${resumen}`);
+  console.log(`[Tareas v7.80] ${conFoto} con foto + ${sinFoto} sin foto (${sinTraza} sin traza) · ${resumen}`);
 }
 
 async function togglePartesLayer(){
@@ -5062,7 +5117,7 @@ async function togglePartesLayer(){
   // Requiere sesión para cargar (RLS)
   const raw = localStorage.getItem('dvba_session');
   if (!raw){
-    alert('Iniciá sesión para ver los partes en el mapa.');
+    alert('Iniciá sesión para ver las tareas en el mapa.');
     return;
   }
   if (!_partesCache){
@@ -5084,7 +5139,7 @@ function _partesUpdateBtn(on, text){
   const b = document.getElementById('btn-partes-mapa');
   if (!b) return;
   if (text){ b.textContent = text; return; }
-  b.textContent = '📋 Partes';
+  b.textContent = '📋 Tareas';
   if (on){ b.classList.add('active'); b.style.background = _PARTES_COLOR; b.style.color = '#fff'; }
   else   { b.classList.remove('active'); b.style.background = ''; b.style.color = _PARTES_COLOR; }
 }
