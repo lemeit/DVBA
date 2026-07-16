@@ -632,7 +632,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.81</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.82</span>
       </div>
     </div>
 
@@ -700,7 +700,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.81';
+const APP_VERSION = 'v7.82';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -931,7 +931,12 @@ function aplicarSelloDVBA(base64, datos){
         let W, H_visible, orient;
         if (datos.esResellado){
           W = img.width;
-          const bH_pred = Math.max(200, Math.min(Math.round(W*0.22), 340));
+          // v7.82 · Recorte defensivo: el banner viejo puede ser el grande
+          // de v7.81 y anteriores (W*0.22, 200-340) o el chico de v7.82+
+          // (W*0.16, 150-260). Usamos el mayor para asegurar cortarlo todo.
+          const bH_pred_viejo  = Math.max(200, Math.min(Math.round(W*0.22), 340));
+          const bH_pred_nuevo  = Math.max(150, Math.min(Math.round(W*0.16), 260));
+          const bH_pred = Math.max(bH_pred_viejo, bH_pred_nuevo);
           H_visible = Math.max(100, img.height - bH_pred);
           orient = 1;  // sin rotación
         } else {
@@ -942,8 +947,8 @@ function aplicarSelloDVBA(base64, datos){
           W = isPortrait ? img.height : img.width;
           H_visible = isPortrait ? img.width : img.height;
         }
-        // v3.1: banner como footer AGREGADO debajo (no tapa la foto)
-        const bH = Math.max(200, Math.min(Math.round(W*0.22), 340));
+        // v7.82 · banner compactado (antes 200-340 px con W*0.22 → ahora 150-260 con W*0.16, ~30% más chico)
+        const bH = Math.max(150, Math.min(Math.round(W*0.16), 260));
         const totalH = H_visible + bH;
         const C = document.createElement('canvas'); C.width = W; C.height = totalH;
         const ctx = C.getContext('2d');
@@ -1080,18 +1085,18 @@ function aplicarSelloDVBA(base64, datos){
           txtFit(partes.join('  ·  '), tx, yB, maxW, fS, '#dddddd', false);
           yB += Math.round(fS*1.26);
         }
-        // v7.81 · Línea de versión: sistema + app + reselado (chiquita al pie derecho)
-        const fV = Math.round(baseFont * 0.60);
+        // v7.82 · Versión dentro del flujo (debajo de la fecha), no al pie
+        // — así no ensancha el banner. Chiquita, dorada tenue.
+        const fV = Math.round(baseFont * 0.65);
         const stampInfo = [
           (typeof APP_VERSION === 'string' ? APP_VERSION : 'v?') + '·portal',
           (datos.esResellado ? '↻ re-sello' : 'sello v4')
         ].join('  ·  ');
         ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
-        ctx.fillStyle = 'rgba(212,168,32,0.6)';
-        ctx.textBaseline = 'bottom';
-        ctx.textAlign = 'right';
-        ctx.fillText(stampInfo, tx + maxW, y0 + bH - Math.round(bH*0.04));
+        ctx.fillStyle = 'rgba(212,168,32,0.55)';
+        ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
+        ctx.fillText(stampInfo, tx, yB);
         res(C.toDataURL('image/jpeg', 0.95));
       } catch(e){ rej(e); }
     };
