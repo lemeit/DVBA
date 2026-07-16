@@ -168,8 +168,9 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
   <button class="btn-primary" onclick="rpExportPDF()" title="Reporte PDF institucional DVBA" style="background:var(--acc)">📄 PDF</button>
 </div>
 
-<!-- KPIs · v7.86 con Red Primaria / Secundaria separadas -->
-<div class="kpis" id="kpis" style="display:none">
+<!-- Resumen (KPIs) · v7.86 con Red Primaria / Secundaria separadas -->
+<div class="kpis" id="kpis" style="display:none;position:relative">
+  <div style="position:absolute;top:-8px;left:20px;background:var(--w);padding:1px 8px;font-size:9px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.5px;border-radius:3px;border:1px solid var(--light)">📊 Resumen del rango</div>
   <div class="kpi"><div class="v" id="kpi-total">—</div><div class="l">Partes</div></div>
   <div class="kpi"><div class="v" id="kpi-km">—</div><div class="l">Km totales</div></div>
   <div class="kpi" title="Km sobre Rutas Provinciales" style="border-left:3px solid #c25a2a"><div class="v" id="kpi-km-rp">—</div><div class="l">Km Red Primaria</div></div>

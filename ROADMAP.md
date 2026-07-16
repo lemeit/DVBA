@@ -186,6 +186,39 @@ Nueva versión del QR que apunta a `https://lemeit.github.io/DVBA/#reg=ID` en lu
 
 GeoPackage listo para abrir en QGIS + importador inverso.
 
+### 31. Mapa dinámico embebido en el PDF de reportes
+
+Hoy el PDF incluye 4 charts. Falta lo más visual e institucional: **una imagen del mapa con los eventos/tareas del rango filtrado**. Es lo mismo que hoy hace la capa 📋 Tareas del portal, pero exportado.
+
+**Enfoque**: agregar botón "📸 Incluir mapa" en `reportes.html`. Al clickearlo:
+1. Abrir `index.html` en un `<iframe>` invisible o en una tab hidden.
+2. Pasarle los filtros actuales (rango de fechas / partido / RP) por query string (`?tareas=1&desde=...&hasta=...`).
+3. Esperar a que la capa 📋 Tareas termine de dibujar.
+4. Usar `leaflet-image` (plugin oficial de Leaflet, ~10KB) o `html2canvas` para capturar el mapa como PNG.
+5. Insertar la PNG como página adicional del PDF, entre los charts y la tabla.
+
+**Ventajas**: el mapa tiene toda la info que Gerencia espera ver (puntos coloreados por antigüedad, polylines sobre traza, partidos), sin necesidad de re-generar nada en QGIS. Ya está calculado.
+
+**Bloqueado hasta**: implementar Etapa 2 partes_diarios (para que haya más partes con foto y datos completos que valga la pena capturar).
+
+### 32. Asistente AI para gestión vial ⭐ (propuesta para el congreso)
+
+Integración de un **chat prompt con IA** que ayude en la toma de decisiones y análisis de eventos/registros para la gestión vial de la PBA. Funcionalidades propuestas:
+
+- **Consultas naturales sobre los datos**: "¿Cuántos partes de bacheo hicimos en Saladillo en junio?" → la IA arma el filtro y devuelve el resultado con contexto.
+- **Análisis de patrones**: "¿Qué tareas se repiten más en tramos concretos?" → detecta hot-spots de deterioro recurrente.
+- **Sugerencias de priorización**: dado el histórico de intervenciones + edad + tipo de superficie, sugerir qué tramos necesitan atención en los próximos 3 meses.
+- **Generación de informes narrativos**: pasar el CSV/JSON del reporte y obtener un resumen ejecutivo en lenguaje natural para reunión de Gerencia.
+- **Interpretación de fotos**: describir automáticamente qué se ve en una foto de relevamiento (bache/señal caída/banquina en mal estado) — con Vision API.
+
+**Stack posible**: OpenAI GPT-4o-mini o Claude Haiku (bajo costo, alta velocidad) vía Edge Function de Supabase (no exponer API key desde frontend). Prompt engineering con contexto del sistema DVBA + acceso a queries via function calling. UI: modal chat en el portal.
+
+**Costo estimado**: ~US$ 5-20/mes con consumo moderado (1000-5000 queries).
+
+**Valor institucional**: no hay hoy ningún sistema vial de la PBA con IA integrada. Diferencial fuerte para presentar en el congreso vial 2026 como "próxima frontera" del proyecto.
+
+Este ítem es un **desarrollo futuro** — se menciona en el informe del congreso como visión, no como implementado.
+
 ---
 
 ## 🧹 Housekeeping pendiente (manual)
