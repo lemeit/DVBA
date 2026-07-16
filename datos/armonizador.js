@@ -332,6 +332,8 @@ const ARMONIZADOR = (() => {
     const cambios = [];
     const consistentes = [];
     const sugerencias = [];
+    // v7.81 fix · severidad se asignaba sin declarar → ReferenceError al abrir cola pendientes
+    let severidad = 'ninguna';
 
     if (!isFinite(lat) || !isFinite(lng)) {
       return { cambios: [], consistentes: [], sugerencias: [], severidad: 'ninguna', motivo: 'sin_coords' };

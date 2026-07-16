@@ -632,7 +632,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.80</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.81</span>
       </div>
     </div>
 
@@ -700,7 +700,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.80';
+const APP_VERSION = 'v7.81';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -709,7 +709,7 @@ let logoImg = new Image();
 logoImg.crossOrigin = 'anonymous';
 logoImg.onload  = () => console.log('[Logo] cargado', logoImg.width+'x'+logoImg.height);
 logoImg.onerror = e  => console.warn('[Logo] no se pudo cargar', e);
-logoImg.src = 'datos/img/logo_dvba_circular.png';
+logoImg.src = 'datos/img/logo_dvba_clean.png';  // v7.81 · logo sin bordes blancos
 
 // ── Sello institucional sobre la foto (mismo diseño que app móvil) ──────────
 /* ── Sello v7.4 — datos editables + layout estilo GPS Map Camera ── */

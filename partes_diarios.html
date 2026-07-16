@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Plan de Seguridad en la Circulación · DVBA Zona VI Saladillo</title>
-<link rel="icon" href="datos/img/logo_dvba_circular.png">
+<link rel="icon" href="datos/img/logo_dvba_clean.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="datos/auth.js"></script>
 <script src="datos/red_vial.js" defer></script>
-<!-- v7.80 · bundles RP para interpolar progresiva → coords → partido -->
+<!-- v7.81 · bundles RP para interpolar progresiva → coords → partido -->
 <script src="datos/rutas_rp30.js" defer></script>
 <script src="datos/rutas_rp40.js" defer></script>
 <script src="datos/rutas_rp41.js" defer></script>
@@ -43,7 +43,7 @@ header .btn-hdr{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,2
 header .btn-hdr:hover{background:rgba(255,255,255,.25)}
 header .hbadge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:9px;margin-left:5px;letter-spacing:.5px;vertical-align:middle}
 header .hversion{font-size:9px;color:rgba(255,255,255,.6);padding-right:10px;border-right:1px solid rgba(255,255,255,.2);margin-left:8px}
-/* v7.80 · Selector de zona: label queda visible, ícono ▾ al lado abre el select nativo */
+/* v7.81 · Selector de zona: label queda visible, ícono ▾ al lado abre el select nativo */
 .zona-picker{position:relative;display:inline-block;margin-left:8px;vertical-align:middle}
 .zona-picker .picker-icon{display:inline-block;padding:2px 8px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:4px;font-size:11px;color:#fff;cursor:pointer;font-weight:600;line-height:1.4}
 .zona-picker .picker-icon:hover{background:rgba(255,255,255,.25)}
@@ -104,12 +104,12 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 .modal-b textarea{resize:vertical;min-height:70px}
 .modal-b .sec-title{font-size:11px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px 0;padding-bottom:5px;border-bottom:2px solid var(--p)}
 .modal-b .sec-title .cnt{background:var(--p);color:#fff;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:8px;font-weight:700}
-/* v7.80 — Toggle Primaria/Secundaria (repuesto tras v7.68) */
+/* v7.81 — Toggle Primaria/Secundaria (repuesto tras v7.68) */
 .modal-b .toggle-tv{display:flex;gap:0;background:#eef3f8;border-radius:5px;padding:2px;border:1px solid #cdd9e6}
 .modal-b .toggle-tv button{flex:1;padding:6px;border:0;background:transparent;color:#5a6a7a;font-size:11px;font-weight:600;border-radius:4px;cursor:pointer}
 .modal-b .toggle-tv button.active{background:var(--p);color:#fff}
 .modal-b input[list]{padding:8px 10px;border:1px solid #c8d0dc;border-radius:5px;font-size:12.5px;font-family:inherit;color:var(--txt);background:var(--w)}
-/* v7.80 · Autocomplete custom (para caminos, con matching preciso y recorrido) */
+/* v7.81 · Autocomplete custom (para caminos, con matching preciso y recorrido) */
 .ac-wrap{position:relative}
 .ac-list{position:absolute;top:100%;left:0;right:0;max-height:280px;overflow-y:auto;background:#fff;border:1px solid #c8d0dc;border-top:0;border-radius:0 0 5px 5px;box-shadow:0 6px 14px rgba(0,0,0,.12);z-index:50}
 .ac-item{padding:7px 10px;font-size:12px;cursor:pointer;border-bottom:1px solid #eef2f7;line-height:1.35}
@@ -173,7 +173,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 <body>
 
 <header>
-  <div class="logo"><img src="datos/img/logo_dvba_circular.png" alt="DVBA"></div>
+  <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
   <div class="t">
     <h1>DVBA &mdash; <span style="color:#ffd060" id="hZona">ZONA VI</span> <span class="hbadge" id="hPartido">Saladillo</span>
       <span class="zona-picker" title="Cambiar zona">
@@ -241,7 +241,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 <div class="resumen" id="resumen" style="display:none">Cargando…</div>
 
 <!-- Guard -->
-<!-- v7.80 · authGuard oculto por default. Solo se muestra si pdInit
+<!-- v7.81 · authGuard oculto por default. Solo se muestra si pdInit
      detecta que NO hay sesión. Antes se veía por un instante entre el
      parse del HTML y la resolución de setSession(). -->
 <div class="auth-guard" id="authGuard" style="display:none">
@@ -282,7 +282,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.80</span>
+    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.81</span>
   </div>
 </footer>
 
@@ -324,7 +324,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
         </div>
       </div>
 
-      <!-- 2. RUTA · v7.80 vuelve a 2 dropdowns separados con typeahead (datalist) -->
+      <!-- 2. RUTA · v7.81 vuelve a 2 dropdowns separados con typeahead (datalist) -->
       <div class="grid2" style="margin-top:12px">
         <div class="fld">
           <label>Tipo de vía</label>
@@ -469,7 +469,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 // Fotos: solo asociar registros existentes (etapa 1). Upload y sellado → etapa 2.
 // ═══════════════════════════════════════════════════════════════════
 
-// v7.80 — Catálogo de las 12 zonas de la DVBA + partido donde se administra.
+// v7.81 — Catálogo de las 12 zonas de la DVBA + partido donde se administra.
 // Cuando el user pase el listado completo con partidos, reemplazamos aquí.
 // La zona activa se define por: (a) localStorage['dvba_zona'] (b) default 'VI'
 const ZONAS_DVBA = {
@@ -497,12 +497,12 @@ function pdSetZona(codZona){
   if (sel) sel.value = codZona;
   try { localStorage.setItem('dvba_zona', codZona); } catch(e){}
 }
-// v7.80 · Cambio de zona desde el dropdown del header
+// v7.81 · Cambio de zona desde el dropdown del header
 function pdCambiarZona(codZona){
   pdSetZona(codZona);
   // Al cambiar de zona real, habría que recargar red_vial / bundles de esa zona.
   // Por ahora sólo actualiza el header (Zona VI es la única con datos completos).
-  console.log('[pd] zona cambiada a', codZona, '— aviso: recargar datos según zona pendiente para v7.80');
+  console.log('[pd] zona cambiada a', codZona, '— aviso: recargar datos según zona pendiente para v7.81');
 }
 
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
@@ -546,7 +546,7 @@ function esRP(txt){
 
 // Estado global
 let _tareas = [];
-let _userId = null;       // v7.80 · UID del usuario logueado (para responsable_id)
+let _userId = null;       // v7.81 · UID del usuario logueado (para responsable_id)
 let _vehiculos = [];      // ordenados por ranking (uso histórico)
 let _rutasRP = ['RP 6','RP 20','RP 24','RP 30','RP 40','RP 41','RP 42','RP 43','RP 44','RP 46','RP 47','RP 48','RP 51','RP 61','RP 91'];
 let _caminos = [];         // se cargan de red_vial si está disponible
@@ -588,10 +588,10 @@ async function pdInit(){
     document.getElementById('authGuard').style.display = 'block'; return;
   }
   console.log('[pd] sesión activa:', user.email);
-  _userId = user.id;  // v7.80 · guardar UID para responsable_id
+  _userId = user.id;  // v7.81 · guardar UID para responsable_id
   document.getElementById('authGuard').style.display = 'none';  // v7.65 fix
   document.getElementById('email').textContent = user.email;
-  // v7.80 — Aplicar zona guardada (o default 'VI'). En el futuro se puede
+  // v7.81 — Aplicar zona guardada (o default 'VI'). En el futuro se puede
   // derivar del email/rol del usuario en una tabla usuarios_zonas.
   const zonaActiva = localStorage.getItem('dvba_zona') || 'VI';
   pdSetZona(zonaActiva);
@@ -624,7 +624,7 @@ async function pdInit(){
 
   const hoy = new Date();
   document.getElementById('fMes').value = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
-  // v7.80 · dos datalists (RPs + caminos) + toggle Primaria/Secundaria
+  // v7.81 · dos datalists (RPs + caminos) + toggle Primaria/Secundaria
   pdPoblarDatalistRP();
   pdPoblarDatalistCaminos();
   pdSetTV('rp');
@@ -711,14 +711,14 @@ async function pdCargar(){
   }).join('');
 }
 
-// v7.80 — 2 dropdowns separados con <datalist> para typeahead nativo.
+// v7.81 — 2 dropdowns separados con <datalist> para typeahead nativo.
 // El toggle Primaria/Secundaria muestra un input u otro.
 function pdPoblarDatalistRP(){
   const dl = document.getElementById('dlRutasRP');
   if (!dl) return;
   dl.innerHTML = _rutasRP.map(r => `<option value="${r}"></option>`).join('');
 }
-// v7.80 — Autocomplete custom para caminos secundarios.
+// v7.81 — Autocomplete custom para caminos secundarios.
 // Matching preciso (tipear "093" NO trae "091"), muestra el recorrido
 // encadenado ("Saladillo — La Barrancosa — Micheo") armado a partir de
 // las denominaciones por tramo del geojson.
@@ -850,7 +850,7 @@ function pdSetTV(tv){
   pdActualizarBadgePartido();
 }
 // Compat viejo (dropdown único)
-function pdSetTipoViaAuto(){ /* no-op en v7.80 */ }
+function pdSetTipoViaAuto(){ /* no-op en v7.81 */ }
 // Ruta activa según el toggle
 function pdGetRutaActual(){
   const tv = document.getElementById('tipoVia').value;
@@ -879,7 +879,7 @@ async function pdActualizarBadgePartido(){
     span.textContent = p + ' ✓';
     span.style.color = 'var(--vd)';
   } else {
-    // v7.80 · mensaje más informativo: chequear si es una RP sin bundle
+    // v7.81 · mensaje más informativo: chequear si es una RP sin bundle
     let msg = '(no detectado — verificá ruta/progresiva)';
     if (tv === 'rp'){
       const num = String(ruta).replace(/[^\d]/g,'');
@@ -896,7 +896,7 @@ async function pdActualizarBadgePartido(){
   badge.style.display = 'block';
 }
 
-// v7.80 — Acepta coma decimal (formato oficial DVBA: "100,01") o punto.
+// v7.81 — Acepta coma decimal (formato oficial DVBA: "100,01") o punto.
 // Devuelve número o NaN. Vacío → NaN.
 function pdParseProg(txt){
   if (txt == null) return NaN;
@@ -911,12 +911,12 @@ function pdCalcKm(){
   // v7.65 — valor absoluto. Aunque el form pide menor/mayor, mantenemos ABS
   // por si el usuario los invierte (defensivo).
   km.value = (isFinite(pi) && isFinite(pf)) ? Math.abs(pf - pi).toFixed(2).replace('.', ',') : '';
-  // v7.80 · refrescar badge partido en vivo cuando cambian progresivas
+  // v7.81 · refrescar badge partido en vivo cuando cambian progresivas
   pdActualizarBadgePartido();
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// v7.80 · Detección automática de partido a partir de ruta + progresiva
+// v7.81 · Detección automática de partido a partir de ruta + progresiva
 // ═══════════════════════════════════════════════════════════════════
 // Los caminos secundarios tienen código único NNN-NN por partido → trivial.
 // Las RPs atraviesan varios partidos → interpolamos el punto medio del tramo
@@ -941,7 +941,7 @@ function _haversineKm(lat1, lon1, lat2, lon2){
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
-// v7.80 · Los bundles rutas_rpXX.js declaran `const CHAIN_RPXX = [...]` que
+// v7.81 · Los bundles rutas_rpXX.js declaran `const CHAIN_RPXX = [...]` que
 // NO se cuelga de window (const/let top-level en <script> no-módulo).
 // Mismo patrón que index.html — accedemos por typeof en cada llamada (lazy,
 // para que los defer scripts hayan tenido tiempo de cargar).
@@ -1097,7 +1097,7 @@ function pdAbrirNuevo(){
   document.getElementById('btnEliminar').style.display = 'none';
   document.getElementById('fecha').value = new Date().toISOString().slice(0,10);
   document.getElementById('tarea').value = '';
-  // v7.80 · asegurar datalists poblados + reset inputs
+  // v7.81 · asegurar datalists poblados + reset inputs
   pdPoblarDatalistRP();
   pdPoblarDatalistCaminos();
   pdSetTV('rp');
@@ -1122,12 +1122,12 @@ async function pdEditarParte(id){
   document.getElementById('btnEliminar').style.display = 'inline-block';
   document.getElementById('fecha').value = p.fecha;
   document.getElementById('tarea').value = p.tarea_id || '';
-  // v7.80 · rearmar datalists y setear el input correcto según tipo_via
+  // v7.81 · rearmar datalists y setear el input correcto según tipo_via
   pdPoblarDatalistRP();
   pdPoblarDatalistCaminos();
   pdSetTV(p.tipo_via || 'rp');
   pdSetRutaEnUI(p.tipo_via || 'rp', p.ruta || '');
-  // v7.80 — mostrar con coma decimal (formato oficial DVBA)
+  // v7.81 — mostrar con coma decimal (formato oficial DVBA)
   document.getElementById('progIni').value = (p.prog_ini != null) ? String(p.prog_ini).replace('.', ',') : '';
   document.getElementById('progFin').value = (p.prog_fin != null) ? String(p.prog_fin).replace('.', ',') : '';
   document.getElementById('combustible').value = p.combustible_l ?? '';
@@ -1178,7 +1178,7 @@ function pdCerrarRel(){ document.getElementById('modalRel').classList.remove('on
 async function pdSelFotosDe(momento){
   _relMomentoTmp = momento;
   const fecha = document.getElementById('fecha').value;
-  const ruta = pdGetRutaActual();  // v7.80 · desde el input activo (RP o Camino)
+  const ruta = pdGetRutaActual();  // v7.81 · desde el input activo (RP o Camino)
   if (!fecha) { alert('Elegí una fecha primero.'); return; }
   document.getElementById('mrelMomento').textContent = `· ${momento}`;
   document.getElementById('mrelInfo').textContent = `Fecha del parte: ${fecha}${ruta ? ' · Ruta ' + ruta : ''}`;
@@ -1234,8 +1234,8 @@ async function pdGuardar(){
   const fecha = document.getElementById('fecha').value;
   const tarea_id = document.getElementById('tarea').value;
   const tipo_via = document.getElementById('tipoVia').value;
-  const ruta = pdGetRutaActual();  // v7.80 · desde el input activo (RP o Camino)
-  // v7.80 — inputs vienen como texto con coma decimal
+  const ruta = pdGetRutaActual();  // v7.81 · desde el input activo (RP o Camino)
+  // v7.81 — inputs vienen como texto con coma decimal
   const prog_ini_raw = document.getElementById('progIni').value;
   const prog_fin_raw = document.getElementById('progFin').value;
   const prog_ini_num = pdParseProg(prog_ini_raw);
@@ -1247,7 +1247,7 @@ async function pdGuardar(){
   const btn = document.getElementById('btnGuardar');
   btn.disabled = true; btn.textContent = '⏳ Guardando…';
   try {
-    // v7.80 — detectar partido antes de armar payload
+    // v7.81 — detectar partido antes de armar payload
     const partidoAuto = await pdDetectarPartido(tipo_via, ruta, prog_ini_num, prog_fin_num);
     const payload = {
       fecha, tarea_id: Number(tarea_id), tipo_via, ruta,
@@ -1267,7 +1267,7 @@ async function pdGuardar(){
       await _supa.from('parte_maquinarias').delete().eq('parte_id', parteId);
       await _supa.from('parte_fotos').delete().eq('parte_id', parteId);
     } else {
-      // v7.80 · llenar responsable_id (auditoría) — el UID viene de pdInit
+      // v7.81 · llenar responsable_id (auditoría) — el UID viene de pdInit
       const insertPayload = { ...payload, responsable_id: _userId };
       const { data, error } = await _supa.from('partes_diarios').insert(insertPayload).select('id').single();
       if (error) throw error;
@@ -1397,7 +1397,7 @@ function pdActualizarRed(){
 window.addEventListener('online', pdActualizarRed);
 window.addEventListener('offline', pdActualizarRed);
 
-// v7.80 — Wrapper del pdInit ANTES del addEventListener, así el DOMContentLoaded
+// v7.81 — Wrapper del pdInit ANTES del addEventListener, así el DOMContentLoaded
 // dispara la versión nueva (que muestra el footer institucional al final).
 const _origInit = pdInit;
 pdInit = async function(){

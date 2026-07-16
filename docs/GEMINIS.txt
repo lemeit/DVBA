@@ -1,0 +1,195 @@
+Para sacar las coordenadas del **inicio** y del **final** de una traza (línea) en QGIS y guardarlas en su tabla de atributos, no hace falta que las midas a mano una por una. QGIS tiene funciones específicas en la **Calculadora de Campos** que extraen los puntos extremos automáticamente.
+
+Como tu capa está en **WGS 84 (EPSG:4326)**, el cálculo te va a devolver la Longitud y Latitud en grados decimales (los valores negativos listos para usar).
+
+Seguí estos pasos para crear las columnas en tu tabla:
+
+### Paso 1: Crear las columnas para el Inicio (Origen)
+
+1. Abrí la **Tabla de Atributos** de tu capa de líneas (`F6`).
+2. Dale al botón del ábaco para abrir la **Calculadora de Campos** (`Ctrl + I`).
+3. Configurala así para la **Longitud Inicial (X)**:
+* **Crear un campo nuevo:** Tildado.
+* **Nombre del campo:** `inicio_lon` (o `X_ini`).
+* **Tipo de campo:** Número decimal (real) o *Double*.
+* **Precisión:** `6` o `7` (para tener todos los decimales de precisión).
+
+
+4. En el cuadro de expresión, pegá esta fórmula:
+```sql
+x(start_point($geometry))
+
+```
+
+
+5. Dale a **Aceptar**. Verás la columna llena con valores como `-60.023352`.
+
+A realizás el mismo proceso para la **Latitud Inicial (Y)** abriendo de nuevo la calculadora:
+
+* **Nombre del campo:** `inicio_lat` (o `Y_ini`).
+* **Tipo de campo:** Número decimal (real).
+* **Expresión:**
+```sql
+y(start_point($geometry))
+
+```
+rfrfr
+
+
+---
+
+### Paso 2: Crear las columnas para el Final (Destino)
+
+Para llevarte las coordenadas del otro extremo de la traza, el procedimiento es idéntico pero cambiando la función a `end_point`.
+
+Para la **Longitud Final (X)**:
+
+* **Nombre del campo:** `fin_lon` (o `X_fin`).
+* **Tipo de campo:** Número decimal (real).
+* **Expresión:**
+```sql
+x(end_point($geometry))
+
+```
+
+
+
+Para la **Latitud Final (Y)**:
+
+* **Nombre del campo:** `fin_lat` (o `Y_fin`).
+* **Tipo de campo:** Número decimal (real).
+* **Expresión:**
+```sql
+y(end_point($geometry))
+
+```
+
+
+
+
+Para ver hacia dónde apunta cada camino en la pantalla antes de tocar nada o hacer cálculos, necesitás que QGIS te dibuje **flechas de dirección** sobre las mismas líneas.
+
+Es un truco de visualización que te cambia la vida en la Oficina Técnica para detectar al toque qué tramos están al revés. No modifica tus datos, solo "dibuja" el sentido de circulación digital.
+
+Tenés dos métodos muy fáciles para hacerlo:
+
+### Método 1: El truco rápido (Cambiar el estilo de la línea)
+
+Es el más limpio y rápido. Le agrega flechitas intermedias a los caminos:
+
+1. Hacé doble clic sobre tu capa de caminos para abrir las **Propiedades de la capa**.
+2. Andá a la pestaña **Simbología** (a la izquierda).
+3. Hacé clic arriba en la palabra **Línea sencilla** (abajo de *Línea*).
+4. Abajo, donde dice **Tipo de capa de símbolo**, desplegá la lista (que hoy dice *Línea sencilla*) y cambialo por **Línea de marcadores**.
+5. Vas a ver que la línea se transforma en un montón de puntos. No te asustes, ahora los cambiamos por flechas:
+* En el árbol de arriba, hacé clic en **Marcador sencillo** (que está adentro de *Línea de marcadores*).
+* Abajo, en **Forma del marcador**, elegí la **punta de flecha** (suele ser un triángulo acostado o una flecha `>`).
+
+
+6. Volvé a hacer clic arriba en **Línea de marcadores** para controlar cada cuánto aparecen:
+* En **Colocación**, elegí **Con intervalos**.
+* Poné un intervalo grande para que no se sature el mapa (por ejemplo, cada `100` o `200` milímetros, o usá unidades de mapa si preferís cada tantos metros).
+
+
+7. Dale a **Aplicar** y **Aceptar**.
+
+¡Listo! Vas a ver que tus trazas ahora están formadas por flechas que te indican exactamente hacia dónde avanza digitalmente cada tramo de la red secundaria.
+
+---
+
+### Método 2: Colocar una sola flecha en el centro del tramo (Más prolijo)
+
+Si el método de arriba te llena el mapa de flechas y te marea, podés configurar QGIS para que dibuje **una sola flecha en la mitad de cada camino**:
+
+1. Entrá a **Propiedades de la capa > Simbología**.
+2. Hacé clic en el botón **➕ (Añadir capa de símbolos)** arriba a la derecha. Ahora vas a tener dos niveles de "Línea sencilla".
+3. Hacé clic en la segunda *Línea sencilla* que creaste y cambiala a **Línea de marcadores**.
+4. En **Colocación**, en vez de *Con intervalos*, seleccioná la opción **En el punto medio**.
+5. Entrá a **Marcador sencillo** (abajo de esa línea), elegí la forma de flecha (`>`) y agrandale un poquito el tamaño (a `3.0` o `4.0` mm) para que se vea bien sobre tu línea principal.
+6. Dale a **Aceptar**.
+
+De esta manera, vas a ver tu línea continua tradicional (de tierra o mejora), pero con una flecha bien clara justo en el medio de la traza que te dice si va de Norte a Sur, de Este a Oeste, etc.
+
+Cualquiera de los dos métodos te va a permitir escanear el mapa visualmente, identificar los tramos invertidos, seleccionarlos y usar la herramienta de **Invertir dirección de línea** que vimos antes. ¡Activalo y vas a ver lo cómodo que es trabajar así!
+
+
+
+---
+
+### ¿Cómo sabe QGIS cuál es el inicio y cuál es el final?
+
+QGIS determina el inicio y el final basándose en el **sentido de digitalización** (el orden en el que se dibujaron los puntos de la traza, por ejemplo, de ascendente a descendente en el kilometraje).
+
+* `start_point`: Toma el primer nodo de la línea.
+* `end_point`: Toma el último nodo de la línea.
+
+### El truco por si querés verlas en pantalla rápido sin crear campos:
+
+Si solo querés chusmear las coordenadas de los extremos de una línea específica para corroborar algo:
+
+1. Activá la herramienta **Identificar objetos espaciales** (`Ctrl + Shift + I`) y hacé clic sobre la línea.
+2. En el panel que se abre a la derecha, desplegá la sección que dice **(Derivado)**.
+3. Si bajás en esa lista, vas a ver que QGIS ya te calcula en tiempo real propiedades como `Fid`, `Length`, y si vas al detalle te muestra los vértices de los extremos sin tener que escribir ninguna fórmula.
+
+¡Hacé la prueba en la calculadora y ya te quedan los pares de coordenadas de cada extremo guardados para siempre en la base del GeoPackage!
+
+
+
+
+Para visualizar esas coordenadas que acabás de calcular como "pines" (puntos) de inicio y fin en el mapa, no tenés que dibujar nada a mano. Vamos a usar un truco de **Simbología de QGIS** llamado **Generador de geometrías**.
+
+La ventaja de este método es que es dinámico: si mañana invertís una línea o cambiás una coordenada en la tabla, el pin se mueve solo.
+
+Como tenés dos puntos (inicio y fin), lo ideal es crear **dos capas de símbolos nuevas** adentro de la misma capa de caminos. Seguí estos pasos:
+
+### Paso 1: Configurar el Pin de Inicio (Origen)
+
+1. Hacé doble clic sobre tu capa de caminos para abrir las **Propiedades de la capa**.
+2. Andá a la pestaña **Simbología** (a la izquierda).
+3. Hacé clic en el botón **➕ (Añadir capa de símbolos)** arriba a la derecha. Ahora vas a ver que se sumó una nueva "Línea sencilla".
+4. Seleccioná esa nueva *Línea sencilla* y abajo, en **Tipo de capa de símbolo**, cambialo a **Generador de geometrías**.
+5. En **Tipo de geometría**, elegí **Punto / Multipunto**.
+6. En el cuadro de expresión que aparece abajo, vas a armar el punto usando las columnas que calculaste (`inicio_lon` e `inicio_lat`). Pegá esta fórmula exacta:
+```sql
+make_point("inicio_lon", "inicio_lat")
+
+```
+
+
+7. Ahora, en el árbol de símbolos de arriba, hacé clic en el **Marcador sencillo** que quedó adentro de ese generador. Cambiale el color (por ejemplo, verde para el inicio) y elegí la forma de pin o círculo que más te guste.
+
+---
+
+### Paso 2: Configurar el Pin de Final (Destino)
+
+Para hacer el del final, repetimos el proceso en la misma ventana:
+
+1. Volvé a hacer clic en el botón **➕ (Añadir capa de símbolos)** arriba a la derecha.
+2. Seleccioná esa tercera línea y cambiala de nuevo a **Generador de geometrías**.
+3. En **Tipo de geometría**, elegí **Punto / Multipunto**.
+4. En el cuadro de expresión, ahora usamos las columnas del final:
+```sql
+make_point("fin_lon", "fin_lat")
+
+```
+
+
+5. Hacé clic en el **Marcador sencillo** de este segundo generador, ponelo de otro color (por ejemplo, rojo para el final) para diferenciarlo bien.
+6. Dale a **Aplicar** y **Aceptar**.
+
+---
+
+### ¿Qué pasa si te aparecen los pines corridos o en otro planeta?
+
+Si al darle "Aceptar" los pines no caen exactamente en los extremos de las líneas, es por un tema de cómo interpreta QGIS el sistema de coordenadas en el generador:
+
+* **Si tu capa está en EPSG:4326 (Grados):** Las fórmulas de arriba van a andar perfectas porque tus columnas están en grados (`-60.12, -35.45`).
+* **Si reprojectaste la capa a metros (ej. EPSG:5347):** QGIS va a esperar que `make_point` reciba metros, pero tus columnas tienen grados. Si ese es tu caso, tenés que avisarle al generador que transforme las coordenadas "al vuelo" usando esta variante:
+```sql
+transform(make_point("inicio_lon", "inicio_lat"), 'EPSG:4326', layer_property(@layer, 'crs'))
+
+```
+
+
+
+¡Hacé la prueba con el Generador de geometrías! Vas a ver al toque los pines verdes y rojos marcando dónde arranca y dónde termina cada tramo secundario en el mapa.
