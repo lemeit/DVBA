@@ -838,8 +838,12 @@ async function aplicarSelloDVBAInteractivo(b64, datosBase){
   const localidad = (datosBase.partido ? datosBase.partido + ', Buenos Aires, Argentina' : 'Saladillo, Buenos Aires, Argentina');
   // v7.21 — Prefijo correcto según tipo_via: "Cno." para caminos, "RP" para rutas
   const ruta = _prefijoRutaSello(datosBase.ruta, datosBase.tipo_via);
+  // v7.81 · Tomar altitud si viene en datosBase (móvil la pasa desde gpsAlt).
+  // Al aprobar un pendiente en escritorio también puede venir del reg guardado.
+  const altN = (datosBase.alt != null) ? parseFloat(datosBase.alt) : NaN;
+  const alt  = isFinite(altN) ? String(Math.round(altN)) : '';
   const datos = {
-    localidad, lat, lng, fecha, hora, alt: '',
+    localidad, lat, lng, fecha, hora, alt,
     ruta, prog: datosBase.prog || '', tipo: datosBase.tipo || ''
   };
   // Reusar localidad del último sello si está definida
@@ -921,34 +925,49 @@ function aplicarSelloDVBA(base64, datos){
     const img = new Image();
     img.onload = () => {
       try{
-        // v7.46 — Rotación EXIF + manual antes del sello
-        const exifOrient = _exifOrientation(base64);
-        const orient     = _combinarOrientacion(exifOrient, _rotacionManualSello);
-        // Si la orientación implica 90° (5,6,7,8), W y H de la foto SE INVIERTEN
-        const isPortrait = orient >= 5 && orient <= 8;
-        const W = isPortrait ? img.height : img.width;
-        const H = isPortrait ? img.width  : img.height;
+        // v7.81 · Si es re-sellado, la foto YA está sellada y re-encodeada por
+        // canvas → sin EXIF. Ignoramos rotación y trabajamos con dimensiones
+        // tal cual, cortando los últimos bH pixels (banner viejo).
+        let W, H_visible, orient;
+        if (datos.esResellado){
+          W = img.width;
+          const bH_pred = Math.max(200, Math.min(Math.round(W*0.22), 340));
+          H_visible = Math.max(100, img.height - bH_pred);
+          orient = 1;  // sin rotación
+        } else {
+          // v7.46 — Rotación EXIF + manual antes del sello (primer sellado)
+          const exifOrient = _exifOrientation(base64);
+          orient = _combinarOrientacion(exifOrient, _rotacionManualSello);
+          const isPortrait = orient >= 5 && orient <= 8;
+          W = isPortrait ? img.height : img.width;
+          H_visible = isPortrait ? img.width : img.height;
+        }
         // v3.1: banner como footer AGREGADO debajo (no tapa la foto)
         const bH = Math.max(200, Math.min(Math.round(W*0.22), 340));
-        const totalH = H + bH;
+        const totalH = H_visible + bH;
         const C = document.createElement('canvas'); C.width = W; C.height = totalH;
         const ctx = C.getContext('2d');
         ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-        // Fondo extendido + foto arriba (con rotación aplicada)
+        // Fondo extendido + foto arriba (con rotación aplicada si no es re-sellado)
         ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, W, totalH);
         ctx.save();
-        _aplicarOrientCanvas(ctx, orient, img.width, img.height);
-        ctx.drawImage(img, 0, 0);
+        if (datos.esResellado){
+          // Recortar los últimos bH del sourceImage (banner viejo) al dibujar
+          ctx.drawImage(img, 0, 0, W, H_visible, 0, 0, W, H_visible);
+        } else {
+          _aplicarOrientCanvas(ctx, orient, img.width, img.height);
+          ctx.drawImage(img, 0, 0);
+        }
         ctx.restore();
         // Banner abajo (fondo sólido, sin transparencia)
-        const y0 = H;
+        const y0 = H_visible;
         const grad = ctx.createLinearGradient(0, y0, 0, totalH);
         grad.addColorStop(0, '#0d0d0d');
         grad.addColorStop(1, '#000000');
         ctx.fillStyle = grad; ctx.fillRect(0, y0, W, bH);
         // Línea dorada superior
         ctx.strokeStyle = '#d4a820';
-        ctx.lineWidth = Math.max(2, Math.round(H*0.0025));
+        ctx.lineWidth = Math.max(2, Math.round(H_visible*0.0025));
         ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
         // === 3 columnas: logo izq + texto centro + QR der ===
         const colSide = Math.round(bH*0.95);
@@ -1057,7 +1076,22 @@ function aplicarSelloDVBA(base64, datos){
           const hm = datos.hora.split(':');
           partes.push(hm[0]+':'+(hm[1]||'00')+' hs');
         }
-        if (partes.length) txtFit(partes.join('  ·  '), tx, yB, maxW, fS, '#dddddd', false);
+        if (partes.length){
+          txtFit(partes.join('  ·  '), tx, yB, maxW, fS, '#dddddd', false);
+          yB += Math.round(fS*1.26);
+        }
+        // v7.81 · Línea de versión: sistema + app + reselado (chiquita al pie derecho)
+        const fV = Math.round(baseFont * 0.60);
+        const stampInfo = [
+          (typeof APP_VERSION === 'string' ? APP_VERSION : 'v?') + '·portal',
+          (datos.esResellado ? '↻ re-sello' : 'sello v4')
+        ].join('  ·  ');
+        ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
+        ctx.fillStyle = 'rgba(212,168,32,0.6)';
+        ctx.textBaseline = 'bottom';
+        ctx.textAlign = 'right';
+        ctx.fillText(stampInfo, tx + maxW, y0 + bH - Math.round(bH*0.04));
+        ctx.textAlign = 'left';
         res(C.toDataURL('image/jpeg', 0.95));
       } catch(e){ rej(e); }
     };
@@ -4283,12 +4317,14 @@ async function reSellarFotoEditada(){
     alert('No hay foto para re-sellar en este registro.');
     return;
   }
-  // v7.49 — Bloquear re-sellado de registros legacy (sin backup del original)
-  if (esRegistroLegacy(_regEditandoFoto)) {
-    alert('Este registro fue sellado con el sistema viejo — no tiene backup del original guardado. Re-sellar acumularía banners sobre el sello existente.\n\nSi realmente necesitás re-sellarlo, primero borralo y cargá el registro de nuevo.');
-    return;
-  }
-  if (!confirm(`Se va a rotar la foto ${_rotacionPreview * 90}° y generar un sello nuevo con los datos actuales del formulario.\n\nEl original se conserva intocado — el sellado se guarda como archivo aparte.\n\n¿Continuar?`)) return;
+  // v7.81 · Ya no bloqueamos registros legacy. El nuevo modo `esResellado`
+  // corta el banner viejo y estampa el nuevo del mismo tamaño (imperceptible
+  // como sobresellado). Igual advertimos si el original no está.
+  const esLegacy = esRegistroLegacy(_regEditandoFoto);
+  const msg = esLegacy
+    ? `Este registro fue sellado con el sistema viejo (sin backup del original).\n\nSe va a rotar la foto ${_rotacionPreview * 90}° y estampar un banner NUEVO ENCIMA del anterior con los datos actuales. El resultado es imperceptible como sobresellado (mismo tamaño y posición).\n\n¿Continuar?`
+    : `Se va a rotar la foto ${_rotacionPreview * 90}° y generar un sello nuevo con los datos actuales del formulario.\n\nEl original se conserva intocado — el sellado se guarda como archivo aparte.\n\n¿Continuar?`;
+  if (!confirm(msg)) return;
   const btn = document.getElementById('btn-re-sellar');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Sellando...'; }
   try {
@@ -4315,30 +4351,56 @@ async function reSellarFotoEditada(){
       fecha: new Date(fechaISO).toISOString().slice(0, 10),
       hora:  new Date(fechaISO).toTimeString().slice(0, 8)
     };
-    // v7.49 — SIEMPRE partimos del ORIGINAL, no de la versión sellada previa
+    // v7.81 · Preferimos el original si existe. Si no (partes nuevos que
+    // suben directo la sellada, registros legacy, backups purgados), caemos
+    // a modo esResellado: se baja la sellada y se corta el banner viejo
+    // antes de estampar el nuevo del mismo tamaño (imperceptible).
     const originalUrl = getOriginalUrl(reg.foto);
-    // v7.62 — Verificar que el original exista antes de intentar bajarlo (HEAD)
-    let respOrig;
-    try {
-      respOrig = await fetch(originalUrl, { method: 'GET' });
-    } catch(fetchErr) {
-      alert('No se pudo bajar la foto original (red o CORS).\n\nURL: ' + originalUrl + '\n\nError: ' + fetchErr.message);
-      return;
+    let b64Fuente = null;
+    let modoResellado = false;
+    if (!esLegacy){
+      try {
+        const respOrig = await fetch(originalUrl, { method: 'GET' });
+        if (respOrig.ok){
+          const blob = await respOrig.blob();
+          b64Fuente = await new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = e => res(e.target.result);
+            r.onerror = rej;
+            r.readAsDataURL(blob);
+          });
+        } else {
+          console.warn('[re-sello] original no disponible (HTTP '+respOrig.status+') — fallback a esResellado');
+          modoResellado = true;
+        }
+      } catch(fetchErr){
+        console.warn('[re-sello] fetch original falló, fallback a esResellado:', fetchErr.message);
+        modoResellado = true;
+      }
+    } else {
+      modoResellado = true;
     }
-    if (!respOrig.ok) {
-      alert(`La foto original no está en Storage (HTTP ${respOrig.status}).\n\nProbablemente el registro se subió sin foto o la sincronización nunca terminó.\n\nNo se puede re-sellar. Podés eliminar el registro y volver a cargarlo desde el móvil.`);
-      return;
+    // Fallback: bajar la foto sellada actual y estampar en modo esResellado
+    if (modoResellado){
+      try {
+        const respSel = await fetch(reg.foto, { method: 'GET' });
+        if (!respSel.ok) throw new Error('HTTP '+respSel.status);
+        const blob = await respSel.blob();
+        b64Fuente = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = e => res(e.target.result);
+          r.onerror = rej;
+          r.readAsDataURL(blob);
+        });
+      } catch(e){
+        alert('No se pudo bajar la foto para re-sellar.\n\nError: ' + e.message);
+        return;
+      }
     }
-    const blob = await respOrig.blob();
-    const reader = new FileReader();
-    const b64Orig = await new Promise((res, rej) => {
-      reader.onload = e => res(e.target.result);
-      reader.onerror = rej;
-      reader.readAsDataURL(blob);
-    });
     const rotBefore = _rotacionManualSello;
     _rotacionManualSello = _rotacionPreview;
-    const b64Sellada = await aplicarSelloDVBA(b64Orig, datosSello);
+    datosSello.esResellado = modoResellado;
+    const b64Sellada = await aplicarSelloDVBA(b64Fuente, datosSello);
     _rotacionManualSello = rotBefore;
     const blobSellada = await (await fetch(b64Sellada)).blob();
     // v7.49 — Subir a path _sello (archivo aparte, no sobreescribe el original)
