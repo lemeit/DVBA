@@ -1,431 +1,233 @@
-# DVBA Zona VI · Roadmap
+# DVBA Zona VI · Roadmap consolidado
 
-Estado al **6 de julio de 2026**. Portal desktop en **v7.39**, SW en **v9.42**, app móvil PWA sincronizada.
+**Estado al 16 de julio de 2026** · Portal desktop en **v7.83**, `partes_diarios.html` en **v7.83**, app móvil PWA en **v9.58**, SW en `dvba-campo-v9.58`.
 
-Este documento es la base para el **proyecto de congreso** — describe qué está funcionando hoy, qué hay por resolver, y las features que dan mayor valor institucional y técnico.
-
----
-
-## 🟢 En producción y estable
-
-- Mapa con 8 partidos + 15 RPs + 100 caminos secundarios integrados en el portal escritorio.
-- Renderizado doble capa (HALO + BASE) para caminos, sin offset visual.
-- Cursor flotante + tooltip permanente con progresiva sobre RP o camino.
-- Panel único de Capas + Visualización con densidad de mojones y progresivas configurables.
-- App móvil PWA con captura offline + cola sincronizada + pre-fill GPS desde armonizador.
-- Cola de pendientes en escritorio con armonización geoespacial y aprobación batch para lo verificado automáticamente.
-- Sello v3 con QR a Google Maps + logo institucional + datos editables antes de estampar.
-- Detección automática al pin: elige RP o camino según cercanía real, ignora toggle para no forzar al usuario.
+Este documento es la referencia única de qué está listo, qué queda pendiente, y en qué orden abordarlo. Complementa a:
+- [`docs/PLAN_ROLES_MULTIZONA.md`](docs/PLAN_ROLES_MULTIZONA.md) — visión de 4 niveles + roadmap de 5 fases.
+- [`docs/PLAN_STORAGE.md`](docs/PLAN_STORAGE.md) — análisis de consumo Supabase + estrategias de escala.
+- [`docs/ANALISIS_INFORME_GERENCIAL_DVBA.md`](docs/ANALISIS_INFORME_GERENCIAL_DVBA.md) — layout oficial del PDF Gerencia (para Fase 5).
+- [`docs/bitacora.html`](docs/bitacora.html) — historial detallado.
 
 ---
 
-## 🔴 Bloqueadores / bugs de fondo (arreglar primero)
+## 🟢 Terminado y estable
 
-### 0. Fix manifest `id` + `start_url` (aplicado 7 jul 2026) → efecto secundario en GPS
+Todo lo del bloque original más lo agregado entre v7.62 y v7.83:
 
-**Fix aplicado**: `manifest.json` tenía un desajuste entre `"id"` y `"start_url"` que hacía que Android considerara el WebAPK como inseguro (app "fantasma" en algunos celulares). Unificados ambas rutas → Chrome instala la PWA sin interrupciones.
-
-**Efecto secundario detectado**: la app **perdió el diálogo del sistema para activar GPS** cuando está apagado. Antes: tocar "sin señal" abría el diálogo nativo de Android para activar la ubicación. Ahora: solo muestra "GPS denegado, ir a ajustes".
-
-**Análisis técnico**:
-- La Geolocation API estándar **no puede activar el GPS del sistema por JS** (limitación de seguridad web).
-- El comportamiento previo era una capacidad **extra** del WebAPK cuando Chrome lo consideraba "confiable" — pasaba la solicitud a Play Services que sí muestra el diálogo.
-- Al cambiar el `id` del manifest, Android probablemente:
-  - Reinstaló el WebAPK como "nueva app" y perdió los permisos previos concedidos, **o**
-  - Bajó el nivel de "confianza" del WebAPK y ahora cae en la API web plana.
-- Chrome también endureció el comportamiento de estos diálogos en versiones recientes (endurecimiento UX + privacy).
-
-**Solución sugerida (task #201)**:
-1. Detectar el error específico (`code === 2` PositionUnavailable con GPS off) vs `code === 1` PERMISSION_DENIED.
-2. Mostrar botón **"🔧 Abrir ajustes de ubicación"** que abra el intent Android:
-   `intent://settings/#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end`
-3. Después de que el user active y vuelva a la app, escuchar `visibilitychange` para reintentar automáticamente.
-4. Como fallback en desktop o navegadores no-Android, mostrar instrucción textual con captura.
-
-### Otros bloqueadores (arreglar primero)
-
-### 0. RP30 + RP46 + RP51: auditoría 2026-07-06 detectó recortes incompletos
-
-Ejecutado `scripts/recortar_zonavi.py` sobre las 8 RPs con `_traza_completa`:
-
-**OK**: RP41, RP47, RP91 (match exacto con bundle actual).
-**Menor**: RP40 (diferencia 3 km en prog_ini).
-**Problema real**:
-- **RP30** — bundle actual 172 km / prog 246→418; auditoría da 2020 km lineales (imposible). El `_traza_completa` tiene 54 features con fid sin orden geográfico → mismo bug que RP61. **Acción (task #188)**: renumerar fid en QGIS.
-- **RP46** — bundle 33.9 km; auditoría 267 km (imposible). Mismo bug. **Acción**: renumerar fid en QGIS.
-- **RP51** — bundle prog_ini=215.23 pero auditoría dice 332.4. Δ 117 km. Este es el bug reportado (RP51 se corta antes del límite de Alvear/Tapalqué). Longitud Zona VI 131.8 km sí coincide. **Acción (task #189)**: verificar mojón km 0 real en QGIS.
-
-### 1. RP61: parcialmente resuelto, falta renumerar fid en QGIS
-
-**Recorrido real verificado (E→O)**:
-1. Gral Belgrano (nace, fuera Zona VI) → Las Flores urbana
-2. **Gap Las Flores**: RN3 → RP30 hasta encontrar RP91 (~18 km recta / 25 km real)
-3. Post-RP91: camino de tierra hasta Gral Alvear
-4. **Gap Alvear**: usa ~280 m de RN205
-5. Camino de tierra hasta 9 de Julio (fin, fuera Zona VI)
-
-**✅ Fix anchors (v7.40)**: `gen_ruta_bundle.py v2.9` descarta anchors cuyo snap cae en gap. El mojón km 50 (que caía en el Gap Las Flores con acc=459 espurio) ya no distorsiona la interpolación. Anchors resultantes monotónicos: `0 → 97.5 → 148.6 → 198.9 → 254.3 → 567.7`.
-
-**❌ Pendiente (task #186)**: los tramos gap en el geojson tienen `fid=5` y `fid=6` (mayor que los normales), quedan **al final** de la cadena por el orden por fid → genera rectas gigantes de 177 km y 102 km al saltar de vuelta al Este/centro. Renumerar manualmente en QGIS:
-
-| fid actual | Nuevo fid | Tramo |
-|---|---|---|
-| 1 | 1 | Belgrano → Las Flores |
-| 5 (gap) | **2** | Gap RN3+RP30 |
-| 2 | 3 | Post-Las Flores → 25M |
-| 3 | 4 | 25M → Alvear |
-| 6 (gap) | **5** | Gap RN205 |
-| 4 | 6 | Alvear → 9 Julio |
-
-Después regenerar bundle. Ver [`memory/reference_rp61_canonica.md`](internal).
-
-**Nueva regla operativa**: al digitalizar en QGIS, los `fid` deben reflejar el **orden geográfico real** (E→O u O→E según sentido de crecimiento), incluidos los gaps intercalados. Nunca dejarlos al final por orden de digitalización.
-
-### 2. Sello mal generado en escritorio (task #174)
-
-En la sesión previa apareció una foto con el sello cortado (falta parte de "Long"). Puede ser fallback silencioso del `catch` cuando algún dato no llegó. Ahora que el modal escritorio anda y el doble-sello está guardado, hay que verificar con una foto nueva.
-
-**Acción**: reproducir con foto nueva; si sigue, revisar canvas del sello y validar cada campo antes de dibujar.
-
-### 3. Detección RP91 vs camino en la práctica
-
-Los logs muestran que la detección funciona bien pero en cierta zona de Saladillo la RP91 pasa tangencial a caminos secundarios (< 100 m) y el pin puede terminar eligiendo la RP aunque el operador estaba señalando el camino. El fix de umbral parcial ya está — falta calibración fina.
-
-**Acción**: recolectar 5 casos donde el user esperaba camino y detectó RP; ajustar umbral en `UMBRAL_CAMINO_CERCA`.
+- **Mapa portal** con 8 partidos + 15 RPs + 100 caminos, cursor flotante, panel Capas, modo detallado, modal SIG Vial, leyenda actualizada con paleta institucional (v7.80).
+- **App móvil PWA** con captura offline, cola sincronizada, pre-fill GPS por armonizador, workflow campo→oficina.
+- **Sello v4 institucional** (v7.82+): 3 columnas (logo + texto + QR Google Maps), altitud GPS, versión del sistema estampada, sistema anti-sobresello (modo `esResellado` que corta banner viejo). Banner compacto ~30% más chico.
+- **Logo institucional nuevo** (`logo_dvba_clean.png`) en portales, favicon, iconos PWA y sello móvil (base64 embebido, -53% peso).
+- **Módulo Plan de Seguridad en la Circulación** (`partes_diarios.html`, v7.62+): CRUD de partes diarios alineado al Google Form oficial DVBA. Detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria+secundaria con typeahead, filtros por partido/ruta/vía, columna indicadora de fotos por parte (v7.83).
+- **Capa 📋 Tareas en el mapa** (v7.76+): partes dibujados sobre traza real (RP y caminos) con colores por antigüedad (últimos 7d rojo, 30d dorado, 90d violeta, histórico gris). Popup con detalles.
+- **632 partes históricos + 49 vehículos + 1203 vinculaciones** cargados por bulk desde CSVs.
+- **RLS flexibilizada** para uso interno DVBA (SQL 5) + columna `partido` en `partes_diarios` (SQL 6).
+- **Sidebar-footer institucional** fijo con resumen zona + info autor + versión.
+- **Picker de zona en header** de ambos portales, con las 12 zonas DVBA.
+- **Versionado unificado** de la familia escritorio (v7.X) y móvil (v9.X) — se bumpean juntos.
+- **Documentación**: bitácora al día, plan de roles, plan de storage, análisis PDF gerencial, nomenclador 1989 como referencia.
 
 ---
 
-## 🟠 Prioridad alta (esencial para el congreso)
+## 🟠 Prioridad ALTA (próximas 1-3 sesiones)
 
-### 3.5 Edición de fotos post-captura (reubicar + rotar + re-sellar)
+### 1. Módulo Reportes básico (Bloque 3 · Sesión 3)
 
-Feature con 3 componentes independientes:
+Es el killer feature institucional que falta. Reusa toda la infraestructura de v7.62-v7.83.
 
-**A) Reubicar registro no aprobado + sello con progresiva final**
+**Alcance mínimo aceptable:**
+- Nueva tab **📊 Reportes** en el portal escritorio.
+- Filtros: rango de fechas, zona (habilitado cuando llegue Fase 3 del Plan de Roles), partido, RP/camino, tarea, cuadrilla.
+- Vista tabla con: fecha · tarea · vía · partido · km · equipos · foto ✓/✗.
+- Bar chart por categoría de tarea (usando la paleta oficial de 8 colores del análisis gerencial).
+- Contador de partes por mes (5 meses hacia atrás con línea de tendencia — mimic del reporte oficial).
+- Export CSV.
+- Vinculación con la capa 📋 Tareas del mapa (click en fila → zoom al partido/tramo).
 
-Escenario: el operador subió fotos SIN progresiva (o con progresiva vieja) por errores de GPS. En el portal escritorio quiere abrir el registro, arrastrar el pin al lugar real en el mapa, y que **al aprobar se estampe el sello v3 con la progresiva correcta**.
+**Alcance ampliado (Fase 5 · más adelante):**
+- Export PDF con layout oficial DVBA (portada + 2 hojas por zona + luminarias LED).
+- Requiere librería PDF (jsPDF + jsPDF-autotable, o Edge Function con pdf-lib).
 
-Verificar si ya funciona (post-v7.34):
-- El pin es arrastrable (`draggable:true`), `dragend` dispara `autoDetectarCampos({forzarAuto:true})` → autocompleta ruta / partido / progresiva desde nuestro sistema de anchors.
-- Al aprobar desde la cola, el sello v3 se estampa con los datos del modal editado.
-- **Confirmar en producción**: subir una foto sin sello desde móvil, editar en escritorio, arrastrar pin, aprobar → chequear el sello final.
+### 2. Etapa 2 partes_diarios — subida directa de fotos con sello
 
-**B) Fotos ya aprobadas con sello viejo — ¿re-sellar o sello complementario?**
+Hoy en `partes_diarios.html` sólo se pueden **asociar** relevamientos ya cargados desde el móvil (rango ±5 días). Si no hay, el parte se guarda sin fotos. En v7.83 mejoré el mensaje pero la carga directa sigue pendiente.
 
-Hoy el guard `yaTieneSello` (v7.36) evita re-sellado para no duplicar. Pero si el revisor detecta después que la progresiva del sello es incorrecta, el sello viejo queda ahí.
+**Alcance:**
+- Botón "📸 Subir foto ahora" en el modal de nuevo/editar parte.
+- Al subir: aplica sello v4 con datos del parte (fecha, ruta, prog, tarea, GPS del user si acepta permisos), sube a Storage como `_sello.jpg`.
+- **Crea automáticamente un `relevamiento`** vinculado al parte (`parte_fotos.relevamiento_id`) para que la foto también aparezca en el mapa de relevamientos.
+- Sin necesidad de pasar por la app móvil.
 
-Dos opciones:
-- **Opción A**: agregar botón **"🔄 Re-sellar"** en el modo edición que fuerza descargar la foto original de Storage (si se guardó separadamente), reaplicar sello con datos nuevos, y sobrescribir. Requiere: mantener siempre la foto cruda en un bucket paralelo `fotos_originales`.
-- **Opción B**: **sello complementario**: mantener el sello v3 original + agregar una banda pequeña en la esquina con "✓ Corregido a RP XX · km YYY el DD/MM" que sobreescribe solo la línea de la progresiva.
+### 3. Regenerar RP30 y RP46 en QGIS (task histórica #195)
 
-Recomiendo A si el objetivo es que la foto final siempre refleje la verdad; B si el objetivo es trazabilidad histórica del proceso.
+Bloqueadas hace tiempo por bug del `_traza_completa` (fids sin orden geográfico, mismo problema que RP61 en su momento). Sin bundle, no hay progresivas oficiales ni detección de partido para esas rutas.
 
-**C) Rotación / ajuste de fotos giradas 90°**
+**Acción**: renumerar fid en QGIS por orden geográfico (E→O u O→E), correr `recortar_zonavi.py` + `gen_ruta_bundle.py`. Documentado en la bitácora.
 
-Fotos tomadas con el celular de costado se ven rotadas. Feature nueva:
-- Botones **↺ 90° / ↻ 90° / voltear H / voltear V** en el modal de edición.
-- **Lectura automática del EXIF Orientation** al cargar (JPEG estándar tiene el bit `Orientation` en el header, la mayoría de celulares lo setea correctamente y solo hay que respetarlo).
-- Implementación con `canvas.rotate()` + `context.drawImage()`.
-- Aplicar **antes** del sello v3 (para que el sello quede orientado con la foto rotada).
-- Botón "Ajustar tamaño" para recortar/redimensionar si aplica.
+### 4. Fase 1 del Plan de Roles
 
-Todas estas tasks quedan documentadas: #202 (reubicar + re-sellar), #203 (rotación).
+Preparación backend antes de arrancar multi-zona. Bloquea las Fases 2-5.
 
-### 4. Reportes desde el portal (task #125)
+- `SQL_7_usuarios_perfil.sql`: crear tabla + funciones helper `current_user_zona()` / `current_user_rol()`.
+- `SQL_8_zona_en_tablas.sql`: `ALTER TABLE partes_diarios ADD COLUMN zona`. Backfill `'VI'` para los 632 partes históricos. Idem `relevamientos`.
+- Insertar tu perfil como admin.
 
-Sección **📊 Reportes** en tab dedicada del sidebar. Permitir:
-- Seleccionar rango de fechas + partidos + tipos + estados.
-- Filtro por RP y/o caminos.
-- Exportar a **XLSX + PDF con las fotos selladas embebidas** (portable para expedientes).
-- Reportes por elemento y por acción (usa el modelo Tipo↔Estado ya implementado).
-
-Es la salida operativa que traduce datos de campo → informe firmable. Alta visibilidad institucional.
-
-### 5. Progresiva → coord (feature nueva pedida)
-
-Input "Ir a progresiva km X+YYY" que:
-- Coloca el pin sobre la traza en ese km exacto.
-- Autofilla lat/lng desde la traza.
-- Útil cuando el operador **tiene planilla histórica con progresiva pero coord aproximada**.
-
-Cierra el ciclo: hoy hacemos **coord → progresiva**, falta **progresiva → coord**. Ambas direcciones son necesarias en el flujo real.
-
-### 6. Cola/report de tramos seleccionables (armar reportes ad-hoc)
-
-Copiar la lógica del visor `caminos_secundarios.html` (selección multi-tramo por click) al portal, pero enriquecida:
-- El operador va agregando tramos de RP y caminos al "carrito de reporte".
-- Cada tramo con progresiva de inicio/fin editable.
-- Genera un informe consolidado (obra, mantenimiento, patrullaje).
-
-Encajaría perfecto con el modelo Tipo↔Estado. Ideal para presentar en congreso como "sistema de armado ágil de partes de obra".
-
-### 7. Catálogo de caminos editable (task #126)
-
-UI para editar nombres locales de caminos (`DENOMINACION`) sin tocar código. Tabla en Supabase + form en el portal.
-
-Motivo: los caminos hoy solo tienen NOMEMCLATURA (`093-13`) pero los operarios los conocen por nombre popular ("El camino del cementerio"). Editable per-partido por usuarios autorizados.
+Ver detalle en `docs/PLAN_ROLES_MULTIZONA.md` sección "Fase 1".
 
 ---
 
-## 🟡 Prioridad media (mejoras significativas)
+## 🟡 Prioridad MEDIA (siguiente lote, 3-6 sesiones)
 
-### 8. RP91 con traza GPS de campo (task #139)
+### 5. Fase 2 del Plan de Roles · Frontend zone-aware
 
-El usuario tiene test_rp91.html con traza GPS validada. Reemplazar traza oficial por la GPS que refleja mejor la realidad. Aplicable después a las demás RPs si el resultado es bueno.
+Al login, cargar perfil del usuario y guardar en localStorage. Header + menú filtrados por rol.
 
-### 9. Revisar y actualizar RPs restantes en `geojson_procesados/`
+### 6. Fase 3 del Plan de Roles · RLS zonal
 
-RP6, RP20, RP24, RP42, RP43, RP44, RP48 no fueron revisadas en Zona VI. Menos relevantes que las 8 principales pero conviene tenerlas para completitud.
+`SQL_9_rls_zonal.sql`: reemplaza policies actuales por las nuevas. Técnicos ven sólo su zona, gerencia/admin ven todas. Rollback plan documentado.
 
-### 10. Reorganizar UI sidebar de rutas + caminos
+### 7. Completar las 7 RPs restantes en QGIS
 
-Hoy la lista de chips de caminos + RPs es larga y saturada. Rediseño propuesto:
-- Filtros arriba (partido + clase + tipo_via).
-- Selector jerárquico Partido → Caminos.
-- **Modo "armar reporte"**: al activar, cada chip se comporta como "agregar al reporte" (relacionado con feature 6).
+RP 6, 20, 24, 42, 43, 44, 48 — no procesadas. El badge de v7.75 ya advierte "ruta sin traza cargada" cuando el user las elige.
 
-### 11. Renombrar CACHE_NAME del SW (task #153)
+### 8. Detección de partido en app móvil
 
-`dvba-campo-vX.Y` es confuso porque el SW cachea AMBAS apps (portal + móvil). Renombrar a `dvba-web-vX.Y`. Cambio menor pero elimina confusión de nombres al debuggear.
+Replicar `pdDetectarPartido` + `pdInterpolarProgresiva` en `dvba_campo.html`. Requiere cargar `partidos_zona_vi.geojson` + bundles CHAIN_RPxx en la app móvil. Bump v9.59.
 
-### 12. Bitácora auto-generada desde git log
+### 9. Backfill columna `partido` en 632 partes históricos
 
-La bitácora actual es HTML editado a mano. Migrar a generación automática desde commits + memory files.
+Script Python o SQL con extensión PostGIS (si está habilitada) que corre point-in-polygon offline sobre las progresivas medias. Complementa v7.70.
 
----
+### 10. Ajustar compresión de fotos en móvil (`PLAN_STORAGE.md` acción 2)
 
-## 🔵 Prioridad baja (nice-to-have)
+Cambiar `comprimir(b64, 1600, 0.85)` → `(b64, 1200, 0.75)`. Reduce ~50% el tamaño típico de foto. Duplica el tiempo antes de llenar el bucket. Bump v9.59.
 
-### 13. Modo oscuro en toda la UI
+### 11. Contador "MB usados" en el sidebar del portal (`PLAN_STORAGE.md` acción 4)
 
-Hoy el mapa Vista Oscura + panel Leyenda están adaptados. Falta:
-- Sidebar oscuro persistente
-- Modal de sello con tema alterno
+Query semanal a `storage.objects` + fila en el panel-footer del sidebar tipo "📦 623 MB / 1 GB · 39% libre".
 
-### 14. Multi-usuario con roles
+### 12. Purga programada de originales aprobados > 30 días
 
-Hoy Supabase Auth tiene un solo tier (autenticado). Agregar roles: **operador de campo** (solo carga) vs **revisor/administrador** (aprueba, edita, exporta). RLS diferenciada.
-
-### 15. Notificaciones push cuando hay pendientes
-
-Web Push API con VAPID → cuando hay > N pendientes se notifica al revisor.
-
-### 16. Dashboard estadístico
-
-Panel **"📈 Estado de la red"** con:
-- Cantidad de registros por partido / RP / mes.
-- Distribución de tipos (bache, señal, banquina...).
-- Heatmap de intervenciones.
-- KPIs comparativos año-a-año.
-
-Fuente de datos: tabla `relevamientos` de Supabase (ya poblada con miles de items) + nueva tabla `partes_diarios` (ver feature siguiente).
-
-Implementación sugerida: nuevo tab **"📈 Dashboard"** en el portal escritorio con gráficos Chart.js embebido (sin dependencias externas más allá del CDN). Filtros por partido / RP / rango de fechas / tipo. Export PDF opcional para reportes mensuales institucionales.
-
-### 16. Dashboard estadístico
-
-Panel "📈 Estado de la red" con:
-- Cantidad de registros por partido/RP/mes.
-- Distribución de tipos (bache, señal, banquina...).
-- Heatmap de intervenciones.
-- KPIs comparativos año-a-año.
-
-### 17. Integración expedientes DVBA
-
-Exportar registros como PDF firmable + enlace a expediente digital de vialidad. Cierra el circuito administrativo.
-
-### 18. **Partes Diarios integrados** ⭐ FEATURE PRIORITARIA (7 julio 2026)
-
-Actualmente el registro semanal de tareas se hace en un Google Form oficial + planilla espejo en Google Sheets — flujo tedioso y desconectado del resto del sistema. Migrar a un **módulo web dinámico integrado** en el portal escritorio, con sincronización opcional al Sheet para no romper el flujo administrativo.
-
-#### Fuente de datos actual (Google Sheet)
-
-Columnas del sheet: `Enviado | Fecha | Tarea | Ruta | Prog. Inicial | Prog. Final | Maquinaria 1..5 | ID1..5 | N°ID1..5 | Observaciones | Imágenes previas | Imágenes posteriores | km`
-
-Catálogo de tareas observado en el sheet: `MANTENIMIENTO DE PAVIMENTOS`, `SEÑALIZACIÓN Y DEMARCACIÓN (Horizontal / Vertical)`, `CORTE DE PASTO`, `REPARACIÓN DE ALCANTARILLAS`, y presumiblemente más.
-
-Catálogo de maquinarias: `MOTONIVELADORA`, `TRACTOR`, `DESMALEZADORA`, `RETROEXCAVADORA`, `PALA CARGADORA FRONTAL`, `MINI CARGADORA`, `TOPADORA`, `CAMIÓN`, `CAMIONETA`, `APLANADORA`.
-
-Cada vehículo tiene un `identificador` (`O.I.` = Organismo, `R.O.` = Reg. Oficial u otros) y `N°ID` (número de inventario/patente).
-
-#### Arquitectura propuesta
-
-**Nuevo tab en portal escritorio**: **"🚧 Partes Diarios"** (al lado de Registros / Reportes).
-
-**Modelo Supabase** (3 tablas + 2 catálogos):
-
-```sql
-CREATE TABLE partes_diarios (
-  id BIGSERIAL PRIMARY KEY,
-  fecha DATE NOT NULL,
-  tarea_id BIGINT REFERENCES catalogo_tareas(id),
-  tipo_via TEXT NOT NULL,           -- 'rp' | 'camino'
-  ruta TEXT NOT NULL,                -- '51' | '093-08'
-  prog_ini NUMERIC(8,3),
-  prog_fin NUMERIC(8,3),
-  km_recorridos NUMERIC(8,3)         -- = prog_fin - prog_ini
-    GENERATED ALWAYS AS (prog_fin - prog_ini) STORED,
-  observaciones TEXT,
-  foto_previa_url TEXT,
-  foto_posterior_url TEXT,
-  responsable_id UUID REFERENCES auth.users(id),
-  enviado_admin BOOLEAN DEFAULT false,   -- se envió al Google Form/Sheet oficial
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE parte_maquinarias (
-  parte_id BIGINT REFERENCES partes_diarios(id) ON DELETE CASCADE,
-  orden SMALLINT,                    -- 1..5 (Maquinaria 1, 2, 3, 4, 5)
-  vehiculo_id BIGINT REFERENCES vehiculos(id),
-  PRIMARY KEY (parte_id, orden)
-);
-
-CREATE TABLE vehiculos (
-  id BIGSERIAL PRIMARY KEY,
-  identificador TEXT NOT NULL,       -- 'O.I.', 'R.O.', 'RUR.', etc.
-  numero TEXT NOT NULL,              -- '21202'
-  tipo_maquinaria TEXT NOT NULL,     -- 'CAMIÓN', 'MOTONIVELADORA'
-  descripcion TEXT,
-  activo BOOLEAN DEFAULT true,
-  UNIQUE(identificador, numero)
-);
-
-CREATE TABLE catalogo_tareas (
-  id BIGSERIAL PRIMARY KEY,
-  nombre TEXT UNIQUE NOT NULL,       -- 'MANTENIMIENTO DE PAVIMENTOS'
-  categoria TEXT,                    -- 'Mantenimiento', 'Señalización', ...
-  activo BOOLEAN DEFAULT true
-);
-
-CREATE TABLE catalogo_maquinarias (
-  tipo TEXT PRIMARY KEY,             -- 'MOTONIVELADORA', 'CAMIÓN'
-  activo BOOLEAN DEFAULT true
-);
-```
-
-**UI del formulario de carga**:
-
-```
-┌─ Nuevo Parte Diario ─────────────────────────────────┐
-│ Fecha:   [7/7/2026]                                  │
-│ Tarea:   [MANTENIMIENTO DE PAVIMENTOS ▾]             │
-│                                                       │
-│ Vía:    ○ RP  ● Camino Sec.                          │
-│ Ruta:   [093-08 ▾]  ← lista dinámica según Vía       │
-│ Prog. inicial: [1.10]  km                             │
-│ Prog. final:   [4.20]  km                             │
-│ km recorridos: 3.10 (auto)                            │
-│ [📍 Marcar en mapa]   → abre mapa con la RP/Camino    │
-│                          seleccionado y permite pin   │
-│                          en ambos extremos            │
-│                                                       │
-│ Maquinaria:                                           │
-│   [MINI CARGADORA ▾]   [O.I. ▾]  [21202 ▾]           │
-│   [CAMIÓN         ▾]   [R.O. ▾]  [4099 ▾]            │
-│   [+ Agregar]                                        │
-│                                                       │
-│ Observaciones: [                                    ] │
-│                                                       │
-│ 📷 Foto previa:      [Adjuntar]                       │
-│ 📷 Foto posterior:   [Adjuntar]                       │
-│                                                       │
-│ [Guardar como borrador]  [Guardar y enviar al Form]   │
-└──────────────────────────────────────────────────────┘
-```
-
-**Integración con el sistema existente**:
-- **Selector Ruta**: usa el mismo `RED_VIAL.listar*()` que el form principal.
-- **Progresivas**: auto-completa desde el mapa con nuestro sistema de anchors (mismo `calcProg`).
-- **Selector maquinaria dependiente**: al elegir `MINI CARGADORA` → filtra vehículos donde `tipo_maquinaria='MINI CARGADORA'` → carga sus identificadores + números.
-- **Vista lista con filtros**: fecha / tarea / partido / responsable / maquinaria.
-- **Vista mapa opcional**: capa Leaflet con **tramos coloreados** según la última tarea realizada en cada segmento (color por tipo de tarea, opacidad por antigüedad).
-- **Export CSV compatible con Google Form**: botón que genera CSV con las columnas exactas del sheet actual, listo para pegar en la administración.
-
-**Sync bidireccional futuro** (opcional): Google Sheets API con service account permite leer/escribir el sheet oficial directamente. Se puede implementar en una segunda fase; por ahora export CSV manual es suficiente.
-
-#### ¿Cómo empezar?
-
-**Fase 1** (poblar catálogos, sin UI):
-1. Exportar el sheet como CSV (o compartir el CSV).
-2. Cargar `vehiculos`, `catalogo_tareas` desde el CSV a Supabase.
-3. Migrar los partes históricos como bulk insert.
-
-**Fase 2** (UI escritorio):
-1. Nuevo tab en `index.html`.
-2. Form de carga con selectores dependientes.
-3. Vista lista con paginación + filtros.
-
-**Fase 3** (integración móvil):
-1. Wizard en `dvba_campo.html` para cargar parte desde el campo (con GPS auto-fill).
-
-**Fase 4** (dashboard y export):
-1. Gráficos de km/mes por tarea.
-2. Export CSV compatible.
-3. Integración eventual con Google Sheets API.
-
-**Nota sobre Google Sheets**: no tengo acceso directo a Google desde este entorno. La forma más simple de empezar:
-- **Compartís el sheet como público** o me pasás la URL de descarga CSV.
-- **O exportás el sheet como CSV** (`Archivo → Descargar → Valores separados por comas`) y lo adjuntás.
-- Con eso genero el SQL de bulk insert para catálogo + histórico.
+El botón manual "🧹 Mantenimiento Storage" ya existe (v7.50). Automatizarlo con `scheduled-tasks` semanal.
 
 ---
 
-## 🎯 Features nuevas propuestas (mirando al congreso)
+## 🔵 Prioridad BAJA / futuro
 
-Estos 4 items dan mayor **valor conceptual y técnico** para una presentación académica. Están ordenados por impacto expositivo.
+### 13. Fase 4 del Plan de Roles · Panel Admin usuarios
 
-### A. Sistema de "carrito de tramos" para informes
+Página `admin_usuarios.html` con alta/baja/cambio de rol/zona.
 
-Ya listado como task 6 más arriba. Es el killer feature del portal — pasa de visualizador a **herramienta operativa** para armar partes de obra en 5 minutos, con las fotos y progresivas ya cargadas. Historia clara para el congreso: "de la cartografía estática al parte de obra digital".
+### 14. Fase 5 del Plan de Roles · Reportes PDF oficiales Gerencia
 
-### B. Auditoría geoespacial de fotos históricas
+Stack: `jsPDF + jsPDF-autotable` o Edge Function con `pdf-lib`. Layout definido en `docs/ANALISIS_INFORME_GERENCIAL_DVBA.md`.
 
-El armonizador ya detecta desalineaciones. Extender a un **proceso batch**: correr sobre todos los registros históricos y flaggear los sospechosos. Se puede mostrar como "detección de errores de carga automática" con métricas concretas (X registros corregidos por el sistema en Y meses).
+### 15. Migración de storage a Cloudflare R2 o Supabase Pro
 
-### C. Modelo de deterioro por tipo de superficie
+Se activará cuando el consumo Free se acerque al límite. Sistema de storage híbrido documentado en `PLAN_STORAGE.md`.
 
-Agregar campo `severidad` (0-100) al modelo. Con series temporales por punto GPS se puede:
-- Estimar velocidad de deterioro por tipo de superficie (asfalto vs mejorado con dolomita).
-- Predecir intervenciones necesarias en próximos 6 meses.
+### 16. Debounce del oninput en selectores de ruta
 
-Es ciencia de datos aplicada. Ideal para paper.
+Mientras el user tipea "RP 91" genera warnings intermedios en console ("RP 9" no tiene bundle). Cosmético.
 
-### D. QR de sello ↔ traza en tiempo real
+### 17. Ocultar del datalist RPs sin bundle procesado
 
-Hoy el QR del sello apunta a Google Maps. Nueva versión: el QR apunta a una URL propia `https://lemeit.github.io/DVBA/#reg=ID` que:
-- Abre el portal.
-- Zoom a la coord.
-- Highlight del registro.
-- Muestra los registros vecinos.
+O marcarlas visualmente como "no operativas" hasta que se completen las 7 pendientes.
 
-Cierra el loop: un fiscalizador de campo puede escanear el sello impreso y aparecer en el mapa completo. Historia contable "trazabilidad total del expediente".
+### 18. Edición fotos post-captura en escritorio: reubicar + re-sellar
 
-### E. Export QGIS bidireccional
+Task histórica #202. Arrastrar pin en el mapa + reaplicar sello con progresiva actualizada. Muchas piezas ya existen (rotación, re-sello, guard doble-sello).
 
-Endpoint que exporta los registros como GeoPackage listo para abrir en QGIS. Y importador inverso (edité en QGIS → subo a Supabase). Cierra el puente QGIS ↔ Portal ↔ Móvil como sistema completo.
+### 19. Catálogo caminos editable
+
+UI para editar nombres locales de caminos sin tocar código. Tabla en Supabase + form en el portal.
+
+### 20. Sistema "carrito de tramos" para reportes ad-hoc
+
+Copiado de la lógica del visor `caminos_secundarios.html`. Selección multi-tramo por click + generación de reporte consolidado. Encaja perfecto con el modelo Tipo↔Estado.
+
+### 21. Renombrar CACHE_NAME del SW
+
+`dvba-campo-vX.Y` → `dvba-web-vX.Y`. El SW cachea AMBAS apps, no solo campo. Confuso al debuggear.
+
+### 22. Progresiva → coord (feature nueva)
+
+Input "Ir a progresiva km X+YYY" que posiciona el pin sobre la traza en ese km exacto. Complementa `coord → progresiva` que ya funciona.
+
+### 23. Notificaciones push cuando hay pendientes
+
+Web Push API con VAPID. Notificación al revisor cuando hay > N pendientes.
+
+### 24. Modo oscuro consistente
+
+Sidebar oscuro persistente + modal de sello con tema alterno.
+
+### 25. Auditoría / log de cambios
+
+Tabla `audit_log` que registra quién editó qué y cuándo. Decisión pendiente (Plan de Roles sección 7 pregunta 4).
+
+### 26. Digitalizar Nomenclador 1989
+
+Escanear páginas del cuadernillo institucional 1989 y transcribir a CSV. Ver `docs/REFERENCIA_NOMENCLADOR_1989.md`.
+
+### 27. Piloto TMD / RURAL IT / V85
+
+Features de investigación aplicada. Requieren hardware específico + partnership.
+
+### 28. Integración expedientes DVBA
+
+Export firmable + enlace a expediente digital de vialidad. Cierra circuito administrativo.
+
+### 29. QR de sello ↔ traza en tiempo real
+
+Nueva versión del QR que apunta a `https://lemeit.github.io/DVBA/#reg=ID` en lugar de Google Maps. Cierra loop trazabilidad.
+
+### 30. Export/import bidireccional a QGIS
+
+GeoPackage listo para abrir en QGIS + importador inverso.
 
 ---
 
-## 🧹 Housekeeping pendiente
+## 🧹 Housekeeping pendiente (manual)
 
-- [ ] **[Manual]** Borrar `scripts/__pycache__` (task #144)
-- [ ] **[Manual]** Borrar `datos/zona_vi/red_secundaria_zonaVI_final.geojson.viejo_bak` (task #162)
-- [ ] Diff caminos_secundarios.html vs subruta en portal → si el portal ya cubre todo, marcar la subruta como deprecated
-- [ ] Migrar bitácora HTML a Markdown generado desde memory files
-
----
-
-## 📅 Sugerencia de sprint pre-congreso
-
-Para tener una demo sólida:
-
-**Semana 1**: Reportes (task 4) + Progresiva→coord (task 5). Es el 80% del "wow" institucional.
-**Semana 2**: Carrito de tramos (task 6) + RP61 anchor + sello checks. Pulido del flujo principal.
-**Semana 3**: Feature auditiva (B) + slide deck del congreso. Materialización del impacto.
-
-Semanas 4+ quedan para RP91 GPS + catálogo caminos + otras mejoras según feedback.
+- **[Manual]** Borrar `scripts/__pycache__` (task histórica #144).
+- **[Manual]** Borrar `datos/zona_vi/red_secundaria_zonaVI_final.geojson.viejo_bak` (task #162).
+- Diff `caminos_secundarios.html` vs subruta del portal → si el portal ya cubre todo, marcar deprecated.
+- Verificar que GitHub Pages esté sirviendo v7.83 en producción.
+- Correr manualmente los SQL 5 y 6 en Supabase (si aún no lo hiciste).
 
 ---
 
-**Última revisión**: 6 de julio de 2026 · v7.39 desplegada.
-**Responsable**: Ing. Luciano Lamaita — División Técnica DVBA Zona VI Saladillo.
+## Decisiones abiertas (para conversar con Gerencia)
+
+Del `PLAN_ROLES_MULTIZONA.md`:
+
+1. ¿Cómo se dan de alta usuarios? Autoregistro con dominio institucional o alta manual por admin.
+2. ¿Compartir datos entre zonas linderas? (Ej. Zona VI y VII en el borde RP61).
+3. ¿Rol supervisor de zona entre técnico y gerencia?
+4. ¿Auditoría / log de cambios? (Tabla que crece rápido).
+5. ✅ Formato del PDF oficial ya analizado.
+6. ¿Escalar a piloto con otra zona (VII u XI)?
+
+Del `PLAN_STORAGE.md`:
+
+7. Cuándo migrar a Supabase Pro (US$ 25/mes) o Cloudflare R2 (gratis 10GB).
+
+---
+
+## 📅 Sugerencia de sprint próximo
+
+**Recomendado para las próximas 2-3 sesiones:**
+
+- **Sesión N**: Módulo Reportes básico (ítem 1) — tabla + filtros + bar chart + CSV.
+- **Sesión N+1**: Etapa 2 partes_diarios (ítem 2) — subida directa + sellado + creación de relevamiento vinculado.
+- **Sesión N+2**: Fase 1 Plan de Roles (ítem 4) — backend prep sin tocar UI.
+
+Cuando esto esté cerrado ya tenés todo el ciclo operativo funcionando: **cargar → detectar partido → subir foto sellada → ver en mapa → generar reporte → compartir con Gerencia**.
+
+Regenerar RP30/RP46 y las 7 RPs restantes (ítems 3 y 7) se pueden hacer en paralelo por vos mismo cuando tengas tiempo en QGIS, sin bloquear nada.
+
+---
+
+_Última revisión: 16 de julio de 2026 · v7.83 desplegada._
+_Responsable: Ing. Luciano Lamaita — División Técnica DVBA Zona VI Saladillo._

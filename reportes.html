@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reportes · DVBA Zona VI Saladillo</title>
+<link rel="icon" href="datos/img/favicon.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="datos/auth.js"></script>
+<style>
+:root{
+  --p:#009aae;    --pd:#007d90;   --pl:#00b3c7;
+  --acc:#c47a00;  --vd:#1a8a4a;   --am:#c47a00;  --ro:#b20900;
+  --txt:#404040;  --mut:#808080;  --light:#e0e0e0;
+  --bg:#f0f0f0;   --w:#fff;       --r:8px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;font-family:'Encode Sans','Segoe UI',Arial,sans-serif;font-size:13px;color:var(--txt);background:var(--bg)}
+body{display:flex;flex-direction:column}
+
+/* HEADER */
+header{background:var(--p);border-bottom:2px solid var(--pd);color:#fff;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+header .logo{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+header .logo img{width:100%;height:100%;object-fit:contain;border-radius:50%}
+header .t{flex:1}
+header .t h1{margin:0;font-size:16px;font-weight:800;letter-spacing:.3px}
+header .t p{margin:2px 0 0 0;font-size:10px;opacity:.9}
+header .user{font-size:11px;display:flex;align-items:center;gap:8px}
+header .user #email{font-weight:600}
+header .btn-hdr{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none}
+header .btn-hdr:hover{background:rgba(255,255,255,.25)}
+header .hbadge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:9px;margin-left:5px;letter-spacing:.5px;vertical-align:middle}
+header .dot{width:6px;height:6px;border-radius:50%;background:#4caf72;flex-shrink:0;animation:pulse 3s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.zona-picker{position:relative;display:inline-block;margin-left:8px;vertical-align:middle}
+.zona-picker .picker-icon{display:inline-block;padding:2px 8px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:4px;font-size:11px;color:#fff;cursor:pointer;font-weight:600;line-height:1.4}
+.zona-picker-select{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:11px}
+.zona-picker-select option{background:#fff;color:#333;font-weight:600;padding:4px}
+
+/* TOOLBAR */
+.toolbar{background:var(--w);padding:10px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--light);flex-shrink:0}
+.toolbar label{font-size:10px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-right:4px}
+.toolbar input, .toolbar select{padding:6px 8px;border:1px solid var(--light);border-radius:var(--r);font-size:12px;color:var(--txt);background:var(--w)}
+.toolbar .btn-primary{background:var(--vd);color:#fff;border:0;padding:8px 14px;border-radius:var(--r);font-size:12px;font-weight:700;cursor:pointer}
+.toolbar .btn-primary:hover{background:#146637}
+.toolbar .btn-ghost{background:var(--w);color:var(--txt);border:1px solid var(--light);padding:7px 12px;border-radius:var(--r);font-size:11px;font-weight:600;cursor:pointer}
+.toolbar .btn-ghost:hover{background:#f0f4f8}
+.toolbar .sep{flex:1}
+
+/* KPI STRIP */
+.kpis{display:flex;gap:8px;padding:10px 20px;background:#eff5fb;border-bottom:1px solid var(--light);flex-wrap:wrap}
+.kpi{background:var(--w);border:1px solid var(--light);border-radius:var(--r);padding:8px 12px;flex:1;min-width:110px;text-align:center}
+.kpi .v{font-size:19px;font-weight:900;color:var(--p);line-height:1.1}
+.kpi .l{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+/* GRID DE CHARTS */
+.charts{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;padding:12px 20px;background:var(--bg)}
+.chart-card{background:var(--w);border:1px solid var(--light);border-radius:var(--r);padding:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.chart-card h3{margin:0 0 8px 0;font-size:11px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.5px}
+.chart-card canvas{max-height:260px}
+
+/* TABLA */
+.wrap{flex:1;overflow:auto;padding:8px 20px 20px}
+table.rep{width:100%;border-collapse:collapse;background:var(--w);box-shadow:0 1px 3px rgba(0,0,0,.05);border-radius:var(--r);overflow:hidden}
+table.rep thead{background:var(--p);color:#fff;position:sticky;top:0;z-index:5}
+table.rep th{padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left;white-space:nowrap}
+table.rep th.num{text-align:right}
+table.rep th.center{text-align:center}
+table.rep td{padding:7px 8px;border-bottom:1px solid #eef2f7;font-size:11.5px;vertical-align:top}
+table.rep tbody tr:hover{background:#f8fbff}
+table.rep td.num{text-align:right;font-family:'SF Mono',Menlo,monospace;font-weight:600}
+table.rep td.center{text-align:center}
+.badge-eq{display:inline-block;background:#e8f7f9;color:var(--p);padding:1px 6px;border-radius:3px;font-size:9.5px;margin-right:2px;font-weight:600}
+.badge-count{color:var(--mut);font-size:9.5px}
+.foto-ok{color:var(--vd);font-weight:700}
+.foto-no{color:var(--mut)}
+.empty{padding:40px 20px;text-align:center;color:var(--mut);font-size:12px}
+
+/* AUTH */
+.auth-guard{padding:40px 20px;text-align:center;color:var(--mut);font-size:14px}
+.auth-guard button{margin-top:14px;padding:10px 22px;background:var(--vd);color:#fff;border:0;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer}
+
+/* FOOTER */
+footer{background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--pd)}
+footer .fl{flex:1;min-width:260px}
+footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
+  <div class="t">
+    <h1>DVBA &mdash; <span style="color:#ffd060" id="hZona">ZONA VI</span> <span class="hbadge" id="hPartido">Saladillo</span>
+      <span class="zona-picker" title="Cambiar zona">
+        <span class="picker-icon">▾</span>
+        <select id="hSelZona" class="zona-picker-select" onchange="rpCambiarZona(this.value)">
+          <option value="I">ZONA I · Arrecifes</option>
+          <option value="II">ZONA II · Morón</option>
+          <option value="III">ZONA III · Ensenada</option>
+          <option value="IV">ZONA IV · Junín</option>
+          <option value="V">ZONA V · Chivilcoy</option>
+          <option value="VI" selected>ZONA VI · Saladillo</option>
+          <option value="VII">ZONA VII · Dolores</option>
+          <option value="VIII">ZONA VIII · Pehuajó</option>
+          <option value="IX">ZONA IX · Azul</option>
+          <option value="X">ZONA X · Mar del Plata</option>
+          <option value="XI">ZONA XI · Bahía Blanca</option>
+          <option value="XII">ZONA XII · Necochea</option>
+        </select>
+      </span>
+    </h1>
+    <p>📊 Reportes de tareas ejecutadas · Plan de Seguridad en la Circulación</p>
+  </div>
+  <div class="user">
+    <a class="btn-hdr" href="index.html">← Portal</a>
+    <a class="btn-hdr" href="partes_diarios.html">📋 Cargar</a>
+    <span id="email">—</span>
+    <button onclick="rpLogout()" title="Cerrar sesión" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer">salir</button>
+    <span style="font-size:9px;color:rgba(255,255,255,.7)">EN LINEA</span><div class="dot"></div>
+  </div>
+</header>
+
+<!-- Toolbar filtros -->
+<div class="toolbar" id="toolbar" style="display:none">
+  <label>Desde</label>
+  <input type="date" id="fDesde">
+  <label>Hasta</label>
+  <input type="date" id="fHasta">
+  <label>Partido</label>
+  <select id="fPartido">
+    <option value="">Todos</option>
+    <option value="General Alvear">Gral. Alvear</option>
+    <option value="General Las Heras">Gral. Las Heras</option>
+    <option value="Las Flores">Las Flores</option>
+    <option value="Lobos">Lobos</option>
+    <option value="Navarro">Navarro</option>
+    <option value="Roque Pérez">Roque Pérez</option>
+    <option value="Saladillo">Saladillo</option>
+    <option value="Veinticinco de Mayo">Veinticinco de Mayo</option>
+  </select>
+  <label>Tarea</label>
+  <select id="fTarea"><option value="">Todas</option></select>
+  <label>Vía</label>
+  <select id="fVia">
+    <option value="">Todas</option>
+    <option value="rp">Solo RP</option>
+    <option value="camino">Solo Caminos</option>
+  </select>
+  <label>Ruta</label>
+  <input type="text" id="fRuta" placeholder="Ej: RP 51 o 093-08" style="width:140px">
+  <button class="btn-primary" onclick="rpGenerar()">▶ Generar</button>
+  <button class="btn-ghost" onclick="rpExportCSV()" title="Exportar CSV de la vista actual">↓ CSV</button>
+  <span class="sep"></span>
+  <button class="btn-ghost" onclick="rpReset()">↻ Reset filtros</button>
+</div>
+
+<!-- KPIs -->
+<div class="kpis" id="kpis" style="display:none">
+  <div class="kpi"><div class="v" id="kpi-total">—</div><div class="l">Partes</div></div>
+  <div class="kpi"><div class="v" id="kpi-km">—</div><div class="l">Km recorridos</div></div>
+  <div class="kpi"><div class="v" id="kpi-partidos">—</div><div class="l">Partidos</div></div>
+  <div class="kpi"><div class="v" id="kpi-tareas">—</div><div class="l">Tipos de tarea</div></div>
+  <div class="kpi"><div class="v" id="kpi-fotos">—</div><div class="l">Con foto</div></div>
+</div>
+
+<!-- Charts -->
+<div class="charts" id="charts" style="display:none">
+  <div class="chart-card">
+    <h3>Km por tarea (paleta oficial DVBA)</h3>
+    <canvas id="chart-tareas"></canvas>
+  </div>
+  <div class="chart-card">
+    <h3>Partes por mes · últimos 6 meses</h3>
+    <canvas id="chart-timeline"></canvas>
+  </div>
+</div>
+
+<!-- Auth guard -->
+<div class="auth-guard" id="authGuard" style="display:none">
+  <p>Iniciá sesión para ver los reportes.</p>
+  <button onclick="location.href='index.html'">Ir al portal para autenticarse</button>
+</div>
+
+<!-- Tabla -->
+<div class="wrap" id="tablaWrap" style="display:none">
+  <table class="rep">
+    <thead>
+      <tr>
+        <th style="width:50px">#</th>
+        <th style="width:90px">Fecha</th>
+        <th>Tarea</th>
+        <th style="width:90px">Vía</th>
+        <th style="width:110px">Partido</th>
+        <th style="width:70px" class="num">km</th>
+        <th>Equipos</th>
+        <th style="width:60px" class="center">Foto</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="empty" id="empty" style="display:none">Sin resultados con estos filtros. Probá ampliar el rango de fechas.</div>
+</div>
+
+<footer id="footerInst">
+  <div class="fl">
+    <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
+    <span style="margin-left:8px">Módulo de reportes · Uso interno institucional.</span>
+  </div>
+  <div class="fr">
+    Desarrollado por <b style="color:rgba(255,255,255,.85)">Ing. Luciano Lamaita</b> · Div. Técnica DVBA · <span id="app-ver">v7.84</span>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// REPORTES · v7.84
+// Fuente: tabla partes_diarios + catálogos + parte_maquinarias + parte_fotos
+// Filtros server-side (fecha/partido/tarea/via) + client-side (RP exacta)
+// Charts con Chart.js CDN · Export CSV vanilla
+// ═══════════════════════════════════════════════════════════════════
+
+const APP_VERSION = 'v7.84';
+const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
+let _supa = null;
+let _tareas = [];         // catálogo
+let _partesCache = [];    // último resultado del query
+let _chartTareas = null;
+let _chartTimeline = null;
+
+// Paleta oficial DVBA (del análisis del PDF Gerencia Ejecutiva)
+// Mapeo tarea → color: matching por keyword para ser tolerante a variantes de nombre.
+const PALETA_TAREAS = [
+  { keyword: /alumbrado/i,          color: '#e0c020', label: 'Alumbrado' },
+  { keyword: /calzado.*banquina/i,  color: '#8a2a2a', label: 'Calzado banquinas' },
+  { keyword: /camino.*rural/i,      color: '#b090d0', label: 'Caminos rurales' },
+  { keyword: /pasto/i,              color: '#4a8a3a', label: 'Corte de pasto' },
+  { keyword: /pavimento/i,          color: '#7a8a9a', label: 'Mant. pavimento' },
+  { keyword: /flex.*beam|baranda/i, color: '#d090c0', label: 'Reemplazo Flex Beam' },
+  { keyword: /alcantarilla/i,       color: '#d47a20', label: 'Rep. alcantarillas' },
+  { keyword: /señaliz|demarc/i,     color: '#2a4a7a', label: 'Señalización/demarc.' },
+];
+function colorDeTarea(nombre){
+  for (const p of PALETA_TAREAS) if (p.keyword.test(nombre||'')) return p.color;
+  return '#5a6a7a';  // fallback gris azulado
+}
+function categoriaDeTarea(nombre){
+  for (const p of PALETA_TAREAS) if (p.keyword.test(nombre||'')) return p.label;
+  return 'Otras';
+}
+
+// Zonas DVBA
+const ZONAS_DVBA = {
+  'I':{n:'ZONA I',p:'Arrecifes'},        'II':{n:'ZONA II',p:'Morón'},
+  'III':{n:'ZONA III',p:'Ensenada'},     'IV':{n:'ZONA IV',p:'Junín'},
+  'V':{n:'ZONA V',p:'Chivilcoy'},        'VI':{n:'ZONA VI',p:'Saladillo'},
+  'VII':{n:'ZONA VII',p:'Dolores'},      'VIII':{n:'ZONA VIII',p:'Pehuajó'},
+  'IX':{n:'ZONA IX',p:'Azul'},           'X':{n:'ZONA X',p:'Mar del Plata'},
+  'XI':{n:'ZONA XI',p:'Bahía Blanca'},   'XII':{n:'ZONA XII',p:'Necochea'}
+};
+function rpSetZona(cod){
+  const z = ZONAS_DVBA[cod]; if (!z) return;
+  const e1 = document.getElementById('hZona');    if (e1) e1.textContent = z.n;
+  const e2 = document.getElementById('hPartido'); if (e2) e2.textContent = z.p;
+  const s  = document.getElementById('hSelZona'); if (s)  s.value = cod;
+  try { localStorage.setItem('dvba_zona', cod); } catch(e){}
+}
+function rpCambiarZona(cod){
+  rpSetZona(cod);
+  console.log('[rep] zona cambiada a', cod, '— filtros de zona: pendiente (ver PLAN_ROLES_MULTIZONA.md)');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+
+async function rpInit(){
+  _supa = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
+    auth: { persistSession: true, storageKey: 'dvba_session', storage: window.localStorage }
+  });
+  // Restaurar sesión guardada por auth.js
+  const raw = localStorage.getItem('dvba_session');
+  if (!raw){ mostrarAuthGuard(); return; }
+  let sess;
+  try { sess = JSON.parse(raw); } catch(e){ mostrarAuthGuard(); return; }
+  const s = sess.session || sess;
+  if (!s || !s.access_token){ mostrarAuthGuard(); return; }
+  try {
+    await _supa.auth.setSession({ access_token: s.access_token, refresh_token: s.refresh_token });
+  } catch(e){ mostrarAuthGuard(); return; }
+  const { data: { user }, error: uErr } = await _supa.auth.getUser();
+  if (uErr || !user){ mostrarAuthGuard(); return; }
+  console.log('[rep] sesión activa:', user.email);
+  document.getElementById('email').textContent = user.email;
+  rpSetZona(localStorage.getItem('dvba_zona') || 'VI');
+  document.getElementById('toolbar').style.display = 'flex';
+  document.getElementById('footerInst').style.display = 'flex';
+
+  // Poblar catálogo de tareas
+  const { data: tareas } = await _supa.from('catalogo_tareas').select('id,nombre,categoria').eq('activo', true).order('nombre');
+  _tareas = tareas || [];
+  const sT = document.getElementById('fTarea');
+  _tareas.forEach(t => sT.insertAdjacentHTML('beforeend',
+    `<option value="${t.id}">${t.nombre.slice(0,55)}${t.nombre.length>55?'…':''}</option>`));
+
+  // Defaults: últimos 6 meses
+  const hoy = new Date();
+  const desde = new Date(hoy.getFullYear(), hoy.getMonth()-5, 1);
+  document.getElementById('fDesde').value = desde.toISOString().slice(0,10);
+  document.getElementById('fHasta').value = hoy.toISOString().slice(0,10);
+  // Auto-generar el primer reporte
+  await rpGenerar();
+}
+
+function mostrarAuthGuard(){
+  document.getElementById('authGuard').style.display = 'block';
+  document.getElementById('footerInst').style.display = 'flex';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// QUERY + RENDER
+// ═══════════════════════════════════════════════════════════════════
+
+async function rpGenerar(){
+  const desde = document.getElementById('fDesde').value;
+  const hasta = document.getElementById('fHasta').value;
+  const partido = document.getElementById('fPartido').value;
+  const tareaId = document.getElementById('fTarea').value;
+  const via = document.getElementById('fVia').value;
+  const rutaFiltro = document.getElementById('fRuta').value.trim();
+  if (!desde || !hasta){ alert('Elegí un rango de fechas.'); return; }
+  let q = _supa.from('partes_diarios')
+    .select(`id, fecha, tarea_id, tipo_via, ruta, partido, prog_ini, prog_fin, km_recorridos, observaciones,
+             parte_maquinarias(vehiculos(tipo_maquinaria)),
+             parte_fotos(momento)`)
+    .gte('fecha', desde).lte('fecha', hasta)
+    .order('fecha', {ascending:false}).order('id', {ascending:false})
+    .limit(5000);
+  if (partido) q = q.eq('partido', partido);
+  if (tareaId) q = q.eq('tarea_id', Number(tareaId));
+  if (via)     q = q.eq('tipo_via', via);
+  if (rutaFiltro){
+    const norm = rutaFiltro.replace(/^RP\s*/i,'').trim();
+    q = q.or(`ruta.ilike.%${rutaFiltro}%,ruta.ilike.%${norm}%`);
+  }
+  const { data, error } = await q;
+  if (error){ alert('Error: '+error.message); return; }
+  _partesCache = data || [];
+  const tareasMap = Object.fromEntries(_tareas.map(t => [t.id, t.nombre]));
+  rpRenderKPIs(_partesCache, tareasMap);
+  rpRenderCharts(_partesCache, tareasMap);
+  rpRenderTabla(_partesCache, tareasMap);
+  document.getElementById('kpis').style.display = 'flex';
+  document.getElementById('charts').style.display = 'grid';
+  document.getElementById('tablaWrap').style.display = 'block';
+}
+
+function rpRenderKPIs(partes, tareasMap){
+  const total = partes.length;
+  const kmTot = partes.reduce((s,p) => s + Math.abs(Number(p.km_recorridos)||0), 0);
+  const partidos = new Set(partes.map(p => p.partido).filter(Boolean));
+  const tareas   = new Set(partes.map(p => tareasMap[p.tarea_id]).filter(Boolean));
+  const conFoto  = partes.filter(p => (p.parte_fotos||[]).length > 0).length;
+  document.getElementById('kpi-total').textContent = total;
+  document.getElementById('kpi-km').textContent = kmTot.toFixed(1);
+  document.getElementById('kpi-partidos').textContent = partidos.size;
+  document.getElementById('kpi-tareas').textContent = tareas.size;
+  document.getElementById('kpi-fotos').textContent = total ? (conFoto+' ('+Math.round(conFoto*100/total)+'%)') : '0';
+}
+
+function rpRenderCharts(partes, tareasMap){
+  // Bar chart: km por categoría de tarea (con paleta oficial)
+  const kmPorCat = {};
+  partes.forEach(p => {
+    const nom = tareasMap[p.tarea_id] || 'Sin tarea';
+    const cat = categoriaDeTarea(nom);
+    kmPorCat[cat] = (kmPorCat[cat]||0) + Math.abs(Number(p.km_recorridos)||0);
+  });
+  const catsOrd = Object.entries(kmPorCat).sort((a,b)=>b[1]-a[1]);
+  const catLabels = catsOrd.map(x => x[0]);
+  const catData   = catsOrd.map(x => Math.round(x[1]*10)/10);
+  const catColors = catLabels.map(l => {
+    const p = PALETA_TAREAS.find(x => x.label === l);
+    return p ? p.color : '#5a6a7a';
+  });
+  if (_chartTareas) _chartTareas.destroy();
+  _chartTareas = new Chart(document.getElementById('chart-tareas'), {
+    type: 'bar',
+    data: { labels: catLabels, datasets: [{ data: catData, backgroundColor: catColors, borderRadius: 4 }] },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend:{display:false}, tooltip:{callbacks:{label:c=>c.parsed.x+' km'}}},
+      scales: { x: { beginAtZero:true, ticks:{font:{size:10}} }, y:{ ticks:{font:{size:11,weight:'600'}} } }
+    }
+  });
+
+  // Timeline: partes por mes últimos 6
+  const meses = {};
+  const desde = new Date(document.getElementById('fDesde').value);
+  for (let i = 0; i < 6; i++){
+    const d = new Date(desde.getFullYear(), desde.getMonth()+i, 1);
+    const k = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    meses[k] = 0;
+  }
+  partes.forEach(p => {
+    const k = p.fecha.slice(0,7);
+    if (meses[k] !== undefined) meses[k]++;
+  });
+  const timeKeys = Object.keys(meses).sort();
+  const timeLabels = timeKeys.map(k => {
+    const [y,m] = k.split('-');
+    const nom = new Date(Number(y), Number(m)-1, 1).toLocaleDateString('es-AR', {month:'short'});
+    return nom + ' ' + y.slice(2);
+  });
+  const timeData = timeKeys.map(k => meses[k]);
+  if (_chartTimeline) _chartTimeline.destroy();
+  _chartTimeline = new Chart(document.getElementById('chart-timeline'), {
+    type: 'bar',
+    data: {
+      labels: timeLabels,
+      datasets: [{
+        label: 'Partes cargados',
+        data: timeData,
+        backgroundColor: '#009aae',
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend:{display:false}, tooltip:{callbacks:{label:c=>c.parsed.y+' partes'}}},
+      scales: { y:{ beginAtZero:true, ticks:{stepSize:1,font:{size:10}} }, x:{ ticks:{font:{size:10}} } }
+    }
+  });
+}
+
+function rpRenderTabla(partes, tareasMap){
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('empty');
+  if (!partes.length){ tbody.innerHTML = ''; empty.style.display='block'; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = partes.map(p => {
+    const nom = tareasMap[p.tarea_id] || '<i style="color:var(--am)">— sin tarea —</i>';
+    const eqs = [...new Set((p.parte_maquinarias||[]).map(pm => pm.vehiculos ? pm.vehiculos.tipo_maquinaria : '').filter(Boolean))];
+    const eqsHTML = eqs.slice(0,3).map(e => `<span class="badge-eq">${e}</span>`).join('') +
+                    (eqs.length>3 ? ` <span class="badge-count">+${eqs.length-3}</span>` : '');
+    const fFmt = new Date(p.fecha+'T12:00').toLocaleDateString('es-AR');
+    const via = p.tipo_via === 'rp' ? `RP ${String(p.ruta||'').replace(/^RP\s*/i,'').trim()}` : `Cno ${p.ruta||''}`;
+    const km = p.km_recorridos != null ? Math.abs(Number(p.km_recorridos)).toFixed(2) : '—';
+    const nFotos = (p.parte_fotos||[]).length;
+    const fotoHTML = nFotos > 0
+      ? `<span class="foto-ok" title="${nFotos} foto(s)">📷 ${nFotos}</span>`
+      : `<span class="foto-no">—</span>`;
+    const partidoHTML = p.partido ? `<span style="font-size:10.5px;color:var(--pd)">${p.partido}</span>` : '<span class="foto-no">—</span>';
+    return `<tr>
+      <td class="num">${p.id}</td>
+      <td>${fFmt}</td>
+      <td>${nom}</td>
+      <td><b>${via}</b></td>
+      <td>${partidoHTML}</td>
+      <td class="num">${km}</td>
+      <td>${eqsHTML || '<span class="foto-no" style="font-size:10px">—</span>'}</td>
+      <td class="center">${fotoHTML}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════════════════════════════════
+
+function rpExportCSV(){
+  if (!_partesCache.length){ alert('No hay datos para exportar.'); return; }
+  const tareasMap = Object.fromEntries(_tareas.map(t => [t.id, t.nombre]));
+  const header = ['Fecha','Tarea','Categoría','Tipo vía','Ruta','Partido','Prog. inicial','Prog. final','Km','Equipos','Cantidad fotos','Observaciones'];
+  const rows = _partesCache.map(p => {
+    const nom = tareasMap[p.tarea_id] || 'Sin tarea';
+    const eqs = [...new Set((p.parte_maquinarias||[]).map(pm => pm.vehiculos ? pm.vehiculos.tipo_maquinaria : '').filter(Boolean))];
+    return [
+      p.fecha,
+      nom,
+      categoriaDeTarea(nom),
+      p.tipo_via === 'rp' ? 'Ruta Provincial' : 'Camino Secundario',
+      p.ruta || '',
+      p.partido || '',
+      p.prog_ini ?? '',
+      p.prog_fin ?? '',
+      p.km_recorridos != null ? Math.abs(Number(p.km_recorridos)).toFixed(2) : '',
+      eqs.join(' · '),
+      (p.parte_fotos||[]).length,
+      (p.observaciones||'').replace(/[\r\n]+/g,' ')
+    ];
+  });
+  const csv = [header, ...rows].map(r =>
+    r.map(v => {
+      const s = String(v ?? '');
+      return /[",;\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+    }).join(',')
+  ).join('\r\n');
+  const bom = '﻿';  // UTF-8 BOM para que Excel lo abra bien
+  const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'reporte_partes_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RESET + LOGOUT
+// ═══════════════════════════════════════════════════════════════════
+
+function rpReset(){
+  const hoy = new Date();
+  const desde = new Date(hoy.getFullYear(), hoy.getMonth()-5, 1);
+  document.getElementById('fDesde').value = desde.toISOString().slice(0,10);
+  document.getElementById('fHasta').value = hoy.toISOString().slice(0,10);
+  document.getElementById('fPartido').value = '';
+  document.getElementById('fTarea').value = '';
+  document.getElementById('fVia').value = '';
+  document.getElementById('fRuta').value = '';
+  rpGenerar();
+}
+
+async function rpLogout(){
+  if (!confirm('¿Cerrar sesión?')) return;
+  await _supa.auth.signOut();
+  localStorage.removeItem('dvba_session');
+  location.href = 'index.html';
+}
+
+document.addEventListener('DOMContentLoaded', rpInit);
+</script>
+</body>
+</html>
