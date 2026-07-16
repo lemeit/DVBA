@@ -269,11 +269,16 @@ body.modo-campo #campo-fab{display:flex}
 
 /* v7.12 — Badge cola de pendientes en header */
 #cola-badge{display:none;align-items:center;gap:5px;background:linear-gradient(135deg,#f0a500,#f57c00);color:#fff;border:none;font-size:.66rem;font-weight:700;padding:4px 10px;border-radius:12px;cursor:pointer;margin-right:8px;box-shadow:0 2px 6px rgba(245,124,0,.4);animation:colaPulse 2s ease-in-out infinite}
-#btn-partes{background:rgba(26,138,74,.85);color:#fff;border:1px solid rgba(255,255,255,.3);
-  padding:5px 12px;border-radius:14px;font-size:10px;font-weight:700;text-decoration:none;
-  display:inline-flex;align-items:center;gap:4px;cursor:pointer;letter-spacing:.3px;
-  transition:all .15s;margin-left:6px;font-family:inherit}
-#btn-partes:hover{background:rgba(26,138,74,1);box-shadow:0 2px 8px rgba(26,138,74,.35)}
+/* v7.85 · Botones de navegación app-a-app en el header (unificados) */
+.nav-app{color:#fff;border:1px solid rgba(255,255,255,.3);padding:5px 12px;border-radius:14px;font-size:10px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;cursor:pointer;letter-spacing:.3px;transition:all .15s;margin-left:6px;font-family:inherit}
+.nav-app:hover{box-shadow:0 2px 8px rgba(0,0,0,.25);filter:brightness(1.12)}
+.nav-app.plan   {background:rgba(26,138,74,.85)}  /* Plan de Seguridad → verde */
+.nav-app.rep    {background:rgba(196,122,0,.85)}  /* Reportes → dorado */
+.nav-app.portal {background:rgba(0,154,174,.85)}  /* Portal principal → turquesa */
+.nav-app.active{outline:2px solid rgba(255,255,255,.5);cursor:default}
+/* Compat viejo (por si algún caller usa el ID) */
+#btn-partes{}
+#btn-reportes{}
 
 #cola-badge.show{display:inline-flex}
 #cola-badge:hover{filter:brightness(1.1)}
@@ -375,10 +380,10 @@ body.modo-campo #campo-fab{display:flex}
     <button id="cola-badge" title="Registros pendientes de revisión" onclick="abrirColaPendientes()">
       🔔 <span id="cola-count">0</span> pendientes
     </button>
-    <a id="btn-partes" href="partes_diarios.html" title="Plan de Seguridad en la Circulación">
+    <a class="nav-app plan" href="partes_diarios.html" title="Plan de Seguridad en la Circulación · Cargar tareas">
       🛡️ Plan de Seguridad
     </a>
-    <a id="btn-reportes" href="reportes.html" title="Reportes de tareas ejecutadas" style="background:rgba(196,122,0,.15);border:1px solid rgba(196,122,0,.4);color:#c47a00;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;margin-left:4px">
+    <a class="nav-app rep" href="reportes.html" title="Reportes de tareas ejecutadas">
       📊 Reportes
     </a>
     <div id="user-info" title="Usuario autenticado">
@@ -635,7 +640,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.84</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.85</span>
       </div>
     </div>
 
@@ -703,7 +708,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.84';
+const APP_VERSION = 'v7.85';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
