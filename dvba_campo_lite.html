@@ -27,12 +27,13 @@ header .logo img{width:100%;height:100%;object-fit:contain;border-radius:50%}
 header .brand{flex:1;font-size:13px;font-weight:800;letter-spacing:.4px;line-height:1.15}
 header .brand .sub{display:block;font-size:9.5px;font-weight:500;opacity:.85;letter-spacing:.3px}
 
-/* Badge GPS */
-.gps-badge{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:3px 10px;font-size:10.5px;font-weight:700;letter-spacing:.3px;transition:all .25s}
+/* Badge GPS · v9.62 clickeable */
+.gps-badge{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:.3px;transition:all .25s;cursor:pointer;font-family:inherit;color:#fff}
+.gps-badge:active{transform:scale(.94)}
 .gps-badge.on {background:rgba(46,180,90,.35);border-color:rgba(46,180,90,.7)}
-.gps-badge.off{background:rgba(224,60,60,.35);border-color:rgba(224,60,60,.7)}
+.gps-badge.off{background:rgba(224,60,60,.5);border-color:rgba(224,60,60,.9);animation:pulse 1.8s ease-in-out infinite}
 .gps-badge.pending{background:rgba(230,180,40,.35);border-color:rgba(230,180,40,.7)}
-.gps-badge .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.gps-badge .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
 .gps-badge .dot.pulse{animation:pulse 1.3s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
@@ -46,8 +47,11 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
 .big-btn .lbl{font-size:20px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 2px 4px rgba(0,0,0,.3)}
 .big-btn .sub{font-size:11px;font-weight:500;opacity:.85;letter-spacing:.5px;margin-top:4px;text-transform:none}
 
-.hint{text-align:center;color:var(--mut);font-size:12px;margin-top:24px;padding:0 20px;line-height:1.5;max-width:340px}
-.hint b{color:var(--p)}
+/* v9.62 · Hint MÁS GRANDE para lectura al sol / exterior */
+.hint{text-align:center;color:#333;font-size:15px;margin-top:28px;padding:0 22px;line-height:1.55;max-width:360px;font-weight:500}
+.hint b{color:var(--p);font-weight:800}
+.hint-alerta{text-align:center;color:#8a2020;background:#ffe8e8;border:2px solid #d24040;border-radius:10px;padding:12px 16px;margin:16px 20px 0;font-size:14px;line-height:1.5;font-weight:600;max-width:360px}
+.hint-alerta b{color:#661010}
 
 /* Input file oculto */
 #foto-input{position:absolute;top:-9999px;opacity:0}
@@ -106,10 +110,10 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
     DVBA · Captura
     <span class="sub">Zona VI · Modo rápido</span>
   </div>
-  <div class="gps-badge pending" id="gpsBadge">
+  <button class="gps-badge pending" id="gpsBadge" onclick="lToqueGps()" type="button" title="Estado del GPS · tocar para reintentar">
     <span class="dot pulse"></span>
     <span id="gpsTxt">GPS...</span>
-  </div>
+  </button>
 </header>
 
 <main>
@@ -120,8 +124,13 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
   </button>
 
   <div class="hint">
-    Solo tocá el botón para <b>tomar la foto</b> y guardar la <b>ubicación GPS</b>.<br>
-    El resto de los datos (tarea, ruta, tipo) se completan <b>desde la oficina</b>.
+    Solo tocá el botón para <b>tomar la foto</b> y guardar la <b>ubicación GPS</b>.
+    <br><br>
+    El resto (tarea, ruta, tipo) se completa <b>desde la oficina</b>.
+  </div>
+  <div class="hint-alerta" id="alertaGps" style="display:none">
+    ⚠ El GPS está desactivado o sin señal.<br>
+    <b>Tocá el badge de arriba</b> para reintentar, o activá la ubicación en los Ajustes de tu celular.
   </div>
 
   <input type="file" id="foto-input" accept="image/*" capture="environment">
@@ -177,12 +186,12 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
-// DVBA CAMPO LITE · v9.61
+// DVBA CAMPO LITE · v9.62
 // UI minimalista: solo foto + GPS. Sin formularios.
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.61';
+const APP_VER = 'v9.62';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -214,6 +223,11 @@ function iniciarGPS(){
     return;
   }
   setGpsEstado('pending', 'GPS...');
+  // Cerrar watch previo si existe (para reintentos desde lToqueGps)
+  if (_gpsWatchId != null){
+    try { navigator.geolocation.clearWatch(_gpsWatchId); } catch(e){}
+    _gpsWatchId = null;
+  }
   _gpsWatchId = navigator.geolocation.watchPosition(
     pos => {
       _gpsLat = pos.coords.latitude;
@@ -223,12 +237,14 @@ function iniciarGPS(){
       const txt = '±' + _gpsAcc + 'm' + (_gpsAlt!=null ? ' · '+_gpsAlt+'m' : '');
       setGpsEstado('on', txt);
       $('btnCapturar').disabled = false;
+      const al = $('alertaGps'); if (al) al.style.display = 'none';
     },
     err => {
       console.warn('[GPS]', err);
-      const msg = err.code === 1 ? 'GPS denegado' : (err.code === 2 ? 'Sin señal' : 'GPS timeout');
+      const msg = err.code === 1 ? 'GPS denegado · tocar' : (err.code === 2 ? 'Sin señal · tocar' : 'GPS timeout · tocar');
       setGpsEstado('off', msg);
       $('btnCapturar').disabled = true;
+      const al = $('alertaGps'); if (al) al.style.display = 'block';
     },
     { enableHighAccuracy:true, timeout:15000, maximumAge:5000 }
   );
@@ -239,7 +255,46 @@ function setGpsEstado(cls, txt){
   b.classList.add(cls);
   $('gpsTxt').textContent = txt;
   const dot = b.querySelector('.dot');
-  if (dot) dot.classList.toggle('pulse', cls === 'pending');
+  if (dot) dot.classList.toggle('pulse', cls === 'pending' || cls === 'off');
+}
+
+// v9.62 · Al tocar el badge, reintentar GPS
+async function lToqueGps(){
+  const cls = $('gpsBadge').classList;
+  if (cls.contains('on')){
+    // Ya está andando · mostrar detalle en toast
+    toast('GPS OK: ' + $('gpsTxt').textContent);
+    return;
+  }
+  toast('Reintentando GPS...');
+  setGpsEstado('pending', 'GPS...');
+  // Pedir permiso explícito con getCurrentPosition (más agresivo que watchPosition)
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      // Éxito · reiniciar el watch para continuar
+      iniciarGPS();
+    },
+    err => {
+      console.warn('[GPS reintento]', err);
+      if (err.code === 1){
+        // PERMISSION_DENIED · Android/iOS no permiten activar el switch del GPS
+        // por JS. Solo se puede abrir la config de la app.
+        if (confirm('El GPS no tiene permiso.\n\n¿Abrir la configuración del navegador para permitir la ubicación?\n\n(Si el GPS del sistema está apagado, activalo desde el panel de notificaciones o Ajustes → Ubicación.)')){
+          // Best-effort: intentar abrir ajustes de la app (Chrome Android)
+          try {
+            location.href = 'intent://settings/#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end';
+          } catch(e){ /* silencio · fallback: nada */ }
+        }
+      } else if (err.code === 2){
+        toast('Sin señal GPS · movete a un lugar abierto', 'warn');
+      } else {
+        toast('GPS timeout · reintentando en 3s', 'warn');
+        setTimeout(iniciarGPS, 3000);
+      }
+      iniciarGPS();  // Continuar el watch de todas formas
+    },
+    { enableHighAccuracy:true, timeout:15000, maximumAge:0 }  // maximumAge:0 · forzar lectura fresca
+  );
 }
 
 // ─── CAPTURA FOTO · abre cámara nativa ────────────────────────────
@@ -307,7 +362,7 @@ async function lGuardar(){
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Guardando...';
   const g = _gpsCuandoSaco;
   const fechaISO = new Date(g.ts).toISOString();
-  // v9.61 · Fix schema · usar columnas REALES de la tabla relevamientos (mismo
+  // v9.62 · Fix schema · usar columnas REALES de la tabla relevamientos (mismo
   // schema que dvba_campo.html usa). Los datos operativos (ruta, tipo, estado,
   // partido, progresiva) quedan NULL para completar al aprobar en oficina.
   const reg = {
