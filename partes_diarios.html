@@ -17,6 +17,10 @@
 <script src="datos/rutas_rp51.js" defer></script>
 <script src="datos/rutas_rp61.js" defer></script>
 <script src="datos/rutas_rp91.js" defer></script>
+<!-- v7.89 · dependencias para subida directa foto con sello -->
+<script src="datos/qrcode.min.js" defer></script>
+<script src="datos/sello_v4.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js" defer></script>
 <style>
 :root{
   /* Colores institucionales DVBA — matching index.html */
@@ -175,6 +179,25 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 .rel-item .info{flex:1;font-size:11px}
 .rel-item .info b{color:var(--p)}
 .rel-item .info .meta{color:var(--mut);font-size:10px}
+
+/* v7.89 · Modal subir foto (sello v4 + EXIF GPS) */
+.subir-modal .modal{max-width:520px}
+.subir-body{padding:16px 18px}
+.subir-body .drop{border:2px dashed var(--light);border-radius:8px;padding:22px 14px;text-align:center;color:var(--mut);font-size:12px;cursor:pointer;transition:all .2s;background:#fafbfc}
+.subir-body .drop:hover{border-color:var(--p);color:var(--p);background:#f0f9fb}
+.subir-body .drop.has-file{padding:8px;border-style:solid;border-color:var(--vd);background:#f4faf5}
+.subir-body .drop .prev{max-width:100%;max-height:220px;object-fit:contain;border-radius:4px;display:block;margin:0 auto}
+.subir-body .fld{margin-top:12px}
+.subir-body .fld label{display:block;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px}
+.subir-body .fld input,.subir-body .fld select,.subir-body .fld textarea{width:100%;padding:8px 10px;border:1px solid var(--light);border-radius:5px;font-size:13px;font-family:inherit}
+.subir-body .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.subir-body .gps-info{font-size:11.5px;padding:8px 10px;border-radius:5px;margin-top:8px;line-height:1.5}
+.subir-body .gps-info.ok{background:#e6f4e8;color:#1a6a2e;border:1px solid #b8e0c0}
+.subir-body .gps-info.warn{background:#fff4e0;color:#7a5000;border:1px solid #f0d090}
+.subir-body .gps-info b{color:inherit}
+.subir-body .status{font-size:12px;color:var(--mut);margin-top:10px;min-height:16px}
+.subir-body .status.err{color:var(--ro);font-weight:600}
+.subir-body .status.ok{color:var(--vd);font-weight:600}
 </style>
 </head>
 <body>
@@ -293,7 +316,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.87</span>
+    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.89</span>
   </div>
 </footer>
 
@@ -403,7 +426,10 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
       <div class="fotos-sec">
         <div class="head">
           <b>Registros del mapa vinculados a esta tarea</b>
-          <button type="button" class="btn-mini" onclick="pdSelFotosDe('previa')">+ Asociar registro</button>
+          <div style="display:flex;gap:6px">
+            <button type="button" class="btn-mini" onclick="pdSubirFoto('previa')" title="Subir una foto propia, se sella y se guarda automáticamente">📷 Subir foto</button>
+            <button type="button" class="btn-mini" onclick="pdSelFotosDe('previa')">+ Asociar registro</button>
+          </div>
         </div>
         <div class="fotos-lista" id="fotosPrev">
           <div class="foto-empty">Sin fotos vinculadas todavía.</div>
@@ -417,7 +443,10 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
       <div class="fotos-sec">
         <div class="head">
           <b>Registros del mapa vinculados a esta tarea</b>
-          <button type="button" class="btn-mini" onclick="pdSelFotosDe('posterior')">+ Asociar registro</button>
+          <div style="display:flex;gap:6px">
+            <button type="button" class="btn-mini" onclick="pdSubirFoto('posterior')" title="Subir una foto propia, se sella y se guarda automáticamente">📷 Subir foto</button>
+            <button type="button" class="btn-mini" onclick="pdSelFotosDe('posterior')">+ Asociar registro</button>
+          </div>
         </div>
         <div class="fotos-lista" id="fotosPost">
           <div class="foto-empty">Sin fotos vinculadas todavía.</div>
@@ -441,6 +470,50 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
       <button class="btn btn-ghost" onclick="pdCerrar()">Cancelar</button>
       <button class="btn btn-danger" id="btnEliminar" onclick="pdEliminar()" style="display:none">🗑 Eliminar</button>
       <button class="btn btn-vd" id="btnGuardar" onclick="pdGuardar()">💾 Guardar Tarea</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL SUBIR FOTO (v7.89 · sello v4 + EXIF) ═══════════ -->
+<div class="modal-ov subir-modal" id="modalSubir">
+  <div class="modal">
+    <div class="modal-h" style="background:linear-gradient(135deg,var(--vd),#146638)">
+      <h2>📷 Subir foto propia <span id="subMomento" style="font-size:11px;opacity:.85;font-weight:600"></span></h2>
+      <button class="x" onclick="pdCerrarSubir()">×</button>
+    </div>
+    <div class="modal-b subir-body">
+      <label class="drop" id="subDrop">
+        <input type="file" id="subFile" accept="image/*" style="display:none">
+        <div id="subDropText">
+          Tocá acá para elegir una foto<br>
+          <span style="font-size:10.5px">Se lee el GPS del EXIF automáticamente</span>
+        </div>
+        <img class="prev" id="subPrev" style="display:none">
+      </label>
+      <div class="gps-info" id="subGpsInfo" style="display:none"></div>
+      <div class="row2">
+        <div class="fld">
+          <label>Ruta (heredada del parte)</label>
+          <input type="text" id="subRuta" readonly>
+        </div>
+        <div class="fld">
+          <label>Progresiva (opcional)</label>
+          <input type="text" id="subProg" placeholder="Ej: 12+500">
+        </div>
+      </div>
+      <div class="fld">
+        <label>Tipo (opcional)</label>
+        <input type="text" id="subTipo" placeholder="Ej: Bacheo asfaltico">
+      </div>
+      <div class="fld">
+        <label>Observaciones (opcional)</label>
+        <textarea id="subObs" rows="2" placeholder="Detalle libre para asociar a la foto…"></textarea>
+      </div>
+      <div class="status" id="subStatus"></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-ghost" onclick="pdCerrarSubir()">Cancelar</button>
+      <button class="btn btn-vd" id="subBtnGuardar" onclick="pdConfirmarSubir()" disabled>💾 Sellar y subir</button>
     </div>
   </div>
 </div>
@@ -639,6 +712,9 @@ async function pdInit(){
   pdPoblarDatalistRP();
   pdPoblarDatalistCaminos();
   pdSetTV('rp');
+  // v7.89 · engancho del file input del modal Subir foto
+  const fEl = document.getElementById('subFile');
+  if (fEl) fEl.addEventListener('change', pdSubOnFile);
   pdCargar();
 }
 
@@ -1197,6 +1273,183 @@ function pdRenderFotos(){
 function pdQuitarFoto(momento, i){
   _fotosSeleccionadas[momento].splice(i, 1);
   pdRenderFotos();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// v7.89 · SUBIR FOTO PROPIA · sello v4 + EXIF GPS
+// El user elige una foto del disco; leemos el EXIF para GPS (si trae);
+// aplicamos sello v4 (mismo que la app móvil); subimos a Storage;
+// insertamos un relevamiento y vinculamos vía parte_fotos como "previa"
+// o "posterior" — así aparece en el mapa Y queda ligada al parte.
+// ═══════════════════════════════════════════════════════════════════
+const APP_VER = 'v7.89';
+const _subEstado = { momento:'previa', file:null, base64:null, gps:null };
+
+function pdSubirFoto(momento){
+  if (!document.getElementById('fecha').value){
+    alert('Primero completá la fecha de la tarea.');
+    return;
+  }
+  const ruta = pdGetRutaActual();
+  if (!ruta){
+    alert('Primero completá la ruta o camino de la tarea.\n(La foto queda vinculada a esa ruta.)');
+    return;
+  }
+  _subEstado.momento = momento;
+  _subEstado.file    = null;
+  _subEstado.base64  = null;
+  _subEstado.gps     = null;
+  document.getElementById('subMomento').textContent = '· ' + (momento === 'previa' ? 'PREVIA' : 'POSTERIOR');
+  document.getElementById('subRuta').value = ruta;
+  document.getElementById('subProg').value = '';
+  document.getElementById('subTipo').value = '';
+  document.getElementById('subObs').value  = '';
+  document.getElementById('subGpsInfo').style.display = 'none';
+  document.getElementById('subStatus').textContent = '';
+  document.getElementById('subStatus').className = 'status';
+  document.getElementById('subPrev').style.display = 'none';
+  document.getElementById('subDrop').classList.remove('has-file');
+  document.getElementById('subDropText').style.display = 'block';
+  document.getElementById('subBtnGuardar').disabled = true;
+  document.getElementById('subFile').value = '';
+  document.getElementById('modalSubir').classList.add('on');
+}
+function pdCerrarSubir(){ document.getElementById('modalSubir').classList.remove('on'); }
+
+async function pdSubOnFile(e){
+  const f = e.target.files[0];
+  if (!f) return;
+  _subEstado.file = f;
+  const statusEl = document.getElementById('subStatus');
+  statusEl.className = 'status';
+  statusEl.textContent = 'Leyendo foto…';
+  const b64 = await new Promise(res => {
+    const fr = new FileReader();
+    fr.onload = () => res(fr.result);
+    fr.readAsDataURL(f);
+  });
+  _subEstado.base64 = b64;
+  const prev = document.getElementById('subPrev');
+  prev.src = b64;
+  prev.style.display = 'block';
+  document.getElementById('subDropText').style.display = 'none';
+  document.getElementById('subDrop').classList.add('has-file');
+  const gpsBox = document.getElementById('subGpsInfo');
+  _subEstado.gps = null;
+  try {
+    if (typeof exifr === 'undefined') throw new Error('librería exifr no cargó');
+    const meta = await exifr.parse(f, { gps:true });
+    if (meta && typeof meta.latitude === 'number' && typeof meta.longitude === 'number'){
+      _subEstado.gps = {
+        lat: meta.latitude,
+        lng: meta.longitude,
+        alt: (typeof meta.GPSAltitude === 'number') ? Math.round(meta.GPSAltitude) : null,
+        fecha: meta.DateTimeOriginal || meta.CreateDate || null
+      };
+      gpsBox.className = 'gps-info ok';
+      gpsBox.innerHTML = '✓ <b>GPS detectado en el EXIF</b><br>' +
+        'Lat ' + meta.latitude.toFixed(6) + ' · Lng ' + meta.longitude.toFixed(6) +
+        (_subEstado.gps.alt != null ? ' · Alt ' + _subEstado.gps.alt + ' m' : '');
+    } else {
+      gpsBox.className = 'gps-info warn';
+      gpsBox.innerHTML = '⚠ <b>Sin GPS en el EXIF</b><br>' +
+        'La foto se sella sin coordenadas y no aparece en el mapa. ' +
+        'Igual queda vinculada al parte.';
+    }
+  } catch(e){
+    console.warn('[EXIF]', e);
+    gpsBox.className = 'gps-info warn';
+    gpsBox.innerHTML = '⚠ <b>No se pudo leer el EXIF</b> (' + (e.message||e) + ')<br>' +
+      'La foto se sella sin GPS.';
+  }
+  gpsBox.style.display = 'block';
+  statusEl.textContent = '';
+  document.getElementById('subBtnGuardar').disabled = false;
+}
+
+async function pdConfirmarSubir(){
+  const b64 = _subEstado.base64;
+  if (!b64){ alert('Elegí una foto primero.'); return; }
+  const btn = document.getElementById('subBtnGuardar');
+  const statusEl = document.getElementById('subStatus');
+  btn.disabled = true;
+  const origTxt = btn.textContent;
+  btn.textContent = '⏳ Sellando…';
+  statusEl.className = 'status';
+  statusEl.textContent = 'Sellando la foto…';
+  try {
+    const fecha = document.getElementById('fecha').value;
+    const ruta  = document.getElementById('subRuta').value.trim();
+    const prog  = document.getElementById('subProg').value.trim();
+    const tipo  = document.getElementById('subTipo').value.trim();
+    const obs   = document.getElementById('subObs').value.trim();
+    const g     = _subEstado.gps;
+    const now   = new Date();
+    const hora  = String(now.getHours()).padStart(2,'0') + ':' +
+                  String(now.getMinutes()).padStart(2,'0') + ':' +
+                  String(now.getSeconds()).padStart(2,'0');
+    const tipoVia = document.getElementById('tv-toggle-value')?.value || 'rp';
+    const rutaSel = DVBA_SELLO.prefijoRuta(ruta, tipoVia);
+    const b64Sellado = await DVBA_SELLO.aplicar(b64, {
+      localidad: 'Saladillo, Buenos Aires, Argentina',
+      lat:  g ? g.lat.toFixed(6) : '',
+      lng:  g ? g.lng.toFixed(6) : '',
+      alt:  (g && g.alt != null) ? String(g.alt) : '',
+      fecha: fecha,
+      hora:  hora,
+      ruta:  rutaSel,
+      prog:  prog,
+      tipo:  tipo,
+      origen: 'oficina'
+    });
+    statusEl.textContent = 'Subiendo foto…';
+    btn.textContent = '⏳ Subiendo…';
+    const blob = await (await fetch(b64Sellado)).blob();
+    const path = 'fotos/' + Date.now() + '_pd.jpg';
+    const { data: up, error: upErr } = await _supa.storage.from('relevamientos')
+      .upload(path, blob, { contentType:'image/jpeg', upsert:true });
+    if (upErr) throw new Error('Storage: ' + upErr.message);
+    const fotoUrl = _supa.storage.from('relevamientos').getPublicUrl(path).data.publicUrl;
+    statusEl.textContent = 'Registrando en el sistema…';
+    const reg = {
+      ruta: ruta || '?',
+      partido: null,
+      progresiva: prog || '',
+      tipo: tipo || 'sin_clasificar',
+      estado: null,
+      observaciones: (obs || 'Foto cargada desde partes_diarios (' + APP_VER + ')') +
+                     ' · sello v4 origen oficina',
+      foto_url: fotoUrl,
+      lat: g ? g.lat : null,
+      lng: g ? g.lng : null,
+      fecha: fecha + 'T' + hora,
+      estado_workflow: 'aprobado',
+      validado_geo: g ? 'oficina' : 'sin_coords',
+      sello_version: 'v4',
+      prioridad: 'normal',
+      tipo_via: tipoVia
+    };
+    const { data: rows, error: insErr } = await _supa.from('relevamientos')
+      .insert(reg).select().single();
+    if (insErr) throw new Error('BD relevamientos: ' + insErr.message);
+    _fotosSeleccionadas[_subEstado.momento].push({
+      relevamiento_id: rows.id,
+      foto_url: rows.foto_url,
+      ruta: rows.ruta,
+      prog: rows.progresiva,
+      fecha: rows.fecha
+    });
+    pdRenderFotos();
+    statusEl.className = 'status ok';
+    statusEl.textContent = '✓ Foto #' + rows.id + ' subida y vinculada.';
+    setTimeout(pdCerrarSubir, 900);
+  } catch(e){
+    console.error('[subirFoto]', e);
+    statusEl.className = 'status err';
+    statusEl.textContent = '✗ ' + (e.message || 'Error desconocido');
+    btn.disabled = false;
+    btn.textContent = origTxt;
+  }
 }
 
 function pdCerrar(){ document.getElementById('modalParte').classList.remove('on'); }
