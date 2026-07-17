@@ -640,7 +640,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.86</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.87</span>
       </div>
     </div>
 
@@ -708,7 +708,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.86';
+const APP_VERSION = 'v7.87';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -5199,7 +5199,7 @@ async function togglePartesLayer(){
     _partesUpdateBtn(false, '⏳ Cargando...');
     const res = await partesCargar();
     if (!res.ok){
-      alert('Error cargando partes: ' + res.msg);
+      alert('Error cargando tareas: ' + res.msg);
       _partesUpdateBtn(false);
       return;
     }

@@ -7,7 +7,7 @@
 <link rel="icon" href="datos/img/favicon.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<!-- v7.86 · PDF institucional -->
+<!-- v7.87 · PDF institucional -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="datos/auth.js"></script>
@@ -33,7 +33,7 @@ header .user{font-size:11px;display:flex;align-items:center;gap:8px}
 header .user #email{font-weight:600}
 header .btn-hdr{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none}
 header .btn-hdr:hover{background:rgba(255,255,255,.25)}
-/* v7.86 · Nav consistente entre las 3 apps */
+/* v7.87 · Nav consistente entre las 3 apps */
 .nav-app{color:#fff;border:1px solid rgba(255,255,255,.3);padding:5px 12px;border-radius:14px;font-size:10px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;cursor:pointer;letter-spacing:.3px;transition:all .15s;margin-left:4px;font-family:inherit}
 .nav-app:hover{box-shadow:0 2px 8px rgba(0,0,0,.25);filter:brightness(1.12)}
 .nav-app.plan  {background:rgba(26,138,74,.85)}
@@ -64,7 +64,7 @@ header .dot{width:6px;height:6px;border-radius:50%;background:#4caf72;flex-shrin
 .kpi .v{font-size:19px;font-weight:900;color:var(--p);line-height:1.1}
 .kpi .l{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 
-/* GRID DE CHARTS · v7.86 4 cuadrantes */
+/* GRID DE CHARTS · v7.87 4 cuadrantes */
 .charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 20px;background:var(--bg)}
 .chart-card{background:var(--w);border:1px solid var(--light);border-radius:var(--r);padding:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 .chart-card h3{margin:0 0 8px 0;font-size:11px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.5px}
@@ -124,7 +124,7 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
     <p>📊 Reportes de tareas ejecutadas · Plan de Seguridad en la Circulación</p>
   </div>
   <div class="user">
-    <!-- v7.86 · Nav consistente entre las 3 apps -->
+    <!-- v7.87 · Nav consistente entre las 3 apps -->
     <a class="nav-app portal" href="index.html" title="Portal principal · Mapa">🗺 Portal</a>
     <a class="nav-app plan" href="partes_diarios.html" title="Plan de Seguridad · Cargar tareas">🛡️ Plan Seguridad</a>
     <a class="nav-app rep active" href="#" title="Estás en Reportes" onclick="return false">📊 Reportes</a>
@@ -134,7 +134,7 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
   </div>
 </header>
 
-<!-- Toolbar filtros — v7.86 con auto-refresh -->
+<!-- Toolbar filtros — v7.87 con auto-refresh -->
 <div class="toolbar" id="toolbar" style="display:none">
   <label>Desde</label>
   <input type="date" id="fDesde" onchange="rpAutoRefresh()">
@@ -168,10 +168,10 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
   <button class="btn-primary" onclick="rpExportPDF()" title="Reporte PDF institucional DVBA" style="background:var(--acc)">📄 PDF</button>
 </div>
 
-<!-- Resumen (KPIs) · v7.86 con Red Primaria / Secundaria separadas -->
+<!-- Resumen (KPIs) · v7.87 con Red Primaria / Secundaria separadas -->
 <div class="kpis" id="kpis" style="display:none;position:relative">
   <div style="position:absolute;top:-8px;left:20px;background:var(--w);padding:1px 8px;font-size:9px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.5px;border-radius:3px;border:1px solid var(--light)">📊 Resumen del rango</div>
-  <div class="kpi"><div class="v" id="kpi-total">—</div><div class="l">Partes</div></div>
+  <div class="kpi"><div class="v" id="kpi-total">—</div><div class="l">Tareas</div></div>
   <div class="kpi"><div class="v" id="kpi-km">—</div><div class="l">Km totales</div></div>
   <div class="kpi" title="Km sobre Rutas Provinciales" style="border-left:3px solid #c25a2a"><div class="v" id="kpi-km-rp">—</div><div class="l">Km Red Primaria</div></div>
   <div class="kpi" title="Km sobre Caminos Secundarios" style="border-left:3px solid #7050b0"><div class="v" id="kpi-km-cs">—</div><div class="l">Km Red Secundaria</div></div>
@@ -180,7 +180,7 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
   <div class="kpi"><div class="v" id="kpi-fotos">—</div><div class="l">Con foto</div></div>
 </div>
 
-<!-- Charts · v7.86 4 cuadrantes + toggle km/cantidad + Rutas intervenidas -->
+<!-- Charts · v7.87 4 cuadrantes + toggle km/cantidad + Rutas intervenidas -->
 <div class="charts" id="charts" style="display:none">
   <div class="chart-card">
     <h3 style="display:flex;justify-content:space-between;align-items:center">
@@ -193,7 +193,7 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
     <canvas id="chart-tareas"></canvas>
   </div>
   <div class="chart-card">
-    <h3>Partes por mes · últimos 6 meses</h3>
+    <h3>Tareas por mes · últimos 6 meses</h3>
     <canvas id="chart-timeline"></canvas>
   </div>
   <div class="chart-card">
@@ -206,7 +206,7 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
   </div>
 </div>
 
-<!-- Rutas intervenidas · v7.86 (formato PDF referencia mayo 2026) -->
+<!-- Rutas intervenidas · v7.87 (formato PDF referencia mayo 2026) -->
 <div id="rutas-intervenidas" style="display:none;padding:0 20px 12px;background:var(--bg)">
   <div style="background:var(--w);border:1px solid var(--light);border-radius:8px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
     <h3 style="margin:0 0 8px;font-size:11px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.5px">Rutas intervenidas · km por vía en el rango</h3>
@@ -255,19 +255,19 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
     <span style="margin-left:8px">Módulo de reportes · Uso interno institucional.</span>
   </div>
   <div class="fr">
-    Desarrollado por <b style="color:rgba(255,255,255,.85)">Ing. Luciano Lamaita</b> · Div. Técnica DVBA · <span id="app-ver">v7.86</span>
+    Desarrollado por <b style="color:rgba(255,255,255,.85)">Ing. Luciano Lamaita</b> · Div. Técnica DVBA · <span id="app-ver">v7.87</span>
   </div>
 </footer>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
-// REPORTES · v7.86
+// REPORTES · v7.87
 // Fuente: tabla partes_diarios + catálogos + parte_maquinarias + parte_fotos
 // Filtros server-side (fecha/partido/tarea/via) + client-side (RP exacta)
 // Charts con Chart.js CDN · Export CSV vanilla
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v7.86';
+const APP_VERSION = 'v7.87';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 let _supa = null;
@@ -278,7 +278,7 @@ let _chartTimeline = null;
 let _chartVehiculos = null;
 let _chartVias = null;
 let _refreshTimer = null;
-let _tareaModo = 'km';  // 'km' | 'cantidad' — v7.86 toggle
+let _tareaModo = 'km';  // 'km' | 'cantidad' — v7.87 toggle
 
 // Paleta oficial DVBA (del análisis del PDF Gerencia Ejecutiva)
 // Mapeo tarea → color: matching por keyword para ser tolerante a variantes de nombre.
@@ -388,7 +388,7 @@ async function rpGenerar(){
     .gte('fecha', desde).lte('fecha', hasta)
     .order('fecha', {ascending:false}).order('id', {ascending:false})
     .limit(5000);
-  // v7.86 · Filtro partido más tolerante: ilike con % por si vinieron
+  // v7.87 · Filtro partido más tolerante: ilike con % por si vinieron
   // con espacios o casing diferente en migraciones antiguas.
   if (partido) q = q.ilike('partido', partido);
   if (tareaId) q = q.eq('tarea_id', Number(tareaId));
@@ -419,22 +419,22 @@ function rpRenderKPIs(partes, tareasMap){
   const partidos = new Set(partes.map(p => (p.partido||'').trim()).filter(Boolean));
   const tareas   = new Set(partes.map(p => tareasMap[p.tarea_id]).filter(Boolean));
   const conFoto  = partes.filter(p => (p.parte_fotos||[]).length > 0).length;
-  // v7.86 · Km separado por Red Primaria / Secundaria (matcheo por PDF referencia)
+  // v7.87 · Km separado por Red Primaria / Secundaria (matcheo por PDF referencia)
   const kmRP = partes.filter(p => p.tipo_via === 'rp').reduce((s,p) => s + Math.abs(Number(p.km_recorridos)||0), 0);
   const kmCS = partes.filter(p => p.tipo_via === 'camino').reduce((s,p) => s + Math.abs(Number(p.km_recorridos)||0), 0);
   document.getElementById('kpi-total').textContent = total;
   document.getElementById('kpi-km').textContent = kmTot.toFixed(1);
-  document.getElementById('kpi-partidos').innerHTML = partidos.size + (sinPartido > 0 ? ` <span style="font-size:10px;color:var(--am);font-weight:600" title="${sinPartido} partes sin partido registrado (históricos, pre-v7.70)">· ${sinPartido} s/d</span>` : '');
+  document.getElementById('kpi-partidos').innerHTML = partidos.size + (sinPartido > 0 ? ` <span style="font-size:10px;color:var(--am);font-weight:600" title="${sinPartido} tareas sin partido registrado (históricos, pre-v7.70)">· ${sinPartido} s/d</span>` : '');
   document.getElementById('kpi-tareas').textContent = tareas.size;
   document.getElementById('kpi-fotos').textContent = total ? (conFoto+' ('+Math.round(conFoto*100/total)+'%)') : '0';
   const kpiKmRP = document.getElementById('kpi-km-rp');   if (kpiKmRP) kpiKmRP.textContent = kmRP.toFixed(1);
   const kpiKmCS = document.getElementById('kpi-km-cs');   if (kpiKmCS) kpiKmCS.textContent = kmCS.toFixed(1);
   // Debug info en consola
-  console.log(`[Reportes v7.86] Total: ${total} · con partido: ${conPartido} (${partidos.size} únicos) · s/d: ${sinPartido} · km RP: ${kmRP.toFixed(1)} · km CS: ${kmCS.toFixed(1)}`);
+  console.log(`[Reportes v7.87] Total: ${total} · con partido: ${conPartido} (${partidos.size} únicos) · s/d: ${sinPartido} · km RP: ${kmRP.toFixed(1)} · km CS: ${kmCS.toFixed(1)}`);
 }
 
 function rpRenderCharts(partes, tareasMap){
-  // v7.86 · Chart tareas: km o cantidad de partes según _tareaModo
+  // v7.87 · Chart tareas: km o cantidad de partes según _tareaModo
   const agregPorCat = {};
   partes.forEach(p => {
     const nom = tareasMap[p.tarea_id] || 'Sin tarea';
@@ -451,10 +451,10 @@ function rpRenderCharts(partes, tareasMap){
     const p = PALETA_TAREAS.find(x => x.label === l);
     return p ? p.color : '#5a6a7a';
   });
-  const unidad = modoActivo==='km' ? 'km' : 'partes';
+  const unidad = modoActivo==='km' ? 'km' : 'tareas';
   // Actualizar título dinámico
   const t = document.getElementById('chart-tareas-title');
-  if (t) t.textContent = (modoActivo==='km' ? 'Km por tarea' : 'Cantidad de partes por tarea') + ' (paleta oficial DVBA)';
+  if (t) t.textContent = (modoActivo==='km' ? 'Km por categoría de tarea' : 'Cantidad por categoría de tarea') + ' (paleta oficial DVBA)';
   if (_chartTareas) _chartTareas.destroy();
   _chartTareas = new Chart(document.getElementById('chart-tareas'), {
     type: 'bar',
@@ -492,7 +492,7 @@ function rpRenderCharts(partes, tareasMap){
     data: {
       labels: timeLabels,
       datasets: [{
-        label: 'Partes cargados',
+        label: 'Tareas cargadas',
         data: timeData,
         backgroundColor: '#009aae',
         borderRadius: 4
@@ -500,12 +500,12 @@ function rpRenderCharts(partes, tareasMap){
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend:{display:false}, tooltip:{callbacks:{label:c=>c.parsed.y+' partes'}}},
+      plugins: { legend:{display:false}, tooltip:{callbacks:{label:c=>c.parsed.y+' tareas'}}},
       scales: { y:{ beginAtZero:true, ticks:{stepSize:1,font:{size:10}} }, x:{ ticks:{font:{size:10}} } }
     }
   });
 
-  // v7.86 · Chart 3: uso de vehículos (top 10 más usados)
+  // v7.87 · Chart 3: uso de vehículos (top 10 más usados)
   const usoVeh = {};
   partes.forEach(p => {
     (p.parte_maquinarias||[]).forEach(pm => {
@@ -529,7 +529,7 @@ function rpRenderCharts(partes, tareasMap){
     }
   });
 
-  // v7.86 · Chart 4: acciones por vía (top 10 rutas/caminos con más partes)
+  // v7.87 · Chart 4: acciones por vía (top 10 rutas/caminos con más partes)
   const usoVia = {};
   partes.forEach(p => {
     if (!p.ruta) return;
@@ -553,14 +553,14 @@ function rpRenderCharts(partes, tareasMap){
   });
 }
 
-// v7.86 · Auto-refresh con debounce · trigger al cambiar cualquier filtro
+// v7.87 · Auto-refresh con debounce · trigger al cambiar cualquier filtro
 function rpAutoRefresh(ms){
   const delay = ms || 150;
   if (_refreshTimer) clearTimeout(_refreshTimer);
   _refreshTimer = setTimeout(() => { rpGenerar(); }, delay);
 }
 
-// v7.86 · Toggle Km / Cantidad en el chart de tareas
+// v7.87 · Toggle Km / Cantidad en el chart de tareas
 function rpToggleTareaModo(modo){
   _tareaModo = modo;
   document.getElementById('btn-modo-km').classList.toggle('active', modo==='km');
@@ -581,7 +581,7 @@ function rpToggleTareaModo(modo){
   }
 }
 
-// v7.86 · Rutas intervenidas: agregación por RP y por camino con km totales
+// v7.87 · Rutas intervenidas: agregación por RP y por camino con km totales
 // Formato del PDF referencia mayo 2026: dos listas separadas.
 function rpRenderRutasIntervenidas(partes){
   const rpMap = {}, csMap = {};
@@ -607,7 +607,7 @@ function rpRenderRutasIntervenidas(partes){
   const kmTotalRP = rpOrd.reduce((s,x)=>s+x[1].km,0);
   const kmTotalCS = csOrd.reduce((s,x)=>s+x[1].km,0);
   const fmtRow = (k, d, color) => `<div style="display:flex;justify-content:space-between;padding:2px 4px;border-bottom:1px dashed #eee">
-    <span><b style="color:${color}">${k}</b> <span style="color:var(--mut);font-size:10px">· ${d.cnt} ${d.cnt===1?'parte':'partes'}</span></span>
+    <span><b style="color:${color}">${k}</b> <span style="color:var(--mut);font-size:10px">· ${d.cnt} ${d.cnt===1?'tarea':'tareas'}</span></span>
     <span style="font-family:'SF Mono',Menlo,monospace;font-weight:600">${d.km.toFixed(2)} km</span>
   </div>`;
   const rpHTML = rpOrd.length
@@ -690,13 +690,13 @@ function rpExportCSV(){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'reporte_partes_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.download = 'reporte_tareas_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
   URL.revokeObjectURL(url);
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// EXPORT PDF INSTITUCIONAL · v7.86
+// EXPORT PDF INSTITUCIONAL · v7.87
 // Basado en el layout del reporte oficial Gerencia Ejecutiva DVBA
 // (ver docs/ANALISIS_INFORME_GERENCIAL_DVBA.md).
 // Estructura:
@@ -767,7 +767,7 @@ async function rpExportPDF(){
 
     // KPIs en 5 tarjetas
     const kpiData = [
-      ['Partes',     document.getElementById('kpi-total').textContent],
+      ['Tareas',     document.getElementById('kpi-total').textContent],
       ['Km',         document.getElementById('kpi-km').textContent],
       ['Partidos',   document.getElementById('kpi-partidos').textContent],
       ['Tipos tarea',document.getElementById('kpi-tareas').textContent],
@@ -820,7 +820,7 @@ async function rpExportPDF(){
     _pdfAddChartFrom('chart-tareas', doc, margin, y, W-margin*2, 100);
     y += 110;
     doc.setFontSize(11); doc.setFont('helvetica','bold');
-    doc.text('Partes por mes · timeline', margin, y); y += 3;
+    doc.text('Tareas por mes · timeline', margin, y); y += 3;
     _pdfAddChartFrom('chart-timeline', doc, margin, y, W-margin*2, 100);
     _pdfFooter(doc, W, H, fechaGen);
 
@@ -839,7 +839,7 @@ async function rpExportPDF(){
 
     // ─── PÁGINA 4+ · Tabla completa (autotable, paginación auto) ──
     doc.addPage();
-    _pdfHeader(doc, W, margin, P, 'Detalle de partes · '+_partesCache.length+' registros');
+    _pdfHeader(doc, W, margin, P, 'Detalle de tareas · '+_partesCache.length+' registros');
     const tableRows = _partesCache.map(p => [
       new Date(p.fecha+'T12:00').toLocaleDateString('es-AR'),
       (tareasMap[p.tarea_id]||'').slice(0, 45),
@@ -866,7 +866,7 @@ async function rpExportPDF(){
       },
       didDrawPage: (data) => {
         // Header en cada página nueva de la tabla
-        if (data.pageNumber > 1) _pdfHeader(doc, W, margin, P, 'Detalle de partes (cont.)');
+        if (data.pageNumber > 1) _pdfHeader(doc, W, margin, P, 'Detalle de tareas (cont.)');
         _pdfFooter(doc, W, H, fechaGen);
       }
     });
