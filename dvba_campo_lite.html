@@ -165,7 +165,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
     <div>Pendientes</div>
     <span class="cnt" id="pendCnt" style="display:none">0</span>
   </button>
-  <a class="fb" href="dvba_campo.html">
+  <a class="fb" href="dvba_campo.html" onclick="localStorage.setItem('dvba_prefiere_full','1')" title="Ir a la app completa (guarda tu preferencia)">
     <div class="ico">⚙</div>
     <div>App full</div>
   </a>
@@ -177,12 +177,12 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
-// DVBA CAMPO LITE · v9.60
+// DVBA CAMPO LITE · v9.61
 // UI minimalista: solo foto + GPS. Sin formularios.
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.60';
+const APP_VER = 'v9.61';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -307,7 +307,7 @@ async function lGuardar(){
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Guardando...';
   const g = _gpsCuandoSaco;
   const fechaISO = new Date(g.ts).toISOString();
-  // v9.60 · Fix schema · usar columnas REALES de la tabla relevamientos (mismo
+  // v9.61 · Fix schema · usar columnas REALES de la tabla relevamientos (mismo
   // schema que dvba_campo.html usa). Los datos operativos (ruta, tipo, estado,
   // partido, progresiva) quedan NULL para completar al aprobar en oficina.
   const reg = {
