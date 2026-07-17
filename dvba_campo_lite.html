@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#009aae">
+<title>DVBA · Captura rápida</title>
+<link rel="icon" href="datos/img/favicon.png">
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="datos/auth.js"></script>
+<style>
+:root{
+  --p:#009aae;    --pd:#007d90;   --pl:#00b3c7;
+  --vd:#1a8a4a;   --am:#c47a00;   --ro:#b20900;
+  --txt:#1a1a1a;  --mut:#6a6a6a;  --light:#e0e0e0;
+  --bg:#f6f8fa;   --w:#fff;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100vh;height:100dvh;font-family:'Encode Sans','Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--txt);background:var(--bg);overflow:hidden;user-select:none;-webkit-user-select:none}
+body{display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+
+/* HEADER · minimalista, chico */
+header{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:10}
+header .logo{width:32px;height:32px;flex-shrink:0}
+header .logo img{width:100%;height:100%;object-fit:contain;border-radius:50%}
+header .brand{flex:1;font-size:13px;font-weight:800;letter-spacing:.4px;line-height:1.15}
+header .brand .sub{display:block;font-size:9.5px;font-weight:500;opacity:.85;letter-spacing:.3px}
+
+/* Badge GPS */
+.gps-badge{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:3px 10px;font-size:10.5px;font-weight:700;letter-spacing:.3px;transition:all .25s}
+.gps-badge.on {background:rgba(46,180,90,.35);border-color:rgba(46,180,90,.7)}
+.gps-badge.off{background:rgba(224,60,60,.35);border-color:rgba(224,60,60,.7)}
+.gps-badge.pending{background:rgba(230,180,40,.35);border-color:rgba(230,180,40,.7)}
+.gps-badge .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.gps-badge .dot.pulse{animation:pulse 1.3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* MAIN · el botón gigante */
+main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden}
+
+.big-btn{width:min(78vw,320px);height:min(78vw,320px);border:0;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--pl),var(--p) 60%,var(--pd) 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 12px 32px rgba(0,154,174,.4),0 4px 8px rgba(0,0,0,.15),inset 0 -6px 20px rgba(0,0,0,.15),inset 0 4px 12px rgba(255,255,255,.25);cursor:pointer;font-family:inherit;transition:transform .12s,box-shadow .2s;position:relative}
+.big-btn:active{transform:scale(.94);box-shadow:0 6px 18px rgba(0,154,174,.35),inset 0 -4px 12px rgba(0,0,0,.25)}
+.big-btn:disabled{background:linear-gradient(135deg,#a0b0b8,#7a8a92);cursor:not-allowed;box-shadow:none;color:#ddd}
+.big-btn .icon{font-size:min(20vw,84px);line-height:1;margin-bottom:6px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))}
+.big-btn .lbl{font-size:20px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 2px 4px rgba(0,0,0,.3)}
+.big-btn .sub{font-size:11px;font-weight:500;opacity:.85;letter-spacing:.5px;margin-top:4px;text-transform:none}
+
+.hint{text-align:center;color:var(--mut);font-size:12px;margin-top:24px;padding:0 20px;line-height:1.5;max-width:340px}
+.hint b{color:var(--p)}
+
+/* Input file oculto */
+#foto-input{position:absolute;top:-9999px;opacity:0}
+
+/* PREVIEW MODAL */
+.preview-ov{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;display:none;flex-direction:column}
+.preview-ov.on{display:flex}
+.preview-img{flex:1;display:flex;align-items:center;justify-content:center;padding:16px;overflow:hidden}
+.preview-img img{max-width:100%;max-height:100%;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+.preview-info{padding:12px 16px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;text-align:center;line-height:1.6}
+.preview-info b{color:var(--pl)}
+.preview-actions{display:flex;gap:10px;padding:16px;background:#0f0f0f;border-top:1px solid #333;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+.preview-actions button{flex:1;padding:16px;border:0;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;transition:transform .1s}
+.preview-actions button:active{transform:scale(.96)}
+.btn-descartar{background:#3a2020;color:#ffbfbf;border:1px solid #6a3535 !important}
+.btn-guardar{background:var(--vd);color:#fff}
+.btn-guardar:disabled{background:#3a3a3a;color:#888;cursor:not-allowed}
+
+/* TOAST */
+#toast{position:fixed;bottom:calc(90px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--vd);color:#fff;padding:11px 22px;border-radius:24px;font-size:13px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.35);opacity:0;transition:all .3s;z-index:200;pointer-events:none;letter-spacing:.4px;max-width:88vw;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.err{background:var(--ro)}
+#toast.warn{background:var(--am)}
+
+/* FOOTER BAR · mínima */
+footer{display:flex;align-items:center;justify-content:space-around;background:var(--w);border-top:1px solid var(--light);padding:8px 14px;flex-shrink:0;box-shadow:0 -2px 6px rgba(0,0,0,.05)}
+footer .fb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;color:var(--mut);text-decoration:none;font-size:9.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;background:transparent;border:0;font-family:inherit}
+footer .fb:active{opacity:.6}
+footer .fb .ico{font-size:19px;line-height:1;filter:grayscale(.3)}
+footer .fb.info{color:var(--p)}
+footer .fb.pending{color:var(--am)}
+footer .fb.pending .ico{animation:pulse 2s ease-in-out infinite}
+footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;font-weight:900;margin-top:-8px;margin-left:14px;position:absolute}
+
+/* LOGIN OVERLAY */
+#login-ov{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+#login-ov.on{display:flex}
+#login-box{background:var(--w);border-radius:14px;padding:24px 20px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#login-box h2{margin:0 0 6px;font-size:17px;color:var(--p);font-weight:800}
+#login-box .sub{font-size:12px;color:var(--mut);margin-bottom:18px}
+#login-box input{width:100%;padding:12px 14px;margin-bottom:10px;border:1px solid var(--light);border-radius:8px;font-size:14px;font-family:inherit}
+#login-box button{width:100%;padding:14px;background:var(--vd);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;font-family:inherit}
+#login-box button:disabled{background:#aaa}
+#login-box .err{color:var(--ro);font-size:11px;margin-top:8px;min-height:16px}
+
+/* Loading spinner */
+.spinner{width:24px;height:24px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
+  <div class="brand">
+    DVBA · Captura
+    <span class="sub">Zona VI · Modo rápido</span>
+  </div>
+  <div class="gps-badge pending" id="gpsBadge">
+    <span class="dot pulse"></span>
+    <span id="gpsTxt">GPS...</span>
+  </div>
+</header>
+
+<main>
+  <button class="big-btn" id="btnCapturar" disabled>
+    <div class="icon">📸</div>
+    <div class="lbl">Registrar</div>
+    <div class="sub">foto + ubicación</div>
+  </button>
+
+  <div class="hint">
+    Solo tocá el botón para <b>tomar la foto</b> y guardar la <b>ubicación GPS</b>.<br>
+    El resto de los datos (tarea, ruta, tipo) se completan <b>desde la oficina</b>.
+  </div>
+
+  <input type="file" id="foto-input" accept="image/*" capture="environment">
+</main>
+
+<!-- PREVIEW · confirmar antes de subir -->
+<div class="preview-ov" id="preview">
+  <div class="preview-img">
+    <img id="prevImg" src="" alt="">
+  </div>
+  <div class="preview-info">
+    <div>📍 <b id="prevGps">—</b></div>
+    <div style="font-size:10.5px;opacity:.75;margin-top:4px" id="prevMeta">—</div>
+  </div>
+  <div class="preview-actions">
+    <button class="btn-descartar" onclick="lRepetir()">↺ Repetir</button>
+    <button class="btn-guardar" id="btnGuardar" onclick="lGuardar()">✓ Guardar</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- LOGIN -->
+<div id="login-ov">
+  <div id="login-box">
+    <h2>🔐 Acceso DVBA</h2>
+    <p class="sub">Ingresá con tu cuenta para poder guardar registros.</p>
+    <input type="email" id="lgEmail" placeholder="Email" autocomplete="username">
+    <input type="password" id="lgPass" placeholder="Contraseña" autocomplete="current-password">
+    <button onclick="lLogin()" id="btnLogin">Ingresar</button>
+    <div class="err" id="lgErr"></div>
+    <p style="font-size:10.5px;color:var(--mut);margin-top:14px">O usá la app completa: <a href="dvba_campo.html" style="color:var(--p)">dvba_campo</a></p>
+  </div>
+</div>
+
+<!-- FOOTER · minimalista -->
+<footer>
+  <button class="fb" onclick="lVerPendientes()" id="btnPend">
+    <div class="ico">📤</div>
+    <div>Pendientes</div>
+    <span class="cnt" id="pendCnt" style="display:none">0</span>
+  </button>
+  <a class="fb" href="dvba_campo.html">
+    <div class="ico">⚙</div>
+    <div>App full</div>
+  </a>
+  <button class="fb info" onclick="lVerInfo()">
+    <div class="ico">ℹ</div>
+    <div>Info</div>
+  </button>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// DVBA CAMPO LITE · v9.59
+// UI minimalista: solo foto + GPS. Sin formularios.
+// Comparte auth, storage y BD con dvba_campo.html.
+// ═══════════════════════════════════════════════════════════════════
+
+const APP_VER = 'v9.59';
+const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
+const BUCKET = 'relevamientos';
+const PENDIENTES_KEY = 'dvba_campo_lite_pendientes';
+
+let _supa = null;
+let _user = null;
+let _gpsWatchId = null;
+let _gpsLat = null, _gpsLng = null, _gpsAcc = null, _gpsAlt = null;
+let _fotoActual = null;  // base64 de la última foto tomada
+let _gpsCuandoSaco = null;  // snapshot del GPS al momento de sacar la foto
+
+// ─── UTILIDADES ────────────────────────────────────────────────────
+function $(id){ return document.getElementById(id); }
+function toast(msg, tipo){
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = tipo ? tipo : '';
+  requestAnimationFrame(()=>t.classList.add('on'));
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.classList.remove('on'), 3200);
+}
+function fmtCoord(v){ return (v==null||!isFinite(v))?'—':v.toFixed(6); }
+
+// ─── GPS · watchPosition continuo con feedback visual ──────────────
+function iniciarGPS(){
+  if (!navigator.geolocation){
+    setGpsEstado('off', 'GPS no disponible');
+    return;
+  }
+  setGpsEstado('pending', 'GPS...');
+  _gpsWatchId = navigator.geolocation.watchPosition(
+    pos => {
+      _gpsLat = pos.coords.latitude;
+      _gpsLng = pos.coords.longitude;
+      _gpsAcc = Math.round(pos.coords.accuracy);
+      _gpsAlt = pos.coords.altitude ? Math.round(pos.coords.altitude) : null;
+      const txt = '±' + _gpsAcc + 'm' + (_gpsAlt!=null ? ' · '+_gpsAlt+'m' : '');
+      setGpsEstado('on', txt);
+      $('btnCapturar').disabled = false;
+    },
+    err => {
+      console.warn('[GPS]', err);
+      const msg = err.code === 1 ? 'GPS denegado' : (err.code === 2 ? 'Sin señal' : 'GPS timeout');
+      setGpsEstado('off', msg);
+      $('btnCapturar').disabled = true;
+    },
+    { enableHighAccuracy:true, timeout:15000, maximumAge:5000 }
+  );
+}
+function setGpsEstado(cls, txt){
+  const b = $('gpsBadge');
+  b.classList.remove('on','off','pending');
+  b.classList.add(cls);
+  $('gpsTxt').textContent = txt;
+  const dot = b.querySelector('.dot');
+  if (dot) dot.classList.toggle('pulse', cls === 'pending');
+}
+
+// ─── CAPTURA FOTO · abre cámara nativa ────────────────────────────
+function iniciarCaptura(){
+  $('btnCapturar').addEventListener('click', () => {
+    if (_gpsLat == null){
+      toast('Esperá que el GPS tenga señal', 'warn');
+      return;
+    }
+    $('foto-input').click();
+  });
+  $('foto-input').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    e.target.value = '';  // reset input para permitir misma foto de nuevo
+    // Snapshot del GPS al momento de la foto
+    _gpsCuandoSaco = { lat:_gpsLat, lng:_gpsLng, acc:_gpsAcc, alt:_gpsAlt, ts:Date.now() };
+    // Comprimir la foto (misma estrategia que dvba_campo.html: 1200px q=0.75, más agresivo por PLAN_STORAGE)
+    _fotoActual = await comprimir(file, 1200, 0.75);
+    // Mostrar preview
+    $('prevImg').src = _fotoActual;
+    $('prevGps').textContent = 'Lat ' + fmtCoord(_gpsCuandoSaco.lat) + '   Lng ' + fmtCoord(_gpsCuandoSaco.lng);
+    const partes = ['±'+_gpsCuandoSaco.acc+'m'];
+    if (_gpsCuandoSaco.alt != null) partes.push(_gpsCuandoSaco.alt+'m alt');
+    partes.push(new Date(_gpsCuandoSaco.ts).toLocaleString('es-AR'));
+    $('prevMeta').textContent = partes.join(' · ');
+    $('preview').classList.add('on');
+  });
+}
+function comprimir(file, maxPx, q){
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxPx || h > maxPx){
+          if (w > h){ h = Math.round(h*maxPx/w); w = maxPx; }
+          else       { w = Math.round(w*maxPx/h); h = maxPx; }
+        }
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        res(c.toDataURL('image/jpeg', q));
+      };
+      img.onerror = rej;
+      img.src = e.target.result;
+    };
+    fr.onerror = rej;
+    fr.readAsDataURL(file);
+  });
+}
+function lRepetir(){
+  $('preview').classList.remove('on');
+  _fotoActual = null;
+  _gpsCuandoSaco = null;
+}
+
+// ─── GUARDAR · sube foto + inserta relevamiento crudo ─────────────
+async function lGuardar(){
+  if (!_fotoActual || !_gpsCuandoSaco){
+    toast('Falta foto o GPS', 'err'); return;
+  }
+  const btn = $('btnGuardar');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Guardando...';
+  const g = _gpsCuandoSaco;
+  const fechaISO = new Date(g.ts).toISOString();
+  const reg = {
+    // Solo lo mínimo: GPS + timestamp + user. Campos de tarea/tipo quedan NULL, se completan en oficina.
+    latitud: g.lat,
+    longitud: g.lng,
+    gps_acc: g.acc,
+    fecha: fechaISO,
+    responsable_email: _user ? _user.email : null,
+    estado_workflow: 'campo',       // convención dvba_campo — pendiente de revisión
+    validado_geo: 'pendiente',
+    origen_captura: 'campo_lite',   // v9.59 · marca para distinguir en la cola
+    // Los otros campos (ruta, prog, tipo, estado, partido, obs) quedan NULL/default
+  };
+  try {
+    // 1. Subir foto CRUDA (no sellada — se sella al aprobar en oficina, workflow campo→oficina)
+    const blob = await (await fetch(_fotoActual)).blob();
+    const ext = 'jpg';
+    const path = 'fotos/' + Date.now() + '_lite.' + ext;
+    const { error: upErr } = await _supa.storage.from(BUCKET)
+      .upload(path, blob, { contentType:'image/jpeg', upsert:false });
+    if (upErr) throw upErr;
+    reg.foto_url = _supa.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+
+    // 2. Insertar registro en tabla relevamientos
+    const { error: insErr } = await _supa.from('relevamientos').insert(reg);
+    if (insErr) throw insErr;
+
+    // 3. UI feedback
+    lRepetir();
+    toast('✓ Registro guardado · GPS ±'+g.acc+'m');
+    actualizarPendientes();
+  } catch(e){
+    console.error('[lite guardar]', e);
+    // Guardar en cola local para retry
+    guardarEnColaLocal(reg, _fotoActual);
+    lRepetir();
+    toast('⚠ Sin red · guardado local', 'warn');
+    actualizarPendientes();
+  } finally {
+    btn.disabled = false; btn.textContent = '✓ Guardar';
+  }
+}
+
+// ─── COLA LOCAL · para offline ────────────────────────────────────
+function guardarEnColaLocal(reg, fotoBase64){
+  try {
+    const cola = JSON.parse(localStorage.getItem(PENDIENTES_KEY) || '[]');
+    cola.push({ reg, foto:fotoBase64, ts:Date.now() });
+    localStorage.setItem(PENDIENTES_KEY, JSON.stringify(cola));
+  } catch(e){ console.error('[cola]', e); }
+}
+function contarPendientes(){
+  try { return (JSON.parse(localStorage.getItem(PENDIENTES_KEY) || '[]')).length; }
+  catch(e){ return 0; }
+}
+function actualizarPendientes(){
+  const n = contarPendientes();
+  const el = $('pendCnt');
+  if (n > 0){ el.textContent = n; el.style.display = 'inline-block'; }
+  else      { el.style.display = 'none'; }
+}
+async function sincronizarCola(){
+  const cola = JSON.parse(localStorage.getItem(PENDIENTES_KEY) || '[]');
+  if (!cola.length) return { ok:0, err:0 };
+  let ok = 0, err = 0;
+  const restantes = [];
+  for (const item of cola){
+    try {
+      const blob = await (await fetch(item.foto)).blob();
+      const path = 'fotos/' + item.ts + '_lite.jpg';
+      const { error: upErr } = await _supa.storage.from(BUCKET)
+        .upload(path, blob, { contentType:'image/jpeg', upsert:true });
+      if (upErr) throw upErr;
+      item.reg.foto_url = _supa.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+      const { error: insErr } = await _supa.from('relevamientos').insert(item.reg);
+      if (insErr) throw insErr;
+      ok++;
+    } catch(e){
+      console.warn('[sync]', e);
+      restantes.push(item);
+      err++;
+    }
+  }
+  localStorage.setItem(PENDIENTES_KEY, JSON.stringify(restantes));
+  actualizarPendientes();
+  return { ok, err };
+}
+async function lVerPendientes(){
+  const n = contarPendientes();
+  if (n === 0){ toast('Sin pendientes locales'); return; }
+  toast('Sincronizando '+n+'...');
+  const res = await sincronizarCola();
+  if (res.err === 0) toast('✓ '+res.ok+' sincronizados');
+  else               toast(res.ok+' OK · '+res.err+' con error', 'warn');
+}
+function lVerInfo(){
+  const msg = 'DVBA · Captura rápida\n' +
+              APP_VER + ' · Ing. Luciano Lamaita\n\n' +
+              'Modo minimalista: solo foto + GPS.\n' +
+              'Los datos de tarea, ruta y tipo se completan\n' +
+              'después desde la oficina (portal DVBA).\n\n' +
+              'Usuario: ' + (_user ? _user.email : '—') + '\n' +
+              'Pendientes locales: ' + contarPendientes();
+  alert(msg);
+}
+
+// ─── AUTH · comparte sesión con dvba_campo.html ───────────────────
+async function inicializar(){
+  _supa = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
+    auth: { persistSession:true, storageKey:'dvba_session', storage:window.localStorage }
+  });
+  // Intentar restaurar sesión
+  const raw = localStorage.getItem('dvba_session');
+  if (raw){
+    try {
+      const sess = JSON.parse(raw);
+      const s = sess.session || sess;
+      if (s && s.access_token){
+        await _supa.auth.setSession({ access_token:s.access_token, refresh_token:s.refresh_token });
+        const { data:{ user } } = await _supa.auth.getUser();
+        if (user){ _user = user; console.log('[auth] sesión activa:', user.email); }
+      }
+    } catch(e){ console.warn('[auth restore]', e); }
+  }
+  if (!_user){
+    $('login-ov').classList.add('on');
+  }
+  iniciarGPS();
+  iniciarCaptura();
+  actualizarPendientes();
+  // Sync automático al reconectar
+  window.addEventListener('online', () => {
+    if (contarPendientes() > 0){
+      toast('Reconectado · sincronizando...');
+      sincronizarCola().then(res => {
+        if (res.ok > 0) toast('✓ '+res.ok+' sincronizados');
+      });
+    }
+  });
+}
+async function lLogin(){
+  const email = $('lgEmail').value.trim();
+  const pass  = $('lgPass').value;
+  const btn   = $('btnLogin');
+  const err   = $('lgErr');
+  err.textContent = '';
+  if (!email || !pass){ err.textContent = 'Email y contraseña requeridos'; return; }
+  btn.disabled = true; btn.textContent = 'Ingresando...';
+  try {
+    const { data, error } = await _supa.auth.signInWithPassword({ email, password:pass });
+    if (error) throw error;
+    _user = data.user;
+    // Guardar en el mismo storage key que dvba_campo para compartir sesión
+    localStorage.setItem('dvba_session', JSON.stringify(data.session));
+    $('login-ov').classList.remove('on');
+    toast('✓ Sesión iniciada');
+  } catch(e){
+    err.textContent = e.message || 'Error de acceso';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Ingresar';
+  }
+}
+
+// Service Worker (comparte con dvba_campo.html)
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW:', e));
+  });
+}
+
+document.addEventListener('DOMContentLoaded', inicializar);
+</script>
+</body>
+</html>

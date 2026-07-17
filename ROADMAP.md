@@ -58,6 +58,18 @@ Hoy en `partes_diarios.html` sólo se pueden **asociar** relevamientos ya cargad
 - **Crea automáticamente un `relevamiento`** vinculado al parte (`parte_fotos.relevamiento_id`) para que la foto también aparezca en el mapa de relevamientos.
 - Sin necesidad de pasar por la app móvil.
 
+### 3-bis. Auditar sentido de traza de las 8 RPs + regenerar (nuevo, alta prioridad)
+
+Detectado en RP51: los mojones sintéticos aparecen con sentido invertido. Ejemplo: km 220 en lat -36.12 (Alvear/Tapalqué, sur-oeste) cuando debería estar en el norte (25 de Mayo/Chivilcoy). RP30 mencionada también con posible orientación mal.
+
+**Auditar cada una de las 8 RPs** contra la geografía real:
+- RP 6, 30, 40, 41, 51, 61 → vienen de afuera de Zona VI, arrancan con `prog_ini > 0` (heredada del tramo previo). Verificar sentido.
+- RP 42, 43, 44, 46, 47, 48, 91 → nacen dentro de Zona VI, arrancan en 0. Verificar sentido.
+
+**Las que estén mal**: invertir el orden de puntos del `_traza_completa.geojson` en QGIS y regenerar bundle con `gen_ruta_bundle.py`.
+
+Complementa v7.79 (que fixeó polylines de tareas invertidas, pero los mojones sintéticos siguen usando los datos crudos del bundle).
+
 ### 3. Regenerar RP30 y RP46 en QGIS (task histórica #195)
 
 Bloqueadas hace tiempo por bug del `_traza_completa` (fids sin orden geográfico, mismo problema que RP61 en su momento). Sin bundle, no hay progresivas oficiales ni detección de partido para esas rutas.
