@@ -27,7 +27,7 @@ header .logo img{width:100%;height:100%;object-fit:contain;border-radius:50%}
 header .brand{flex:1;font-size:13px;font-weight:800;letter-spacing:.4px;line-height:1.15}
 header .brand .sub{display:block;font-size:9.5px;font-weight:500;opacity:.85;letter-spacing:.3px}
 
-/* Badge GPS · v9.63 clickeable */
+/* Badge GPS · v9.64 clickeable */
 .gps-badge{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:.3px;transition:all .25s;cursor:pointer;font-family:inherit;color:#fff}
 .gps-badge:active{transform:scale(.94)}
 .gps-badge.on {background:rgba(46,180,90,.35);border-color:rgba(46,180,90,.7)}
@@ -37,7 +37,7 @@ header .brand .sub{display:block;font-size:9.5px;font-weight:500;opacity:.85;let
 .gps-badge .dot.pulse{animation:pulse 1.3s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
-/* MAIN · el botón gigante — v9.63 padding-bottom para no ser tapado por footer:fixed */
+/* MAIN · el botón gigante — v9.64 padding-bottom para no ser tapado por footer:fixed */
 main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;padding-bottom:calc(90px + env(safe-area-inset-bottom));position:relative;overflow-y:auto}
 
 .big-btn{width:min(78vw,320px);height:min(78vw,320px);border:0;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--pl),var(--p) 60%,var(--pd) 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 12px 32px rgba(0,154,174,.4),0 4px 8px rgba(0,0,0,.15),inset 0 -6px 20px rgba(0,0,0,.15),inset 0 4px 12px rgba(255,255,255,.25);cursor:pointer;font-family:inherit;transition:transform .12s,box-shadow .2s;position:relative}
@@ -47,7 +47,7 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
 .big-btn .lbl{font-size:20px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 2px 4px rgba(0,0,0,.3)}
 .big-btn .sub{font-size:11px;font-weight:500;opacity:.85;letter-spacing:.5px;margin-top:4px;text-transform:none}
 
-/* v9.63 · Hint MÁS GRANDE para lectura al sol / exterior */
+/* v9.64 · Hint MÁS GRANDE para lectura al sol / exterior */
 .hint{text-align:center;color:#333;font-size:15px;margin-top:28px;padding:0 22px;line-height:1.55;max-width:360px;font-weight:500}
 .hint b{color:var(--p);font-weight:800}
 .hint-alerta{text-align:center;color:#8a2020;background:#ffe8e8;border:2px solid #d24040;border-radius:10px;padding:12px 16px;margin:16px 20px 0;font-size:14px;line-height:1.5;font-weight:600;max-width:360px}
@@ -76,7 +76,7 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
 #toast.err{background:var(--ro)}
 #toast.warn{background:var(--am)}
 
-/* FOOTER BAR · minima — v9.63 position:fixed para garantizar que siempre esté visible */
+/* FOOTER BAR · minima — v9.64 position:fixed para garantizar que siempre esté visible */
 footer{position:fixed;bottom:0;left:0;right:0;z-index:15;display:flex;align-items:center;justify-content:space-around;background:var(--w);border-top:1px solid var(--light);padding:8px 14px;padding-bottom:calc(8px + env(safe-area-inset-bottom));box-shadow:0 -2px 6px rgba(0,0,0,.08)}
 footer .fb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;color:var(--mut);text-decoration:none;font-size:9.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;background:transparent;border:0;font-family:inherit}
 footer .fb:active{opacity:.6}
@@ -97,7 +97,24 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 #login-box button:disabled{background:#aaa}
 #login-box .err{color:var(--ro);font-size:11px;margin-top:8px;min-height:16px}
 
-/* v9.63 · Modal GPS explicativo */
+/* v9.64 · Panel de estado (overlay bloqueante durante el envío) */
+.status-ov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.status-ov.on{display:flex}
+.status-box{background:var(--w);border-radius:18px;padding:28px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.status-spin{width:60px;height:60px;border:6px solid #e0e0e0;border-top-color:var(--p);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
+.status-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.status-icon.ok{color:var(--vd)}
+.status-icon.err{color:var(--ro)}
+.status-icon.warn{color:var(--am)}
+.status-title{font-size:20px;font-weight:900;color:var(--txt);margin-bottom:6px;letter-spacing:.3px}
+.status-msg{font-size:14px;color:#555;line-height:1.5;margin-bottom:8px}
+.status-msg .num{color:var(--vd);font-weight:800}
+.status-msg .err-detail{display:block;font-size:11px;color:#888;margin-top:8px;font-family:monospace;word-break:break-all}
+.status-actions{margin-top:16px}
+.btn-status-ok{width:100%;padding:14px;background:var(--vd);color:#fff;border:0;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.4px;text-transform:uppercase}
+.btn-status-ok:active{transform:scale(.96)}
+
+/* v9.64 · Modal GPS explicativo */
 .modal-gps-ov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-gps-ov.on{display:flex}
 .modal-gps-box{background:var(--w);border-radius:16px;padding:24px 22px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center}
@@ -122,47 +139,60 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 <header>
   <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
   <div class="brand">
-    DVBA · Captura
-    <span class="sub">Zona VI · Modo rápido</span>
+    DVBA · Captura Rápida
+    <span class="sub">Zona VI Saladillo</span>
   </div>
-  <button class="gps-badge pending" id="gpsBadge" onclick="lToqueGps()" type="button" title="Estado del GPS · tocar para reintentar">
+  <button class="gps-badge pending" id="gpsBadge" onclick="lToqueGps()" type="button" title="Toque para verificar la ubicación">
     <span class="dot pulse"></span>
-    <span id="gpsTxt">GPS...</span>
+    <span id="gpsTxt">Ubicando...</span>
   </button>
 </header>
 
 <main>
   <button class="big-btn" id="btnCapturar" disabled>
     <div class="icon">📸</div>
-    <div class="lbl">Registrar</div>
-    <div class="sub">foto + ubicación</div>
+    <div class="lbl">Sacar foto</div>
+    <div class="sub">y guardar ubicación</div>
   </button>
 
   <div class="hint">
-    Solo tocá el botón para <b>tomar la foto</b> y guardar la <b>ubicación GPS</b>.
+    Solo tocá el botón para <b>sacar la foto</b> y guardar el <b>lugar exacto</b>.
     <br><br>
-    El resto (tarea, ruta, tipo) se completa <b>desde la oficina</b>.
+    Los demás datos (tarea, ruta, tipo) los completa <b>alguien en la oficina</b>.
   </div>
   <div class="hint-alerta" id="alertaGps" style="display:none">
-    ⚠ El GPS está desactivado o sin señal.<br>
-    <b>Tocá el badge de arriba</b> para reintentar, o activá la ubicación en los Ajustes de tu celular.
+    ⚠ La ubicación no está lista.<br>
+    <b>Tocá el indicador de arriba</b> para intentar de nuevo, o activá la ubicación en el celular.
   </div>
 
   <input type="file" id="foto-input" accept="image/*" capture="environment">
 </main>
 
-<!-- PREVIEW · confirmar antes de subir -->
+<!-- VISTA PREVIA · confirmar antes de enviar -->
 <div class="preview-ov" id="preview">
   <div class="preview-img">
     <img id="prevImg" src="" alt="">
   </div>
   <div class="preview-info">
-    <div>📍 <b id="prevGps">—</b></div>
-    <div style="font-size:10.5px;opacity:.75;margin-top:4px" id="prevMeta">—</div>
+    <div style="font-size:14px;margin-bottom:4px">📍 <b id="prevGps">—</b></div>
+    <div style="font-size:11px;opacity:.75" id="prevMeta">—</div>
   </div>
   <div class="preview-actions">
-    <button class="btn-descartar" onclick="lRepetir()">↺ Repetir</button>
-    <button class="btn-guardar" id="btnGuardar" onclick="lGuardar()">✓ Guardar</button>
+    <button class="btn-descartar" onclick="lRepetir()">↺ Sacar otra</button>
+    <button class="btn-guardar" id="btnGuardar" onclick="lGuardar()">✓ Enviar</button>
+  </div>
+</div>
+
+<!-- v9.64 · Panel de estado durante el envío (bloquea la pantalla) -->
+<div class="status-ov" id="statusOv">
+  <div class="status-box">
+    <div class="status-spin" id="statusSpin"></div>
+    <div class="status-icon" id="statusIcon" style="display:none"></div>
+    <div class="status-title" id="statusTitle">Enviando...</div>
+    <div class="status-msg" id="statusMsg">Subiendo la foto</div>
+    <div class="status-actions" id="statusActions" style="display:none">
+      <button onclick="lCerrarStatus()" class="btn-status-ok">Entendido</button>
+    </div>
   </div>
 </div>
 
@@ -172,26 +202,26 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 <!-- LOGIN -->
 <div id="login-ov">
   <div id="login-box">
-    <h2>🔐 Acceso DVBA</h2>
-    <p class="sub">Ingresá con tu cuenta para poder guardar registros.</p>
-    <input type="email" id="lgEmail" placeholder="Email" autocomplete="username">
+    <h2>🔐 Ingresar</h2>
+    <p class="sub">Ingresá con tu cuenta para poder enviar registros.</p>
+    <input type="email" id="lgEmail" placeholder="Correo" autocomplete="username">
     <input type="password" id="lgPass" placeholder="Contraseña" autocomplete="current-password">
     <button onclick="lLogin()" id="btnLogin">Ingresar</button>
     <div class="err" id="lgErr"></div>
-    <p style="font-size:10.5px;color:var(--mut);margin-top:14px">O usá la app completa: <a href="dvba_campo.html" style="color:var(--p)">dvba_campo</a></p>
+    <p style="font-size:10.5px;color:var(--mut);margin-top:14px">O usá la <a href="dvba_campo.html" style="color:var(--p)">app completa</a>.</p>
   </div>
 </div>
 
-<!-- FOOTER · minimalista -->
+<!-- FOOTER · siempre visible -->
 <footer>
   <button class="fb" onclick="lVerPendientes()" id="btnPend">
     <div class="ico">📤</div>
-    <div>Pendientes</div>
+    <div>Sin enviar</div>
     <span class="cnt" id="pendCnt" style="display:none">0</span>
   </button>
-  <a class="fb" href="dvba_campo.html" onclick="localStorage.setItem('dvba_prefiere_full','1')" title="Ir a la app completa (guarda tu preferencia)">
+  <a class="fb" href="dvba_campo.html" onclick="localStorage.setItem('dvba_prefiere_full','1')" title="Ir a la app completa (queda como tu preferencia)">
     <div class="ico">⚙</div>
-    <div>App full</div>
+    <div>App completa</div>
   </a>
   <button class="fb info" onclick="lVerInfo()">
     <div class="ico">ℹ</div>
@@ -201,12 +231,12 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
-// DVBA CAMPO LITE · v9.63
+// DVBA CAMPO LITE · v9.64
 // UI minimalista: solo foto + GPS. Sin formularios.
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.63';
+const APP_VER = 'v9.64';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -230,6 +260,45 @@ function toast(msg, tipo){
   t._t = setTimeout(()=>t.classList.remove('on'), 3200);
 }
 function fmtCoord(v){ return (v==null||!isFinite(v))?'—':v.toFixed(6); }
+
+// v9.64 · Helper de headers auth · igual al de la app completa
+async function authHeaders(extras){
+  let token = null;
+  try {
+    if (_supa){
+      const { data } = await _supa.auth.getSession();
+      token = data && data.session ? data.session.access_token : null;
+    }
+  } catch(e){ console.warn('[auth token]', e); }
+  return Object.assign({
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer ' + (token || SUPA_KEY)
+  }, extras || {});
+}
+
+// v9.64 · Panel de estado bloqueante (subiendo / éxito / error / offline)
+function statusMostrar(estado, titulo, mensaje){
+  $('statusOv').classList.add('on');
+  const icon = $('statusIcon');
+  const spin = $('statusSpin');
+  const acciones = $('statusActions');
+  icon.className = 'status-icon';
+  if (estado === 'cargando'){
+    spin.style.display = 'block';
+    icon.style.display = 'none';
+    acciones.style.display = 'none';
+  } else {
+    spin.style.display = 'none';
+    icon.style.display = 'block';
+    acciones.style.display = 'block';
+    if      (estado === 'ok')      { icon.classList.add('ok');   icon.textContent = '✓'; }
+    else if (estado === 'error')   { icon.classList.add('err');  icon.textContent = '✗'; }
+    else if (estado === 'offline') { icon.classList.add('warn'); icon.textContent = '📴'; }
+  }
+  $('statusTitle').textContent = titulo || '';
+  $('statusMsg').innerHTML = mensaje || '';
+}
+function lCerrarStatus(){ $('statusOv').classList.remove('on'); }
 
 // ─── GPS · watchPosition continuo con feedback visual ──────────────
 function iniciarGPS(){
@@ -273,7 +342,7 @@ function setGpsEstado(cls, txt){
   if (dot) dot.classList.toggle('pulse', cls === 'pending' || cls === 'off');
 }
 
-// v9.63 · Al tocar el badge, mostrar modal con instrucciones claras.
+// v9.64 · Al tocar el badge, mostrar modal con instrucciones claras.
 // El getCurrentPosition puede colgar silenciosamente si el GPS del sistema
 // está apagado (Chrome Android), por eso mostramos el modal PRIMERO y
 // arrancamos el reintento en paralelo.
@@ -400,67 +469,97 @@ function lRepetir(){
 // ─── GUARDAR · sube foto + inserta relevamiento crudo ─────────────
 async function lGuardar(){
   if (!_fotoActual || !_gpsCuandoSaco){
-    toast('Falta foto o GPS', 'err'); return;
+    statusMostrar('error', 'Faltan datos', 'No hay foto o ubicación GPS.');
+    return;
   }
-  const btn = $('btnGuardar');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Guardando...';
+  // Cerrar vista previa y bloquear pantalla con panel de estado
+  $('preview').classList.remove('on');
+  statusMostrar('cargando', 'Enviando...', 'Subiendo la foto');
   const g = _gpsCuandoSaco;
   const fechaISO = new Date(g.ts).toISOString();
-  // v9.63 · Fix schema · usar columnas REALES de la tabla relevamientos (mismo
-  // schema que dvba_campo.html usa). Los datos operativos (ruta, tipo, estado,
-  // partido, progresiva) quedan NULL para completar al aprobar en oficina.
+  // Schema real (mismo que app completa)
   const reg = {
-    ruta: null,
-    partido: null,
-    progresiva: null,
-    tipo: 'sin_clasificar',           // req · placeholder para completar al aprobar
-    estado: null,
-    observaciones: 'Cargado desde Captura rápida (dvba_campo_lite ' + APP_VER + ') · GPS ±' + g.acc + 'm',
-    foto_url: null,                   // se llena tras subir a Storage
-    lat: g.lat,
-    lng: g.lng,
-    fecha: fechaISO,
-    estado_workflow: 'campo',         // queda en la cola de pendientes
-    validado_geo: 'pendiente',        // se armoniza al aprobar
-    sello_version: null,              // no sellada en móvil (workflow campo→oficina)
-    prioridad: 'normal',
-    tipo_via: 'rp'                    // default; se cambia al aprobar si corresponde camino
+    ruta: null, partido: null, progresiva: null,
+    tipo: 'sin_clasificar', estado: null,
+    observaciones: 'Foto tomada con Captura Rápida (' + APP_VER + ') · GPS ±' + g.acc + 'm',
+    foto_url: null, lat: g.lat, lng: g.lng, fecha: fechaISO,
+    estado_workflow: 'campo', validado_geo: 'pendiente',
+    sello_version: null, prioridad: 'normal', tipo_via: 'rp'
   };
+  // Sin internet · directo a cola local
+  if (!navigator.onLine){
+    console.warn('[lite] sin conexión, guardando en cola local');
+    guardarEnColaLocal(reg, _fotoActual);
+    _fotoActual = null; _gpsCuandoSaco = null;
+    actualizarPendientes();
+    statusMostrar('offline', 'Guardado en el celu',
+      'No hay internet ahora. La foto quedó en el celular y se enviará automáticamente cuando vuelva la conexión.<br><br><b>Sin enviar: ' + contarPendientes() + '</b>');
+    return;
+  }
   try {
-    // 1. Subir foto CRUDA (no sellada) a Storage
+    // ── 1. Subir foto a Storage con fetch directo (igual que app completa)
     const blob = await (await fetch(_fotoActual)).blob();
     const path = 'fotos/' + Date.now() + '_lite.jpg';
-    const { error: upErr } = await _supa.storage.from(BUCKET)
-      .upload(path, blob, { contentType:'image/jpeg', upsert:false });
-    if (upErr) throw new Error('Storage: ' + upErr.message);
-    reg.foto_url = _supa.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-    console.log('[lite] foto subida:', reg.foto_url);
+    const upUrl = SUPA_URL + '/storage/v1/object/' + BUCKET + '/' + path;
+    console.log('[lite] subiendo:', upUrl, '· tamaño:', blob.size);
+    const upResp = await fetch(upUrl, {
+      method: 'POST',
+      headers: await authHeaders({ 'Content-Type':'image/jpeg' }),
+      body: blob,
+      signal: AbortSignal.timeout(30000)
+    });
+    if (!upResp.ok){
+      const errTxt = await upResp.text();
+      throw new Error('Foto (código ' + upResp.status + '): ' + errTxt.slice(0,200));
+    }
+    reg.foto_url = SUPA_URL + '/storage/v1/object/public/' + BUCKET + '/' + path;
+    console.log('[lite] foto OK:', reg.foto_url);
+    statusMostrar('cargando', 'Enviando...', 'Guardando en el sistema');
 
-    // 2. Insertar registro en tabla relevamientos
-    const { data, error: insErr } = await _supa.from('relevamientos')
-      .insert(reg).select('id').single();
-    if (insErr) throw new Error('BD: ' + insErr.message);
-    console.log('[lite] registro creado id=' + data.id);
+    // ── 2. Insertar registro con fetch directo
+    const insResp = await fetch(SUPA_URL + '/rest/v1/relevamientos', {
+      method: 'POST',
+      headers: await authHeaders({
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      }),
+      body: JSON.stringify(reg),
+      signal: AbortSignal.timeout(15000)
+    });
+    if (!insResp.ok){
+      const errTxt = await insResp.text();
+      throw new Error('Base (código ' + insResp.status + '): ' + errTxt.slice(0,300));
+    }
+    const rows = await insResp.json();
+    const nuevoId = (rows[0] && rows[0].id) || '?';
+    console.log('[lite] registro OK id=' + nuevoId);
 
-    // 3. UI feedback exitoso
-    lRepetir();
-    toast('✓ Registro #' + data.id + ' guardado · GPS ±' + g.acc + 'm');
+    // ── 3. Éxito
+    _fotoActual = null; _gpsCuandoSaco = null;
+    statusMostrar('ok', '¡Enviado!',
+      'Registro <b class="num">#' + nuevoId + '</b> guardado en el sistema.<br>' +
+      'Ubicación GPS: ±' + g.acc + ' metros.<br><br>' +
+      'Ya podés sacar otra foto.');
     actualizarPendientes();
   } catch(e){
     console.error('[lite guardar] ERROR:', e);
-    // Diferenciar entre error de red y error real (RLS, schema, etc.)
-    const esRed = !navigator.onLine || /network|fetch|abort/i.test(e.message||'');
+    const esRed = !navigator.onLine || /timeout|network|failed to fetch|abort/i.test(e.message||'');
     if (esRed){
       guardarEnColaLocal(reg, _fotoActual);
-      lRepetir();
-      toast('⚠ Sin red · guardado local (' + contarPendientes() + ' pend.)', 'warn');
+      _fotoActual = null; _gpsCuandoSaco = null;
+      actualizarPendientes();
+      statusMostrar('offline', 'Guardado en el celu',
+        'No pude conectarme al sistema. La foto quedó en el celular y se enviará cuando vuelva la conexión.<br><br><b>Sin enviar: ' + contarPendientes() + '</b>');
     } else {
-      // Error real (RLS, schema, permisos) — mostrar mensaje al usuario
-      toast('❌ ' + (e.message || 'Error al guardar'), 'err');
+      // Error real (permisos, base, etc.) — guardar local igual para no perder
+      guardarEnColaLocal(reg, _fotoActual);
+      _fotoActual = null; _gpsCuandoSaco = null;
+      actualizarPendientes();
+      statusMostrar('error', 'No se pudo enviar',
+        'Hubo un problema al guardar en el sistema.<br>' +
+        'La foto quedó en el celular, tocá <b>Sin enviar</b> abajo para reintentar.' +
+        '<span class="err-detail">' + (e.message || 'Error desconocido') + '</span>');
     }
-    actualizarPendientes();
-  } finally {
-    btn.disabled = false; btn.textContent = '✓ Guardar';
   }
 }
 
@@ -510,20 +609,31 @@ async function sincronizarCola(){
 }
 async function lVerPendientes(){
   const n = contarPendientes();
-  if (n === 0){ toast('Sin pendientes locales'); return; }
-  toast('Sincronizando '+n+'...');
+  if (n === 0){
+    statusMostrar('ok', 'Todo enviado', 'No tenés fotos pendientes de envío. Todo está en el sistema.');
+    return;
+  }
+  statusMostrar('cargando', 'Enviando...', 'Enviando ' + n + ' foto' + (n===1?'':'s') + ' pendiente' + (n===1?'':'s'));
   const res = await sincronizarCola();
-  if (res.err === 0) toast('✓ '+res.ok+' sincronizados');
-  else               toast(res.ok+' OK · '+res.err+' con error', 'warn');
+  if (res.err === 0){
+    statusMostrar('ok', '¡Todo enviado!', 'Se enviaron <b class="num">' + res.ok + '</b> foto' + (res.ok===1?'':'s') + ' al sistema.');
+  } else if (res.ok > 0){
+    statusMostrar('offline', 'Envío parcial',
+      'Se enviaron ' + res.ok + '. Quedan <b>' + res.err + '</b> sin enviar (probá de nuevo más tarde).');
+  } else {
+    statusMostrar('error', 'No se pudo enviar',
+      'No hay internet o el sistema está caído. Las <b>' + res.err + '</b> fotos siguen guardadas en el celular.');
+  }
 }
 function lVerInfo(){
-  const msg = 'DVBA · Captura rápida\n' +
-              APP_VER + ' · Ing. Luciano Lamaita\n\n' +
-              'Modo minimalista: solo foto + GPS.\n' +
-              'Los datos de tarea, ruta y tipo se completan\n' +
-              'después desde la oficina (portal DVBA).\n\n' +
+  const msg = 'DVBA · Captura Rápida\n' +
+              'Versión ' + APP_VER + '\n' +
+              'Ing. Luciano Lamaita — División Técnica DVBA\n\n' +
+              'Esta app solo saca la foto y guarda la ubicación.\n' +
+              'Los demás datos (tarea, ruta, tipo) los completa\n' +
+              'alguien desde la oficina.\n\n' +
               'Usuario: ' + (_user ? _user.email : '—') + '\n' +
-              'Pendientes locales: ' + contarPendientes();
+              'Fotos sin enviar: ' + contarPendientes();
   alert(msg);
 }
 
@@ -554,9 +664,9 @@ async function inicializar(){
   // Sync automático al reconectar
   window.addEventListener('online', () => {
     if (contarPendientes() > 0){
-      toast('Reconectado · sincronizando...');
+      toast('Volvió el internet · enviando...');
       sincronizarCola().then(res => {
-        if (res.ok > 0) toast('✓ '+res.ok+' sincronizados');
+        if (res.ok > 0) toast('✓ Se enviaron ' + res.ok + ' foto' + (res.ok===1?'':'s'));
       });
     }
   });
