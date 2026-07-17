@@ -177,12 +177,12 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
-// DVBA CAMPO LITE · v9.59
+// DVBA CAMPO LITE · v9.60
 // UI minimalista: solo foto + GPS. Sin formularios.
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.59';
+const APP_VER = 'v9.60';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -307,42 +307,58 @@ async function lGuardar(){
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Guardando...';
   const g = _gpsCuandoSaco;
   const fechaISO = new Date(g.ts).toISOString();
+  // v9.60 · Fix schema · usar columnas REALES de la tabla relevamientos (mismo
+  // schema que dvba_campo.html usa). Los datos operativos (ruta, tipo, estado,
+  // partido, progresiva) quedan NULL para completar al aprobar en oficina.
   const reg = {
-    // Solo lo mínimo: GPS + timestamp + user. Campos de tarea/tipo quedan NULL, se completan en oficina.
-    latitud: g.lat,
-    longitud: g.lng,
-    gps_acc: g.acc,
+    ruta: null,
+    partido: null,
+    progresiva: null,
+    tipo: 'sin_clasificar',           // req · placeholder para completar al aprobar
+    estado: null,
+    observaciones: 'Cargado desde Captura rápida (dvba_campo_lite ' + APP_VER + ') · GPS ±' + g.acc + 'm',
+    foto_url: null,                   // se llena tras subir a Storage
+    lat: g.lat,
+    lng: g.lng,
     fecha: fechaISO,
-    responsable_email: _user ? _user.email : null,
-    estado_workflow: 'campo',       // convención dvba_campo — pendiente de revisión
-    validado_geo: 'pendiente',
-    origen_captura: 'campo_lite',   // v9.59 · marca para distinguir en la cola
-    // Los otros campos (ruta, prog, tipo, estado, partido, obs) quedan NULL/default
+    estado_workflow: 'campo',         // queda en la cola de pendientes
+    validado_geo: 'pendiente',        // se armoniza al aprobar
+    sello_version: null,              // no sellada en móvil (workflow campo→oficina)
+    prioridad: 'normal',
+    tipo_via: 'rp'                    // default; se cambia al aprobar si corresponde camino
   };
   try {
-    // 1. Subir foto CRUDA (no sellada — se sella al aprobar en oficina, workflow campo→oficina)
+    // 1. Subir foto CRUDA (no sellada) a Storage
     const blob = await (await fetch(_fotoActual)).blob();
-    const ext = 'jpg';
-    const path = 'fotos/' + Date.now() + '_lite.' + ext;
+    const path = 'fotos/' + Date.now() + '_lite.jpg';
     const { error: upErr } = await _supa.storage.from(BUCKET)
       .upload(path, blob, { contentType:'image/jpeg', upsert:false });
-    if (upErr) throw upErr;
+    if (upErr) throw new Error('Storage: ' + upErr.message);
     reg.foto_url = _supa.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    console.log('[lite] foto subida:', reg.foto_url);
 
     // 2. Insertar registro en tabla relevamientos
-    const { error: insErr } = await _supa.from('relevamientos').insert(reg);
-    if (insErr) throw insErr;
+    const { data, error: insErr } = await _supa.from('relevamientos')
+      .insert(reg).select('id').single();
+    if (insErr) throw new Error('BD: ' + insErr.message);
+    console.log('[lite] registro creado id=' + data.id);
 
-    // 3. UI feedback
+    // 3. UI feedback exitoso
     lRepetir();
-    toast('✓ Registro guardado · GPS ±'+g.acc+'m');
+    toast('✓ Registro #' + data.id + ' guardado · GPS ±' + g.acc + 'm');
     actualizarPendientes();
   } catch(e){
-    console.error('[lite guardar]', e);
-    // Guardar en cola local para retry
-    guardarEnColaLocal(reg, _fotoActual);
-    lRepetir();
-    toast('⚠ Sin red · guardado local', 'warn');
+    console.error('[lite guardar] ERROR:', e);
+    // Diferenciar entre error de red y error real (RLS, schema, etc.)
+    const esRed = !navigator.onLine || /network|fetch|abort/i.test(e.message||'');
+    if (esRed){
+      guardarEnColaLocal(reg, _fotoActual);
+      lRepetir();
+      toast('⚠ Sin red · guardado local (' + contarPendientes() + ' pend.)', 'warn');
+    } else {
+      // Error real (RLS, schema, permisos) — mostrar mensaje al usuario
+      toast('❌ ' + (e.message || 'Error al guardar'), 'err');
+    }
     actualizarPendientes();
   } finally {
     btn.disabled = false; btn.textContent = '✓ Guardar';
