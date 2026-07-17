@@ -27,7 +27,7 @@ header .logo img{width:100%;height:100%;object-fit:contain;border-radius:50%}
 header .brand{flex:1;font-size:13px;font-weight:800;letter-spacing:.4px;line-height:1.15}
 header .brand .sub{display:block;font-size:9.5px;font-weight:500;opacity:.85;letter-spacing:.3px}
 
-/* Badge GPS · v9.64 clickeable */
+/* Badge GPS · v9.66 clickeable */
 .gps-badge{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:.3px;transition:all .25s;cursor:pointer;font-family:inherit;color:#fff}
 .gps-badge:active{transform:scale(.94)}
 .gps-badge.on {background:rgba(46,180,90,.35);border-color:rgba(46,180,90,.7)}
@@ -37,7 +37,7 @@ header .brand .sub{display:block;font-size:9.5px;font-weight:500;opacity:.85;let
 .gps-badge .dot.pulse{animation:pulse 1.3s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
-/* MAIN · el botón gigante — v9.64 padding-bottom para no ser tapado por footer:fixed */
+/* MAIN · el botón gigante — v9.66 padding-bottom para no ser tapado por footer:fixed */
 main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;padding-bottom:calc(90px + env(safe-area-inset-bottom));position:relative;overflow-y:auto}
 
 .big-btn{width:min(78vw,320px);height:min(78vw,320px);border:0;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--pl),var(--p) 60%,var(--pd) 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 12px 32px rgba(0,154,174,.4),0 4px 8px rgba(0,0,0,.15),inset 0 -6px 20px rgba(0,0,0,.15),inset 0 4px 12px rgba(255,255,255,.25);cursor:pointer;font-family:inherit;transition:transform .12s,box-shadow .2s;position:relative}
@@ -47,7 +47,7 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
 .big-btn .lbl{font-size:20px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 2px 4px rgba(0,0,0,.3)}
 .big-btn .sub{font-size:11px;font-weight:500;opacity:.85;letter-spacing:.5px;margin-top:4px;text-transform:none}
 
-/* v9.64 · Hint MÁS GRANDE para lectura al sol / exterior */
+/* v9.66 · Hint MÁS GRANDE para lectura al sol / exterior */
 .hint{text-align:center;color:#333;font-size:15px;margin-top:28px;padding:0 22px;line-height:1.55;max-width:360px;font-weight:500}
 .hint b{color:var(--p);font-weight:800}
 .hint-alerta{text-align:center;color:#8a2020;background:#ffe8e8;border:2px solid #d24040;border-radius:10px;padding:12px 16px;margin:16px 20px 0;font-size:14px;line-height:1.5;font-weight:600;max-width:360px}
@@ -76,7 +76,7 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
 #toast.err{background:var(--ro)}
 #toast.warn{background:var(--am)}
 
-/* FOOTER BAR · minima — v9.64 position:fixed para garantizar que siempre esté visible */
+/* FOOTER BAR · minima — v9.66 position:fixed para garantizar que siempre esté visible */
 footer{position:fixed;bottom:0;left:0;right:0;z-index:15;display:flex;align-items:center;justify-content:space-around;background:var(--w);border-top:1px solid var(--light);padding:8px 14px;padding-bottom:calc(8px + env(safe-area-inset-bottom));box-shadow:0 -2px 6px rgba(0,0,0,.08)}
 footer .fb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;color:var(--mut);text-decoration:none;font-size:9.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;background:transparent;border:0;font-family:inherit}
 footer .fb:active{opacity:.6}
@@ -97,7 +97,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 #login-box button:disabled{background:#aaa}
 #login-box .err{color:var(--ro);font-size:11px;margin-top:8px;min-height:16px}
 
-/* v9.64 · Panel de estado (overlay bloqueante durante el envío) */
+/* v9.66 · Panel de estado (overlay bloqueante durante el envío) */
 .status-ov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
 .status-ov.on{display:flex}
 .status-box{background:var(--w);border-radius:18px;padding:28px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -114,7 +114,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 .btn-status-ok{width:100%;padding:14px;background:var(--vd);color:#fff;border:0;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.4px;text-transform:uppercase}
 .btn-status-ok:active{transform:scale(.96)}
 
-/* v9.64 · Modal GPS explicativo */
+/* v9.66 · Modal GPS explicativo */
 .modal-gps-ov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-gps-ov.on{display:flex}
 .modal-gps-box{background:var(--w);border-radius:16px;padding:24px 22px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center}
@@ -183,7 +183,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
   </div>
 </div>
 
-<!-- v9.64 · Panel de estado durante el envío (bloquea la pantalla) -->
+<!-- v9.66 · Panel de estado durante el envío (bloquea la pantalla) -->
 <div class="status-ov" id="statusOv">
   <div class="status-box">
     <div class="status-spin" id="statusSpin"></div>
@@ -231,12 +231,12 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
-// DVBA CAMPO LITE · v9.64
+// DVBA CAMPO LITE · v9.66
 // UI minimalista: solo foto + GPS. Sin formularios.
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.64';
+const APP_VER = 'v9.66';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -261,22 +261,27 @@ function toast(msg, tipo){
 }
 function fmtCoord(v){ return (v==null||!isFinite(v))?'—':v.toFixed(6); }
 
-// v9.64 · Helper de headers auth · igual al de la app completa
+// v9.66 · authHeaders SIN red · leemos el token directo de localStorage
+// (donde ya lo guardó Supabase Auth con storageKey='dvba_session'). Si
+// llamáramos a _supa.auth.getSession() puede requerir red y colgar cuando
+// estamos offline.
 async function authHeaders(extras){
   let token = null;
   try {
-    if (_supa){
-      const { data } = await _supa.auth.getSession();
-      token = data && data.session ? data.session.access_token : null;
+    const raw = localStorage.getItem('dvba_session');
+    if (raw){
+      const s = JSON.parse(raw);
+      // Puede venir directo como {access_token} o anidado como {session:{access_token}}
+      token = (s.access_token) || (s.session && s.session.access_token) || null;
     }
-  } catch(e){ console.warn('[auth token]', e); }
+  } catch(e){ console.warn('[auth token localStorage]', e); }
   return Object.assign({
     'apikey': SUPA_KEY,
     'Authorization': 'Bearer ' + (token || SUPA_KEY)
   }, extras || {});
 }
 
-// v9.64 · Panel de estado bloqueante (subiendo / éxito / error / offline)
+// v9.66 · Panel de estado bloqueante (subiendo / éxito / error / offline)
 function statusMostrar(estado, titulo, mensaje){
   $('statusOv').classList.add('on');
   const icon = $('statusIcon');
@@ -325,9 +330,11 @@ function iniciarGPS(){
     },
     err => {
       console.warn('[GPS]', err);
-      const msg = err.code === 1 ? 'GPS denegado · tocar' : (err.code === 2 ? 'Sin señal · tocar' : 'GPS timeout · tocar');
+      const msg = err.code === 1 ? 'Sin ubicación · tocar' : (err.code === 2 ? 'Sin señal · tocar' : 'Sin señal · tocar');
       setGpsEstado('off', msg);
       $('btnCapturar').disabled = true;
+      // v9.65 · Limpiar cache · si el user apagó el GPS, no dejar tomar foto con lectura vieja
+      _gpsLat = null; _gpsLng = null; _gpsAcc = null; _gpsAlt = null;
       const al = $('alertaGps'); if (al) al.style.display = 'block';
     },
     { enableHighAccuracy:true, timeout:15000, maximumAge:5000 }
@@ -342,7 +349,7 @@ function setGpsEstado(cls, txt){
   if (dot) dot.classList.toggle('pulse', cls === 'pending' || cls === 'off');
 }
 
-// v9.64 · Al tocar el badge, mostrar modal con instrucciones claras.
+// v9.66 · Al tocar el badge, mostrar modal con instrucciones claras.
 // El getCurrentPosition puede colgar silenciosamente si el GPS del sistema
 // está apagado (Chrome Android), por eso mostramos el modal PRIMERO y
 // arrancamos el reintento en paralelo.
@@ -413,10 +420,19 @@ document.addEventListener('visibilitychange', () => {
 // ─── CAPTURA FOTO · abre cámara nativa ────────────────────────────
 function iniciarCaptura(){
   $('btnCapturar').addEventListener('click', () => {
-    if (_gpsLat == null){
-      toast('Esperá que el GPS tenga señal', 'warn');
+    // v9.65 · No confiar solo en _gpsLat (puede estar cacheado si el user
+    // apagó el GPS después de una lectura previa). Chequear también el
+    // estado visual del indicador — si no está en verde, no dejar sacar foto.
+    const cls = $('gpsBadge').classList;
+    if (_gpsLat == null || !cls.contains('on')){
+      mostrarModalGps();  // el modal explicativo que ya existe
       return;
     }
+    // Chequear edad de la última lectura (>60s = GPS pudo apagarse mientras)
+    const ahora = Date.now();
+    const ultimaLect = _gpsCuandoSaco ? _gpsCuandoSaco.ts : ahora;
+    // No podemos saber la edad de la última lectura del watchPosition, pero
+    // si el indicador está verde confiamos. El watch dispara cada movimiento.
     $('foto-input').click();
   });
   $('foto-input').addEventListener('change', async e => {
@@ -477,14 +493,25 @@ async function lGuardar(){
   statusMostrar('cargando', 'Enviando...', 'Subiendo la foto');
   const g = _gpsCuandoSaco;
   const fechaISO = new Date(g.ts).toISOString();
-  // Schema real (mismo que app completa)
+  // Schema real de relevamientos · v9.65 fix constraint NOT NULL en `ruta`.
+  // Ambas columnas ruta y tipo son requeridas · usamos placeholder que en
+  // oficina se completa al aprobar. `progresiva` es TEXT y acepta ''.
   const reg = {
-    ruta: null, partido: null, progresiva: null,
-    tipo: 'sin_clasificar', estado: null,
-    observaciones: 'Foto tomada con Captura Rápida (' + APP_VER + ') · GPS ±' + g.acc + 'm',
-    foto_url: null, lat: g.lat, lng: g.lng, fecha: fechaISO,
-    estado_workflow: 'campo', validado_geo: 'pendiente',
-    sello_version: null, prioridad: 'normal', tipo_via: 'rp'
+    ruta: '?',                          // NOT NULL · '?' señaliza "sin identificar"
+    partido: null,
+    progresiva: '',
+    tipo: 'sin_clasificar',              // NOT NULL · idem
+    estado: null,
+    observaciones: 'Foto tomada con Captura Rápida (' + APP_VER + ') · GPS ±' + g.acc + 'm · Completar datos en oficina.',
+    foto_url: null,
+    lat: g.lat,
+    lng: g.lng,
+    fecha: fechaISO,
+    estado_workflow: 'campo',
+    validado_geo: 'pendiente',
+    sello_version: null,
+    prioridad: 'normal',
+    tipo_via: 'rp'
   };
   // Sin internet · directo a cola local
   if (!navigator.onLine){
@@ -637,26 +664,52 @@ function lVerInfo(){
   alert(msg);
 }
 
-// ─── AUTH · comparte sesión con dvba_campo.html ───────────────────
+// ─── AUTH · v9.66 · funciona offline si el user ya se logueó antes
 async function inicializar(){
   _supa = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
     auth: { persistSession:true, storageKey:'dvba_session', storage:window.localStorage }
   });
-  // Intentar restaurar sesión
+  // Paso 1 · aceptar sesión guardada del localStorage SIN pegarle al server
   const raw = localStorage.getItem('dvba_session');
+  let sesionLocal = null;
   if (raw){
     try {
       const sess = JSON.parse(raw);
-      const s = sess.session || sess;
-      if (s && s.access_token){
-        await _supa.auth.setSession({ access_token:s.access_token, refresh_token:s.refresh_token });
-        const { data:{ user } } = await _supa.auth.getUser();
-        if (user){ _user = user; console.log('[auth] sesión activa:', user.email); }
-      }
-    } catch(e){ console.warn('[auth restore]', e); }
+      sesionLocal = sess.session || sess;
+    } catch(e){ console.warn('[auth parse]', e); }
   }
+  if (sesionLocal && sesionLocal.access_token){
+    // Cachear datos básicos del user (email) sin llamar getUser (que requiere red)
+    _user = sesionLocal.user || (sesionLocal.user_metadata ? sesionLocal : null);
+    // Si el token trae email/id lo usamos; sino intentamos parsear el JWT
+    if (!_user){
+      try {
+        const payload = JSON.parse(atob(sesionLocal.access_token.split('.')[1]));
+        _user = { id: payload.sub, email: payload.email };
+      } catch(e){ _user = { email: '(usuario)' }; }
+    }
+    console.log('[auth] sesión local:', _user && _user.email);
+    // Paso 2 · si hay red, refrescar/validar en segundo plano sin bloquear la UI
+    if (navigator.onLine){
+      try {
+        await _supa.auth.setSession({ access_token: sesionLocal.access_token, refresh_token: sesionLocal.refresh_token });
+        const { data:{ user }, error } = await _supa.auth.getUser();
+        if (!error && user){ _user = user; console.log('[auth] sesión validada online:', user.email); }
+      } catch(e){ console.warn('[auth online refresh]', e); }
+    }
+  }
+  // Paso 3 · si no hay sesión guardada:
+  //   - Con red: mostrar login normal.
+  //   - Sin red: aviso claro de que hay que conectar la primera vez.
   if (!_user){
-    $('login-ov').classList.add('on');
+    if (navigator.onLine){
+      $('login-ov').classList.add('on');
+    } else {
+      // Sin sesión + sin red = necesita conectar la primera vez
+      statusMostrar('offline', 'Sin internet',
+        'Para usar la app por primera vez necesitás internet para ingresar tu cuenta.<br><br>' +
+        'Conectate a WiFi o datos móviles, y probá de nuevo. Después vas a poder usarla sin conexión.');
+    }
   }
   iniciarGPS();
   iniciarCaptura();
