@@ -304,7 +304,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.67';
+const APP_VER = 'v9.68';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -816,16 +816,55 @@ async function lReintentarSync(){
     toast('No se enviaron · ' + primerError, 'err');
   }
 }
+// v9.68 · Info convertido en modal con datos de sesión + botón Cerrar sesión
 function lVerInfo(){
-  const msg = 'DVBA · Captura Rápida\n' +
-              'Versión ' + APP_VER + '\n' +
-              'Ing. Luciano Lamaita — División Técnica DVBA\n\n' +
-              'Esta app solo saca la foto y guarda la ubicación.\n' +
-              'Los demás datos (tarea, ruta, tipo) los completa\n' +
-              'alguien desde la oficina.\n\n' +
-              'Usuario: ' + (_user ? _user.email : '—') + '\n' +
-              'Fotos sin enviar: ' + contarPendientes();
-  alert(msg);
+  const email = _user ? (_user.email || '(usuario)') : '(sin sesión)';
+  const pend  = contarPendientes();
+  const online = navigator.onLine ? '🟢 Con internet' : '🔴 Sin internet';
+  const html = '' +
+    '<div style="text-align:left;line-height:1.7;font-size:13px;color:#333">' +
+      '<b>DVBA · Captura Rápida</b><br>' +
+      'Versión <b>' + APP_VER + '</b><br>' +
+      '<span style="font-size:11px;color:#888">Ing. Luciano Lamaita — División Técnica DVBA</span>' +
+      '<hr style="border:0;border-top:1px solid #e0e0e0;margin:10px 0">' +
+      '<b>Sesión</b><br>' +
+      '<span style="font-size:12px;color:#555;word-break:break-all">👤 ' + email + '</span><br>' +
+      '<span style="font-size:12px;color:#555">' + online + '</span><br>' +
+      '<span style="font-size:12px;color:#555">📤 Sin enviar: <b>' + pend + '</b></span>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;margin-top:16px">' +
+      '<button onclick="lCerrarStatus()" class="btn-status-ok" style="flex:1;background:#e0e0e0;color:#333">Cerrar</button>' +
+      '<button onclick="lCerrarSesion()" class="btn-status-ok" style="flex:1;background:var(--ro)">Cerrar sesión</button>' +
+    '</div>';
+  $('statusOv').classList.add('on');
+  $('statusSpin').style.display = 'none';
+  $('statusIcon').style.display = 'block';
+  $('statusIcon').className = 'status-icon';
+  $('statusIcon').textContent = 'ℹ';
+  $('statusIcon').style.color = 'var(--p)';
+  $('statusTitle').textContent = 'Información';
+  $('statusMsg').innerHTML = html;
+  $('statusActions').style.display = 'none';
+}
+async function lCerrarSesion(){
+  const pend = contarPendientes();
+  let msg = '¿Cerrar la sesión de ' + (_user ? _user.email : 'este usuario') + '?';
+  if (pend > 0){
+    msg += '\n\n⚠ Tenés ' + pend + ' foto' + (pend===1?'':'s') + ' sin enviar. ' +
+           'Si cerrás sesión ahora se van a PERDER.\n\n' +
+           '¿Querés cerrar sesión igual?';
+  }
+  if (!confirm(msg)) return;
+  try {
+    if (_supa && _supa.auth) await _supa.auth.signOut().catch(()=>{});
+  } catch(e){ console.warn('[signOut]', e); }
+  localStorage.removeItem('dvba_session');
+  localStorage.removeItem('sb-txjlfpffyzuhdqtfhlmc-auth-token');
+  if (pend > 0) localStorage.removeItem(PENDIENTES_KEY);
+  _user = null;
+  lCerrarStatus();
+  toast('Sesión cerrada · recargando...');
+  setTimeout(() => location.reload(), 600);
 }
 
 // ─── AUTH · v9.66 · funciona offline si el user ya se logueó antes
