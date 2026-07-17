@@ -20,20 +20,21 @@
 html,body{margin:0;padding:0;height:100vh;height:100dvh;font-family:'Encode Sans','Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--txt);background:var(--bg);overflow:hidden;user-select:none;-webkit-user-select:none}
 body{display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
 
-/* HEADER · minimalista, chico */
-header{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:10}
-header .logo{width:32px;height:32px;flex-shrink:0}
+/* HEADER · v9.67 · más aire + indicador GPS grande */
+header{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;padding:12px 16px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:10}
+.hdr-top{display:flex;align-items:center;gap:10px}
+header .logo{width:36px;height:36px;flex-shrink:0}
 header .logo img{width:100%;height:100%;object-fit:contain;border-radius:50%}
-header .brand{flex:1;font-size:13px;font-weight:800;letter-spacing:.4px;line-height:1.15}
-header .brand .sub{display:block;font-size:9.5px;font-weight:500;opacity:.85;letter-spacing:.3px}
+header .brand{flex:1;font-size:14px;font-weight:800;letter-spacing:.4px;line-height:1.15}
+header .brand .sub{display:block;font-size:10.5px;font-weight:500;opacity:.85;letter-spacing:.3px;margin-top:2px}
 
-/* Badge GPS · v9.66 clickeable */
-.gps-badge{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:.3px;transition:all .25s;cursor:pointer;font-family:inherit;color:#fff}
-.gps-badge:active{transform:scale(.94)}
+/* Indicador GPS · v9.67 · banner grande al pie del header */
+.gps-badge{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.35);border-radius:10px;padding:11px 14px;font-size:14px;font-weight:800;letter-spacing:.3px;transition:all .25s;cursor:pointer;font-family:inherit;color:#fff}
+.gps-badge:active{transform:scale(.97)}
 .gps-badge.on {background:rgba(46,180,90,.35);border-color:rgba(46,180,90,.7)}
 .gps-badge.off{background:rgba(224,60,60,.5);border-color:rgba(224,60,60,.9);animation:pulse 1.8s ease-in-out infinite}
 .gps-badge.pending{background:rgba(230,180,40,.35);border-color:rgba(230,180,40,.7)}
-.gps-badge .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+.gps-badge .dot{width:12px;height:12px;border-radius:50%;background:currentColor;flex-shrink:0}
 .gps-badge .dot.pulse{animation:pulse 1.3s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
@@ -132,15 +133,65 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 /* Loading spinner */
 .spinner{width:24px;height:24px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* v9.67 · Banner de nueva versión — moderno, informativo */
+.update-banner{position:fixed;top:0;left:0;right:0;z-index:600;background:linear-gradient(135deg,#1a8a4a,#0f6d3a);color:#fff;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));display:none;box-shadow:0 4px 14px rgba(0,0,0,.35);animation:slideDown .35s ease-out}
+.update-banner.on{display:flex;align-items:center;gap:12px}
+.update-banner .ub-icon{font-size:28px;line-height:1;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+.update-banner .ub-text{flex:1;line-height:1.3}
+.update-banner .ub-title{font-size:14px;font-weight:800;letter-spacing:.3px}
+.update-banner .ub-sub{font-size:11px;opacity:.9;margin-top:2px;font-weight:500}
+.update-banner .ub-btn{background:#fff;color:#0f6d3a;border:0;border-radius:8px;padding:10px 16px;font-family:inherit;font-size:13px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform .12s}
+.update-banner .ub-btn:active{transform:scale(.94)}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+
+/* v9.67 · Modal de pendientes con lista y opción borrar */
+.pend-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:none;align-items:flex-end;justify-content:center;padding:0}
+.pend-ov.on{display:flex}
+.pend-box{background:var(--w);border-radius:18px 18px 0 0;width:100%;max-width:520px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 -8px 30px rgba(0,0,0,.4);animation:slideUp .3s ease-out}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.pend-header{padding:18px 20px 12px;border-bottom:1px solid var(--light);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pend-header h3{margin:0;font-size:17px;color:var(--p);font-weight:800;flex:1}
+.pend-close{background:transparent;border:0;font-size:24px;color:var(--mut);cursor:pointer;padding:4px 10px;line-height:1;font-family:inherit}
+.pend-close:active{color:var(--txt)}
+.pend-list{flex:1;overflow-y:auto;padding:8px 12px}
+.pend-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--light);border-radius:10px;margin-bottom:8px;background:#fafafa}
+.pend-item img{width:64px;height:64px;object-fit:cover;border-radius:6px;background:#ddd;flex-shrink:0}
+.pend-item .pi-info{flex:1;font-size:12px;color:#444;line-height:1.4;min-width:0}
+.pend-item .pi-fecha{font-weight:700;color:var(--txt);font-size:12.5px;margin-bottom:2px}
+.pend-item .pi-gps{color:var(--mut);font-size:11px;word-break:break-all}
+.pend-item .pi-warn{color:var(--ro);font-size:10.5px;font-weight:700;margin-top:3px}
+.pend-item .pi-del{background:#ffe8e8;color:#b20900;border:1px solid #d24040;border-radius:8px;padding:8px 10px;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.3px;flex-shrink:0}
+.pend-item .pi-del:active{transform:scale(.94)}
+.pend-empty{text-align:center;padding:40px 20px;color:var(--mut);font-size:14px}
+.pend-empty .pe-icon{font-size:48px;margin-bottom:8px}
+.pend-actions{padding:12px 16px 16px;padding-bottom:calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--light);display:flex;gap:8px;background:#f8f8f8}
+.pend-actions button{flex:1;padding:14px 8px;border:0;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.3px;text-transform:uppercase;transition:transform .1s}
+.pend-actions button:active{transform:scale(.96)}
+.pend-actions .btn-sync{background:var(--vd);color:#fff}
+.pend-actions .btn-sync:disabled{background:#aaa;cursor:not-allowed}
+.pend-actions .btn-clear{background:#fff;color:#b20900;border:1.5px solid #d24040;text-transform:none;font-size:12px}
 </style>
 </head>
 <body>
 
+<!-- v9.67 · Banner de nueva versión (aparece cuando el SW detecta actualización) -->
+<div class="update-banner" id="updateBanner" role="alert">
+  <div class="ub-icon">🔄</div>
+  <div class="ub-text">
+    <div class="ub-title">Hay una versión más nueva</div>
+    <div class="ub-sub" id="updateSub">Tocá "Actualizar" para instalarla</div>
+  </div>
+  <button class="ub-btn" onclick="aplicarUpdate()" type="button">Actualizar</button>
+</div>
+
 <header>
-  <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
-  <div class="brand">
-    DVBA · Captura Rápida
-    <span class="sub">Zona VI Saladillo</span>
+  <div class="hdr-top">
+    <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
+    <div class="brand">
+      DVBA · Captura Rápida
+      <span class="sub">Zona VI Saladillo</span>
+    </div>
   </div>
   <button class="gps-badge pending" id="gpsBadge" onclick="lToqueGps()" type="button" title="Toque para verificar la ubicación">
     <span class="dot pulse"></span>
@@ -196,6 +247,23 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
   </div>
 </div>
 
+<!-- v9.67 · Modal de pendientes con lista, borrado individual, envío -->
+<div class="pend-ov" id="pendOv">
+  <div class="pend-box">
+    <div class="pend-header">
+      <h3 id="pendTitle">Fotos sin enviar</h3>
+      <button class="pend-close" onclick="lCerrarPendientes()" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <div class="pend-list" id="pendList">
+      <div class="pend-empty"><div class="pe-icon">📭</div>No hay fotos pendientes.</div>
+    </div>
+    <div class="pend-actions">
+      <button class="btn-clear" id="pendClearBtn" onclick="lBorrarTodosPendientes()" type="button">Borrar todo</button>
+      <button class="btn-sync" id="pendSyncBtn" onclick="lReintentarSync()" type="button">↻ Enviar ahora</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="toast"></div>
 
@@ -236,7 +304,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.66';
+const APP_VER = 'v9.67';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -608,48 +676,144 @@ function actualizarPendientes(){
   if (n > 0){ el.textContent = n; el.style.display = 'inline-block'; }
   else      { el.style.display = 'none'; }
 }
+// v9.67 · sincronizarCola usa fetch directo (mismo camino que lGuardar).
+// El helper _supa.from().insert() estaba fallando silenciosamente cuando la
+// sesión estaba solo en localStorage y sin refresh online (la app quedaba
+// offline en el celu pero con conexión estable).
 async function sincronizarCola(){
   const cola = JSON.parse(localStorage.getItem(PENDIENTES_KEY) || '[]');
-  if (!cola.length) return { ok:0, err:0 };
+  if (!cola.length) return { ok:0, err:0, errores:[] };
   let ok = 0, err = 0;
   const restantes = [];
+  const errores = [];
   for (const item of cola){
     try {
+      // Validar que el item tenga foto y GPS antes de intentar subirlo
+      if (!item.foto || !item.reg || item.reg.lat == null || item.reg.lng == null){
+        throw new Error('Item incompleto (sin foto o sin GPS) — borrar desde la lista');
+      }
       const blob = await (await fetch(item.foto)).blob();
       const path = 'fotos/' + item.ts + '_lite.jpg';
-      const { error: upErr } = await _supa.storage.from(BUCKET)
-        .upload(path, blob, { contentType:'image/jpeg', upsert:true });
-      if (upErr) throw upErr;
-      item.reg.foto_url = _supa.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-      const { error: insErr } = await _supa.from('relevamientos').insert(item.reg);
-      if (insErr) throw insErr;
+      const upUrl = SUPA_URL + '/storage/v1/object/' + BUCKET + '/' + path;
+      const upResp = await fetch(upUrl, {
+        method:  'POST',
+        headers: await authHeaders({ 'Content-Type':'image/jpeg', 'x-upsert':'true' }),
+        body:    blob,
+        signal:  AbortSignal.timeout(30000)
+      });
+      if (!upResp.ok) throw new Error('Foto código ' + upResp.status);
+      item.reg.foto_url = SUPA_URL + '/storage/v1/object/public/' + BUCKET + '/' + path;
+      const insResp = await fetch(SUPA_URL + '/rest/v1/relevamientos', {
+        method:  'POST',
+        headers: await authHeaders({ 'Content-Type':'application/json', 'Prefer':'return=minimal' }),
+        body:    JSON.stringify(item.reg),
+        signal:  AbortSignal.timeout(15000)
+      });
+      if (!insResp.ok){
+        const errTxt = await insResp.text();
+        throw new Error('Base código ' + insResp.status + ': ' + errTxt.slice(0,120));
+      }
       ok++;
     } catch(e){
       console.warn('[sync]', e);
       restantes.push(item);
+      errores.push(e.message || String(e));
       err++;
     }
   }
   localStorage.setItem(PENDIENTES_KEY, JSON.stringify(restantes));
   actualizarPendientes();
-  return { ok, err };
+  return { ok, err, errores };
 }
-async function lVerPendientes(){
-  const n = contarPendientes();
-  if (n === 0){
-    statusMostrar('ok', 'Todo enviado', 'No tenés fotos pendientes de envío. Todo está en el sistema.');
+
+// v9.67 · Ver pendientes ahora muestra un modal con lista, borrar individual,
+// y botón "Enviar ahora" (que no bloquea si no hay red).
+function lVerPendientes(){
+  renderPendientes();
+  $('pendOv').classList.add('on');
+}
+function lCerrarPendientes(){ $('pendOv').classList.remove('on'); }
+
+function renderPendientes(){
+  const cola = leerCola();
+  const list = $('pendList');
+  const title = $('pendTitle');
+  const syncBtn = $('pendSyncBtn');
+  const clearBtn = $('pendClearBtn');
+  title.textContent = 'Fotos sin enviar (' + cola.length + ')';
+  if (cola.length === 0){
+    list.innerHTML = '<div class="pend-empty"><div class="pe-icon">📭</div>No hay fotos pendientes.<br>Todo está en el sistema.</div>';
+    syncBtn.disabled = true;
+    clearBtn.style.display = 'none';
     return;
   }
-  statusMostrar('cargando', 'Enviando...', 'Enviando ' + n + ' foto' + (n===1?'':'s') + ' pendiente' + (n===1?'':'s'));
+  syncBtn.disabled = false;
+  clearBtn.style.display = 'block';
+  const html = cola.map((it,idx) => {
+    const fecha = it.ts ? new Date(it.ts).toLocaleString('es-AR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '—';
+    const lat = it.reg && it.reg.lat != null ? Number(it.reg.lat).toFixed(5) : '—';
+    const lng = it.reg && it.reg.lng != null ? Number(it.reg.lng).toFixed(5) : '—';
+    const sinGps = (it.reg && (it.reg.lat == null || it.reg.lng == null));
+    const sinFoto = !it.foto;
+    let warn = '';
+    if (sinGps)  warn = '⚠ Sin ubicación GPS · no se puede enviar, borrala';
+    else if (sinFoto) warn = '⚠ Sin imagen · no se puede enviar, borrala';
+    const img = it.foto ? '<img src="'+it.foto+'" alt="">' : '<div style="width:64px;height:64px;background:#ffe8e8;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px;color:#b20900">✕</div>';
+    return '<div class="pend-item">' +
+             img +
+             '<div class="pi-info">' +
+               '<div class="pi-fecha">' + fecha + '</div>' +
+               '<div class="pi-gps">' + lat + ', ' + lng + '</div>' +
+               (warn ? '<div class="pi-warn">' + warn + '</div>' : '') +
+             '</div>' +
+             '<button class="pi-del" onclick="lBorrarPendiente(' + idx + ')" type="button">Borrar</button>' +
+           '</div>';
+  }).join('');
+  list.innerHTML = html;
+}
+
+function leerCola(){
+  try { return JSON.parse(localStorage.getItem(PENDIENTES_KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function escribirCola(cola){
+  localStorage.setItem(PENDIENTES_KEY, JSON.stringify(cola));
+  actualizarPendientes();
+}
+function lBorrarPendiente(idx){
+  const cola = leerCola();
+  if (idx < 0 || idx >= cola.length) return;
+  if (!confirm('¿Borrar esta foto pendiente?\nEsta acción no se puede deshacer.')) return;
+  cola.splice(idx, 1);
+  escribirCola(cola);
+  renderPendientes();
+  toast('Foto borrada');
+}
+function lBorrarTodosPendientes(){
+  const cola = leerCola();
+  if (cola.length === 0) return;
+  if (!confirm('¿Borrar TODAS las ' + cola.length + ' fotos pendientes?\nEsta acción no se puede deshacer.')) return;
+  escribirCola([]);
+  renderPendientes();
+  toast('Todas las fotos borradas');
+}
+async function lReintentarSync(){
+  const cola = leerCola();
+  if (cola.length === 0){ renderPendientes(); return; }
+  const btn = $('pendSyncBtn');
+  btn.disabled = true;
+  const txtPrev = btn.textContent;
+  btn.textContent = 'Enviando...';
   const res = await sincronizarCola();
+  btn.textContent = txtPrev;
+  renderPendientes();  // refresca el listado (habrán quedado los que fallaron)
   if (res.err === 0){
-    statusMostrar('ok', '¡Todo enviado!', 'Se enviaron <b class="num">' + res.ok + '</b> foto' + (res.ok===1?'':'s') + ' al sistema.');
+    toast('✓ Se enviaron ' + res.ok + ' foto' + (res.ok===1?'':'s'));
   } else if (res.ok > 0){
-    statusMostrar('offline', 'Envío parcial',
-      'Se enviaron ' + res.ok + '. Quedan <b>' + res.err + '</b> sin enviar (probá de nuevo más tarde).');
+    toast('Enviadas ' + res.ok + ' · quedan ' + res.err + ' sin enviar', 'warn');
   } else {
-    statusMostrar('error', 'No se pudo enviar',
-      'No hay internet o el sistema está caído. Las <b>' + res.err + '</b> fotos siguen guardadas en el celular.');
+    const primerError = res.errores[0] || 'sin detalle';
+    toast('No se enviaron · ' + primerError, 'err');
   }
 }
 function lVerInfo(){
@@ -747,10 +911,59 @@ async function lLogin(){
   }
 }
 
-// Service Worker (comparte con dvba_campo.html)
+// v9.67 · Service Worker con detección de nueva versión y banner
+function mostrarBannerUpdate(nuevaVer){
+  const b = $('updateBanner');
+  if (!b) return;
+  if (nuevaVer){
+    $('updateSub').textContent = 'De ' + APP_VER + ' → ' + nuevaVer + ' · tocá Actualizar';
+  } else {
+    $('updateSub').textContent = 'Actual: ' + APP_VER + ' · tocá Actualizar';
+  }
+  b.classList.add('on');
+}
+async function aplicarUpdate(){
+  const reg = window._swReg;
+  if (!reg){ location.reload(); return; }
+  const waiting = reg.waiting;
+  if (waiting){
+    waiting.postMessage('skipWaiting');
+    // El listener de controllerchange dispara el reload
+  } else {
+    location.reload();
+  }
+}
 if ('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW:', e));
+  window.addEventListener('load', async () => {
+    try {
+      const hadController = !!navigator.serviceWorker.controller;
+      const reg = await navigator.serviceWorker.register('sw.js');
+      window._swReg = reg;
+      // Si ya hay uno esperando al arrancar (y ya hay controller = no es primera instalación)
+      if (reg.waiting && navigator.serviceWorker.controller){
+        mostrarBannerUpdate();
+      }
+      // Detectar nueva versión durante la sesión
+      reg.addEventListener('updatefound', () => {
+        const sw = reg.installing;
+        if (!sw) return;
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller){
+            mostrarBannerUpdate();
+          }
+        });
+      });
+      // Recargar solo si era una ACTUALIZACIÓN real (no primera instalación)
+      let recargando = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!hadController) return;
+        if (recargando) return;
+        recargando = true;
+        window.location.reload();
+      });
+      // Chequeo manual cada 30min (por si la pestaña queda abierta días)
+      setInterval(() => { reg.update().catch(()=>{}); }, 30 * 60 * 1000);
+    } catch(e){ console.warn('[SW]', e.message); }
   });
 }
 
