@@ -316,7 +316,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.90</span>
+    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.91</span>
   </div>
 </footer>
 
@@ -1110,6 +1110,77 @@ function pdInterpolarProgresiva(rutaNum, prog){
   return { lat: last[1], lon: last[0] };
 }
 
+
+// ═══════════════════════════════════════════════════════════════════
+// v7.91 · Interpolar progresiva → coords sobre caminos secundarios
+// Usa el geojson red_secundaria_zonaVI_final.geojson que ya está cacheado
+// por el SW. Km 0 asumido en el extremo del geojson (LON_INI/LAT_INI).
+// Precisión: buena en la coordenada, pero si el geojson tiene el sentido
+// invertido respecto del catastro real, la progresiva sale espejada
+// (se resuelve caso por caso con QGIS).
+// ═══════════════════════════════════════════════════════════════════
+let _cachRedSec = null;
+async function _pdCargarRedSecundaria(){
+  if (_cachRedSec) return _cachRedSec;
+  try {
+    const r = await fetch('datos/zona_vi/red_secundaria_zonaVI_final.geojson');
+    if (!r.ok) throw new Error('geojson caminos: ' + r.status);
+    _cachRedSec = await r.json();
+    console.log('[caminos] geojson cargado ·', (_cachRedSec.features||[]).length, 'tramos');
+    return _cachRedSec;
+  } catch(e){
+    console.warn('[caminos] geojson no cargado', e);
+    return null;
+  }
+}
+
+// Interpolar sobre un camino secundario (identificado por NOMEMCLATURA "093-11")
+async function pdInterpolarCamino(codigo, prog){
+  if (!codigo || !isFinite(prog)) return null;
+  const gj = await _pdCargarRedSecundaria();
+  if (!gj) return null;
+  const cod = String(codigo).trim();
+  const feat = (gj.features||[]).find(f => (f.properties||{}).NOMEMCLATURA === cod);
+  if (!feat){
+    console.warn('[caminos] no encontrado', cod);
+    return { error: 'nomenclatura_no_encontrada' };
+  }
+  const g = feat.geometry || {};
+  let line = null;
+  if (g.type === 'LineString')       line = g.coordinates;
+  else if (g.type === 'MultiLineString') line = (g.coordinates||[])[0];
+  if (!line || line.length < 2) return { error: 'geom_invalida' };
+  // Longitud total (km)
+  const long = Number((feat.properties||{}).LONGITUD_KM_WGS84 || 0);
+  if (long > 0 && prog > long){
+    // Progresiva fuera de rango — clampeamos al final pero avisamos
+    console.warn('[caminos] prog fuera de rango', prog, '>', long);
+  }
+  const target = Math.max(0, prog);
+  let acc = 0;
+  for (let j = 1; j < line.length; j++){
+    const [lonA, latA] = line[j-1], [lonB, latB] = line[j];
+    const d = _haversineKm(latA, lonA, latB, lonB);
+    if (acc + d >= target){
+      const frac = d > 0 ? (target - acc) / d : 0;
+      return {
+        lat: latA + frac*(latB - latA),
+        lng: lonA + frac*(lonB - lonA),
+        longKm: long,
+        fueraRango: (long > 0 && prog > long)
+      };
+    }
+    acc += d;
+  }
+  // Si target supera el largo, devolver el último vertice
+  const last = line[line.length-1];
+  return {
+    lat: last[1], lng: last[0],
+    longKm: long,
+    fueraRango: true
+  };
+}
+
 function _pointInPolygon(lat, lon, ring){
   let inside = false;
   for (let i = 0, j = ring.length-1; i < ring.length; j = i++){
@@ -1283,7 +1354,7 @@ function pdQuitarFoto(momento, i){
 // insertamos un relevamiento y vinculamos vía parte_fotos como "previa"
 // o "posterior" — así aparece en el mapa Y queda ligada al parte.
 // ═══════════════════════════════════════════════════════════════════
-const APP_VER = 'v7.90';
+const APP_VER = 'v7.91';
 const _subEstado = { momento:'previa', file:null, base64:null, gps:null };
 
 function pdSubirFoto(momento){
@@ -1361,9 +1432,9 @@ async function pdSubOnFile(e){
   pdSubIntentarUbicar();
 }
 
-// v7.90 · Si NO hay GPS del EXIF y el user tipea progresiva, interpolar
-// sobre el bundle de la ruta para obtener lat/lng aproximado.
-function pdSubIntentarUbicar(){
+// v7.90/v7.91 · Si NO hay GPS del EXIF y el user tipea progresiva,
+// interpolar sobre el bundle de la RP o el geojson del camino secundario.
+async function pdSubIntentarUbicar(){
   // Nunca pisar GPS del EXIF (es más preciso)
   if (_subEstado.gpsOrigen === 'exif') { pdSubActualizarGpsBox(); return; }
   const progStr = document.getElementById('subProg').value.trim();
@@ -1387,30 +1458,54 @@ function pdSubIntentarUbicar(){
     pdSubActualizarGpsBox();
     return;
   }
-  // Extraer número de RP del texto de la ruta ("RP 30", "30", "RP30", "Cno. 041-93")
   const rutaTxt = document.getElementById('subRuta').value.trim();
+  // ¿Es RP? (número solo, opcional "RP" delante)
   const rmRP = rutaTxt.match(/^\s*(?:RP\s*)?(\d{1,3})\s*$/i);
-  if (!rmRP){
-    // No es una RP conocida (puede ser un camino secundario) — no interpolamos
-    _subEstado.gps = null;
-    _subEstado.gpsOrigen = null;
-    pdSubActualizarGpsBox('El cálculo automático solo funciona para RPs. Para caminos, la foto se sube sin coords.');
-    return;
-  }
-  const rutaNum = rmRP[1];
-  if (typeof pdInterpolarProgresiva !== 'function'){
-    console.warn('[sub interp] pdInterpolarProgresiva no disponible');
-    return;
-  }
-  const r = pdInterpolarProgresiva(rutaNum, prog);
-  if (r && isFinite(r.lat) && isFinite(r.lon)){
-    _subEstado.gps = { lat: r.lat, lng: r.lon, alt: null, fecha: null };
-    _subEstado.gpsOrigen = 'progresiva';
+  // ¿Es camino? (código NNN-NN o NNN-NNN, opcional "Cno." delante)
+  const rmCS = rutaTxt.match(/^\s*(?:Cno\.?\s*)?(\d{3}-\d{2,3})\s*$/i);
+  let r = null, origen = null, warn = null;
+  if (rmRP){
+    // Ruta primaria — usar bundle CHAIN+ANCHORS
+    if (typeof pdInterpolarProgresiva !== 'function'){
+      console.warn('[sub interp] pdInterpolarProgresiva no disponible'); return;
+    }
+    const p = pdInterpolarProgresiva(rmRP[1], prog);
+    if (p && isFinite(p.lat) && isFinite(p.lon)){
+      r = { lat: p.lat, lng: p.lon };
+      origen = 'progresiva';
+    }
+  } else if (rmCS){
+    // Camino secundario — interpolar sobre geojson
+    pdSubActualizarGpsBox('Calculando…');
+    const p = await pdInterpolarCamino(rmCS[1], prog);
+    if (p && p.error === 'nomenclatura_no_encontrada'){
+      _subEstado.gps = null;
+      _subEstado.gpsOrigen = null;
+      pdSubActualizarGpsBox('El camino ' + rmCS[1] + ' no está en el geojson de Zona VI.');
+      return;
+    }
+    if (p && isFinite(p.lat) && isFinite(p.lng)){
+      r = { lat: p.lat, lng: p.lng };
+      origen = 'progresiva_camino';
+      if (p.fueraRango){
+        warn = 'Progresiva fuera del tramo (largo ' + (p.longKm ? p.longKm.toFixed(2) : '?') + ' km) — ubicada al final.';
+      }
+    }
   } else {
     _subEstado.gps = null;
     _subEstado.gpsOrigen = null;
+    pdSubActualizarGpsBox('Ruta "' + rutaTxt + '" no reconocida como RP ni camino secundario.');
+    return;
   }
-  pdSubActualizarGpsBox();
+  if (r){
+    _subEstado.gps = { lat: r.lat, lng: r.lng, alt: null, fecha: null };
+    _subEstado.gpsOrigen = origen;
+    pdSubActualizarGpsBox(warn);
+  } else {
+    _subEstado.gps = null;
+    _subEstado.gpsOrigen = null;
+    pdSubActualizarGpsBox('No pude interpolar (revisá progresiva y ruta).');
+  }
 }
 
 // Refresca el cartel de estado GPS del modal según _subEstado
@@ -1429,12 +1524,17 @@ function pdSubActualizarGpsBox(mensajeExtra){
     gpsBox.innerHTML = '📍 <b>Ubicado en el mapa por la progresiva</b><br>' +
       'Lat ' + g.lat.toFixed(6) + ' · Lng ' + g.lng.toFixed(6) +
       '<br><span style="font-size:10.5px;opacity:.75">Origen: interpolación sobre el bundle de la ruta (precisión ±100 m aprox)</span>';
+  } else if (g && o === 'progresiva_camino'){
+    gpsBox.className = 'gps-info ok';
+    gpsBox.innerHTML = '📍 <b>Ubicado en el camino por la progresiva</b><br>' +
+      'Lat ' + g.lat.toFixed(6) + ' · Lng ' + g.lng.toFixed(6) +
+      '<br><span style="font-size:10.5px;opacity:.75">Origen: geojson del camino, km 0 = extremo (precisión ±500 m aprox · si sale invertido, avisá)</span>';
   } else {
     gpsBox.className = 'gps-info warn';
     let msg = '⚠ <b>Sin ubicación por ahora</b><br>';
     if (_subEstado.file){
       msg += 'La foto no trae EXIF con GPS. ';
-      msg += 'Tipeá la <b>progresiva</b> arriba (formato 12+500 o 12,5) para ubicarla automáticamente en la ruta del parte.';
+      msg += 'Tipeá la <b>progresiva</b> arriba (formato 12+500 o 12,5) para ubicarla automáticamente en la ruta o camino del parte.';
     } else {
       msg += 'Elegí una foto primero.';
     }
@@ -1501,7 +1601,7 @@ async function pdConfirmarSubir(){
       lng: g ? g.lng : null,
       fecha: fecha + 'T' + hora,
       estado_workflow: 'aprobado',
-      validado_geo: g ? (_subEstado.gpsOrigen === 'exif' ? 'oficina_exif' : 'oficina_interp') : 'sin_coords',
+      validado_geo: g ? (_subEstado.gpsOrigen === 'exif' ? 'oficina_exif' : (_subEstado.gpsOrigen === 'progresiva_camino' ? 'oficina_interp_cam' : 'oficina_interp')) : 'sin_coords',
       sello_version: 'v4',
       prioridad: 'normal',
       tipo_via: tipoVia
