@@ -316,7 +316,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.91</span>
+    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.92</span>
   </div>
 </footer>
 
@@ -1112,7 +1112,7 @@ function pdInterpolarProgresiva(rutaNum, prog){
 
 
 // ═══════════════════════════════════════════════════════════════════
-// v7.91 · Interpolar progresiva → coords sobre caminos secundarios
+// v7.92 · Interpolar progresiva → coords sobre caminos secundarios
 // Usa el geojson red_secundaria_zonaVI_final.geojson que ya está cacheado
 // por el SW. Km 0 asumido en el extremo del geojson (LON_INI/LAT_INI).
 // Precisión: buena en la coordenada, pero si el geojson tiene el sentido
@@ -1354,7 +1354,7 @@ function pdQuitarFoto(momento, i){
 // insertamos un relevamiento y vinculamos vía parte_fotos como "previa"
 // o "posterior" — así aparece en el mapa Y queda ligada al parte.
 // ═══════════════════════════════════════════════════════════════════
-const APP_VER = 'v7.91';
+const APP_VER = 'v7.92';
 const _subEstado = { momento:'previa', file:null, base64:null, gps:null };
 
 function pdSubirFoto(momento){
@@ -1432,7 +1432,7 @@ async function pdSubOnFile(e){
   pdSubIntentarUbicar();
 }
 
-// v7.90/v7.91 · Si NO hay GPS del EXIF y el user tipea progresiva,
+// v7.90/v7.92 · Si NO hay GPS del EXIF y el user tipea progresiva,
 // interpolar sobre el bundle de la RP o el geojson del camino secundario.
 async function pdSubIntentarUbicar(){
   // Nunca pisar GPS del EXIF (es más preciso)

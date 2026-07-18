@@ -233,12 +233,19 @@ Stack técnico probable: **jsPDF + jsPDF-autotable** (client-side, ya usamos van
 - No hay tabla `usuarios_perfil`.
 - Todo authenticated tiene acceso total.
 
-### Fase 1 — Preparar backend (1 sesión, ~2h)
+### Fase 1 — Preparar backend (1 sesión, ~2h) — SQL listo v7.92, pendiente correr
 
-1. `SQL_7_usuarios_perfil.sql`: crear tabla + funciones helper + trigger que actualiza `updated_at`.
-2. `SQL_8_zona_en_tablas.sql`: ALTER TABLE `partes_diarios` ADD COLUMN `zona`. Poblar los 632 partes históricos con `'VI'` (todos son tuyos). Idem `relevamientos`.
-3. Insertar tu perfil manualmente: `INSERT INTO usuarios_perfil (user_id, nombre, rol, zona) VALUES ('<tu_uid>', 'Luciano Lamaita', 'admin', 'VI')`.
-4. Verificación: todos los partes tienen zona=VI, tu perfil existe con rol=admin.
+1. ✅ `docs/SQL_7_usuarios_perfil.sql` (v7.92): tabla `usuarios_perfil` con CHECK constraint rol↔zona, índices, trigger `updated_at`, funciones helper `current_user_zona()` y `current_user_rol()` (security definer stable), RLS de la propia tabla (self-read + admin-write).
+2. ✅ `docs/SQL_8_zona_en_tablas.sql` (v7.92): ALTER `partes_diarios` + `relevamientos` con columna `zona`, backfill a `'VI'`, índices, view `v_partes_diarios_export` actualizada para incluir columna Zona en el CSV.
+3. ⏳ **Correr los dos SQLs en Supabase** (SQL Editor con service_role — bypasea RLS). Verificar con los `SELECT` de cada archivo.
+4. ⏳ **Bootstrap admin**: dentro de `SQL_7` hay un bloque comentado con el INSERT del primer perfil. Sacar el UID con:
+   ```sql
+   SELECT id, email FROM auth.users WHERE email = 'tecnica.dvba.z6@gmail.com';
+   ```
+   Descomentar y ejecutar el `INSERT INTO usuarios_perfil (user_id, nombre, rol, zona) VALUES ('<UID>', 'Luciano Lamaita', 'admin', 'VI');`
+5. ⏳ Verificación final: todos los partes tienen `zona='VI'`, tu perfil existe con `rol='admin'`.
+
+**NOTA importante:** estos SQLs son 100 % aditivos y no tocan policies vigentes. El sistema sigue funcionando idéntico hasta que arranque Fase 2 (frontend zone-aware) o Fase 3 (RLS zonal en SQL 9).
 
 ### Fase 2 — Frontend zone-aware (1-2 sesiones)
 
