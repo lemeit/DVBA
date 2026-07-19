@@ -408,7 +408,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v7.96</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v7.97</span></div>
   </div>
 </div>
 <div class="layout">
@@ -641,7 +641,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.96</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.97</span>
       </div>
     </div>
 
@@ -709,7 +709,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.96';
+const APP_VERSION = 'v7.97';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1334,17 +1334,41 @@ async function sincronizarSupaConSesion(){
   } catch(e){ console.warn('[auth] setSession:', e.message); return false; }
 }
 
-// v7.95 · Ocultar panel Visualizacion (Progresivas + Mojones fijos + Modo detallado)
-// para usuarios no-admin. En RP47/51/91 el "modo detallado" muestra mojones sinteticos
-// en la posicion geografica correcta pero con km oficial equivocado (bug de anchors
-// no-monotonicos). Hasta regenerar los bundles en QGIS, solo admin ve esas opciones.
+// v7.95/v7.97 · Aplicar visibilidad UI segun rol del user cargado.
+//  - Panel Visualizacion (Progresivas/Mojones fijos/Modo detallado):
+//    solo admin. En RP47/51/91 el "modo detallado" muestra mojones sinteticos
+//    con km oficial equivocado (anchors no-monotonicos). Hasta regenerar bundles
+//    en QGIS solo admin ve esas opciones.
+//  - Picker de zona en el header: los tecnicos NO cambian de zona (solo la suya).
+//    Admin/gerencia/publico pueden explorar cualquier zona.
+//  - User-info: mostrar "nombre · rol · Zona X" cuando hay perfil cargado.
 function aplicarVisibilidadRol(){
   const perfil = (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.get() : null;
-  const esAdmin = perfil && perfil.rol === 'admin';
+  const esAdmin   = perfil && perfil.rol === 'admin';
+  const esTecnico = perfil && perfil.rol === 'tecnico';
+  // Panel Visualizacion (solo admin)
   const chip  = document.getElementById('vis-chip');
   const panel = document.getElementById('vis-panel');
   if (chip)  chip.style.display  = esAdmin ? '' : 'none';
   if (panel) panel.style.display = esAdmin ? '' : 'none';
+  // Picker de zona (tecnicos ocultos; forzamos su zona)
+  const picker = document.querySelector('.zona-picker');
+  if (picker) picker.style.display = esTecnico ? 'none' : '';
+  if (esTecnico && perfil.zona){
+    try { aplicarZonaPortal(perfil.zona); } catch(e){}
+  }
+  // User-info: extender con rol+zona
+  if (perfil){
+    const emailEl = document.getElementById('user-email');
+    if (emailEl){
+      const corto = ((perfil.nombre || perfil.user_id || '?') + '').split('@')[0];
+      const rolLbl = perfil.rol === 'admin' ? 'Admin'
+                   : perfil.rol === 'gerencia' ? 'Gerencia'
+                   : 'Técnico';
+      emailEl.textContent = corto + ' · ' + rolLbl + ' · Zona ' + (perfil.zona || '—');
+      emailEl.title = 'Rol: ' + rolLbl + (perfil.zona ? ' · Zona ' + perfil.zona : '');
+    }
+  }
 }
 
 // En la app de escritorio el login es OPCIONAL.

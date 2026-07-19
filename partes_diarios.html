@@ -320,7 +320,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.96</span>
+    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.97</span>
   </div>
 </footer>
 
@@ -683,7 +683,28 @@ async function pdInit(){
     if (typeof DVBA_PERFIL !== 'undefined') await DVBA_PERFIL.cargar(_supa);
   } catch(e){ console.warn('[pd] DVBA_PERFIL.cargar falló', e); }
   document.getElementById('authGuard').style.display = 'none';  // v7.65 fix
-  document.getElementById('email').textContent = user.email;
+  // v7.97 · Fase 2b · mostrar nombre + rol + zona en el header
+  (function(){
+    const perfil = (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.get() : null;
+    const emailEl = document.getElementById('email');
+    if (perfil){
+      const corto = ((perfil.nombre || user.email || '?') + '').split('@')[0];
+      const rolLbl = perfil.rol === 'admin' ? 'Admin'
+                   : perfil.rol === 'gerencia' ? 'Gerencia' : 'Técnico';
+      emailEl.textContent = corto + ' · ' + rolLbl + ' · Zona ' + (perfil.zona || '—');
+      emailEl.title = 'Rol: ' + rolLbl + (perfil.zona ? ' · Zona ' + perfil.zona : '');
+      // Tecnico: forzar su zona activa y ocultar el selector si existe
+      if (perfil.rol === 'tecnico' && perfil.zona){
+        try { pdSetZona(perfil.zona); } catch(e){}
+        const zonaSel = document.getElementById('hSelZona');
+        const zonaPicker = document.querySelector('.zona-picker');
+        if (zonaPicker) zonaPicker.style.display = 'none';
+        else if (zonaSel) zonaSel.style.display = 'none';
+      }
+    } else {
+      emailEl.textContent = user.email;
+    }
+  })();
   // v7.87 — Aplicar zona guardada (o default 'VI'). En el futuro se puede
   // derivar del email/rol del usuario en una tabla usuarios_zonas.
   const zonaActiva = localStorage.getItem('dvba_zona') || 'VI';
