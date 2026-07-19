@@ -21,6 +21,8 @@
 <script src="datos/qrcode.min.js" defer></script>
 <script src="datos/sello_v4.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js" defer></script>
+<!-- v7.93 · loader de perfil (rol + zona) para Fase 2 Multi-zona -->
+<script src="datos/perfil.js" defer></script>
 <style>
 :root{
   /* Colores institucionales DVBA — matching index.html */
@@ -181,6 +183,8 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 .rel-item .info .meta{color:var(--mut);font-size:10px}
 
 /* v7.89 · Modal subir foto (sello v4 + EXIF GPS) */
+/* v7.94 fix · z-index alto para quedar por encima del modalParte (ambos comparten z-index:100 por default) */
+.subir-modal{z-index:500 !important}
 .subir-modal .modal{max-width:520px}
 .subir-body{padding:16px 18px}
 .subir-body .drop{border:2px dashed var(--light);border-radius:8px;padding:22px 14px;text-align:center;color:var(--mut);font-size:12px;cursor:pointer;transition:all .2s;background:#fafbfc}
@@ -316,7 +320,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.92</span>
+    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.94</span>
   </div>
 </footer>
 
@@ -674,6 +678,10 @@ async function pdInit(){
   }
   console.log('[pd] sesión activa:', user.email);
   _userId = user.id;  // v7.87 · guardar UID para responsable_id
+  // v7.93 · Fase 2 · cargar perfil (rol + zona) del usuario logueado
+  try {
+    if (typeof DVBA_PERFIL !== 'undefined') await DVBA_PERFIL.cargar(_supa);
+  } catch(e){ console.warn('[pd] DVBA_PERFIL.cargar falló', e); }
   document.getElementById('authGuard').style.display = 'none';  // v7.65 fix
   document.getElementById('email').textContent = user.email;
   // v7.87 — Aplicar zona guardada (o default 'VI'). En el futuro se puede
@@ -1112,7 +1120,7 @@ function pdInterpolarProgresiva(rutaNum, prog){
 
 
 // ═══════════════════════════════════════════════════════════════════
-// v7.92 · Interpolar progresiva → coords sobre caminos secundarios
+// v7.94 · Interpolar progresiva → coords sobre caminos secundarios
 // Usa el geojson red_secundaria_zonaVI_final.geojson que ya está cacheado
 // por el SW. Km 0 asumido en el extremo del geojson (LON_INI/LAT_INI).
 // Precisión: buena en la coordenada, pero si el geojson tiene el sentido
@@ -1354,7 +1362,7 @@ function pdQuitarFoto(momento, i){
 // insertamos un relevamiento y vinculamos vía parte_fotos como "previa"
 // o "posterior" — así aparece en el mapa Y queda ligada al parte.
 // ═══════════════════════════════════════════════════════════════════
-const APP_VER = 'v7.92';
+const APP_VER = 'v7.94';
 const _subEstado = { momento:'previa', file:null, base64:null, gps:null };
 
 function pdSubirFoto(momento){
@@ -1432,7 +1440,7 @@ async function pdSubOnFile(e){
   pdSubIntentarUbicar();
 }
 
-// v7.90/v7.92 · Si NO hay GPS del EXIF y el user tipea progresiva,
+// v7.90/v7.94 · Si NO hay GPS del EXIF y el user tipea progresiva,
 // interpolar sobre el bundle de la RP o el geojson del camino secundario.
 async function pdSubIntentarUbicar(){
   // Nunca pisar GPS del EXIF (es más preciso)
@@ -1604,7 +1612,8 @@ async function pdConfirmarSubir(){
       validado_geo: g ? (_subEstado.gpsOrigen === 'exif' ? 'oficina_exif' : (_subEstado.gpsOrigen === 'progresiva_camino' ? 'oficina_interp_cam' : 'oficina_interp')) : 'sin_coords',
       sello_version: 'v4',
       prioridad: 'normal',
-      tipo_via: tipoVia
+      tipo_via: tipoVia,
+      zona: (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.zonaActual() : 'VI'   // v7.93 Fase 2
     };
     const { data: rows, error: insErr } = await _supa.from('relevamientos')
       .insert(reg).select().single();
@@ -1731,14 +1740,19 @@ async function pdGuardar(){
     };
     let parteId;
     if (editId) {
-      const { error } = await _supa.from('partes_diarios').update(payload).eq('id', editId);
+      // v7.93 · Fase 2 · asegurar zona en editions (partes antiguos pueden no tenerla)
+      const zonaAct = (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.zonaActual() : 'VI';
+      const updPayload = { ...payload, zona: zonaAct };
+      const { error } = await _supa.from('partes_diarios').update(updPayload).eq('id', editId);
       if (error) throw error;
       parteId = Number(editId);
       await _supa.from('parte_maquinarias').delete().eq('parte_id', parteId);
       await _supa.from('parte_fotos').delete().eq('parte_id', parteId);
     } else {
       // v7.87 · llenar responsable_id (auditoría) — el UID viene de pdInit
-      const insertPayload = { ...payload, responsable_id: _userId };
+      // v7.93 · Fase 2 · llenar zona del perfil (fallback 'VI')
+      const zonaAct = (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.zonaActual() : 'VI';
+      const insertPayload = { ...payload, responsable_id: _userId, zona: zonaAct };
       const { data, error } = await _supa.from('partes_diarios').insert(insertPayload).select('id').single();
       if (error) throw error;
       parteId = data.id;

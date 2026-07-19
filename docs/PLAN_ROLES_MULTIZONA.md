@@ -249,10 +249,10 @@ Stack técnico probable: **jsPDF + jsPDF-autotable** (client-side, ya usamos van
 
 ### Fase 2 — Frontend zone-aware (1-2 sesiones)
 
-5. En `partes_diarios.html` y `dvba_campo.html`: al login, cargar perfil y guardar en localStorage.
-6. Header muestra zona/rol según perfil.
-7. Al guardar un parte/relevamiento nuevo, llenar `zona` desde el perfil.
-8. Menú lateral filtrado por rol.
+5. ✅ v7.93/v9.69 · **Core**: nuevo módulo `datos/perfil.js` compartido (cacheado en SW). `DVBA_PERFIL.cargar(_supa)` trae la fila de `usuarios_perfil` y la guarda en `localStorage['dvba_perfil']`. `DVBA_PERFIL.zonaActual()` devuelve zona con fallback a `'VI'`. Loader activo en `partes_diarios.html` y `dvba_campo_lite.html` (la full usa dvbaAuth wrapper y queda para Fase 2b). Fill automático de `zona` en INSERT/UPDATE de `partes_diarios` + INSERT de `relevamientos` en las 4 apps.
+6. ⏳ Fase 2b · Header con zona/rol visible + carga proactiva del perfil en `dvba_campo.html` (requiere refactor del auth wrapper).
+7. ✅ v7.93 · Al guardar un parte/relevamiento nuevo, llenar `zona` desde `DVBA_PERFIL.zonaActual()`.
+8. ⏳ Fase 2c · Menú lateral filtrado por rol (esperar a que haya usuarios técnicos creados).
 
 ### Fase 3 — Activar RLS zonal (1 sesión)
 

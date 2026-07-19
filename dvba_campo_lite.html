@@ -9,6 +9,7 @@
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="datos/auth.js"></script>
+<script src="datos/perfil.js" defer></script>
 <style>
 :root{
   --p:#009aae;    --pd:#007d90;   --pl:#00b3c7;
@@ -304,7 +305,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.68';
+const APP_VER = 'v9.69';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -579,7 +580,8 @@ async function lGuardar(){
     validado_geo: 'pendiente',
     sello_version: null,
     prioridad: 'normal',
-    tipo_via: 'rp'
+    tipo_via: 'rp',
+    zona: (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.zonaActual() : 'VI'
   };
   // Sin internet · directo a cola local
   if (!navigator.onLine){
@@ -816,7 +818,7 @@ async function lReintentarSync(){
     toast('No se enviaron · ' + primerError, 'err');
   }
 }
-// v9.68 · Info convertido en modal con datos de sesión + botón Cerrar sesión
+// v9.69 · Info convertido en modal con datos de sesión + botón Cerrar sesión
 function lVerInfo(){
   const email = _user ? (_user.email || '(usuario)') : '(sin sesión)';
   const pend  = contarPendientes();
@@ -898,6 +900,7 @@ async function inicializar(){
         await _supa.auth.setSession({ access_token: sesionLocal.access_token, refresh_token: sesionLocal.refresh_token });
         const { data:{ user }, error } = await _supa.auth.getUser();
         if (!error && user){ _user = user; console.log('[auth] sesión validada online:', user.email); }
+      try { if (typeof DVBA_PERFIL !== 'undefined') await DVBA_PERFIL.cargar(_supa); } catch(e){ console.warn('[auth perfil]', e); }
       } catch(e){ console.warn('[auth online refresh]', e); }
     }
   }

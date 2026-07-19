@@ -630,7 +630,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:none">
-  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.68</span>
+  Sistema de Relevamiento Vial · DVBA · Zona VI · Desarrollado por Ing. Luciano Lamaita · <span id='app-ver'>v9.69</span>
 </div>
 
 
@@ -1599,7 +1599,8 @@ async function guardarRegistro(){
     validado_geo:    validadoGeo,
     sello_version:   null,
     prioridad:       'normal',
-    tipo_via:        tipoVia      // ← v9.20 RP o camino secundario
+    tipo_via:        tipoVia,     // ← v9.20 RP o camino secundario
+    zona:            (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.zonaActual() : 'VI'   // v9.69 Fase 2
   };
   if(navigator.onLine) showOv('Verificando conexión…');
   const online=await estaOnline();
@@ -1963,6 +1964,7 @@ function hacerThumb(b64){
 }
 </script>
 <script src="datos/auth.js"></script>
+<script src="datos/perfil.js" defer></script>
 <script src="dvba_tipos.js"></script>
 <script src="datos/dvba_estados.js"></script>
 <script src="datos/qrcode.min.js"></script>

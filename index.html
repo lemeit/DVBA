@@ -407,7 +407,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v7.92</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v7.94</span></div>
   </div>
 </div>
 <div class="layout">
@@ -640,7 +640,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.92</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.94</span>
       </div>
     </div>
 
@@ -671,13 +671,13 @@ body.modo-campo #campo-fab{display:flex}
         </select>
       </div>
       <div class="vp-row">
-        <span>📍 Mojones cada</span>
-        <select id="sl-paso-moj" onchange="setMojonesPaso(Number(this.value))">
-          <option value="5">5 km</option>
-          <option value="10">10 km</option>
-          <option value="20">20 km</option>
-          <option value="50" selected>50 km</option>
-          <option value="0">Ninguno</option>
+        <span>📍 Mojones fijos</span>
+        <select id="sl-paso-moj" onchange="setMojonesPaso(Number(this.value))" title="v7.94: default OFF — el mojón al hover ya te muestra la progresiva exacta; los fijos solo si querés ver puntos de referencia">
+          <option value="0" selected>Ninguno</option>
+          <option value="5">Cada 5 km</option>
+          <option value="10">Cada 10 km</option>
+          <option value="20">Cada 20 km</option>
+          <option value="50">Cada 50 km</option>
         </select>
       </div>
       <label class="vp-check">
@@ -708,7 +708,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.92';
+const APP_VERSION = 'v7.94';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1751,7 +1751,7 @@ function drawMojones(){
 // Config global:
 let PROG_HOVER_ACTIVO = false;      // checkbox "Progresivas al hover"
 let PROG_PASO_KM      = 5;          // 1 / 5 / 10
-let MOJ_PASO_KM       = 50;         // 5 / 10 / 20 / 50 / 0=off
+let MOJ_PASO_KM       = 0;          // v7.94: default OFF · 5/10/20/50/0=off. Los físicos siempre se muestran cuando != 0. El hover cursor ya muestra la progresiva exacta al mover mouse.
 let MODO_DETALLADO    = false;      // toggle "modo detallado"
 
 let _cursorRuta       = null;       // círculo naranja sobre la traza
