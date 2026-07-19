@@ -413,7 +413,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v7.99</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.0</span></div>
   </div>
 </div>
 <div class="layout">
@@ -646,7 +646,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.99</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.0</span>
       </div>
     </div>
 
@@ -714,7 +714,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.99';
+const APP_VERSION = 'v8.0';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1362,7 +1362,8 @@ function aplicarVisibilidadRol(){
   if (esTecnico && perfil.zona){
     try { aplicarZonaPortal(perfil.zona); } catch(e){}
   }
-  // User-info: extender con rol+zona
+  // v8.0 · User-info: solo el nombre visible. Rol y zona van al tooltip
+  // (la zona ya se ve en el header/selector, no hace falta duplicar).
   if (perfil){
     const emailEl = document.getElementById('user-email');
     if (emailEl){
@@ -1370,8 +1371,8 @@ function aplicarVisibilidadRol(){
       const rolLbl = perfil.rol === 'admin' ? 'Admin'
                    : perfil.rol === 'gerencia' ? 'Gerencia'
                    : 'Técnico';
-      emailEl.textContent = corto + ' · ' + rolLbl + ' · Zona ' + (perfil.zona || '—');
-      emailEl.title = 'Rol: ' + rolLbl + (perfil.zona ? ' · Zona ' + perfil.zona : '');
+      emailEl.textContent = corto;
+      emailEl.title = rolLbl + (perfil.zona ? ' · Zona ' + perfil.zona : ' · ve todas las zonas');
     }
   }
   // v7.98/v7.99 · Items marcados data-solo-gerencia="1" solo se muestran a

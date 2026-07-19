@@ -325,7 +325,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.99</span>
+    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v8.0</span>
   </div>
 </footer>
 
@@ -696,8 +696,9 @@ async function pdInit(){
       const corto = ((perfil.nombre || user.email || '?') + '').split('@')[0];
       const rolLbl = perfil.rol === 'admin' ? 'Admin'
                    : perfil.rol === 'gerencia' ? 'Gerencia' : 'Técnico';
-      emailEl.textContent = corto + ' · ' + rolLbl + ' · Zona ' + (perfil.zona || '—');
-      emailEl.title = 'Rol: ' + rolLbl + (perfil.zona ? ' · Zona ' + perfil.zona : '');
+      // v8.0 · solo nombre visible; rol + zona van al tooltip
+      emailEl.textContent = corto;
+      emailEl.title = rolLbl + (perfil.zona ? ' · Zona ' + perfil.zona : ' · ve todas las zonas');
       // Tecnico: forzar su zona activa y ocultar el selector si existe
       if (perfil.rol === 'tecnico' && perfil.zona){
         try { pdSetZona(perfil.zona); } catch(e){}
