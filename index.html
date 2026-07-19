@@ -408,7 +408,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v7.95</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v7.96</span></div>
   </div>
 </div>
 <div class="layout">
@@ -641,7 +641,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.95</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.96</span>
       </div>
     </div>
 
@@ -709,7 +709,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.95';
+const APP_VERSION = 'v7.96';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1426,6 +1426,10 @@ async function hacerLogout(){
   if (!confirm('¿Cerrar sesión? Vas a poder seguir consultando el mapa pero no editar.')) return;
   try { if (_supa) await _supa.auth.signOut(); } catch(e){}
   await dvbaAuth.logout();
+  // v7.96 · Limpiar cache del perfil (rol + zona) y refrescar visibilidad.
+  // Sin esto el panel Visualizacion queda visible aunque el user haya cerrado sesion.
+  try { if (typeof DVBA_PERFIL !== 'undefined') DVBA_PERFIL.limpiar(); } catch(e){}
+  aplicarVisibilidadRol();
   // En lugar de forzar login, volver al modo lectura pública con el botón "Iniciar sesión"
   mostrarBotonLogin();
 }

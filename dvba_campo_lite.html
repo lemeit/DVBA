@@ -305,7 +305,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.69';
+const APP_VER = 'v9.70';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -861,6 +861,7 @@ async function lCerrarSesion(){
     if (_supa && _supa.auth) await _supa.auth.signOut().catch(()=>{});
   } catch(e){ console.warn('[signOut]', e); }
   localStorage.removeItem('dvba_session');
+  localStorage.removeItem('dvba_perfil');     // v9.70 · limpiar cache de rol/zona
   localStorage.removeItem('sb-txjlfpffyzuhdqtfhlmc-auth-token');
   if (pend > 0) localStorage.removeItem(PENDIENTES_KEY);
   _user = null;

@@ -2,6 +2,7 @@
    DVBA Campo · Service Worker v3.4
    Network-first + offline fallback + auto-purge de 404
 
+   v3.8: bump versión (v9.70) + limpiar dvba_perfil al logout.
    v3.7: bump versión (v9.69) + cachear datos/perfil.js (Fase 2 Roles).
    v3.6: bump versión (lite v9.68 · cerrar sesión desde Info).
    v3.5: bump versión (lite v9.67 banner update + gestión pendientes).
@@ -10,7 +11,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.69';
+const CACHE_NAME = 'dvba-campo-v9.70';
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';

@@ -113,8 +113,17 @@ function _persistir(perfil){
   } catch(e){ /* localStorage lleno o denegado, ignoramos */ }
 }
 
-// Cache al arranque
+// Cache al arranque · v7.96: si NO hay sesion activa (dvba_session vacio),
+// descartamos cualquier perfil huerfano — pasa cuando el user cerro sesion
+// desde otra pestaña o el logout no limpio el cache.
 _perfilCache = _hydrate();
+try {
+  if (_perfilCache && !localStorage.getItem('dvba_session')){
+    console.log('[perfil] hay perfil cacheado pero no sesion — limpiando');
+    _perfilCache = null;
+    _persistir(null);
+  }
+} catch(e){}
 
 // ─── API pública ───────────────────────────────────────────────────
 function get(){ return _perfilCache; }
