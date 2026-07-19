@@ -98,8 +98,8 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <h1>📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial</h1>
   <div class="sub">DVBA · Zona Departamental VI Saladillo</div>
   <div class="meta">
-    <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">13 de julio de 2026</span></div>
-    <div><span class="lbl">Versión bitácora</span><span class="val">v4.5 — apps v9.53 / v7.57</span></div>
+    <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">18 de julio de 2026</span></div>
+    <div><span class="lbl">Versión bitácora</span><span class="val">v4.6 — apps v9.70 / v8.0.1</span></div>
     <div><span class="lbl">Responsable</span><span class="val">Ing. Luciano Lamaita</span></div>
     <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></span></div>
     <div><span class="lbl">Estado general</span><span class="val">🟢 En desarrollo activo</span></div>
@@ -368,6 +368,75 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
         <li><strong>Fix GPS bloqueado por reload del SW:</strong> el listener <code>controllerchange</code> recargaba la app incluso en el primer install del SW. Si el GPS estaba arrancando, la app recargaba y el GPS reiniciaba desde 0 en loop. Ahora <code>controllerchange</code> ignora el primer install (cuando no había controller previo); solo recarga en updates reales.</li>
         <li>GPS tolerante a fix lento sin A-GPS: <code>maximumAge: 60s</code> (antes 3s), <code>timeout: 2 min</code> (antes 30s), <code>getCurrentPosition</code> inicial con <code>enableHighAccuracy:false</code> para fix rápido aproximado.</li>
         <li><strong>Banner de actualización funcional:</strong> cuando hay SW nuevo en estado <em>waiting</em>, aparece banner verde "Hay una versión nueva" con botón Actualizar que dispara <code>postMessage('skipWaiting')</code> → <code>controllerchange</code> → reload automático.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">21-22 mayo 2026 · Red secundaria — orden por tramo, sentido cardinal · v7.2</div>
+      <div class="tl-titulo">Reprocesamiento de caminos secundarios con orden real de tramos</div>
+      <ul>
+        <li><strong>Script <code>calcular_longitudes_red_vial.py</code>:</strong> detecta los campos opcionales del GeoPackage (<code>temporal</code>, <code>long_inicial</code>, <code>lat_inicial</code>, <code>long_final</code>, <code>lat_final</code>) y los renombra a <code>TRAMO_NUM</code>, <code>LON_INI</code>, <code>LAT_INI</code>, <code>LON_FIN</code>, <code>LAT_FIN</code>. Los preserva en CSV, GPKG y GeoJSON output.</li>
+        <li>Sort estable por <code>(PARTIDO, NOMEMCLATURA, TRAMO_NUM)</code>. Los partidos sin <code>temporal</code> cargado siguen funcionando con default 999.</li>
+        <li><strong>Fix <code>PARTIDO_NOMBRE = 'Desconocido'</code>:</strong> lookup de partidos ahora tolerante a int/string padded — antes <code>'041'</code> no matcheaba contra <code>numero = 41</code> y todos los features de ese partido salían "Desconocido". Ahora indexa por int, str y str padded a 3 dígitos.</li>
+        <li><strong>Nueva función <code>direccionCardinal(latI, lonI, latF, lonF)</code>:</strong> devuelve <code>'NO → SE'</code>, <code>'Oeste → Este'</code>, etc. según deltas de coordenadas. 100% offline, sin reverse geocoding.</li>
+        <li><code>caminos_secundarios.html</code>: popup ahora muestra sentido cardinal calculado en vez de coordenadas crudas. <code>Tramo n°</code> solo aparece si el camino tiene más de un tramo (antes se mostraba siempre).</li>
+        <li>041 (Gral. Las Heras) reprocesado con el orden correcto: tramo 1 PAVIMENTADO va antes que tramo 2 DE TIERRA.</li>
+        <li>Bump cosmético <code>index.html v7.2</code> para forzar refresh de GitHub Pages y confirmar deploy del login opcional.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">22 mayo – 3 junio 2026 · Datos · Reprocesamiento y expansión de caminos secundarios</div>
+      <div class="tl-titulo">Incorporación progresiva de caminos revisados por partido</div>
+      <ul>
+        <li>Camino <strong>041-01</strong> — tramos corregidos (Gral. Las Heras).</li>
+        <li>Camino <strong>075</strong> incorporado completo.</li>
+        <li>Camino <strong>093-15</strong> — cambios menores + fix de partición de tramos (Saladillo).</li>
+        <li>Camino <strong>062-10</strong> — CAMBIO DE CLASE (registrado en el nomenclador local).</li>
+        <li>Múltiples caminos reprocesados el 22 y 27 mayo con la nueva lógica de orden por <code>TRAMO_NUM</code>.</li>
+        <li>Estado al cierre del período: se completó el ciclo de "levantar catastro de caminos por partido" para la mayoría de las localidades de Zona VI.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">24 junio 2026 · Fixes puntuales del modelo Tipo↔Estado · sw v9.18a</div>
+      <div class="tl-titulo">normStr Unicode + modalidad/superficie implícitas</div>
+      <ul>
+        <li><strong>Fix <code>dvba_tipos.js → normStr()</code>:</strong> el regex usaba caracteres Unicode literales (<code>̀-ͯ</code> = U+0300..U+036F) para limpiar tildes después de <code>.normalize('NFD')</code>. Esos caracteres no siempre se preservaban entre Windows/Linux/Mobile. Cambiado a <code>new RegExp('[\u0300-\u036f]', 'g')</code> que evita ambigüedad de codificación. También agregado <code>.replace(/\s+/g, ' ')</code> para colapsar espacios múltiples antes del trim.</li>
+        <li><strong>Síntoma que curó:</strong> <code>categoriaDe()</code> no encontraba match para tipos con acentos ("Desmalezado mecánico") → estado vacío en el dropdown móvil.</li>
+        <li><strong>Nuevas funciones <code>modalidadImplicita()</code> y <code>superficieImplicita()</code> en <code>dvba_estados.js</code>:</strong> detectan cuando el nombre del tipo ya incluye la modalidad/superficie:
+          <ul>
+            <li><code>modalidadImplicita</code>: matches <code>\bmanual\b</code>, <code>\bmecánica?\b</code>, <code>\bmixt[oa]\b</code></li>
+            <li><code>superficieImplicita</code>: matches <code>\bdolomita\b</code>, <code>\bsuelo cal\b</code>, <code>\bcamino tierra\b</code> + reconformado, <code>\bhormigón\b</code>, <code>\basfáltic[oa]\b</code> + <code>riego asf</code></li>
+          </ul>
+        </li>
+        <li><strong>Fix <code>onTipoChange()</code> en ambas apps:</strong> si la categoría aplica superficie/modalidad Y está implícita en el nombre del tipo → oculta el selector pero <em>guarda el valor implícito</em> en el <code>&lt;select&gt;</code> (para que la metadata serializada lo capture igual).</li>
+        <li>Bump: <code>sw.js CACHE_NAME 'dvba-campo-v9.18a'</code>. No se tocó <code>APP_VERSION</code> ni <code>&lt;span id='app-ver'&gt;</code> (es tweak, no release visible).</li>
+        <li>Ver detalle actualizado en <code>docs/MODELO_TIPOS_ESTADOS.md</code> sección 4.1 "Sub-atributos implícitos".</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">julio 2026 · Consolidación · v9.19 – v9.70 / v7.10 – v8.0.1</div>
+      <div class="tl-titulo">Workflow oficina, subida directa de foto, roles multi-zona y app lite (resumen)</div>
+      <ul>
+        <li><strong>Workflow captura campo → aprobación oficina:</strong> nuevas columnas <code>estado_workflow</code> (<code>'campo' | 'aprobado' | 'rechazado'</code>), <code>validado_geo</code>, <code>sello_version</code> en <code>relevamientos</code>. El sellado dejó de aplicarse en campo — la foto se sube cruda y se sella al aprobar en oficina. Módulo <code>datos/armonizador.js</code> hace pre-fill offline de ruta/prog/partido desde GPS con umbrales adaptativos según <code>gpsAcc</code>.</li>
+        <li><strong>Integración caminos secundarios ↔ apps principales:</strong> columna <code>tipo_via</code> (<code>'rp' | 'camino'</code>) en <code>relevamientos</code>. Nuevo módulo <code>datos/red_vial.js</code>. Toggle RP/Camino en móvil, tabs en escritorio, layers en el mapa. Interpolación progresiva→coords para caminos con <code>pdInterpolarCamino</code> (v7.91).</li>
+        <li><strong>Módulo Reportes (<code>reportes.html</code>):</strong> 4 charts (km por tarea, timeline, uso vehículos, acciones por vía), filtros en vivo, export CSV + PDF institucional con jsPDF + autotable.</li>
+        <li><strong>Sello v4:</strong> banner compacto, versión inline en el pie, 3 columnas (logo · texto · QR Google Maps), extraído a módulo compartido <code>datos/sello_v4.js</code> (v7.89) usado por app móvil y por la subida directa desde <code>partes_diarios.html</code>.</li>
+        <li><strong>Subida directa de foto desde partes_diarios (v7.89-91):</strong> input file → lee GPS del EXIF con <code>exifr</code> → sella con sello v4 → sube a Storage → INSERT en <code>relevamientos</code> como aprobado → vincula al parte vía <code>parte_fotos</code>. Fallback: si no hay EXIF, la progresiva tipeada se interpola sobre el bundle de la RP o el geojson del camino.</li>
+        <li><strong>App móvil lite (<code>dvba_campo_lite.html</code> · v9.59-70):</strong> UI minimalista solo con botón "Sacar foto" + GPS. Todo lo demás lo completa alguien en oficina. Es el <code>start_url</code> del <code>manifest.json</code> (default al instalar la PWA). Auth offline via JWT cacheado, gestión de pendientes, cierre de sesión desde Info.</li>
+        <li><strong>Bloque Roles Multi-zona (Fase 1 + 2 · v7.92-8.0.1):</strong>
+          <ul>
+            <li>SQL 7: tabla <code>usuarios_perfil</code> con CHECK <code>rol↔zona</code>, funciones helper <code>current_user_zona()</code> y <code>current_user_rol()</code> (SECURITY DEFINER STABLE).</li>
+            <li>SQL 8: columna <code>zona</code> en <code>partes_diarios</code> y <code>relevamientos</code>, backfill a <code>'VI'</code>, view <code>v_partes_diarios_export</code> con columna Zona.</li>
+            <li>Módulo compartido <code>datos/perfil.js</code>: loader de <code>usuarios_perfil</code> al login + helpers <code>zonaActual()</code>, <code>esGerenciaOAdmin()</code>, auto-descarte de cache huérfano.</li>
+            <li>Fill automático de <code>zona</code> en INSERTs de partes y relevamientos en las 4 apps.</li>
+            <li>UI zone-aware: header muestra nombre del usuario, tooltip con rol + zona, picker de zonas oculto a técnicos (solo ven su zona), link "Reportes" oculto a técnicos, panel Visualización solo admin. Anti-FOUC con <code>data-solo-gerencia</code> + CSS default oculto.</li>
+            <li>Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF oficial Gerencia.</li>
+          </ul>
+        </li>
+        <li><strong>Nomenclatura "tarea" (v7.87):</strong> pase completo <em>parte → tarea</em> en toda la UI visible de las 3 apps escritorio + docs (tabla y funciones internas mantienen <code>partes_diarios</code>/<code>pd*</code> por compatibilidad de código).</li>
       </ul>
     </div>
 

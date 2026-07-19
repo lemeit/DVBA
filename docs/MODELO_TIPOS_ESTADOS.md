@@ -1,6 +1,6 @@
 # Modelo de Tipos ↔ Estados — DVBA Zona VI
 
-**Versión:** v1.0 (2026-06-24) · `dvba_campo` v9.18 · `index` v7.10
+**Versión:** v1.1 (2026-07-18) · `dvba_campo` v9.70 · `index` v8.0.1
 
 Este documento es la **referencia única** para entender cómo se relacionan las categorías de relevamiento, los ítems específicos, los estados válidos y los sub-atributos condicionales en el sistema. Sirve para desarrolladores, operadores de campo y para integraciones futuras con QGIS / Supabase / reportes.
 
@@ -110,6 +110,50 @@ Definido en `DVBA_ESTADOS.MODALIDADES`:
 | `mecanico` | Mecánico |
 | `mixto` | Mixto |
 
+### Sub-atributos implícitos (v9.18a · 2026-06-24)
+
+Algunos tipos ya incluyen la modalidad o el tipo de superficie en el propio nombre. Ej: "Desmalezado mecánico" ya dice "mecánico"; mostrar además un selector de Modalidad con Manual/Mecánico/Mixto sería redundante y permitiría contradicciones.
+
+Para estos casos hay dos funciones nuevas en `dvba_estados.js` que detectan la modalidad o superficie a partir del nombre del tipo:
+
+```js
+DVBA_ESTADOS.modalidadImplicita('Desmalezado mecánico')     // → 'mecanico'
+DVBA_ESTADOS.superficieImplicita('Mejoramiento con dolomita')// → 'dolomita'
+```
+
+**Patrones matcheados:**
+
+| Función | Patrones (regex `\b...\b`) | Devuelve |
+|---|---|---|
+| `modalidadImplicita` | `manual` | `'manual'` |
+| | `mecánica?` | `'mecanico'` |
+| | `mixt[oa]` | `'mixto'` |
+| `superficieImplicita` | `dolomita` | `'dolomita'` |
+| | `suelo cal` | `'suelo_cal'` |
+| | `camino tierra` + `reconformado` | `'tierra'` |
+| | `hormigón` | `'hormigon'` |
+| | `asfáltic[oa]` o `riego asf` | `'asfalto'` |
+
+**Comportamiento en la UI (`onTipoChange`):**
+
+- Si la categoría aplica el sub-atributo Y el nombre del tipo lo tiene implícito → **oculta** el selector pero **setea** el valor en el `<select>` para que la metadata serializada lo capture igual.
+- Si la categoría aplica el sub-atributo pero NO está implícito → muestra el selector para que el usuario elija.
+- Si la categoría no aplica el sub-atributo → selector oculto (comportamiento previo).
+
+**Ejemplos concretos:**
+
+| Tipo elegido | Modalidad selector | Modalidad guardada | Superficie selector | Superficie guardada |
+|---|---|---|---|---|
+| Bacheo en frío | oculto | (vacío) | visible | usuario elige |
+| Bacheo asfáltico | oculto | (vacío) | oculto | `asfalto` |
+| Desmalezado manual | oculto | `manual` | oculto | (no aplica) |
+| Desmalezado mecánico | oculto | `mecanico` | oculto | (no aplica) |
+| Reconformado camino tierra | oculto | (no aplica) | oculto | `tierra` |
+| Mejoramiento con dolomita | oculto | (no aplica) | oculto | `dolomita` |
+| Repavimentación | oculto | (no aplica) | visible | usuario elige |
+
+**Cómo extender:** agregar el patrón regex a la función correspondiente en `dvba_estados.js` (sin tocar HTML ni JS de las apps).
+
 ---
 
 ## 5. Decisión de NO migrar la BD (Opción B)
@@ -213,4 +257,4 @@ Editar `dvba_estados.js` → `POR_CAT.<cat>` y agregar `{ key, label, color }`. 
 
 ---
 
-**Última actualización:** 2026-06-24 · Ing. Luciano Lamaita
+**Última actualización:** 2026-07-18 · Ing. Luciano Lamaita · versión app referencia: v9.70 / v8.0.1
