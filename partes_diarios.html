@@ -187,7 +187,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 .subir-modal{z-index:500 !important}
 .subir-modal .modal{max-width:520px}
 .subir-body{padding:16px 18px}
-.subir-body .drop{border:2px dashed var(--light);border-radius:8px;padding:22px 14px;text-align:center;color:var(--mut);font-size:12px;cursor:pointer;transition:all .2s;background:#fafbfc}
+.subir-body .drop{display:block;width:100%;box-sizing:border-box;border:2px dashed var(--light);border-radius:8px;padding:22px 14px;text-align:center;color:var(--mut);font-size:12px;cursor:pointer;transition:all .2s;background:#fafbfc}
 .subir-body .drop:hover{border-color:var(--p);color:var(--p);background:#f0f9fb}
 .subir-body .drop.has-file{padding:8px;border-style:solid;border-color:var(--vd);background:#f4faf5}
 .subir-body .drop .prev{max-width:100%;max-height:220px;object-fit:contain;border-radius:4px;display:block;margin:0 auto}
@@ -320,7 +320,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.94</span>
+    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.95</span>
   </div>
 </footer>
 
@@ -490,7 +490,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
         <input type="file" id="subFile" accept="image/*" style="display:none">
         <div id="subDropText">
           Tocá acá para elegir una foto<br>
-          <span style="font-size:10.5px">Se lee el GPS del EXIF automáticamente</span>
+          <span style="font-size:10.5px">Se lee la ubicación guardada en la foto</span>
         </div>
         <img class="prev" id="subPrev" style="display:none">
       </label>
@@ -501,7 +501,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
           <input type="text" id="subRuta" readonly>
         </div>
         <div class="fld">
-          <label>Progresiva (para ubicar en el mapa si no hay EXIF)</label>
+          <label>Progresiva (para ubicar en el mapa si la foto no trae ubicación)</label>
           <input type="text" id="subProg" placeholder="Ej: 12+500 · 12,5 · 12.5"
                  oninput="pdSubIntentarUbicar()">
         </div>
@@ -1523,7 +1523,7 @@ function pdSubActualizarGpsBox(mensajeExtra){
   const o = _subEstado.gpsOrigen;
   if (g && o === 'exif'){
     gpsBox.className = 'gps-info ok';
-    gpsBox.innerHTML = '✓ <b>GPS detectado en la foto (EXIF)</b><br>' +
+    gpsBox.innerHTML = '✓ <b>Ubicación detectada en la foto</b><br>' +
       'Lat ' + g.lat.toFixed(6) + ' · Lng ' + g.lng.toFixed(6) +
       (g.alt != null ? ' · Alt ' + g.alt + ' m' : '') +
       '<br><span style="font-size:10.5px;opacity:.75">Origen: metadatos de la foto (más preciso)</span>';
@@ -1541,7 +1541,7 @@ function pdSubActualizarGpsBox(mensajeExtra){
     gpsBox.className = 'gps-info warn';
     let msg = '⚠ <b>Sin ubicación por ahora</b><br>';
     if (_subEstado.file){
-      msg += 'La foto no trae EXIF con GPS. ';
+      msg += 'La foto no trae información de ubicación. ';
       msg += 'Tipeá la <b>progresiva</b> arriba (formato 12+500 o 12,5) para ubicarla automáticamente en la ruta o camino del parte.';
     } else {
       msg += 'Elegí una foto primero.';

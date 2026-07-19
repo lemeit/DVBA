@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="datos/auth.js"></script>
+<script src="datos/perfil.js" defer></script>
 <script src="dvba_tipos.js"></script>
 <script src="datos/dvba_estados.js"></script>
 <script src="datos/qrcode.min.js"></script>
@@ -407,7 +408,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v7.94</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v7.95</span></div>
   </div>
 </div>
 <div class="layout">
@@ -640,7 +641,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.94</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.95</span>
       </div>
     </div>
 
@@ -708,7 +709,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.94';
+const APP_VERSION = 'v7.95';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1322,8 +1323,28 @@ async function sincronizarSupaConSesion(){
       access_token: s.access_token,
       refresh_token: s.refresh_token
     });
+    // v7.95 · Fase 2 · cargar perfil (rol + zona) tras propagar la sesion
+    try {
+      if (typeof DVBA_PERFIL !== 'undefined'){
+        await DVBA_PERFIL.cargar(_supa);
+        aplicarVisibilidadRol();
+      }
+    } catch(e){ console.warn('[perfil]', e.message); }
     return true;
   } catch(e){ console.warn('[auth] setSession:', e.message); return false; }
+}
+
+// v7.95 · Ocultar panel Visualizacion (Progresivas + Mojones fijos + Modo detallado)
+// para usuarios no-admin. En RP47/51/91 el "modo detallado" muestra mojones sinteticos
+// en la posicion geografica correcta pero con km oficial equivocado (bug de anchors
+// no-monotonicos). Hasta regenerar los bundles en QGIS, solo admin ve esas opciones.
+function aplicarVisibilidadRol(){
+  const perfil = (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.get() : null;
+  const esAdmin = perfil && perfil.rol === 'admin';
+  const chip  = document.getElementById('vis-chip');
+  const panel = document.getElementById('vis-panel');
+  if (chip)  chip.style.display  = esAdmin ? '' : 'none';
+  if (panel) panel.style.display = esAdmin ? '' : 'none';
 }
 
 // En la app de escritorio el login es OPCIONAL.
@@ -1423,9 +1444,10 @@ function mostrarUsuario(){
 
 // Disparar gate cuando el DOM esté listo
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initAuthGate);
+  document.addEventListener('DOMContentLoaded', () => { initAuthGate(); aplicarVisibilidadRol(); });
 } else {
   initAuthGate();
+  aplicarVisibilidadRol();
 }
 
 // Indicador visual de modo (online/offline)
