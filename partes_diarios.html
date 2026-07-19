@@ -203,6 +203,11 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 .subir-body .status.err{color:var(--ro);font-weight:600}
 .subir-body .status.ok{color:var(--vd);font-weight:600}
 </style>
+<style>
+/* v7.99 · Fix FOUC · items marcados data-solo-gerencia arrancan ocultos
+   por CSS; aplicarVisibilidadRol() los revela solo a gerencia+admin. */
+[data-solo-gerencia="1"].role-oculto{display:none !important}
+</style>
 </head>
 <body>
 
@@ -234,7 +239,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <!-- v7.87 · Nav consistente entre las 3 apps -->
     <a class="nav-app portal" href="index.html" title="Portal principal · Mapa">🗺 Portal</a>
     <a class="nav-app plan active" href="#" title="Estás en Plan de Seguridad" onclick="return false">🛡️ Plan Seguridad</a>
-    <a class="nav-app rep" data-solo-gerencia="1" href="reportes.html" title="Reportes · solo Gerencia y Admin">📊 Reportes</a>
+    <a class="nav-app rep role-oculto" data-solo-gerencia="1" href="reportes.html" title="Reportes · solo Gerencia y Admin">📊 Reportes</a>
     <span id="email">—</span>
     <button onclick="pdLogout()" title="Cerrar sesión" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer">salir</button>
     <span style="font-size:9px;color:rgba(255,255,255,.7)">EN LINEA</span><div class="dot"></div>
@@ -320,7 +325,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.98</span>
+    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.99</span>
   </div>
 </footer>
 
@@ -701,10 +706,11 @@ async function pdInit(){
         if (zonaPicker) zonaPicker.style.display = 'none';
         else if (zonaSel) zonaSel.style.display = 'none';
       }
-      // v7.98 · Items solo-gerencia (link Reportes en el header)
+      // v7.98/v7.99 · Items solo-gerencia (link Reportes en el header) ·
+      // toggle role-oculto para evitar el flash al cargar la página.
       const esGerenciaOAdmin = perfil.rol === 'admin' || perfil.rol === 'gerencia';
       document.querySelectorAll('[data-solo-gerencia="1"]').forEach(el => {
-        el.style.display = esGerenciaOAdmin ? '' : 'none';
+        el.classList.toggle('role-oculto', !esGerenciaOAdmin);
       });
     } else {
       emailEl.textContent = user.email;
