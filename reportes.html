@@ -20,7 +20,7 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%;font-family:'Encode Sans','Segoe UI',Arial,sans-serif;font-size:13px;color:var(--txt);background:var(--bg)}
-body{display:flex;flex-direction:column}
+body{display:flex;flex-direction:column;padding-bottom:36px} /* v7.98 · reserva espacio para footer fijo */
 
 /* HEADER */
 header{background:var(--p);border-bottom:2px solid var(--pd);color:#fff;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0}
@@ -92,7 +92,7 @@ table.rep td.center{text-align:center}
 .auth-guard button{margin-top:14px;padding:10px 22px;background:var(--vd);color:#fff;border:0;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer}
 
 /* FOOTER */
-footer{background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--pd)}
+footer{background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--pd);position:fixed;bottom:0;left:0;right:0;z-index:80} /* v7.98 · footer fijo al fondo del viewport */
 footer .fl{flex:1;min-width:260px}
 footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
 </style>
@@ -255,7 +255,7 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
     <span style="margin-left:8px">Módulo de reportes · Uso interno institucional.</span>
   </div>
   <div class="fr">
-    Desarrollado por <b style="color:rgba(255,255,255,.85)">Ing. Luciano Lamaita</b> · Div. Técnica DVBA · <span id="app-ver">v7.97</span>
+    Desarrollado por <b style="color:rgba(255,255,255,.85)">Ing. Luciano Lamaita</b> · Div. Técnica DVBA · <span id="app-ver">v7.98</span>
   </div>
 </footer>
 
@@ -267,7 +267,7 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
 // Charts con Chart.js CDN · Export CSV vanilla
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v7.97';
+const APP_VERSION = 'v7.98';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 let _supa = null;

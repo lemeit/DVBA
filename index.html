@@ -384,7 +384,7 @@ body.modo-campo #campo-fab{display:flex}
     <a class="nav-app plan" href="partes_diarios.html" title="Plan de Seguridad en la Circulación · Cargar tareas">
       🛡️ Plan de Seguridad
     </a>
-    <a class="nav-app rep" href="reportes.html" title="Reportes de tareas ejecutadas">
+    <a class="nav-app rep" data-solo-gerencia="1" href="reportes.html" title="Reportes de tareas ejecutadas · solo Gerencia y Admin">
       📊 Reportes
     </a>
     <div id="user-info" title="Usuario autenticado">
@@ -408,7 +408,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v7.97</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v7.98</span></div>
   </div>
 </div>
 <div class="layout">
@@ -641,7 +641,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.97</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v7.98</span>
       </div>
     </div>
 
@@ -709,7 +709,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v7.97';
+const APP_VERSION = 'v7.98';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1369,6 +1369,12 @@ function aplicarVisibilidadRol(){
       emailEl.title = 'Rol: ' + rolLbl + (perfil.zona ? ' · Zona ' + perfil.zona : '');
     }
   }
+  // v7.98 · Items marcados data-solo-gerencia="1" solo se muestran a gerencia+admin
+  // (por ahora aplica al link "Reportes" del header — los técnicos no lo ven).
+  const esGerenciaOAdmin = perfil && (perfil.rol === 'admin' || perfil.rol === 'gerencia');
+  document.querySelectorAll('[data-solo-gerencia="1"]').forEach(el => {
+    el.style.display = esGerenciaOAdmin ? '' : 'none';
+  });
 }
 
 // En la app de escritorio el login es OPCIONAL.

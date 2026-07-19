@@ -34,7 +34,7 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%;font-family:'Encode Sans','Segoe UI',Arial,sans-serif;font-size:13px;color:var(--txt);background:var(--bg)}
-body{display:flex;flex-direction:column}
+body{display:flex;flex-direction:column;padding-bottom:36px} /* v7.98 · reserva espacio para footer fijo */
 
 /* HEADER */
 header{background:var(--p);border-bottom:2px solid var(--pd);color:#fff;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0}
@@ -234,7 +234,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <!-- v7.87 · Nav consistente entre las 3 apps -->
     <a class="nav-app portal" href="index.html" title="Portal principal · Mapa">🗺 Portal</a>
     <a class="nav-app plan active" href="#" title="Estás en Plan de Seguridad" onclick="return false">🛡️ Plan Seguridad</a>
-    <a class="nav-app rep" href="reportes.html" title="Reportes de tareas ejecutadas">📊 Reportes</a>
+    <a class="nav-app rep" data-solo-gerencia="1" href="reportes.html" title="Reportes · solo Gerencia y Admin">📊 Reportes</a>
     <span id="email">—</span>
     <button onclick="pdLogout()" title="Cerrar sesión" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer">salir</button>
     <span style="font-size:9px;color:rgba(255,255,255,.7)">EN LINEA</span><div class="dot"></div>
@@ -311,7 +311,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 </div>
 
 <!-- ═══════════ FOOTER INSTITUCIONAL ═══════════ -->
-<footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--pd)">
+<footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--pd);position:fixed;bottom:0;left:0;right:0;z-index:80">
   <div style="flex:1;min-width:260px">
     <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
     <span style="margin-left:8px">Uso interno institucional.</span>
@@ -320,7 +320,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.97</span>
+    Desarrollado por Ing. Luciano Lamaita · Div. Técnica DVBA · <span id="app-ver-footer">v7.98</span>
   </div>
 </footer>
 
@@ -701,6 +701,11 @@ async function pdInit(){
         if (zonaPicker) zonaPicker.style.display = 'none';
         else if (zonaSel) zonaSel.style.display = 'none';
       }
+      // v7.98 · Items solo-gerencia (link Reportes en el header)
+      const esGerenciaOAdmin = perfil.rol === 'admin' || perfil.rol === 'gerencia';
+      document.querySelectorAll('[data-solo-gerencia="1"]').forEach(el => {
+        el.style.display = esGerenciaOAdmin ? '' : 'none';
+      });
     } else {
       emailEl.textContent = user.email;
     }
