@@ -32,7 +32,7 @@ En este documento se distingue entre:
 
 ## 1. Resumen ejecutivo
 
-**SIG Vial PBA** es una plataforma web integral para el relevamiento, gestión y reporte de la red vial provincial de la DVBA. Cubre el flujo completo: desde la captura en campo con GPS (dos apps móviles PWA — una completa, una minimalista de captura rápida) hasta la generación de reportes PDF institucionales, pasando por el registro estandarizado de tareas diarias, la visualización cartográfica interactiva y un modelo de roles multi-zona diseñado para escalar a las 12 zonas de la Provincia.
+**SIG Vial PBA** es una plataforma web integral para el relevamiento, gestión y reporte de la red vial provincial de la DVBA. Cubre el flujo completo: desde la captura en campo con GPS (una PWA móvil con dos modos internos — **Modo Básico** minimalista para operarios y **Modo Avanzado** con wizard completo para técnicos) hasta la generación de reportes PDF institucionales, pasando por el registro estandarizado de tareas diarias, la visualización cartográfica interactiva y un modelo de roles multi-zona diseñado para escalar a las 12 zonas de la Provincia.
 
 El sistema se desarrolló íntegramente en el Departamento Zona VI Saladillo como caso piloto, con la ambición explícita de ser adoptado como herramienta unificada para toda la DVBA.
 
@@ -53,8 +53,9 @@ El sistema se desarrolló íntegramente en el Departamento Zona VI Saladillo com
 4. **Sistema anti-sobresello**: al re-editar una foto ya estampada, el sistema detecta el banner viejo, lo corta y aplica el nuevo con la misma métrica (imperceptible al ojo).
 5. **Workflow campo → oficina**: la foto se captura cruda en el móvil (sin sello) y se sella al aprobar en oficina con los datos ya armonizados. Permite corregir GPS/ruta/prog antes del sellado definitivo. Nuevas columnas `estado_workflow` + `validado_geo` + `sello_version` en `relevamientos`.
 6. **Dos apps móviles complementarias**:
-   - **Modo Avanzado** (`dvba_campo.html`, Modo Avanzado) con wizard + selector de tipos/estados + edición fina.
-   - **App lite** (`dvba_campo_lite.html`, Modo Básico) minimalista: solo botón "Sacar foto" + GPS. Se completa todo en oficina. Diseñada para operarios sin fluidez tecnológica.
+   - **Modo Avanzado** (`dvba_campo.html`) con wizard + selector de tipos/estados + edición fina.
+   - **Modo Básico** (`dvba_campo_lite.html`) minimalista: solo botón "Sacar foto" + GPS. Se completa todo en oficina. Diseñada para operarios sin fluidez tecnológica.
+   - Ambos modos conviven bajo la **misma PWA** (`app.html` como bootstrap único). El usuario alterna con un toggle interno; la instalación en el celular queda como un solo ícono "SIG Vial PBA".
 7. **Modelo Tipo↔Estado** con árbol de 10 categorías + sub-atributos condicionales (superficie, modalidad) y **sub-atributos implícitos** deducidos por regex del nombre del tipo (v9.18a).
 8. **Reportes PDF institucionales** generados en el browser (jsPDF + autotable, sin backend), con la paleta oficial DVBA de 8 colores cotejada contra el Informe Mensual Gerencia Ejecutiva.
 9. **Roles multi-zona** con perfil por usuario (`usuarios_perfil`), zona en cada registro y UI zone-aware: técnicos ven solo su zona, gerencia consolida todas, público consulta solo el mapa base.
@@ -85,7 +86,7 @@ Al instalarse en el celular, la app se identifica como **SIG Vial PBA** (nombre 
 SIG Vial PBA está en **producción efectiva** para el uso diario de la División Técnica Zona VI. La versión de código al armar este informe es:
 
 - Familia escritorio (portal, módulo Plan de Seguridad, módulo Reportes) → **v8.2**
-- Familia móvil (Modo Avanzado, app lite, service worker) → **v9.72**
+- Familia móvil (PWA `app.html` — Modo Básico + Modo Avanzado + service worker) → **v9.79**
 
 Documentación técnica de referencia (en el repo):
 
@@ -103,11 +104,11 @@ Documentación técnica de referencia (en el repo):
 
 ## 4. Módulos implementados (para desarrollar en el informe)
 
-### 4.1 App móvil completa (`dvba_campo.html` v9.72)
+### 4.1 Modo Avanzado (`dvba_campo.html` v9.78)
 
 PWA instalable con wizard completo de captura: elegir categoría → tipo → estado → ruta/camino/prog → foto → GPS. Cola offline con sincronización en background al recuperar conexión. Sesión persistente por JWT cacheado en `localStorage` (funciona sin red si el usuario ya se logueó al menos una vez). Modo alto contraste ("modo SOL") para uso al aire libre.
 
-### 4.2 App móvil lite (`dvba_campo_lite.html` v9.72)
+### 4.2 Modo Básico (`dvba_campo_lite.html` v9.78)
 
 App minimalista de captura rápida. UI reducida a lo esencial: botón central grande "Sacar foto", banner GPS al pie del header, footer con contador de pendientes / cerrar sesión / info. Todos los demás datos (tarea, ruta, tipo) los completa alguien en oficina. Es el `start_url` del `manifest.json`, es decir, la app que abre por default al instalar la PWA — pensada para operarios de campo sin fluidez con formularios largos. Guarda cola offline igual que la completa. Auth offline via JWT parseado desde `localStorage` (sin llamar a `getUser()` que requiere red).
 

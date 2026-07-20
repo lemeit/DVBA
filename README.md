@@ -14,10 +14,13 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 |---|---|---|---|
 | https://lemeit.github.io/DVBA/ | `index.html` | **v7.79** | Portal principal: mapa, sidebar con pills agrupadas, modal SIG Vial tipo DNV, cola de pendientes con sellado + rotación, **capa 📋 Partes** que dibuja cada parte sobre la traza real (RP o camino) con color por antigüedad, picker de zona en header, panel-footer institucional fijo con resumen |
 | https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v7.79** | **Nueva app** "Plan de Seguridad en la Circulación" — alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido (vía interpolación de progresiva + point-in-polygon), autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead |
-| https://lemeit.github.io/DVBA/dvba_campo.html | `dvba_campo.html` | **v9.56** | App móvil PWA: relevamiento GPS de campo, captura cruda + pre-fill GPS automático, sincronización offline. Móvil sube foto sin sellar (el sellado y rotación se hacen en escritorio al aprobar) |
+| https://lemeit.github.io/DVBA/app.html | `app.html` → router | **v9.79** | **App móvil PWA (URL canónica pública)** — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia del usuario. Al instalar la PWA queda registrada como `SIG Vial PBA` (un solo ícono en el launcher). URL alternativa `campo.html` sigue funcionando como redirect por compatibilidad con instalaciones previas a v9.79. |
+| ↳ `dvba_campo_lite.html` (interno) | Modo Básico | v9.78 | UI minimalista: foto + GPS + envío directo. Diseñado para operarios sin fluidez tecnológica. |
+| ↳ `dvba_campo.html` (interno) | Modo Avanzado | v9.78 | Wizard completo con selección de tipo/estado/subatributos, autocomplete de rutas y caminos, edición fina. |
 | https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte (subruta legacy — el portal principal ya cubre este flujo) |
 | https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.5 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
-| https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html | guía de usuario | — | Manual de la app de campo |
+| https://lemeit.github.io/DVBA/docs/guia_sig_vial_pba.html | guía textual | v1.1 | Manual completo de las apps móviles |
+| https://lemeit.github.io/DVBA/docs/guia_visual_sig_vial_pba.html | guía visual | v1.1 | 10 láminas navegables (mockups smartphone) · imprimible como PDF |
 | https://lemeit.github.io/DVBA/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
 
 ## Modelo Tipo ↔ Estado (desde v9.18 / v7.10 — junio 2026)
