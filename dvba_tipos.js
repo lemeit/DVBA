@@ -1,6 +1,6 @@
 /**
  * dvba_tipos.js  — Módulo compartido de tipos de registro
- * DVBA · Zona Departamental VI Saladillo · v2.0 (2026-06-24)
+ * DVBA · Departamento Zona VI Saladillo · v2.0 (2026-06-24)
  *
  * Reorganizado en 10 categorías separando RELEVAMIENTO (estado de un elemento)
  * de TAREA (mantenimiento que se hizo o hay que hacer). Cada categoría tiene

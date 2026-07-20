@@ -1,6 +1,6 @@
 ﻿# DVBA Zona VI Saladillo · Sistema de Relevamiento y Gestión Vial
 
-Sistema web de relevamiento, cartografía y gestión de la red vial provincial a cargo de la **Zona Departamental VI** de la Dirección de Vialidad de la Provincia de Buenos Aires (DVBA), con sede en Saladillo.
+Sistema web de relevamiento, cartografía y gestión de la red vial provincial a cargo del **Departamento Zona VI** de la Dirección de Vialidad de la Provincia de Buenos Aires (DVBA), con sede en Saladillo.
 
 **Cobertura:** 8 partidos (Saladillo, Gral. Alvear, Gral. Las Heras, Lobos, Roque Pérez, Las Flores, Navarro, 25 de Mayo) · 15 rutas provinciales pavimentadas, tierra y mixtas + red de caminos secundarios.
 
@@ -352,7 +352,7 @@ Para detalles técnicos completos (5 columnas BD agregadas, lógica de umbrales,
 
 ## Convención institucional
 
-Denominación oficial en todos los documentos y apps: **"Zona Departamental VI Saladillo"** o abreviado **"Zona VI Saladillo"**. NUNCA "Delegación Saladillo".
+Denominación oficial en todos los documentos y apps: **"Departamento Zona VI Saladillo"** o abreviado **"Zona VI Saladillo"**. NUNCA "Delegación Saladillo".
 
 ---
 

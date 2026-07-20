@@ -6,7 +6,7 @@
 
 ## 1. Contexto
 
-Se procesó la red secundaria provincial de la Zona Departamental VI Saladillo
+Se procesó la red secundaria provincial del Departamento Zona VI Saladillo
 para obtener longitudes geodésicas confiables e integrarlas al mapa interactivo
 que ya tiene las rutas provinciales.
 
@@ -156,11 +156,11 @@ Para agregar una zona nueva al JSON:
 ```json
 "zonas_dvba": {
   "VI": {
-    "nombre": "Zona Departamental VI Saladillo",
+    "nombre": "Departamento Zona VI Saladillo",
     "partidos": [34, 41, 58, 62, 75, 91, 93, 109]
   },
   "VII": {
-    "nombre": "Zona Departamental VII ...",
+    "nombre": "Departamento Zona VII ...",
     "partidos": [...]
   }
 }

@@ -33,7 +33,7 @@ Salidas generadas:
 Dependencias:
     pip install geopandas fiona pyproj pandas shapely
 
-Autor: DVBA - División Técnica Zona Departamental VI Saladillo
+Autor: DVBA - División Técnica Departamento Zona VI Saladillo
 
 NOTAS SOBRE FUENTES Y ERRORES CONOCIDOS:
   - Fuente canónica: GeoJSON oficial completo PBA (MultiLineString).

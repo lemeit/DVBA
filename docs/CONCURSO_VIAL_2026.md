@@ -1,20 +1,40 @@
-# Informe · XLI Concurso Vial DVBA 2026
+# Informe · XLI Concurso sobre Temas Viales — DVBA 2026
 
-> Documento base para la presentación del sistema DVBA Zona VI Saladillo al **XLI Concurso sobre Temas Viales — 2026**.
+> **Título del trabajo (para portada):**
+>
+> ## SIG Vial PBA
+>
+> ### Plataforma web integral para el relevamiento y gestión de la red vial provincial
+>
+> *Caso piloto: Departamento Zona VI Saladillo · 2026*
+>
+> ---
 >
 > Lema del concurso: *"90 años construyendo caminos. Más de 80 años construyendo conocimiento"*
 >
 > **Deadline:** 16 de septiembre de 2026 · **Entrega:** División Publicaciones y Biblioteca (1 original + 2 copias impresas + PDF).
 > **Seudónimo tentativo:** `lemeit` (a confirmar antes de la entrega).
 > **Autor real (sobre cerrado aparte):** Ing. Luciano Lamaita · División Técnica DVBA · Zona VI Saladillo.
-> **Estado del sistema al armar el documento:** apps de escritorio en **v8.0.1**, familia móvil en **v9.70**, sello institucional en **v4**, base multi-zona activa (Fase 1 + 2 implementadas).
+> **Estado del sistema al armar el documento:** apps de escritorio en **v8.2**, familia móvil en **v9.72**, sello institucional en **v4**, base multi-zona activa (Fase 1 + 2 implementadas).
 > **Fecha de esta versión del informe:** 19 de julio de 2026.
+
+---
+
+## Nota terminológica
+
+En este documento se distingue entre:
+
+- **DVBA** → **Dirección de Vialidad de la Provincia de Buenos Aires**. Ente ejecutor del sistema, organizador del concurso, empleador del autor.
+- **SIG Vial PBA** → **Nombre del sistema** que se presenta al concurso. Es el producto tecnológico desarrollado para la DVBA.
+- **Zona VI Saladillo** → Ámbito operativo del piloto. La DVBA está organizada en 12 zonas viales; Zona VI es la sede del autor y el ámbito de validación del sistema.
 
 ---
 
 ## 1. Resumen ejecutivo
 
-El sistema **DVBA Zona VI** es una plataforma web integral para el relevamiento, gestión y reporte de la red vial provincial, desarrollada íntegramente en la Zona Departamental VI Saladillo. Cubre el flujo completo: desde la captura en campo con GPS (dos apps móviles PWA — una completa, una minimalista de captura rápida) hasta la generación de reportes PDF institucionales, pasando por el registro estandarizado de tareas diarias, la visualización cartográfica interactiva y un modelo de roles multi-zona diseñado para escalar a las 12 zonas de la Provincia.
+**SIG Vial PBA** es una plataforma web integral para el relevamiento, gestión y reporte de la red vial provincial de la DVBA. Cubre el flujo completo: desde la captura en campo con GPS (dos apps móviles PWA — una completa, una minimalista de captura rápida) hasta la generación de reportes PDF institucionales, pasando por el registro estandarizado de tareas diarias, la visualización cartográfica interactiva y un modelo de roles multi-zona diseñado para escalar a las 12 zonas de la Provincia.
+
+El sistema se desarrolló íntegramente en el Departamento Zona VI Saladillo como caso piloto, con la ambición explícita de ser adoptado como herramienta unificada para toda la DVBA.
 
 **Alcance actual (piloto Zona VI):**
 
@@ -56,16 +76,18 @@ El sistema **DVBA Zona VI** es una plataforma web integral para el relevamiento,
 - **Hosting**: GitHub Pages (`https://lemeit.github.io/DVBA/`).
 - **Repositorio**: [`lemeit/DVBA`](https://github.com/lemeit/DVBA) — código abierto para consulta y aportes.
 
+Al instalarse en el celular, la app se identifica como **SIG Vial PBA** (nombre y short_name en `manifest.json`) con la descripción *"Sistema web integrado para la gestión de la red vial provincial · Piloto Zona VI Saladillo"*.
+
 ---
 
 ## 3. Estado al momento de la presentación
 
-El sistema está en **producción efectiva** para el uso diario de la División Técnica Zona VI. La versión de código al armar este informe es:
+SIG Vial PBA está en **producción efectiva** para el uso diario de la División Técnica Zona VI. La versión de código al armar este informe es:
 
-- Familia escritorio (portal, partes_diarios, reportes) → **v8.0.1**
-- Familia móvil (app completa, app lite, service worker) → **v9.70**
+- Familia escritorio (portal, módulo Plan de Seguridad, módulo Reportes) → **v8.2**
+- Familia móvil (app completa, app lite, service worker) → **v9.72**
 
-Documentación técnica de referencia:
+Documentación técnica de referencia (en el repo):
 
 - **[`README.md`](../README.md)** — presentación general del sistema.
 - **[`ROADMAP.md`](../ROADMAP.md)** — hoja de ruta consolidada, pendientes priorizados.
@@ -81,19 +103,19 @@ Documentación técnica de referencia:
 
 ## 4. Módulos implementados (para desarrollar en el informe)
 
-### 4.1 App móvil completa (`dvba_campo.html` v9.70)
+### 4.1 App móvil completa (`dvba_campo.html` v9.72)
 
 PWA instalable con wizard completo de captura: elegir categoría → tipo → estado → ruta/camino/prog → foto → GPS. Cola offline con sincronización en background al recuperar conexión. Sesión persistente por JWT cacheado en `localStorage` (funciona sin red si el usuario ya se logueó al menos una vez). Modo alto contraste ("modo SOL") para uso al aire libre.
 
-### 4.2 App móvil lite (`dvba_campo_lite.html` v9.70)
+### 4.2 App móvil lite (`dvba_campo_lite.html` v9.72)
 
 App minimalista de captura rápida. UI reducida a lo esencial: botón central grande "Sacar foto", banner GPS al pie del header, footer con contador de pendientes / cerrar sesión / info. Todos los demás datos (tarea, ruta, tipo) los completa alguien en oficina. Es el `start_url` del `manifest.json`, es decir, la app que abre por default al instalar la PWA — pensada para operarios de campo sin fluidez con formularios largos. Guarda cola offline igual que la completa. Auth offline via JWT parseado desde `localStorage` (sin llamar a `getUser()` que requiere red).
 
-### 4.3 Portal escritorio (`index.html` v8.0.1)
+### 4.3 Portal escritorio (`index.html` v8.2)
 
 Mapa Leaflet con 8 partidos, 15 RPs y 100 caminos secundarios. Sidebar con pills agrupadas de rutas y caminos, panel de capas toggleable (RP / Camino / Tareas), modal SIG Vial estilo DNV, cursor flotante con progresiva al hover, layer 📋 **Tareas** que dibuja cada parte sobre la traza real con color por antigüedad (rojo últimos 7 días, dorado 30, violeta 90, gris histórico). Cola de pendientes con sellado + rotación en oficina. Picker de zona en el header preparado para el escalado multi-zona. Panel-footer institucional fijo con resumen de la zona activa.
 
-### 4.4 Plan de Seguridad en la Circulación (`partes_diarios.html` v8.0.1)
+### 4.4 Plan de Seguridad en la Circulación (`partes_diarios.html` v8.2)
 
 Módulo de carga de tareas diarias alineado al Google Form oficial de Gerencia Ejecutiva DVBA. Cambia el nombre del formulario oficial ("Parte") a la jerga local ("Tarea") en toda la UI visible. Detección automática de partido, autocomplete custom de caminos con recorrido encadenado, dropdown único primaria+secundaria con typeahead nativo (`<datalist>`), progresivas con coma decimal en formato oficial DVBA, filtros de partido en toolbar, columna indicadora de fotos por tarea, flujo ±5 días hábiles para asociar relevamientos.
 
@@ -107,7 +129,7 @@ Módulo de carga de tareas diarias alineado al Google Form oficial de Gerencia E
 
 Como resultado, cualquier operativo puede completar un parte 100% desde la oficina si viene con fotos crudas del campo — no depende de que se hayan cargado antes desde la app móvil.
 
-### 4.5 Módulo Reportes (`reportes.html` v8.0.1)
+### 4.5 Módulo Reportes (`reportes.html` v8.2)
 
 Reportes institucionales con:
 
@@ -211,7 +233,7 @@ El sistema separa el registro vial en **3 dimensiones**:
 
 ### 8.1 Escalado multi-zona a las 12 zonas viales de PBA
 
-Sistema de 4 niveles con RLS por zona ya diseñado y con Fase 1+2 implementadas. Faltan Fases 3-5 (RLS real, panel admin, PDF gerencia) — todo documentado en `PLAN_ROLES_MULTIZONA.md` con estimación de ~10 sesiones de desarrollo. Cada zona técnica podrá cargar y consultar sus datos operativos, mientras Gerencia Central consolida las 12 zonas en el mismo dashboard.
+SIG Vial PBA fue diseñado desde el inicio pensando en las 12 zonas. Sistema de 4 niveles con RLS por zona ya diseñado y con Fase 1+2 implementadas. Faltan Fases 3-5 (RLS real, panel admin, PDF gerencia) — todo documentado en `PLAN_ROLES_MULTIZONA.md` con estimación de ~10 sesiones de desarrollo. Cada zona técnica podrá cargar y consultar sus datos operativos, mientras Gerencia Central consolida las 12 zonas en el mismo dashboard.
 
 ### 8.2 Reportes PDF oficiales replicando el formato DVBA existente
 
@@ -269,6 +291,7 @@ Integración de un chat prompt con **modelo de lenguaje grande** (GPT-4o-mini, C
 ## 9. Reconocimiento y equipo
 
 - **Desarrollo**: Ing. Luciano Lamaita — División Técnica DVBA Zona VI Saladillo.
+- **Institución destinataria**: Dirección de Vialidad de la Provincia de Buenos Aires (DVBA), con el Departamento Zona VI Saladillo como ámbito de validación del piloto.
 - **Datos oficiales cotejados contra**:
   - *Nomenclador de Rutas DVBA 1989* (Ing. Luis F. Bertoni, Jefe Interino División Técnica) — fuente autoritativa de progresivas y sentido de RPs.
   - Ministerio de Infraestructura y Servicios Públicos PBA — datos catastrales.
@@ -292,7 +315,7 @@ Integración de un chat prompt con **modelo de lenguaje grande** (GPT-4o-mini, C
 
 ---
 
-## 11. Chek-list de entrega (bases del concurso)
+## 11. Check-list de entrega (bases del concurso)
 
 - [ ] Formato: A4, Arial o Calibri 12, interlineado 1.5, extensión libre.
 - [ ] **Anonimato**: seudónimo en la portada. Ningún dato personal en el cuerpo del trabajo.
@@ -305,5 +328,5 @@ Integración de un chat prompt con **modelo de lenguaje grande** (GPT-4o-mini, C
 
 ---
 
-_Última actualización: 19 de julio de 2026 · sistema en v8.0.1 (escritorio) / v9.70 (móvil)._
+_Última actualización: 19 de julio de 2026 · SIG Vial PBA en v8.2 (escritorio) / v9.72 (móvil)._
 _Seudónimo tentativo: `lemeit` — a confirmar antes de la entrega._

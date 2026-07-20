@@ -1,6 +1,6 @@
 /**
  * dvba_estados.js  —  Modelo de Estados, Tipos de Superficie y Modalidades
- * DVBA · Zona Departamental VI Saladillo · v1.0 (2026-06-24)
+ * DVBA · Departamento Zona VI Saladillo · v1.0 (2026-06-24)
  *
  * Define qué ESTADOS son válidos para cada CATEGORÍA del árbol de tipos,
  * más sub-atributos condicionales (tipo de superficie, modalidad de tarea).

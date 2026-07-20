@@ -1,6 +1,6 @@
 /**
  * datos/armonizador.js — Armonización geoespacial de registros vs GPS
- * DVBA · Zona Departamental VI Saladillo · v1.0 (2026-06-30)
+ * DVBA · Departamento Zona VI Saladillo · v1.0 (2026-06-30)
  *
  * Compara los datos cargados por el operador (ruta, partido, progresiva)
  * con lo que se infiere desde las coordenadas GPS y la cartografía local.
