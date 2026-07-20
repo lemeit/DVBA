@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía de uso · SIG Vial PBA</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --azul:#003366; --azul-cl:#1a5080; --teal:#009aae; --teal-cl:#26b3c8;
+  --bg:#f4f6f9; --card:#fff; --border:#cdd9e6;
+  --text:#1a2a3a; --muted:#5a6a7a; --good:#28a745; --warn:#f0a500; --info:#17a2b8;
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+.page{max-width:960px;margin:0 auto;padding:24px 20px 60px}
+
+header.hero{background:linear-gradient(135deg,var(--azul) 0%,var(--teal) 100%);color:#fff;border-radius:10px;padding:28px;margin-bottom:24px;box-shadow:0 4px 14px rgba(0,51,102,.18)}
+header.hero h1{font-size:1.7rem;font-weight:600;margin-bottom:6px}
+header.hero .sub{opacity:.92;font-size:.98rem;margin-bottom:14px}
+header.hero .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;font-size:.82rem;background:rgba(255,255,255,.1);padding:12px 16px;border-radius:6px}
+header.hero .meta .lbl{opacity:.78;display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+header.hero .meta .val{font-weight:600;overflow-wrap:anywhere;word-break:break-word}
+header.hero .meta>div{min-width:0;overflow:hidden}
+header.hero a{color:#bdf;text-decoration:none}
+
+nav.toc{background:#fff;padding:16px 20px;border-radius:8px;border:1px solid var(--border);margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+nav.toc h3{color:var(--azul);font-size:.86rem;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+nav.toc ol{margin:0 0 0 22px;font-size:.92rem;columns:2;column-gap:28px}
+nav.toc li{margin:4px 0;break-inside:avoid}
+nav.toc a{color:var(--azul-cl);text-decoration:none}
+nav.toc a:hover{text-decoration:underline}
+
+section{margin-top:32px}
+h2{color:var(--azul);font-size:1.3rem;font-weight:600;margin-bottom:14px;padding-bottom:6px;border-bottom:3px solid var(--azul);display:inline-block}
+h3{color:var(--azul-cl);font-size:1.08rem;font-weight:600;margin:20px 0 8px}
+h4{color:var(--azul);font-size:.96rem;font-weight:600;margin:14px 0 6px}
+p{margin-bottom:10px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:10px 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:10px 0}
+
+ul,ol{margin:6px 0 12px 22px}
+li{margin:4px 0}
+code{background:#eef3f9;color:var(--azul);padding:2px 6px;border-radius:3px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85em;font-weight:500}
+kbd{background:#fff;border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82em;box-shadow:0 1px 0 var(--border)}
+
+.box{padding:14px 16px;border-radius:6px;margin:10px 0;border-left:4px solid var(--azul);background:#fff}
+.box.ok{background:#f0fff4;border-color:var(--good)}
+.box.warn{background:#fff8e6;border-color:var(--warn)}
+.box.info{background:#e6f4f8;border-color:var(--info)}
+.box.tip{background:#f5edfa;border-color:#7e57c2}
+
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.86rem;background:#fff;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+th{background:var(--azul);color:#fff;padding:9px 12px;text-align:left;font-weight:600}
+td{padding:8px 12px;border-bottom:1px solid #e6edf4;vertical-align:top}
+tr:nth-child(even){background:#f7fafd}
+
+.wizard-step{display:flex;gap:14px;align-items:flex-start;margin:14px 0;padding:14px;background:#fff;border:1px solid var(--border);border-radius:8px}
+.wizard-step .num{flex-shrink:0;width:36px;height:36px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.95rem}
+.wizard-step .body{flex:1}
+.wizard-step .body strong{color:var(--azul);display:block;margin-bottom:4px}
+
+.img-placeholder{background:#eaeff5;border:2px dashed var(--border);border-radius:6px;padding:22px;text-align:center;color:var(--muted);font-size:.85rem;font-style:italic;margin:10px 0}
+.img-placeholder b{color:var(--azul);font-style:normal}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.badge.admin{background:#fee;color:#a00}
+.badge.gerencia{background:#f5edfa;color:#5a2b8c}
+.badge.tecnico{background:#e6f4f8;color:#1a6a8a}
+.badge.publico{background:#eef3f9;color:#3a5a7a}
+
+footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;padding-top:18px;border-top:1px solid var(--border)}
+
+@media(max-width:600px){
+  .page{padding:14px 12px}
+  header.hero{padding:20px 18px}
+  header.hero h1{font-size:1.25rem}
+  nav.toc ol{columns:1}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="hero">
+  <h1>📖 Guía de uso · SIG Vial PBA</h1>
+  <div class="sub">Plataforma web integral para el relevamiento y gestión de la red vial provincial · Piloto Departamento Zona VI Saladillo</div>
+  <div class="meta">
+    <div><span class="lbl">Versión guía</span><span class="val">v1.0</span></div>
+    <div><span class="lbl">Sistema</span><span class="val">Escritorio v8.2 · Móvil v9.73</span></div>
+    <div><span class="lbl">Última actualización</span><span class="val">19 de julio de 2026</span></div>
+    <div><span class="lbl">URL</span><span class="val"><a href="https://lemeit.github.io/DVBA/" target="_blank">lemeit.github.io/DVBA/ ↗</a></span></div>
+    <div><span class="lbl">Bitácora técnica</span><span class="val"><a href="bitacora.html">Ver ↗</a></span></div>
+    <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA ↗</a></span></div>
+  </div>
+</header>
+
+<nav class="toc">
+  <h3>Contenido</h3>
+  <ol>
+    <li><a href="#que-es">¿Qué es SIG Vial PBA?</a></li>
+    <li><a href="#roles">Roles y accesos</a></li>
+    <li><a href="#portal">Portal web (escritorio)</a></li>
+    <li><a href="#lite">App móvil · Captura Rápida (lite)</a></li>
+    <li><a href="#campo">App móvil · Campo (completa)</a></li>
+    <li><a href="#partes">Plan de Seguridad en la Circulación</a></li>
+    <li><a href="#reportes">Módulo Reportes</a></li>
+    <li><a href="#sello">Sello institucional v4</a></li>
+    <li><a href="#offline">Modo offline y sincronización</a></li>
+    <li><a href="#faq">Preguntas frecuentes</a></li>
+  </ol>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="que-es">
+<h2>1. ¿Qué es SIG Vial PBA?</h2>
+
+<div class="card">
+<p><strong>SIG Vial PBA</strong> es una plataforma web integral para el relevamiento, gestión y reporte de la red vial provincial de la Dirección de Vialidad de la Provincia de Buenos Aires (DVBA). Cubre el flujo completo:</p>
+
+<ol>
+  <li>El personal de campo saca fotos con GPS desde el celular.</li>
+  <li>Las fotos se sellan automáticamente con datos institucionales (ruta, progresiva, fecha, ubicación).</li>
+  <li>El personal de oficina revisa, aprueba y completa datos.</li>
+  <li>Las tareas ejecutadas se cargan al sistema alineadas al Plan de Seguridad en la Circulación.</li>
+  <li>El sistema genera reportes cartográficos y PDF listos para Gerencia.</li>
+</ol>
+
+<p>El sistema se desarrolló como <strong>caso piloto en el Departamento Zona VI Saladillo</strong> con la ambición explícita de escalar a las 12 zonas viales de la Provincia.</p>
+</div>
+
+<h3>Componentes del sistema</h3>
+<div class="grid2">
+  <div class="box info">
+    <strong>🖥 Portal escritorio</strong> (<code>index.html</code>)<br>
+    Mapa Leaflet con rutas, caminos, mojones, partidos y tareas.
+  </div>
+  <div class="box info">
+    <strong>📋 Plan de Seguridad</strong> (<code>partes_diarios.html</code>)<br>
+    Carga de tareas diarias con detección automática de partido.
+  </div>
+  <div class="box info">
+    <strong>📊 Reportes</strong> (<code>reportes.html</code>)<br>
+    Charts, filtros y export CSV/PDF.
+  </div>
+  <div class="box info">
+    <strong>📱 Captura Rápida</strong> (<code>dvba_campo_lite.html</code>)<br>
+    App móvil minimalista: solo foto + GPS.
+  </div>
+  <div class="box info">
+    <strong>📱 Campo</strong> (<code>dvba_campo.html</code>)<br>
+    App móvil completa con wizard de captura + formularios.
+  </div>
+  <div class="box info">
+    <strong>🛣 Caminos secundarios</strong> (<code>caminos_secundarios.html</code>)<br>
+    Visor especializado de la red no pavimentada.
+  </div>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="roles">
+<h2>2. Roles y accesos</h2>
+
+<p>SIG Vial PBA maneja 4 niveles de usuario. La UI se adapta automáticamente al rol del usuario logueado:</p>
+
+<table>
+  <thead>
+    <tr><th>Rol</th><th>Alcance</th><th>Reportes</th><th>Panel Visualización</th><th>Picker de zonas</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="badge publico">Público</span><br><small>sin login</small></td>
+      <td>Solo mapa base + info de rutas y caminos.</td>
+      <td>✗</td>
+      <td>✗</td>
+      <td>✓ (explora cualquier zona)</td>
+    </tr>
+    <tr>
+      <td><span class="badge tecnico">Técnico</span><br><small>de zona</small></td>
+      <td>CRUD completo dentro de su zona asignada.</td>
+      <td>✗</td>
+      <td>✗</td>
+      <td>✗ (zona fija de su perfil)</td>
+    </tr>
+    <tr>
+      <td><span class="badge gerencia">Gerencia</span><br><small>o Auditoría</small></td>
+      <td>Todas las zonas + reportes consolidados.</td>
+      <td>✓</td>
+      <td>✗</td>
+      <td>✓ (elige zona a visualizar)</td>
+    </tr>
+    <tr>
+      <td><span class="badge admin">Admin</span><br><small>o Desarrollador</small></td>
+      <td>Todo + gestión de usuarios y catálogos.</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✓</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="box tip">
+<strong>💡 Cómo pedir tu usuario</strong><br>
+Contactá al administrador del sistema con tu correo institucional. Te van a asignar rol y zona en la tabla <code>usuarios_perfil</code> de Supabase, y podés loguearte con ese correo + la contraseña que definas al recibir el link de invitación.
+</div>
+
+<div class="img-placeholder">
+📷 <b>Screenshot sugerido:</b> header del portal mostrando el badge del usuario con tooltip <em>"Técnico · Zona VI"</em>.
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="portal">
+<h2>3. Portal web (escritorio)</h2>
+
+<p>El portal es el punto de entrada principal para técnicos, gerencia y administradores. Se accede desde cualquier navegador moderno en <a href="https://lemeit.github.io/DVBA/" target="_blank">lemeit.github.io/DVBA/</a>.</p>
+
+<h3>Vista general</h3>
+<div class="img-placeholder">
+📷 <b>Screenshot sugerido:</b> vista general del portal con mapa + sidebar + capa 📋 Tareas activa.
+</div>
+
+<h3>Elementos de la interfaz</h3>
+<div class="grid2">
+  <div class="box">
+    <strong>Header</strong><br>
+    Logo institucional · nombre de la zona activa · badge del usuario (con tooltip rol+zona) · links a Plan de Seguridad y Reportes · botón salir.
+  </div>
+  <div class="box">
+    <strong>Sidebar izquierdo</strong><br>
+    Pills agrupadas de rutas provinciales y caminos secundarios. Filtros por partido. Selector de capa (RP / Camino / Tareas). Modal SIG Vial estilo DNV.
+  </div>
+  <div class="box">
+    <strong>Mapa central</strong><br>
+    Leaflet con 8 partidos + 15 RPs + 100 caminos secundarios. Cursor flotante muestra progresiva al pasar sobre trazas. Click en un punto → pin con detalle.
+  </div>
+  <div class="box">
+    <strong>Panel-footer</strong><br>
+    Fijo abajo del sidebar. Resumen de la zona activa (partidos / rutas / caminos / registros) y línea con desarrollador + versión.
+  </div>
+</div>
+
+<h3>Capa 📋 Tareas</h3>
+<p>Al activar esta capa, cada tarea diaria aparece dibujada sobre la traza real de la ruta o camino, con color según la antigüedad:</p>
+<ul>
+  <li><strong>Rojo</strong>: últimos 7 días.</li>
+  <li><strong>Dorado</strong>: últimos 30 días.</li>
+  <li><strong>Violeta</strong>: últimos 90 días.</li>
+  <li><strong>Gris</strong>: histórico anterior.</li>
+</ul>
+<p>Los pines abren un popup con los detalles de la tarea (fecha, tipo, ruta, prog inicial/final, equipos, fotos vinculadas).</p>
+
+<div class="img-placeholder">
+📷 <b>Screenshot sugerido:</b> capa Tareas activa mostrando polylines de colores sobre RP30 con popup abierto.
+</div>
+
+<h3>Cola de aprobación de registros</h3>
+<p>El botón <strong>🔔 N pendientes</strong> del header abre la cola de registros con estado <code>estado_workflow = 'campo'</code>. Cada registro tiene botones para aprobar / rechazar / editar / rotar la foto. Al aprobar se aplica el sello institucional v4 con los datos definitivos.</p>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="lite">
+<h2>4. App móvil · Captura Rápida (lite)</h2>
+
+<p>Es la app <strong>por default</strong> al instalar la PWA en el celular. Está diseñada para operarios que necesitan sacar fotos con GPS sin cargar formularios largos.</p>
+
+<h3>Cómo instalarla</h3>
+<div class="wizard-step">
+  <div class="num">1</div>
+  <div class="body">
+    <strong>Abrir la URL en Chrome del celular</strong>
+    <p>Ir a <a href="https://lemeit.github.io/DVBA/">lemeit.github.io/DVBA/</a> desde Chrome (Android) o Safari (iOS).</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">2</div>
+  <div class="body">
+    <strong>Instalar como app</strong>
+    <p>Menú <kbd>⋮</kbd> → <em>Instalar aplicación</em> (Android) o <em>Agregar a pantalla de inicio</em> (iOS). Aceptar el nombre <strong>SIG Vial PBA</strong>.</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">3</div>
+  <div class="body">
+    <strong>Abrir desde el ícono</strong>
+    <p>El ícono aparece como cualquier otra app en el launcher. Al abrir arranca directo en Captura Rápida.</p>
+  </div>
+</div>
+
+<div class="img-placeholder">
+📷 <b>Screenshot sugerido:</b> diálogo de instalación de la PWA en Android mostrando "SIG Vial PBA".
+</div>
+
+<h3>Primer uso: ingresar</h3>
+<p>La primera vez la app pide credenciales:</p>
+<div class="img-placeholder">
+📷 <b>Screenshot:</b> <em>Modal de login de la lite con "Ingresar" y link "O usá la app completa"</em>. (Ver captura tuya del 20/7.)
+</div>
+
+<div class="box info">
+<strong>Nota</strong> · Una vez que el usuario ingresó por primera vez con internet, la app queda logueada indefinidamente y puede usarse offline. La sesión se guarda en <code>localStorage</code> con el token JWT de Supabase.
+</div>
+
+<h3>Uso diario</h3>
+<div class="wizard-step">
+  <div class="num">1</div>
+  <div class="body">
+    <strong>Verificar GPS</strong>
+    <p>El banner al pie del header muestra el estado del GPS: verde = OK, amarillo = ubicando, rojo = sin señal. Si está en rojo, tocar el banner para reintentar o abrir ajustes.</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">2</div>
+  <div class="body">
+    <strong>Tocar el botón central</strong>
+    <p>"Sacar foto" en grande. Se abre la cámara del sistema.</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">3</div>
+  <div class="body">
+    <strong>Confirmar la foto</strong>
+    <p>Aparece un preview con las coordenadas y la fecha. Botones "Sacar otra" o "Enviar".</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">4</div>
+  <div class="body">
+    <strong>Enviar</strong>
+    <p>Sube la foto a Supabase Storage y crea el registro. Si no hay internet, queda en cola local y se sincroniza cuando vuelva la conexión.</p>
+  </div>
+</div>
+
+<h3>Footer con acciones</h3>
+<ul>
+  <li><strong>📤 Sin enviar</strong> · muestra fotos que quedaron en cola. Podés reintentar o borrar las que fallen.</li>
+  <li><strong>⚙ App completa</strong> · abre la app móvil completa (queda como preferencia para próxima apertura).</li>
+  <li><strong>ℹ Info</strong> · modal con versión, estado de conexión y botón <em>Cerrar sesión</em>.</li>
+</ul>
+
+<div class="img-placeholder">
+📷 <b>Screenshot:</b> <em>Modal Info de la lite con datos de sesión y botón "Cerrar sesión"</em>. (Ver captura tuya del 20/7.)
+</div>
+
+<div class="box warn">
+<strong>⚠ Importante</strong> · La lite <strong>no clasifica</strong> ni asigna tipo de tarea. Solo captura foto + GPS. Los demás datos los completa <strong>alguien en oficina</strong> desde el portal escritorio, en la cola de aprobación.
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="campo">
+<h2>5. App móvil · Campo (completa)</h2>
+
+<p>Es la app tradicional con wizard completo. Se accede desde el link <strong>⚙ App completa</strong> del footer de la lite o directamente en <a href="https://lemeit.github.io/DVBA/dvba_campo.html">dvba_campo.html</a>.</p>
+
+<h3>Cuándo usarla</h3>
+<ul>
+  <li>Cuando el operario tiene fluidez con la app y quiere clasificar en el momento.</li>
+  <li>Cuando el registro requiere datos que no se pueden completar en oficina (ej. testigo directo del incidente).</li>
+  <li>Para editar un registro cargado previamente.</li>
+</ul>
+
+<h3>Flujo de captura</h3>
+<div class="wizard-step">
+  <div class="num">1</div>
+  <div class="body">
+    <strong>Elegir categoría</strong>
+    <p>Grilla de 10 iconos (Calzada · Drenaje · Estructura · Señalización · Demarcación · Iluminación · Entorno · Seguridad · Mantenimiento · Otro).</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">2</div>
+  <div class="body">
+    <strong>Elegir tipo específico</strong>
+    <p>Dentro de la categoría. Ej. Calzada → Bache · Bache crítico · Pavimento fisurado · etc.</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">3</div>
+  <div class="body">
+    <strong>Elegir estado</strong>
+    <p>El dropdown se puebla automáticamente con los estados válidos para esa categoría.</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">4</div>
+  <div class="body">
+    <strong>Sub-atributos condicionales</strong>
+    <p>Si aplica: superficie (asfalto/hormigón/tierra…), modalidad (manual/mecánico/mixto). Si el nombre del tipo ya incluye la modalidad (ej. "Desmalezado mecánico"), el selector se oculta y el valor se guarda solo.</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">5</div>
+  <div class="body">
+    <strong>Ruta / camino + progresiva</strong>
+    <p>Toggle RP / Camino secundario. Autocomplete inteligente. Progresiva con coma decimal formato oficial DVBA.</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">6</div>
+  <div class="body">
+    <strong>Foto + GPS</strong>
+    <p>Sacar foto con la cámara del sistema. GPS se toma automático (con posibilidad de editar).</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">7</div>
+  <div class="body">
+    <strong>Guardar</strong>
+    <p>Sube a Supabase o queda en cola offline. La foto se sube <strong>sin sello</strong>: el sellado se hace en oficina cuando se aprueba (workflow campo→oficina).</p>
+  </div>
+</div>
+
+<h3>Modo SOL (alto contraste)</h3>
+<p>Botón ☀ en el header. Aumenta el contraste y engrosa los botones para uso al aire libre bajo el sol directo.</p>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="partes">
+<h2>6. Plan de Seguridad en la Circulación</h2>
+
+<p>Módulo escritorio (<code>partes_diarios.html</code>) para cargar las <strong>tareas diarias ejecutadas</strong>. Está alineado al Google Form oficial de Gerencia Ejecutiva DVBA. Reemplaza el workflow anterior "por email".</p>
+
+<div class="img-placeholder">
+📷 <b>Screenshot:</b> Modal "Nueva tarea" con detección automática de partido y autocomplete de caminos activo.
+</div>
+
+<h3>Cargar una tarea nueva</h3>
+<div class="wizard-step">
+  <div class="num">1</div>
+  <div class="body">
+    <strong>Botón "+ Nuevo registro"</strong>
+    <p>Abre el modal de carga.</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">2</div>
+  <div class="body">
+    <strong>Fecha + tipo de tarea</strong>
+    <p>Dropdown con las tareas del catálogo (mantenimiento, señalización, etc).</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">3</div>
+  <div class="body">
+    <strong>Ruta / camino</strong>
+    <p>Toggle 🛣 Primaria / 🚜 Secundaria. Autocomplete con recorrido encadenado para caminos. Detección automática de partido al completar la progresiva.</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">4</div>
+  <div class="body">
+    <strong>Progresivas inicio/fin</strong>
+    <p>Formato oficial DVBA con coma decimal (ej. <code>100,01</code>). Se calcula el kilometraje automáticamente.</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">5</div>
+  <div class="body">
+    <strong>Equipos utilizados</strong>
+    <p>Multi-select con los vehículos disponibles.</p>
+  </div>
+</div>
+<div class="wizard-step">
+  <div class="num">6</div>
+  <div class="body">
+    <strong>Fotos vinculadas (2 opciones)</strong>
+    <p><strong>a) Asociar registro existente</strong>: si ya hay relevamientos cargados desde el móvil en la misma ruta ±5 días hábiles, elegís de la lista.<br>
+    <strong>b) Subir foto directa</strong>: elegís foto del disco → lee GPS del EXIF → si no hay EXIF, tipeás progresiva y se interpola → aplica sello v4 → sube a Storage → crea el relevamiento.</p>
+  </div>
+</div>
+
+<div class="img-placeholder">
+📷 <b>Screenshot:</b> Modal "Subir foto" con foto cargada + banner verde "Ubicación detectada en la foto".
+</div>
+
+<h3>Cambio de nombre "parte" → "tarea"</h3>
+<p>El formulario oficial se llama <em>"Parte diario"</em> pero en la jerga interna se dice <em>"tarea"</em>. Toda la UI visible dice <strong>tarea/tareas</strong> — sólo los nombres técnicos internos (tabla <code>partes_diarios</code>, funciones <code>pd*</code>) mantienen "parte" por compatibilidad de código.</p>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="reportes">
+<h2>7. Módulo Reportes</h2>
+
+<p>Módulo escritorio (<code>reportes.html</code>) accesible desde el link 📊 <strong>Reportes</strong> del header. <strong>Solo visible para roles gerencia y admin</strong>.</p>
+
+<h3>Contenido</h3>
+<div class="grid2">
+  <div class="box info">
+    <strong>4 KPIs</strong><br>
+    Total km · tareas ejecutadas · partidos activos · categorías intervenidas.
+  </div>
+  <div class="box info">
+    <strong>4 charts</strong><br>
+    Km por tarea (paleta oficial 8 colores) · Timeline mensual (5 meses + tendencia) · Uso de vehículos · Acciones por vía.
+  </div>
+  <div class="box info">
+    <strong>Filtros en vivo</strong><br>
+    Fecha desde/hasta · zona · partido · RP/camino · tarea. Debounce para no recalcular en cada tecla.
+  </div>
+  <div class="box info">
+    <strong>Tabla</strong><br>
+    Fecha · tarea · vía · partido · km · equipos · foto ✓/✗. Ordenable, filtrable.
+  </div>
+</div>
+
+<h3>Exports</h3>
+<ul>
+  <li><strong>CSV</strong> · headers oficiales, todas las filas filtradas.</li>
+  <li><strong>PDF institucional</strong> · portada + página de charts + tabla completa. Layout cotejado contra el Informe Mensual Gerencia Ejecutiva (paleta oficial de 8 colores).</li>
+</ul>
+
+<div class="img-placeholder">
+📷 <b>Screenshot:</b> vista de Reportes con los 4 charts renderizados y filtros aplicados.
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="sello">
+<h2>8. Sello institucional v4</h2>
+
+<p>Todas las fotos que llegan al sistema se sellan con un banner institucional que las hace <strong>trazables e identificables</strong>. El diseño del sello es idéntico ya sea que la foto venga del campo (sellada al aprobar) o de la subida directa desde partes_diarios.</p>
+
+<h3>Layout de 3 columnas</h3>
+<div class="grid3">
+  <div class="box">
+    <strong>Izquierda</strong><br>
+    Logo institucional DVBA en círculo, con fallback a "DVBA" en dorado sobre negro si el logo no carga.
+  </div>
+  <div class="box">
+    <strong>Centro</strong><br>
+    Localidad · Ruta y km · Tipo de tarea · Lat/Lng (+altitud) · Fecha y hora · Marca de versión.
+  </div>
+  <div class="box">
+    <strong>Derecha</strong><br>
+    QR code que apunta a Google Maps con las coordenadas exactas. Escaneable desde cualquier celular para abrir la ubicación.
+  </div>
+</div>
+
+<h3>Trazabilidad</h3>
+<p>El pie del sello incluye una línea con la versión del sistema y el origen (<code>vX.YY · campo</code> o <code>vX.YY · oficina</code>), lo que permite auditar cuándo y cómo se estampó cada foto.</p>
+
+<h3>Anti-sobresello</h3>
+<p>Si una foto ya estampada se vuelve a sellar (por ejemplo tras corregir datos), el sistema detecta el banner viejo, lo corta y aplica el nuevo con la misma métrica. Resultado: el usuario ve la foto sin banners duplicados.</p>
+
+<div class="img-placeholder">
+📷 <b>Screenshot:</b> ejemplo de foto sellada con las 3 columnas visibles.
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="offline">
+<h2>9. Modo offline y sincronización</h2>
+
+<p>Las 2 apps móviles (lite y completa) están diseñadas para funcionar <strong>sin internet</strong>.</p>
+
+<h3>Qué funciona offline</h3>
+<ul>
+  <li>Login persistente (una vez que el usuario ingresó al menos una vez con internet).</li>
+  <li>Captura de fotos con GPS.</li>
+  <li>Cola local con IndexedDB / localStorage.</li>
+  <li>Cartografía cacheada: bundles de RPs, geojson de partidos, red secundaria.</li>
+  <li>Todas las capas visuales del mapa (excepto los tiles satelitales, que sí requieren internet).</li>
+</ul>
+
+<h3>Qué requiere internet</h3>
+<ul>
+  <li>Sync de la cola a Supabase.</li>
+  <li>Cargar fotos ya subidas (Storage).</li>
+  <li>Refresh del token JWT (aunque el sistema lo tolera hasta 30 días).</li>
+</ul>
+
+<h3>Sincronización automática</h3>
+<p>Cuando la app detecta que volvió la conexión, procesa la cola en background. Aparece un toast informando cuántas fotos se enviaron.</p>
+
+<h3>Gestión de pendientes (lite)</h3>
+<p>Botón <strong>📤 Sin enviar</strong> del footer abre una lista con las fotos en cola. Podés reintentar el envío o borrar las que fallen (ej. una foto sin GPS que quedó huérfana).</p>
+
+<div class="box tip">
+<strong>💡 Tip · Cache del Service Worker</strong><br>
+Al haber una versión nueva del sistema, aparece un banner verde arriba: <em>"Hay una versión más nueva"</em>. Tocá <strong>Actualizar</strong> para bajar los últimos cambios. Sin esto, la app puede quedar con una versión vieja cacheada.
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="faq">
+<h2>10. Preguntas frecuentes</h2>
+
+<h3>¿Cómo pido un usuario?</h3>
+<p>Contactá al administrador (Ing. Luciano Lamaita · <a href="mailto:tecnica.dvba.z6@gmail.com">tecnica.dvba.z6@gmail.com</a>). Te dará de alta en Supabase Auth y te asignará rol y zona.</p>
+
+<h3>Me olvidé la contraseña. ¿Cómo la recupero?</h3>
+<p>Desde el dashboard de Supabase, el admin puede enviar un email de <em>Password recovery</em> al correo del usuario. También puede setear una password manualmente.</p>
+
+<h3>La app móvil no carga el GPS.</h3>
+<p>Verificar:</p>
+<ol>
+  <li>Permiso de ubicación otorgado al navegador (Ajustes → Apps → Chrome → Permisos → Ubicación).</li>
+  <li>GPS del sistema encendido (barra de notificaciones → tocar el ícono de ubicación).</li>
+  <li>Estás al aire libre con vista al cielo (dentro de edificios el GPS puede no captar).</li>
+</ol>
+<p>El botón del GPS en la app abre un modal con estas mismas instrucciones.</p>
+
+<h3>Subí una foto pero no aparece en el mapa.</h3>
+<p>Verificar en la cola de pendientes (📤 Sin enviar). Si está ahí, es porque no se sincronizó. Reintentar con conexión. Si la foto no tiene GPS, no puede ubicarse en el mapa — completar la ubicación desde oficina al aprobar.</p>
+
+<h3>El link "App completa" en el login no hace nada.</h3>
+<p>Corregido en <strong>v9.73</strong>. Si estás en una versión anterior, tocá <em>Actualizar</em> en el banner verde de arriba.</p>
+
+<h3>La app se llama "DVBA Campo Zona VI" en mi celular, no "SIG Vial PBA".</h3>
+<p>Es cache de Android. La app se renombró institucionalmente en v8.2/v9.72. Al actualizar por el banner, Android va a proponer el nuevo nombre en un diálogo <em>"Revisar actualización del nombre"</em>. Aceptar. Si no aparece, desinstalar y reinstalar la PWA.</p>
+
+<h3>¿Puedo instalar la app en la notebook?</h3>
+<p>Sí. Chrome/Edge muestran un botón "Instalar" en la barra de direcciones cuando abrís <a href="https://lemeit.github.io/DVBA/">lemeit.github.io/DVBA/</a>. La PWA queda como app nativa del sistema.</p>
+
+<h3>¿Los reportes generan un PDF idéntico al Informe Mensual de Gerencia?</h3>
+<p>El módulo Reportes genera un PDF con charts + tabla, con la paleta oficial de 8 colores. El PDF oficial Gerencia completo (portada institucional + 2 hojas por zona + luminarias LED + anexo fotográfico) está previsto para la <strong>Fase 5 del Plan de Roles</strong> — ver <a href="PLAN_ROLES_MULTIZONA.md">PLAN_ROLES_MULTIZONA.md</a>.</p>
+
+</section>
+
+<footer>
+Guía · SIG Vial PBA · v1.0 · 19 de julio de 2026<br>
+Ing. Luciano Lamaita · División Técnica DVBA · Departamento Zona VI Saladillo<br>
+<a href="https://lemeit.github.io/DVBA/">lemeit.github.io/DVBA/</a> · <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a>
+</footer>
+
+</div>
+</body>
+</html>
