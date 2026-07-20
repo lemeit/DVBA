@@ -205,6 +205,9 @@ function aplicar(base64, datos, opts){
           yB += Math.round(fS * 1.26);
         }
         // Versión + origen (campo/oficina/re-sello)
+        // v9.76 · Anclamos al FONDO del banner en vez de arrastrar yB — antes
+        // se salía cuando había muchas líneas (localidad+ruta+tipo+coords+fecha
+        // superaban bH y la versión quedaba fuera del banner).
         const fV = Math.round(baseFont * 0.65);
         const appVer = (typeof APP_VER === 'string') ? APP_VER : 'v?';
         const stampInfo = [
@@ -213,9 +216,12 @@ function aplicar(base64, datos, opts){
         ].join('  ·  ');
         ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
         ctx.fillStyle = 'rgba(212,168,32,0.55)';
-        ctx.textBaseline = 'top';
+        ctx.textBaseline = 'bottom';
         ctx.textAlign = 'left';
-        ctx.fillText(stampInfo, tx, yB);
+        // Padding inferior fijo — la versión queda pegada al borde del banner
+        const yVer = totalH - Math.round(bH * 0.08);
+        ctx.fillText(stampInfo, tx, yVer);
+        ctx.textBaseline = 'top';  // restaurar default por si se reutiliza
         res(C.toDataURL('image/jpeg', 0.95));
       } catch(e){ rej(e); }
     };

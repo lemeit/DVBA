@@ -42,7 +42,10 @@ header .brand .sub{display:block;font-size:10.5px;font-weight:500;opacity:.85;le
 /* MAIN · el botón gigante — v9.66 padding-bottom para no ser tapado por footer:fixed */
 main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;padding-bottom:calc(90px + env(safe-area-inset-bottom));position:relative;overflow-y:auto}
 
-.big-btn{width:min(78vw,320px);height:min(78vw,320px);border:0;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--pl),var(--p) 60%,var(--pd) 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 12px 32px rgba(0,154,174,.4),0 4px 8px rgba(0,0,0,.15),inset 0 -6px 20px rgba(0,0,0,.15),inset 0 4px 12px rgba(255,255,255,.25);cursor:pointer;font-family:inherit;transition:transform .12s,box-shadow .2s;position:relative}
+/* v9.76 · aspect-ratio:1 + flex-shrink:0 fuerzan el círculo aunque el main
+   sea bajo (típico en navegador con barra de direcciones visible que aplasta
+   el height calculado). max-height con svh evita que el círculo se ovale. */
+.big-btn{width:min(78vw,78svh,320px);height:min(78vw,78svh,320px);aspect-ratio:1;flex-shrink:0;border:0;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--pl),var(--p) 60%,var(--pd) 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 12px 32px rgba(0,154,174,.4),0 4px 8px rgba(0,0,0,.15),inset 0 -6px 20px rgba(0,0,0,.15),inset 0 4px 12px rgba(255,255,255,.25);cursor:pointer;font-family:inherit;transition:transform .12s,box-shadow .2s;position:relative}
 .big-btn:active{transform:scale(.94);box-shadow:0 6px 18px rgba(0,154,174,.35),inset 0 -4px 12px rgba(0,0,0,.25)}
 .big-btn:disabled{background:linear-gradient(135deg,#a0b0b8,#7a8a92);cursor:not-allowed;box-shadow:none;color:#ddd}
 .big-btn .icon{font-size:min(20vw,84px);line-height:1;margin-bottom:6px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))}
@@ -192,6 +195,10 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 .install-box .btn-install-no{width:100%;padding:12px;background:transparent;color:#6a6a6a;border:0;font-family:inherit;font-size:12px;font-weight:600;margin-top:8px;cursor:pointer;text-decoration:underline}
 .install-box .install-hint-ios{margin-top:14px;padding:10px;background:#fff4e0;border:1px solid #f0d090;border-radius:8px;font-size:11px;color:#7a5000;line-height:1.5;display:none}
 .install-box.ios .install-hint-ios{display:block}
+/* v9.76 · hint manual para Android cuando beforeinstallprompt no dispara */
+.install-box .install-hint-manual{margin-top:14px;padding:10px;background:#f0fbfc;border:1px solid #b0dde0;border-radius:8px;font-size:11px;color:#1a4a5a;line-height:1.5;display:none;text-align:left}
+.install-box.manual .install-hint-manual{display:block}
+.install-box.manual .btn-install-yes{background:linear-gradient(135deg,#6a6a6a,#4a4a4a);box-shadow:0 4px 12px rgba(0,0,0,.2)}
 </style>
 </head>
 <body>
@@ -212,6 +219,10 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
     <button class="btn-install-no" onclick="lPostponerInstall()">Ahora no, seguir en el navegador</button>
     <div class="install-hint-ios">
       <b>En iPhone/iPad:</b> tocá el botón <b>Compartir</b> ↥ del navegador y elegí <b>"Agregar a pantalla de inicio"</b>.
+    </div>
+    <div class="install-hint-manual">
+      <b>El navegador no ofrece instalación automática en este momento.</b><br>
+      Abrí el menú <b>⋮</b> (arriba a la derecha) del navegador y elegí <b>"Instalar aplicación"</b> o <b>"Agregar a pantalla de inicio"</b>.
     </div>
   </div>
 </div>
@@ -345,7 +356,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.74';
+const APP_VER = 'v9.76';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -415,17 +426,49 @@ function statusMostrar(estado, titulo, mensaje){
 function lCerrarStatus(){ $('statusOv').classList.remove('on'); }
 
 // ─── GPS · watchPosition continuo con feedback visual ──────────────
+// v9.76 · Chrome/Android NO dispara el prompt de permiso con watchPosition,
+// solo con getCurrentPosition. Antes el user tenía que TOCAR el badge para
+// que el prompt del sistema apareciera. Ahora lo forzamos automáticamente al
+// arrancar la app. Si el user acepta, el watch subsiguiente funciona sin más.
 function iniciarGPS(){
   if (!navigator.geolocation){
     setGpsEstado('off', 'GPS no disponible');
     return;
   }
-  setGpsEstado('pending', 'GPS...');
+  setGpsEstado('pending', 'Pidiendo permiso GPS...');
   // Cerrar watch previo si existe (para reintentos desde lToqueGps)
   if (_gpsWatchId != null){
     try { navigator.geolocation.clearWatch(_gpsWatchId); } catch(e){}
     _gpsWatchId = null;
   }
+  // v9.76 · Primero un getCurrentPosition explícito para disparar el prompt
+  // del sistema en Chrome/Android. El watch va después con las mismas creds.
+  try {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        _gpsLat = pos.coords.latitude;
+        _gpsLng = pos.coords.longitude;
+        _gpsAcc = Math.round(pos.coords.accuracy);
+        _gpsAlt = pos.coords.altitude ? Math.round(pos.coords.altitude) : null;
+        setGpsEstado('on', '±' + _gpsAcc + 'm' + (_gpsAlt!=null?' · '+_gpsAlt+'m':''));
+        $('btnCapturar').disabled = false;
+        arrancarWatchGPS();
+      },
+      err => {
+        console.warn('[GPS getCurrent inicial]', err);
+        const msg = err.code === 1 ? 'Permiso denegado · tocar' : 'Sin señal · tocar';
+        setGpsEstado('off', msg);
+        // Arrancamos el watch igual · si el user activa el GPS después, se prende solo.
+        arrancarWatchGPS();
+      },
+      { enableHighAccuracy:true, timeout:15000, maximumAge:0 }
+    );
+  } catch(e){
+    console.warn('[GPS inicial excepción]', e);
+    arrancarWatchGPS();
+  }
+}
+function arrancarWatchGPS(){
   _gpsWatchId = navigator.geolocation.watchPosition(
     pos => {
       _gpsLat = pos.coords.latitude;
@@ -506,17 +549,18 @@ function mostrarModalGps(){
 }
 function ocultarModalGps(){ const ov = $('modalGps'); if (ov) ov.classList.remove('on'); }
 function abrirAjustesGPS(){
-  // Intent Android para abrir directamente configuración de ubicación
-  try {
-    window.location.href = 'intent://settings/#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end';
-    // Después del intent, reintentar en 2s por si volvió activándolo
-    setTimeout(() => {
-      ocultarModalGps();
-      iniciarGPS();
-    }, 2000);
-  } catch(e){
-    alert('No pude abrir los ajustes automáticamente.\n\nActivá la ubicación manualmente:\nAjustes → Ubicación → ON');
-  }
+  // v9.76 · Chrome Android bloqueó los intent:// desde JS por seguridad
+  // (los ajustes de sistema NO se pueden abrir programáticamente desde PWAs).
+  // Mostrar instrucciones claras en el modal en su lugar.
+  alert(
+    'Activá la ubicación desde el sistema:\n\n' +
+    '1. Bajá el panel de notificaciones (deslizar desde arriba).\n' +
+    '2. Tocá el ícono "Ubicación" hasta que quede en verde/celeste.\n\n' +
+    'O desde Ajustes → Ubicación → activá el switch.\n\n' +
+    'Después volvé acá y tocá el badge GPS para reintentar.'
+  );
+  // Cerrar modal para que el user pueda ver el badge y reintentar
+  setTimeout(() => { ocultarModalGps(); }, 300);
 }
 // Reintentar GPS automáticamente cuando la app vuelve del background
 document.addEventListener('visibilitychange', () => {
@@ -1051,21 +1095,44 @@ if ('serviceWorker' in navigator){
 }
 
 
-// v9.74 · Prompt de instalación PWA · aparece si el usuario abrió desde el navegador
+// v9.74/v9.76 · Prompt de instalación PWA · aparece si el usuario abrió desde el navegador
+// v9.76: si beforeinstallprompt NO dispara en 4s (Chrome puede requerir "engagement"
+// antes de ofrecerlo), mostramos igual el modal con instrucciones manuales para
+// instalar desde el menú del navegador. El operario de campo no debe quedar sin
+// forma de instalar.
 let _installPromptDeferred = null;
+let _installModalShown = false;
 window.addEventListener('beforeinstallprompt', function(e){
   e.preventDefault();
   _installPromptDeferred = e;
-  setTimeout(function(){
-    try {
-      const postponed = localStorage.getItem('dvba_install_postponed_at');
-      if (postponed && (Date.now() - Number(postponed)) < 24 * 3600 * 1000) return;
-      if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return;
-      const m = document.getElementById('modalInstall');
-      if (m) m.classList.add('on');
-    } catch(e){}
-  }, 1500);
+  mostrarModalInstall(false);
 });
+function mostrarModalInstall(soloManual){
+  if (_installModalShown) return;
+  try {
+    const postponed = localStorage.getItem('dvba_install_postponed_at');
+    if (postponed && (Date.now() - Number(postponed)) < 24 * 3600 * 1000) return;
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return;
+    if (window.navigator.standalone) return;
+    const m = document.getElementById('modalInstall');
+    if (!m) return;
+    if (soloManual){
+      // Marcar la caja para mostrar el hint manual
+      const box = document.getElementById('modalInstallBox');
+      if (box) box.classList.add('manual');
+    }
+    m.classList.add('on');
+    _installModalShown = true;
+  } catch(e){}
+}
+// Fallback: a los 4s de cargar, si el prompt no llegó y NO estamos instalados,
+// mostrar el modal con instrucciones manuales (Chrome: menú ⋮ → Instalar app).
+setTimeout(function(){
+  if (_installPromptDeferred) return;  // ya llegó el evento, listo
+  const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone;
+  if (isStandalone) return;
+  mostrarModalInstall(true);
+}, 4000);
 window.addEventListener('appinstalled', function(){
   console.log('[install] PWA instalada');
   _installPromptDeferred = null;

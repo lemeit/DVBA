@@ -2,6 +2,7 @@
    DVBA Campo · Service Worker v3.4
    Network-first + offline fallback + auto-purge de 404
 
+   v3.14: bump versión (v9.76) · fixes lite/full · GPS auto-prompt (getCurrentPosition en arranque) + botón cámara circular con aspect-ratio + install prompt con fallback manual (aparece aunque Chrome no dispare beforeinstallprompt).
    v3.13: bump versión (v9.75) · fix RP30 progresivas — recalibrado bundle con mojones oficiales corregidos (progIni 262.60, progFin 435.12) + gap real RN205 incorporado.
    v3.12: bump versión (v9.74) · modal de instalación PWA prominente en lite y full.
    v3.11: bump versión (v9.73) · fixes lite: link app completa, quitar nombre autor del modal Info, brand unificado.
@@ -16,7 +17,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.75';
+const CACHE_NAME = 'dvba-campo-v9.76';
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
