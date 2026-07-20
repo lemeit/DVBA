@@ -15,7 +15,7 @@
 > **Deadline:** 16 de septiembre de 2026 · **Entrega:** División Publicaciones y Biblioteca (1 original + 2 copias impresas + PDF).
 > **Seudónimo tentativo:** `lemeit` (a confirmar antes de la entrega).
 > **Autor real (sobre cerrado aparte):** Ing. Luciano Lamaita · División Técnica DVBA · Zona VI Saladillo.
-> **Estado del sistema al armar el documento:** apps de escritorio en **v8.2**, familia móvil en **v9.72**, sello institucional en **v4**, base multi-zona activa (Fase 1 + 2 implementadas).
+> **Estado del sistema al armar el documento:** apps de escritorio en **v8.2**, familia móvil en **v9.78**, sello institucional en **v4**, base multi-zona activa (Fase 1 + 2 implementadas).
 > **Fecha de esta versión del informe:** 19 de julio de 2026.
 
 ---
@@ -53,8 +53,8 @@ El sistema se desarrolló íntegramente en el Departamento Zona VI Saladillo com
 4. **Sistema anti-sobresello**: al re-editar una foto ya estampada, el sistema detecta el banner viejo, lo corta y aplica el nuevo con la misma métrica (imperceptible al ojo).
 5. **Workflow campo → oficina**: la foto se captura cruda en el móvil (sin sello) y se sella al aprobar en oficina con los datos ya armonizados. Permite corregir GPS/ruta/prog antes del sellado definitivo. Nuevas columnas `estado_workflow` + `validado_geo` + `sello_version` en `relevamientos`.
 6. **Dos apps móviles complementarias**:
-   - **App completa** (`dvba_campo.html`) con wizard + selector de tipos/estados + edición fina.
-   - **App lite** (`dvba_campo_lite.html`) minimalista: solo botón "Sacar foto" + GPS. Se completa todo en oficina. Diseñada para operarios sin fluidez tecnológica.
+   - **Modo Avanzado** (`dvba_campo.html`, Modo Avanzado) con wizard + selector de tipos/estados + edición fina.
+   - **App lite** (`dvba_campo_lite.html`, Modo Básico) minimalista: solo botón "Sacar foto" + GPS. Se completa todo en oficina. Diseñada para operarios sin fluidez tecnológica.
 7. **Modelo Tipo↔Estado** con árbol de 10 categorías + sub-atributos condicionales (superficie, modalidad) y **sub-atributos implícitos** deducidos por regex del nombre del tipo (v9.18a).
 8. **Reportes PDF institucionales** generados en el browser (jsPDF + autotable, sin backend), con la paleta oficial DVBA de 8 colores cotejada contra el Informe Mensual Gerencia Ejecutiva.
 9. **Roles multi-zona** con perfil por usuario (`usuarios_perfil`), zona en cada registro y UI zone-aware: técnicos ven solo su zona, gerencia consolida todas, público consulta solo el mapa base.
@@ -85,7 +85,7 @@ Al instalarse en el celular, la app se identifica como **SIG Vial PBA** (nombre 
 SIG Vial PBA está en **producción efectiva** para el uso diario de la División Técnica Zona VI. La versión de código al armar este informe es:
 
 - Familia escritorio (portal, módulo Plan de Seguridad, módulo Reportes) → **v8.2**
-- Familia móvil (app completa, app lite, service worker) → **v9.72**
+- Familia móvil (Modo Avanzado, app lite, service worker) → **v9.72**
 
 Documentación técnica de referencia (en el repo):
 

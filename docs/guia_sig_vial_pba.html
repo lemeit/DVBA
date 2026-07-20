@@ -89,7 +89,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
   <div class="sub">Plataforma web integral para el relevamiento y gestión de la red vial provincial · Piloto Departamento Zona VI Saladillo</div>
   <div class="meta">
     <div><span class="lbl">Versión guía</span><span class="val">v1.0</span></div>
-    <div><span class="lbl">Sistema</span><span class="val">Escritorio v8.2 · Móvil v9.73</span></div>
+    <div><span class="lbl">Sistema</span><span class="val">Escritorio v8.2 · Móvil v9.78</span></div>
     <div><span class="lbl">Última actualización</span><span class="val">19 de julio de 2026</span></div>
     <div><span class="lbl">URL</span><span class="val"><a href="https://lemeit.github.io/DVBA/" target="_blank">lemeit.github.io/DVBA/ ↗</a></span></div>
     <div><span class="lbl">Bitácora técnica</span><span class="val"><a href="bitacora.html">Ver ↗</a></span></div>
@@ -103,8 +103,8 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
     <li><a href="#que-es">¿Qué es SIG Vial PBA?</a></li>
     <li><a href="#roles">Roles y accesos</a></li>
     <li><a href="#portal">Portal web (escritorio)</a></li>
-    <li><a href="#lite">App móvil · Captura Rápida (lite)</a></li>
-    <li><a href="#campo">App móvil · Campo (completa)</a></li>
+    <li><a href="#lite">App móvil · Modo Básico</a></li>
+    <li><a href="#campo">App móvil · Modo Avanzado</a></li>
     <li><a href="#partes">Plan de Seguridad en la Circulación</a></li>
     <li><a href="#reportes">Módulo Reportes</a></li>
     <li><a href="#sello">Sello institucional v4</a></li>
@@ -146,7 +146,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
     Charts, filtros y export CSV/PDF.
   </div>
   <div class="box info">
-    <strong>📱 Captura Rápida</strong> (<code>dvba_campo_lite.html</code>)<br>
+    <strong>📱 Modo Básico</strong> (<code>dvba_campo_lite.html</code>)<br>
     App móvil minimalista: solo foto + GPS.
   </div>
   <div class="box info">
@@ -263,7 +263,7 @@ Contactá al administrador del sistema con tu correo institucional. Te van a asi
 
 <!-- ════════════════════════════════════════════════════════════ -->
 <section id="lite">
-<h2>4. App móvil · Captura Rápida (lite)</h2>
+<h2>4. App móvil · Modo Básico</h2>
 
 <p>Es la app <strong>por default</strong> al instalar la PWA en el celular. Está diseñada para operarios que necesitan sacar fotos con GPS sin cargar formularios largos.</p>
 
@@ -286,7 +286,7 @@ Contactá al administrador del sistema con tu correo institucional. Te van a asi
   <div class="num">3</div>
   <div class="body">
     <strong>Abrir desde el ícono</strong>
-    <p>El ícono aparece como cualquier otra app en el launcher. Al abrir arranca directo en Captura Rápida.</p>
+    <p>El ícono aparece como cualquier otra app en el launcher. Al abrir arranca directo en Modo Básico.</p>
   </div>
 </div>
 
@@ -297,7 +297,7 @@ Contactá al administrador del sistema con tu correo institucional. Te van a asi
 <h3>Primer uso: ingresar</h3>
 <p>La primera vez la app pide credenciales:</p>
 <div class="img-placeholder">
-📷 <b>Screenshot:</b> <em>Modal de login de la lite con "Ingresar" y link "O usá la app completa"</em>. (Ver captura tuya del 20/7.)
+📷 <b>Screenshot:</b> <em>Modal de login de la lite con "Ingresar" y link "O usá la Modo Avanzado"</em>. (Ver captura tuya del 20/7.)
 </div>
 
 <div class="box info">
@@ -337,7 +337,7 @@ Contactá al administrador del sistema con tu correo institucional. Te van a asi
 <h3>Footer con acciones</h3>
 <ul>
   <li><strong>📤 Sin enviar</strong> · muestra fotos que quedaron en cola. Podés reintentar o borrar las que fallen.</li>
-  <li><strong>⚙ App completa</strong> · abre la app móvil completa (queda como preferencia para próxima apertura).</li>
+  <li><strong>⚙ Modo Avanzado</strong> · abre la app móvil completa (queda como preferencia para próxima apertura).</li>
   <li><strong>ℹ Info</strong> · modal con versión, estado de conexión y botón <em>Cerrar sesión</em>.</li>
 </ul>
 
@@ -352,9 +352,9 @@ Contactá al administrador del sistema con tu correo institucional. Te van a asi
 
 <!-- ════════════════════════════════════════════════════════════ -->
 <section id="campo">
-<h2>5. App móvil · Campo (completa)</h2>
+<h2>5. App móvil · Modo Avanzado</h2>
 
-<p>Es la app tradicional con wizard completo. Se accede desde el link <strong>⚙ App completa</strong> del footer de la lite o directamente en <a href="https://lemeit.github.io/DVBA/dvba_campo.html">dvba_campo.html</a>.</p>
+<p>Es la app tradicional con wizard completo. Se accede desde el link <strong>⚙ Modo Avanzado</strong> del footer de la lite o directamente en <a href="https://lemeit.github.io/DVBA/dvba_campo.html">dvba_campo.html</a>.</p>
 
 <h3>Cuándo usarla</h3>
 <ul>
@@ -607,7 +607,7 @@ Al haber una versión nueva del sistema, aparece un banner verde arriba: <em>"Ha
 <h3>Subí una foto pero no aparece en el mapa.</h3>
 <p>Verificar en la cola de pendientes (📤 Sin enviar). Si está ahí, es porque no se sincronizó. Reintentar con conexión. Si la foto no tiene GPS, no puede ubicarse en el mapa — completar la ubicación desde oficina al aprobar.</p>
 
-<h3>El link "App completa" en el login no hace nada.</h3>
+<h3>El link "Modo Avanzado" en el login no hace nada.</h3>
 <p>Corregido en <strong>v9.73</strong>. Si estás en una versión anterior, tocá <em>Actualizar</em> en el banner verde de arriba.</p>
 
 <h3>La app se llama "DVBA Campo Zona VI" en mi celular, no "SIG Vial PBA".</h3>

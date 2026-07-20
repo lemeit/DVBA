@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Guía visual · SIG Vial PBA</title>
 <style>
+
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --azul:#003366; --azul-cl:#1a5080; --teal:#009aae; --teal-cl:#26b3c8; --teal-d:#007d90;
@@ -172,40 +173,146 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
   nav.toc ol{columns:1}
   .demo{gap:16px}
 }
+
+
+/* ═════ v1.1 · SLIDES NAVEGABLES ═════ */
+html,body{height:100%}
+body{overflow:hidden;background:#e8ecf1}
+
+.app{display:flex;flex-direction:column;height:100vh}
+
+.topbar{background:linear-gradient(135deg,var(--azul),var(--teal));color:#fff;padding:8px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:100}
+.topbar .brand{font-weight:800;font-size:14px;flex:1;letter-spacing:.3px}
+.topbar .brand .st{opacity:.8;font-weight:500;font-size:11px;margin-left:6px}
+.topbar button{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:background .15s}
+.topbar button:hover:not(:disabled){background:rgba(255,255,255,.28)}
+.topbar button:disabled{opacity:.35;cursor:not-allowed}
+.topbar .counter{font-size:13px;font-weight:700;padding:0 8px;min-width:52px;text-align:center;letter-spacing:.5px}
+
+.progress{height:3px;background:rgba(0,0,0,.06);flex-shrink:0}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-cl));transition:width .3s ease;width:0}
+
+.slides-wrap{flex:1;overflow-y:auto;background:var(--bg);padding:0}
+
+.slide{display:none;max-width:1100px;margin:0 auto;padding:24px 22px 40px;min-height:100%;box-sizing:border-box}
+.slide.active{display:block}
+
+/* Portada */
+.slide.portada{display:none;padding:0}
+.slide.portada.active{display:flex;align-items:center;justify-content:center}
+.cover{text-align:center;padding:40px 30px;max-width:640px}
+.cover-logo{width:120px;height:120px;margin:0 auto 20px;background:linear-gradient(135deg,var(--azul),var(--teal));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,51,102,.25)}
+.cover-logo img{width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2))}
+.cover-title{font-size:2.6rem;font-weight:800;color:var(--azul);letter-spacing:.5px;margin-bottom:6px}
+.cover-sub{font-size:1.15rem;color:var(--teal-d);font-weight:600;margin-bottom:30px}
+.cover-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:28px;text-align:left}
+.cover-meta > div{padding:4px 8px}
+.cover-meta span{display:block;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.cover-meta b{font-size:.95rem;color:var(--azul)}
+.cover-hint{font-size:.85rem;color:var(--muted);line-height:1.6;background:#f0fbfc;border:1px solid #b0dde0;border-radius:8px;padding:12px 16px}
+
+/* Drawer nav */
+.drawer{position:fixed;top:0;left:0;width:280px;max-width:80vw;height:100vh;background:#fff;box-shadow:2px 0 20px rgba(0,0,0,.2);z-index:200;transform:translateX(-100%);transition:transform .28s ease;display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0)}
+.drawer-hdr{background:linear-gradient(135deg,var(--azul),var(--teal));color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.drawer-hdr h3{font-size:.95rem;font-weight:700;margin:0}
+.drawer-hdr button{background:transparent;color:#fff;border:0;font-size:22px;cursor:pointer;padding:0 6px;line-height:1}
+.drawer-list{list-style:none;margin:0;padding:8px 0;overflow-y:auto;flex:1}
+.drawer-list li{margin:0}
+.drawer-list li a{display:flex;align-items:center;gap:10px;padding:10px 18px;color:var(--text);text-decoration:none;font-size:.92rem;border-left:3px solid transparent;transition:background .15s}
+.drawer-list li a:hover{background:#f4f6f9}
+.drawer-list li a.current{background:#e6f4f8;border-left-color:var(--teal);font-weight:700;color:var(--azul)}
+.drawer-list li a .num{width:24px;height:24px;background:var(--border);color:var(--muted);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
+.drawer-list li a.current .num{background:var(--teal);color:#fff}
+.drawer-back{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150;opacity:0;pointer-events:none;transition:opacity .28s}
+.drawer-back.open{opacity:1;pointer-events:auto}
+
+/* Prints */
+@media print{
+  @page{size:A4 landscape;margin:12mm 10mm}
+  html,body{overflow:visible;background:#fff;height:auto}
+  .app{display:block;height:auto}
+  .topbar,.progress,.drawer,.drawer-back{display:none !important}
+  .slides-wrap{overflow:visible;padding:0}
+  .slide{display:block !important;page-break-after:always;max-width:none;padding:0;min-height:0}
+  .slide:last-child{page-break-after:auto}
+  .slide.portada{padding:80px 40px;display:block !important}
+  .demo{page-break-inside:avoid}
+  .phone{box-shadow:none;border:1px solid #ccc}
+  section{margin-top:0}
+  h2{font-size:1.3rem;margin-bottom:12px}
+  h3{font-size:1rem}
+  .cover-title{font-size:2.2rem}
+  .cover{padding:60px 30px}
+  a{color:var(--azul) !important;text-decoration:none}
+  /* Ocultar la portada al imprimir? No, la incluimos */
+}
+
+/* Ocultar scroll internal cuando drawer abierto */
+body.drawer-open{overflow:hidden}
+
+@media (max-width:700px){
+  .topbar .brand .st{display:none}
+  .topbar button{padding:8px 10px;font-size:12px}
+  .cover-title{font-size:2rem}
+  .cover-meta{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
-<div class="page">
 
-<header class="hero">
-  <h1>📱 Guía visual · SIG Vial PBA</h1>
-  <div class="sub">Aprendé a usar las apps móviles paso a paso · con capturas simuladas de smartphone</div>
-  <div class="meta">
-    <div><span class="lbl">Versión guía</span><span class="val">v1.0</span></div>
-    <div><span class="lbl">Sistema</span><span class="val">Móvil v9.73</span></div>
-    <div><span class="lbl">Última actualización</span><span class="val">19 de julio de 2026</span></div>
-    <div><span class="lbl">URL</span><span class="val"><a href="https://lemeit.github.io/DVBA/" target="_blank">lemeit.github.io/DVBA/ ↗</a></span></div>
-    <div><span class="lbl">Guía completa</span><span class="val"><a href="guia_sig_vial_pba.html">Manual textual ↗</a></span></div>
+<div class="app">
+
+  <header class="topbar">
+    <button id="btnDrawer" title="Índice" aria-label="Índice">☰</button>
+    <div class="brand">SIG Vial PBA <span class="st">· Guía visual</span></div>
+    <button id="btnPrev" title="Anterior (←)" aria-label="Anterior">←</button>
+    <div class="counter" id="counter">1/10</div>
+    <button id="btnNext" title="Siguiente (→)" aria-label="Siguiente">→</button>
+    <button id="btnPrint" title="Imprimir / Exportar a PDF" aria-label="Imprimir">🖨 Imprimir</button>
+  </header>
+
+  <div class="progress"><div class="progress-bar"></div></div>
+
+  <div class="drawer-back" id="drawerBack"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawer-hdr">
+      <h3>📖 Índice de láminas</h3>
+      <button onclick="document.getElementById('drawer').classList.remove('open');document.getElementById('drawerBack').classList.remove('open');document.body.classList.remove('drawer-open')">×</button>
+    </div>
+    <ol class="drawer-list">
+    <li><a href="#" data-goto="0" class="current"><span class="num">1</span>Portada</a></li>
+    <li><a href="#" data-goto="1"><span class="num">2</span>¿Qué es SIG Vial PBA?</a></li>
+    <li><a href="#" data-goto="2"><span class="num">3</span>Cómo se accede</a></li>
+    <li><a href="#" data-goto="3"><span class="num">4</span>Instalar la app</a></li>
+    <li><a href="#" data-goto="4"><span class="num">5</span>Navegador vs app instalada</a></li>
+    <li><a href="#" data-goto="5"><span class="num">6</span>Sincronización con oficina</a></li>
+    <li><a href="#" data-goto="6"><span class="num">7</span>Modo Básico</a></li>
+    <li><a href="#" data-goto="7"><span class="num">8</span>Modo Avanzado</a></li>
+    <li><a href="#" data-goto="8"><span class="num">9</span>Tipos de relevamiento</a></li>
+    <li><a href="#" data-goto="9"><span class="num">10</span>Preguntas frecuentes</a></li>
+
+    </ol>
+  </aside>
+
+  <main class="slides-wrap">
+<section id="portada" class="slide portada">
+  <div class="cover">
+    <div class="cover-logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div>
+    <div class="cover-title">SIG Vial PBA</div>
+    <div class="cover-sub">Guía visual · Apps móviles</div>
+    <div class="cover-meta">
+      <div><span>Versión</span><b>1.1</b></div>
+      <div><span>Sistema</span><b>Móvil v9.78</b></div>
+      <div><span>Fecha</span><b>20 de julio de 2026</b></div>
+      <div><span>Piloto</span><b>Departamento Zona VI · Saladillo</b></div>
+    </div>
+    <div class="cover-hint">Usá las flechas ← → o los botones de arriba para navegar por las láminas.<br>
+    Botón <b>🖨 Imprimir</b> exporta a PDF (una lámina por hoja A4 apaisada).</div>
   </div>
-</header>
-
-<nav class="toc">
-  <h3>Contenido</h3>
-  <ol>
-    <li><a href="#intro">¿Qué es SIG Vial PBA?</a></li>
-    <li><a href="#acceso">Cómo se accede</a></li>
-    <li><a href="#instalar">Instalarla como app en el celular</a></li>
-    <li><a href="#redes">Navegador vs app instalada · WiFi/datos vs GPS</a></li>
-    <li><a href="#sync">Cómo sincroniza con el sistema de escritorio</a></li>
-    <li><a href="#lite">Uso de Captura Rápida (versión lite)</a></li>
-    <li><a href="#full">Uso de Campo (versión completa)</a></li>
-    <li><a href="#tipos">Tipos de relevamiento disponibles</a></li>
-    <li><a href="#faq">Preguntas frecuentes</a></li>
-  </ol>
-</nav>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<section id="intro">
+</section>
+<section id="intro" class="slide" data-slide="1">
 <h2>1. ¿Qué es SIG Vial PBA?</h2>
 
 <div class="card">
@@ -217,9 +324,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
 <p>Todo lo que se cargue desde el celular aparece automáticamente en el sistema de escritorio cuando hay conexión a internet.</p>
 </div>
 </section>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<section id="acceso">
+<section id="acceso" class="slide" data-slide="2">
 <h2>2. Cómo se accede</h2>
 
 <div class="card">
@@ -232,7 +337,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
     Se abre el mapa + herramientas de oficina + Plan de Seguridad + Reportes. Pensado para computadora.
   </div>
   <div class="box">
-    <strong>📱 App móvil (Captura Rápida)</strong><br>
+    <strong>📱 App móvil (Modo Básico)</strong><br>
     <p style="font-size:.95rem"><a href="https://lemeit.github.io/DVBA/dvba_campo_lite.html" style="color:var(--teal);font-weight:700">lemeit.github.io/DVBA/dvba_campo_lite.html</a></p>
     Se abre la app para instalar en el celular. Este es el link que hay que abrir en Chrome del teléfono.
   </div>
@@ -243,9 +348,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
 </div>
 </div>
 </section>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<section id="instalar">
+<section id="instalar" class="slide" data-slide="3">
 <h2>3. Instalar la app en el celular (PWA)</h2>
 
 <p>La app se instala como cualquier otra app del celular, pero <strong>sin pasar por la Play Store o App Store</strong>. El proceso lleva 30 segundos:</p>
@@ -296,7 +399,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
       <div class="lite-hdr" style="margin-top:52px">
         <div class="hdr-top">
           <div class="logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div>
-          <div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div>
+          <div class="brand">SIG Vial PBA · Modo Básico<span class="sub">Zona VI Saladillo</span></div>
         </div>
         <div class="gps-badge on"><span class="dot"></span>±8m · 65m</div>
       </div>
@@ -316,9 +419,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
   </div>
 </div>
 </section>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<section id="redes">
+<section id="redes" class="slide" data-slide="4">
 <h2>4. Navegador vs app instalada · WiFi/datos vs GPS</h2>
 
 <div class="grid2">
@@ -350,9 +451,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
 <strong>💡 Regla práctica</strong> · Instalá la app la primera vez que tengas WiFi (en la oficina). Después usala en el campo sin importar si tenés señal — el GPS funciona en cualquier lado. Cuando volvés a la oficina o entrás en zona con señal, todo se sincroniza solo.
 </div>
 </section>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<section id="sync">
+<section id="sync" class="slide" data-slide="5">
 <h2>5. Cómo sincroniza con el sistema de escritorio</h2>
 
 <p>Todo lo que se carga desde el celular aparece automáticamente en el sistema de escritorio, sin que nadie tenga que hacer nada manual:</p>
@@ -390,10 +489,8 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
 <strong>🔒 Seguridad</strong> · Todos los registros llevan el ID del usuario que los cargó. Cada zona de la DVBA solo ve sus propios datos (excepto Gerencia y Admin, que ven todo).
 </div>
 </section>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<section id="lite">
-<h2>6. Uso de Captura Rápida (versión lite)</h2>
+<section id="lite" class="slide" data-slide="6">
+<h2>6. Uso del Modo Básico</h2>
 
 <p>Es la app <strong>por default</strong> al instalar. Está pensada para operarios que necesitan solo sacar fotos con GPS, sin cargar formularios largos. Todos los demás datos los completa alguien en la oficina.</p>
 
@@ -404,7 +501,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
       <div class="lite-hdr" style="padding-top:34px">
         <div class="hdr-top">
           <div class="logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div>
-          <div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div>
+          <div class="brand">SIG Vial PBA · Modo Básico<span class="sub">Zona VI Saladillo</span></div>
         </div>
         <div class="gps-badge"><span class="dot"></span>Ubicando…</div>
       </div>
@@ -416,7 +513,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
           <input type="text" placeholder="Correo">
           <input type="password" placeholder="Contraseña">
           <div style="background:#1a8a4a;color:#fff;padding:10px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;margin-top:4px">Ingresar</div>
-          <p style="font-size:9px;color:#888;margin-top:10px">O usá la <span style="color:#009aae;text-decoration:underline">app completa</span>.</p>
+          <p style="font-size:9px;color:#888;margin-top:10px">O usá la <span style="color:#009aae;text-decoration:underline">Modo Avanzado</span>.</p>
         </div>
       </div>
     </div>
@@ -441,7 +538,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
       <div class="lite-hdr" style="padding-top:34px">
         <div class="hdr-top">
           <div class="logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div>
-          <div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div>
+          <div class="brand">SIG Vial PBA · Modo Básico<span class="sub">Zona VI Saladillo</span></div>
         </div>
         <div class="gps-badge off"><span class="dot"></span>Sin ubicación · tocar</div>
       </div>
@@ -451,7 +548,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
       </div>
       <div class="lite-footer">
         <div class="fb pend"><span class="ico">📤</span><span>Sin enviar</span></div>
-        <div class="fb"><span class="ico">⚙</span><span>App completa</span></div>
+        <div class="fb"><span class="ico">⚙</span><span>Modo Avanzado</span></div>
         <div class="fb info"><span class="ico">ℹ</span><span>Info</span></div>
       </div>
     </div>
@@ -479,7 +576,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
       <div class="lite-hdr" style="padding-top:34px">
         <div class="hdr-top">
           <div class="logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div>
-          <div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div>
+          <div class="brand">SIG Vial PBA · Modo Básico<span class="sub">Zona VI Saladillo</span></div>
         </div>
         <div class="gps-badge on"><span class="dot"></span>±6m · 78m</div>
       </div>
@@ -489,7 +586,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
       </div>
       <div class="lite-footer">
         <div class="fb pend"><span class="ico">📤</span><span>Sin enviar</span><span style="background:#b20900;color:#fff;font-size:8px;padding:1px 5px;border-radius:6px;margin-top:-4px;margin-left:12px;position:absolute">2</span></div>
-        <div class="fb"><span class="ico">⚙</span><span>App completa</span></div>
+        <div class="fb"><span class="ico">⚙</span><span>Modo Avanzado</span></div>
         <div class="fb info"><span class="ico">ℹ</span><span>Info</span></div>
       </div>
     </div>
@@ -563,14 +660,14 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
   <div class="phone">
     <div class="screen">
       <div class="lite-hdr" style="padding-top:34px">
-        <div class="hdr-top"><div class="logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div><div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div></div>
+        <div class="hdr-top"><div class="logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div><div class="brand">SIG Vial PBA · Modo Básico<span class="sub">Zona VI Saladillo</span></div></div>
       </div>
       <div class="modal-lite" style="top:75px">
         <div class="modal-lite-box" style="max-width:230px">
           <div style="font-size:22px;color:#009aae;line-height:1;margin-bottom:6px">ℹ</div>
           <h3 style="margin-bottom:10px">Información</h3>
           <div style="text-align:left;font-size:10px;line-height:1.6;color:#333">
-            <b>SIG Vial PBA · Captura Rápida</b><br>
+            <b>SIG Vial PBA · Modo Básico</b><br>
             Versión <b>v9.73</b>
             <hr style="border:0;border-top:1px solid #e0e0e0;margin:8px 0">
             <b>Sesión</b><br>
@@ -603,10 +700,8 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
   </div>
 </div>
 </section>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<section id="full">
-<h2>7. Uso de Campo (versión completa)</h2>
+<section id="full" class="slide" data-slide="7">
+<h2>7. Uso del Modo Avanzado</h2>
 
 <p>Es la app tradicional con wizard completo. Se accede desde el link <strong>⚙ App completa</strong> del footer de la lite o directamente en <code>lemeit.github.io/DVBA/dvba_campo.html</code>. Se recomienda para operarios con fluidez técnica que quieren clasificar en el momento.</p>
 
@@ -698,9 +793,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
   </div>
 </div>
 </section>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<section id="tipos">
+<section id="tipos" class="slide" data-slide="8">
 <h2>8. Tipos de relevamiento disponibles</h2>
 
 <p>El sistema tiene <strong>10 categorías</strong> definidas en el catálogo <code>dvba_tipos.js</code>. Cada categoría agrupa ítems específicos con estados coherentes:</p>
@@ -724,9 +817,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
 
 <p>Ver el detalle completo del modelo Tipo↔Estado en <a href="MODELO_TIPOS_ESTADOS.md">docs/MODELO_TIPOS_ESTADOS.md</a>.</p>
 </section>
-
-<!-- ════════════════════════════════════════════════════════════ -->
-<section id="faq">
+<section id="faq" class="slide" data-slide="9">
 <h2>9. Preguntas frecuentes</h2>
 
 <h3>¿Puedo usar la app sin instalar? ¿Solo desde el navegador?</h3>
@@ -763,12 +854,81 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
 
 </section>
 
-<footer>
-Guía visual · SIG Vial PBA · v1.0 · 19 de julio de 2026<br>
-Ing. Luciano Lamaita · División Técnica DVBA · Departamento Zona VI Saladillo<br>
-<a href="https://lemeit.github.io/DVBA/">lemeit.github.io/DVBA/</a> · <a href="guia_sig_vial_pba.html">Manual textual completo ↗</a>
-</footer>
+  </main>
 
 </div>
+
+<script>
+(function(){
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  const bar = document.querySelector('.progress-bar');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const drawerLinks = document.querySelectorAll('.drawer-list a');
+  const drawer = document.getElementById('drawer');
+  const drawerBack = document.getElementById('drawerBack');
+  const btnDrawer = document.getElementById('btnDrawer');
+  const btnPrint = document.getElementById('btnPrint');
+  let idx = 0;
+
+  function show(i){
+    i = Math.max(0, Math.min(total - 1, i));
+    idx = i;
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    bar.style.width = ((i + 1) / total * 100) + '%';
+    counter.textContent = (i + 1) + '/' + total;
+    btnPrev.disabled = (i === 0);
+    btnNext.disabled = (i === total - 1);
+    drawerLinks.forEach(a => a.classList.toggle('current', Number(a.dataset.goto) === i));
+    // Scroll interno al top
+    document.querySelector('.slides-wrap').scrollTop = 0;
+    // Actualizar hash
+    if (i === 0) history.replaceState(null, '', location.pathname + location.search);
+    else location.hash = 'slide-' + i;
+  }
+
+  function next(){ show(idx + 1); }
+  function prev(){ show(idx - 1); }
+  function toggleDrawer(open){
+    const isOpen = (typeof open === 'boolean') ? open : !drawer.classList.contains('open');
+    drawer.classList.toggle('open', isOpen);
+    drawerBack.classList.toggle('open', isOpen);
+    document.body.classList.toggle('drawer-open', isOpen);
+  }
+
+  btnPrev.addEventListener('click', prev);
+  btnNext.addEventListener('click', next);
+  btnDrawer.addEventListener('click', () => toggleDrawer());
+  drawerBack.addEventListener('click', () => toggleDrawer(false));
+  btnPrint.addEventListener('click', () => window.print());
+  drawerLinks.forEach(a => a.addEventListener('click', e => {
+    e.preventDefault();
+    show(Number(a.dataset.goto));
+    toggleDrawer(false);
+  }));
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { show(0); }
+    else if (e.key === 'End') { show(total - 1); }
+    else if (e.key === 'Escape') { toggleDrawer(false); }
+    else if (e.key === 'p' && (e.ctrlKey || e.metaKey)) { /* dejar que Ctrl+P haga su cosa */ }
+  });
+
+  // Deep link
+  function loadHash(){
+    const m = location.hash.match(/^#slide-(\d+)$/);
+    if (m) show(parseInt(m[1], 10));
+    else show(0);
+  }
+  window.addEventListener('hashchange', loadHash);
+  loadHash();
+})();
+</script>
 </body>
 </html>
