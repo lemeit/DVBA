@@ -190,7 +190,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
   <div class="hdr-top">
     <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
     <div class="brand">
-      DVBA · Captura Rápida
+      SIG Vial PBA · Captura Rápida
       <span class="sub">Zona VI Saladillo</span>
     </div>
   </div>
@@ -277,7 +277,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
     <input type="password" id="lgPass" placeholder="Contraseña" autocomplete="current-password">
     <button onclick="lLogin()" id="btnLogin">Ingresar</button>
     <div class="err" id="lgErr"></div>
-    <p style="font-size:10.5px;color:var(--mut);margin-top:14px">O usá la <a href="dvba_campo.html" style="color:var(--p)">app completa</a>.</p>
+    <p style="font-size:10.5px;color:var(--mut);margin-top:14px">O usá la <a href="dvba_campo.html" onclick="try{localStorage.setItem('dvba_prefiere_full','1')}catch(e){}" style="color:var(--p)">app completa</a>.</p>
   </div>
 </div>
 
@@ -305,7 +305,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.72';
+const APP_VER = 'v9.73';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -825,9 +825,9 @@ function lVerInfo(){
   const online = navigator.onLine ? '🟢 Con internet' : '🔴 Sin internet';
   const html = '' +
     '<div style="text-align:left;line-height:1.7;font-size:13px;color:#333">' +
-      '<b>DVBA · Captura Rápida</b><br>' +
+      '<b>SIG Vial PBA · Captura Rápida</b><br>' +
       'Versión <b>' + APP_VER + '</b><br>' +
-      '<span style="font-size:11px;color:#888">Ing. Luciano Lamaita — División Técnica DVBA</span>' +
+      ''  +  // v9.73 · nombre del autor sacado — redundante con el user badge y el footer del portal
       '<hr style="border:0;border-top:1px solid #e0e0e0;margin:10px 0">' +
       '<b>Sesión</b><br>' +
       '<span style="font-size:12px;color:#555;word-break:break-all">👤 ' + email + '</span><br>' +
