@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<title>SIG Vial PBA</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  html,body{margin:0;padding:0;background:#0a0a0a;color:#009aae;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;height:100vh;display:flex;align-items:center;justify-content:center;text-align:center}
+  .spin{width:48px;height:48px;border:4px solid rgba(0,154,174,.2);border-top-color:#009aae;border-radius:50%;animation:s 1s linear infinite;margin:0 auto 14px}
+  @keyframes s{to{transform:rotate(360deg)}}
+  h1{font-size:14px;font-weight:600;letter-spacing:.5px;margin:0;opacity:.8}
+</style>
+</head>
+<body>
+<div>
+  <div class="spin"></div>
+  <h1>SIG Vial PBA</h1>
+</div>
+<script>
+// Bootstrap · elige entre Modo Básico y Modo Avanzado según preferencia
+(function(){
+  try {
+    var modo = localStorage.getItem('dvba_modo_preferido');
+    var dest = (modo === 'avanzado') ? 'dvba_campo.html' : 'dvba_campo_lite.html';
+    location.replace(dest);
+  } catch(e) {
+    location.replace('dvba_campo_lite.html');
+  }
+})();
+</script>
+</body>
+</html>

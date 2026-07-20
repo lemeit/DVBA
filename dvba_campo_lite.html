@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#009aae">
-<title>SIG Vial PBA · Captura Rápida</title>
+<title>SIG Vial PBA · Modo Básico</title>
 <link rel="icon" href="datos/img/favicon.png">
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -241,7 +241,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
   <div class="hdr-top">
     <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
     <div class="brand">
-      SIG Vial PBA · Captura Rápida
+      SIG Vial PBA · Modo Básico
       <span class="sub">Zona VI Saladillo</span>
     </div>
   </div>
@@ -328,7 +328,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
     <input type="password" id="lgPass" placeholder="Contraseña" autocomplete="current-password">
     <button onclick="lLogin()" id="btnLogin">Ingresar</button>
     <div class="err" id="lgErr"></div>
-    <p style="font-size:10.5px;color:var(--mut);margin-top:14px">O usá la <a href="dvba_campo.html" onclick="try{localStorage.setItem('dvba_prefiere_full','1')}catch(e){}" style="color:var(--p)">app completa</a>.</p>
+    <p style="font-size:10.5px;color:var(--mut);margin-top:14px">O cambiá a <a href="#" onclick="try{localStorage.setItem('dvba_modo_preferido','avanzado');location.href='dvba_campo.html'}catch(e){}return false;" style="color:var(--p)">Modo Avanzado</a>.</p>
   </div>
 </div>
 
@@ -339,9 +339,9 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
     <div>Sin enviar</div>
     <span class="cnt" id="pendCnt" style="display:none">0</span>
   </button>
-  <a class="fb" href="dvba_campo.html" onclick="localStorage.setItem('dvba_prefiere_full','1')" title="Ir a la app completa (queda como tu preferencia)">
+  <a class="fb" href="dvba_campo.html" onclick="localStorage.setItem('dvba_modo_preferido','avanzado')" title="Cambiar a Modo Avanzado (queda como tu preferencia)">
     <div class="ico">⚙</div>
-    <div>App completa</div>
+    <div>Modo Avanzado</div>
   </a>
   <button class="fb info" onclick="lVerInfo()">
     <div class="ico">ℹ</div>
@@ -356,7 +356,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.77';
+const APP_VER = 'v9.78';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -594,10 +594,9 @@ function iniciarCaptura(){
     e.target.value = '';  // reset input para permitir misma foto de nuevo
     // Snapshot del GPS al momento de la foto
     _gpsCuandoSaco = { lat:_gpsLat, lng:_gpsLng, acc:_gpsAcc, alt:_gpsAlt, ts:Date.now() };
-    // v9.77 · Bajado de 1200/0.75 a 1000/0.72 para reducir el pico de RAM
-    // (celulares low-RAM se cierran con "memoria insuficiente" al volver de
-    // la cámara nativa — la PWA queda con muy poca memoria disponible).
-    _fotoActual = await comprimir(file, 1000, 0.72);
+    // v9.78 · Bajado a 900/0.70. Con celulares low-RAM (2-3GB) el pico
+    // sigue matando la app aún con 1000/0.72. 900px alcanza para el sello.
+    _fotoActual = await comprimir(file, 900, 0.70);
     // Mostrar preview
     $('prevImg').src = _fotoActual;
     $('prevGps').textContent = 'Lat ' + fmtCoord(_gpsCuandoSaco.lat) + '   Lng ' + fmtCoord(_gpsCuandoSaco.lng);
@@ -608,14 +607,45 @@ function iniciarCaptura(){
     $('preview').classList.add('on');
   });
 }
-// v9.77 · Compresión low-memory · usar URL.createObjectURL en vez de
-// FileReader.readAsDataURL. El FileReader carga TODO el archivo en memoria
-// como string base64 (duplica el tamaño del archivo raw), lo cual sumado a
-// la memoria que ya ocupa Chrome + la foto decodificada en canvas es lo que
-// termina matando la app en celulares con RAM limitada. createObjectURL solo
-// mantiene un puntero al Blob, no lo copia. Además liberamos canvas e img
-// explícitamente para forzar GC lo antes posible.
-function comprimir(file, maxPx, q){
+// v9.78 · Compresión low-memory con createImageBitmap · el enfoque anterior
+// (URL.createObjectURL + Image) mejoraba pero seguía decodificando la foto
+// FULL en memoria antes de escalar. En celulares 2-3GB de RAM, un JPEG de
+// 12MP se convierte a bitmap de ~48MB, que sumado a la presión post-cámara
+// dispara "memoria insuficiente" y mata la app.
+// createImageBitmap con resizeWidth/resizeHeight decodifica DIRECTAMENTE al
+// tamaño target, sin pasar por el bitmap full. Es la API específica para
+// este caso de uso (soportada en Chrome/Android desde 2018).
+// Fallback al método viejo si el navegador no la soporta.
+async function comprimir(file, maxPx, q){
+  const useBitmap = typeof createImageBitmap === 'function';
+  if (useBitmap){
+    try {
+      // Primer bitmap chico solo para leer dimensiones (thumbnail 200px)
+      const probe = await createImageBitmap(file, { resizeWidth: 200, resizeQuality: 'low' });
+      const ratio = probe.width / probe.height;
+      probe.close();
+      // Calcular tamaño final respetando el aspect ratio y maxPx
+      let w, h;
+      if (ratio >= 1) { w = maxPx; h = Math.round(maxPx / ratio); }
+      else            { h = maxPx; w = Math.round(maxPx * ratio); }
+      // Decodificar directo al tamaño target (esto NO carga la full en RAM)
+      const bitmap = await createImageBitmap(file, {
+        resizeWidth: w, resizeHeight: h, resizeQuality: 'medium'
+      });
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(bitmap, 0, 0);
+      bitmap.close();
+      const dataUrl = c.toDataURL('image/jpeg', q);
+      c.width = 0; c.height = 0;  // liberar
+      return dataUrl;
+    } catch(e){
+      console.warn('[comprimir] createImageBitmap falló, fallback a Image:', e);
+      // seguir al fallback abajo
+    }
+  }
+  // Fallback: método clásico (createObjectURL + Image + canvas)
   return new Promise((res, rej) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -636,7 +666,7 @@ function comprimir(file, maxPx, q){
         c.width = w; c.height = h;
         const ctx = c.getContext('2d');
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'medium';  // 'high' ocupa más RAM
+        ctx.imageSmoothingQuality = 'medium';
         ctx.drawImage(img, 0, 0, w, h);
         const dataUrl = c.toDataURL('image/jpeg', q);
         limpiar();
@@ -673,7 +703,7 @@ async function lGuardar(){
     progresiva: '',
     tipo: 'sin_clasificar',              // NOT NULL · idem
     estado: null,
-    observaciones: 'Foto tomada con Captura Rápida (' + APP_VER + ') · GPS ±' + g.acc + 'm · Completar datos en oficina.',
+    observaciones: 'Foto tomada con Modo Básico (' + APP_VER + ') · GPS ±' + g.acc + 'm · Completar datos en oficina.',
     foto_url: null,
     lat: g.lat,
     lng: g.lng,
@@ -696,7 +726,7 @@ async function lGuardar(){
     return;
   }
   try {
-    // ── 1. Subir foto a Storage con fetch directo (igual que app completa)
+    // ── 1. Subir foto a Storage con fetch directo (igual que Modo Avanzado)
     const blob = await (await fetch(_fotoActual)).blob();
     const path = 'fotos/' + Date.now() + '_lite.jpg';
     const upUrl = SUPA_URL + '/storage/v1/object/' + BUCKET + '/' + path;
@@ -927,7 +957,7 @@ function lVerInfo(){
   const online = navigator.onLine ? '🟢 Con internet' : '🔴 Sin internet';
   const html = '' +
     '<div style="text-align:left;line-height:1.7;font-size:13px;color:#333">' +
-      '<b>SIG Vial PBA · Captura Rápida</b><br>' +
+      '<b>SIG Vial PBA · Modo Básico</b><br>' +
       'Versión <b>' + APP_VER + '</b><br>' +
       ''  +  // v9.73 · nombre del autor sacado — redundante con el user badge y el footer del portal
       '<hr style="border:0;border-top:1px solid #e0e0e0;margin:10px 0">' +

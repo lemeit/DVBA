@@ -1,9 +1,9 @@
 {
-  "id": "/DVBA/dvba_campo.html",
+  "id": "/DVBA/campo.html",
   "name": "SIG Vial PBA",
   "short_name": "SIG Vial PBA",
   "description": "Sistema web integrado para la gestión de la red vial provincial · Piloto Zona VI Saladillo",
-  "start_url": "./dvba_campo_lite.html",
+  "start_url": "./campo.html",
   "scope": "./",
   "display": "standalone",
   "display_override": [
