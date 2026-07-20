@@ -10,7 +10,7 @@
     "standalone",
     "minimal-ui"
   ],
-  "background_color": "#009aae",
+  "background_color": "#0a0a0a",
   "theme_color": "#009aae",
   "orientation": "portrait-primary",
   "lang": "es",

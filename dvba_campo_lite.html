@@ -356,7 +356,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.76';
+const APP_VER = 'v9.77';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -594,8 +594,10 @@ function iniciarCaptura(){
     e.target.value = '';  // reset input para permitir misma foto de nuevo
     // Snapshot del GPS al momento de la foto
     _gpsCuandoSaco = { lat:_gpsLat, lng:_gpsLng, acc:_gpsAcc, alt:_gpsAlt, ts:Date.now() };
-    // Comprimir la foto (misma estrategia que dvba_campo.html: 1200px q=0.75, más agresivo por PLAN_STORAGE)
-    _fotoActual = await comprimir(file, 1200, 0.75);
+    // v9.77 · Bajado de 1200/0.75 a 1000/0.72 para reducir el pico de RAM
+    // (celulares low-RAM se cierran con "memoria insuficiente" al volver de
+    // la cámara nativa — la PWA queda con muy poca memoria disponible).
+    _fotoActual = await comprimir(file, 1000, 0.72);
     // Mostrar preview
     $('prevImg').src = _fotoActual;
     $('prevGps').textContent = 'Lat ' + fmtCoord(_gpsCuandoSaco.lat) + '   Lng ' + fmtCoord(_gpsCuandoSaco.lng);
@@ -606,27 +608,43 @@ function iniciarCaptura(){
     $('preview').classList.add('on');
   });
 }
+// v9.77 · Compresión low-memory · usar URL.createObjectURL en vez de
+// FileReader.readAsDataURL. El FileReader carga TODO el archivo en memoria
+// como string base64 (duplica el tamaño del archivo raw), lo cual sumado a
+// la memoria que ya ocupa Chrome + la foto decodificada en canvas es lo que
+// termina matando la app en celulares con RAM limitada. createObjectURL solo
+// mantiene un puntero al Blob, no lo copia. Además liberamos canvas e img
+// explícitamente para forzar GC lo antes posible.
 function comprimir(file, maxPx, q){
   return new Promise((res, rej) => {
-    const fr = new FileReader();
-    fr.onload = e => {
-      const img = new Image();
-      img.onload = () => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    let c = null;
+    function limpiar(){
+      try { URL.revokeObjectURL(url); } catch(e){}
+      try { if (c){ c.width = 0; c.height = 0; c = null; } } catch(e){}
+      try { img.src = ''; } catch(e){}
+    }
+    img.onload = () => {
+      try {
         let w = img.width, h = img.height;
         if (w > maxPx || h > maxPx){
           if (w > h){ h = Math.round(h*maxPx/w); w = maxPx; }
           else       { w = Math.round(w*maxPx/h); h = maxPx; }
         }
-        const c = document.createElement('canvas');
+        c = document.createElement('canvas');
         c.width = w; c.height = h;
-        c.getContext('2d').drawImage(img, 0, 0, w, h);
-        res(c.toDataURL('image/jpeg', q));
-      };
-      img.onerror = rej;
-      img.src = e.target.result;
+        const ctx = c.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'medium';  // 'high' ocupa más RAM
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = c.toDataURL('image/jpeg', q);
+        limpiar();
+        res(dataUrl);
+      } catch(e){ limpiar(); rej(e); }
     };
-    fr.onerror = rej;
-    fr.readAsDataURL(file);
+    img.onerror = () => { limpiar(); rej(new Error('No se pudo cargar la imagen')); };
+    img.src = url;
   });
 }
 function lRepetir(){
