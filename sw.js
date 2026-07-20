@@ -2,6 +2,7 @@
    DVBA Campo · Service Worker v3.4
    Network-first + offline fallback + auto-purge de 404
 
+   v3.12: bump versión (v9.74) · modal de instalación PWA prominente en lite y full.
    v3.11: bump versión (v9.73) · fixes lite: link app completa, quitar nombre autor del modal Info, brand unificado.
    v3.10: bump versión (v9.72) · ajuste naming DVBA → PBA (SIG Vial PBA).
    v3.9: bump versión (v9.71) · renombrado institucional PWA a 'SIG Vial DVBA'.
@@ -14,7 +15,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.73';
+const CACHE_NAME = 'dvba-campo-v9.74';
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
