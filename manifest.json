@@ -1,18 +1,24 @@
 {
   "id": "/DVBA/dvba_campo.html",
-  "name": "DVBA · Campo Zona VI",
-  "short_name": "DVBA Campo",
-  "description": "Relevamiento vial de campo — Dirección de Vialidad PBA. Zona VI Saladillo (piloto). Arranca en modo Lite (captura rápida foto + GPS); la app completa se accede desde el link inferior.",
+  "name": "SIG Vial PBA",
+  "short_name": "SIG Vial PBA",
+  "description": "Sistema web integrado para la gestión de la red vial provincial · Piloto Zona VI Saladillo",
   "start_url": "./dvba_campo_lite.html",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "background_color": "#009aae",
   "theme_color": "#009aae",
   "orientation": "portrait-primary",
   "lang": "es",
   "dir": "ltr",
-  "categories": ["productivity", "utilities"],
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
   "prefer_related_applications": false,
   "icons": [
     {
