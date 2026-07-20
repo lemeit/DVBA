@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía visual · SIG Vial PBA</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --azul:#003366; --azul-cl:#1a5080; --teal:#009aae; --teal-cl:#26b3c8; --teal-d:#007d90;
+  --bg:#f4f6f9; --card:#fff; --border:#cdd9e6;
+  --text:#1a2a3a; --muted:#5a6a7a; --good:#28a745; --warn:#f0a500; --info:#17a2b8;
+  --verde:#1a8a4a; --rojo:#b20900; --amber:#c47a00;
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+.page{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+
+header.hero{background:linear-gradient(135deg,var(--azul) 0%,var(--teal) 100%);color:#fff;border-radius:10px;padding:28px;margin-bottom:24px;box-shadow:0 4px 14px rgba(0,51,102,.18)}
+header.hero h1{font-size:1.7rem;font-weight:600;margin-bottom:6px}
+header.hero .sub{opacity:.92;font-size:.98rem;margin-bottom:14px}
+header.hero .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;font-size:.82rem;background:rgba(255,255,255,.1);padding:12px 16px;border-radius:6px}
+header.hero .meta .lbl{opacity:.78;display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+header.hero .meta .val{font-weight:600;overflow-wrap:anywhere}
+header.hero a{color:#bdf;text-decoration:none}
+
+nav.toc{background:#fff;padding:16px 20px;border-radius:8px;border:1px solid var(--border);margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+nav.toc h3{color:var(--azul);font-size:.86rem;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+nav.toc ol{margin:0 0 0 22px;font-size:.92rem;columns:2;column-gap:28px}
+nav.toc li{margin:4px 0;break-inside:avoid}
+nav.toc a{color:var(--azul-cl);text-decoration:none}
+
+section{margin-top:36px}
+h2{color:var(--azul);font-size:1.35rem;font-weight:600;margin-bottom:14px;padding-bottom:6px;border-bottom:3px solid var(--azul);display:inline-block}
+h3{color:var(--azul-cl);font-size:1.08rem;font-weight:600;margin:22px 0 10px}
+h4{color:var(--azul);font-size:.98rem;font-weight:600;margin:16px 0 6px}
+p{margin-bottom:10px}
+strong{color:var(--azul)}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:10px 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0}
+ul,ol{margin:6px 0 12px 22px}
+li{margin:4px 0}
+code{background:#eef3f9;color:var(--azul);padding:2px 6px;border-radius:3px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85em;font-weight:500}
+
+.box{padding:14px 16px;border-radius:6px;margin:12px 0;border-left:4px solid var(--azul);background:#fff}
+.box.ok{background:#f0fff4;border-color:var(--good)}
+.box.warn{background:#fff8e6;border-color:var(--warn)}
+.box.info{background:#e6f4f8;border-color:var(--info)}
+.box.tip{background:#f5edfa;border-color:#7e57c2}
+
+/* ══════ MOCKUP SMARTPHONE ══════ */
+.demo{display:flex;gap:26px;align-items:flex-start;margin:22px 0;flex-wrap:wrap}
+.demo .phone{flex-shrink:0}
+.demo .step{flex:1;min-width:240px}
+.demo .step h4{margin-top:0;color:var(--teal-d)}
+.demo .step ol{margin-left:20px}
+
+.phone{
+  width:270px;height:560px;background:#0a0a0a;border-radius:32px;
+  padding:12px 8px;box-shadow:0 12px 30px rgba(0,0,0,.28), inset 0 0 0 2px #2a2a2a;
+  position:relative;flex-shrink:0
+}
+.phone::before{
+  content:'';position:absolute;top:6px;left:50%;transform:translateX(-50%);
+  width:70px;height:14px;background:#0a0a0a;border-radius:0 0 12px 12px;z-index:5
+}
+.screen{
+  background:var(--teal);border-radius:22px;overflow:hidden;
+  height:100%;position:relative;color:#fff;
+  font-family:'Encode Sans','Segoe UI',sans-serif;font-size:12px;line-height:1.4
+}
+
+/* Header PWA lite (imita dvba_campo_lite) */
+.lite-hdr{background:linear-gradient(135deg,#009aae,#007d90);color:#fff;padding:26px 12px 10px;display:flex;flex-direction:column;gap:6px}
+.lite-hdr .hdr-top{display:flex;align-items:center;gap:8px}
+.lite-hdr .logo{width:28px;height:28px;background:#ffd700;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#003366}
+.lite-hdr .brand{font-size:11px;font-weight:800;flex:1;line-height:1.15}
+.lite-hdr .brand .sub{display:block;font-size:8.5px;font-weight:500;opacity:.85;margin-top:2px}
+.gps-badge{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.35);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:800;color:#fff}
+.gps-badge.on{background:rgba(46,180,90,.35);border-color:rgba(46,180,90,.7)}
+.gps-badge.off{background:rgba(224,60,60,.5);border-color:rgba(224,60,60,.9)}
+.gps-badge .dot{width:10px;height:10px;border-radius:50%;background:currentColor}
+
+/* Main lite */
+.lite-main{background:#f6f8fa;color:#1a1a1a;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 14px;padding-bottom:70px;text-align:center;height:calc(100% - 100px)}
+.big-btn{width:170px;height:170px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#00b3c7,#009aae 60%,#007d90 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,154,174,.4);margin-bottom:12px}
+.big-btn.dis{background:linear-gradient(135deg,#a0b0b8,#7a8a92);box-shadow:none;color:#ddd}
+.big-btn .icon{font-size:42px;line-height:1;margin-bottom:4px}
+.big-btn .lbl{font-size:14px;font-weight:900;letter-spacing:1px}
+.big-btn .sublbl{font-size:8.5px;font-weight:500;opacity:.85;margin-top:2px}
+.hint{color:#333;font-size:10.5px;margin-top:12px;padding:0 8px;line-height:1.5}
+.hint b{color:#009aae}
+.hint-alerta{color:#8a2020;background:#ffe8e8;border:1.5px solid #d24040;border-radius:8px;padding:8px 10px;margin:10px 6px 0;font-size:10px;line-height:1.4;font-weight:600}
+
+/* Footer lite */
+.lite-footer{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e0e0e0;padding:8px 10px;display:flex;justify-content:space-around;color:#6a6a6a}
+.lite-footer .fb{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.lite-footer .fb .ico{font-size:16px}
+.lite-footer .fb.info{color:#009aae}
+.lite-footer .fb.pend{color:var(--amber)}
+
+/* Modal lite (Info, GPS, etc) */
+.modal-lite{position:absolute;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:16px;border-radius:22px}
+.modal-lite-box{background:#fff;color:#1a1a1a;border-radius:14px;padding:18px 14px;max-width:220px;width:100%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.modal-lite-box h3{font-size:14px;color:#009aae;margin-bottom:8px}
+.modal-lite-box .icon{font-size:32px;color:#009aae;margin-bottom:6px}
+.modal-lite-box p, .modal-lite-box li{font-size:10.5px;text-align:left;color:#333;margin-bottom:4px}
+.modal-lite-box .actions{display:flex;gap:6px;margin-top:12px}
+.modal-lite-box .btn{flex:1;padding:8px;border-radius:8px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.modal-lite-box .btn.gris{background:#e0e0e0;color:#333}
+.modal-lite-box .btn.rojo{background:#b20900;color:#fff}
+.modal-lite-box .btn.verde{background:#1a8a4a;color:#fff}
+.modal-lite-box .actions.stack{flex-direction:column}
+.modal-lite-box input{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:11px;margin-bottom:6px}
+
+/* Preview foto */
+.preview-ov{position:absolute;inset:0;background:rgba(0,0,0,.94);display:flex;flex-direction:column;border-radius:22px}
+.preview-ov .prev-img{flex:1;display:flex;align-items:center;justify-content:center;padding:14px;color:#666;font-size:22px}
+.preview-ov .prev-img .fake{width:180px;height:220px;background:linear-gradient(135deg,#8b6f47,#a08055);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:28px}
+.preview-ov .prev-info{padding:8px 12px;background:rgba(0,0,0,.55);color:#fff;font-size:9.5px;text-align:center;line-height:1.5}
+.preview-ov .prev-info b{color:#00b3c7}
+.preview-ov .prev-actions{display:flex;gap:6px;padding:10px;background:#0f0f0f;border-top:1px solid #333}
+.preview-ov .prev-actions .btn{flex:1;padding:10px;border-radius:8px;font-size:10px;font-weight:700;text-transform:uppercase;text-align:center}
+.btn-desc{background:#3a2020;color:#ffbfbf;border:1px solid #6a3535}
+.btn-gua{background:#1a8a4a;color:#fff}
+
+/* Status overlay */
+.status-ov{position:absolute;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:16px;border-radius:22px}
+.status-box{background:#fff;color:#1a1a1a;border-radius:16px;padding:20px 16px;max-width:220px;width:100%;text-align:center}
+.status-box .icon{font-size:44px;line-height:1;margin-bottom:8px}
+.status-box .icon.ok{color:#1a8a4a}
+.status-box .icon.warn{color:#c47a00}
+.status-box .title{font-size:14px;font-weight:900;margin-bottom:6px}
+.status-box .msg{font-size:10.5px;color:#555;margin-bottom:10px;line-height:1.5}
+.status-box .msg .num{color:#1a8a4a;font-weight:800}
+.status-box .btn{width:100%;padding:10px;background:#1a8a4a;color:#fff;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase}
+
+/* Banner update PWA */
+.pwa-update{position:absolute;top:0;left:0;right:0;background:linear-gradient(135deg,#1a8a4a,#0f6d3a);color:#fff;padding:10px 12px;padding-top:26px;display:flex;align-items:center;gap:10px;border-radius:22px 22px 0 0}
+.pwa-update .ub-icon{font-size:22px}
+.pwa-update .ub-text{flex:1;line-height:1.3;font-size:10px}
+.pwa-update .ub-text b{display:block;font-size:11px;font-weight:800}
+.pwa-update .ub-text small{opacity:.9;font-size:9px}
+.pwa-update .ub-btn{background:#fff;color:#0f6d3a;padding:6px 10px;border-radius:6px;font-size:9.5px;font-weight:900;text-transform:uppercase}
+
+/* Full app · brand y wizard categorias */
+.full-hdr{background:linear-gradient(135deg,#009aae,#007d90);color:#fff;padding:26px 12px 10px;font-size:11px;font-weight:800}
+.full-hdr .sub{display:block;font-size:8.5px;font-weight:500;opacity:.85;margin-top:2px}
+.full-cats{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#fff;color:#1a2a3a;flex:1;overflow-y:auto}
+.full-cat{background:#f4f6f9;border:1px solid #d4dce4;border-radius:8px;padding:10px 8px;text-align:center;font-size:10px;font-weight:600;color:#1a5080}
+.full-cat .ico{display:block;font-size:22px;margin-bottom:4px}
+
+/* Footer note bajo mockup */
+.mockup-cap{text-align:center;font-size:.72rem;color:var(--muted);margin-top:8px;font-style:italic}
+
+/* Diagrama sync */
+.sync-diagram{background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;margin:18px 0;display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:20px}
+.sync-node{text-align:center;flex:1;min-width:130px}
+.sync-node .box-ico{width:60px;height:60px;background:linear-gradient(135deg,var(--azul),var(--teal));color:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 10px}
+.sync-node .name{font-weight:700;color:var(--azul);font-size:.9rem;margin-bottom:2px}
+.sync-node .detail{font-size:.78rem;color:var(--muted);line-height:1.4}
+.sync-arrow{font-size:1.7rem;color:var(--teal-cl);flex-shrink:0}
+
+footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;padding-top:18px;border-top:1px solid var(--border)}
+
+@media(max-width:700px){
+  .page{padding:12px 10px}
+  header.hero h1{font-size:1.2rem}
+  nav.toc ol{columns:1}
+  .demo{gap:16px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="hero">
+  <h1>📱 Guía visual · SIG Vial PBA</h1>
+  <div class="sub">Aprendé a usar las apps móviles paso a paso · con capturas simuladas de smartphone</div>
+  <div class="meta">
+    <div><span class="lbl">Versión guía</span><span class="val">v1.0</span></div>
+    <div><span class="lbl">Sistema</span><span class="val">Móvil v9.73</span></div>
+    <div><span class="lbl">Última actualización</span><span class="val">19 de julio de 2026</span></div>
+    <div><span class="lbl">URL</span><span class="val"><a href="https://lemeit.github.io/DVBA/" target="_blank">lemeit.github.io/DVBA/ ↗</a></span></div>
+    <div><span class="lbl">Guía completa</span><span class="val"><a href="guia_sig_vial_pba.html">Manual textual ↗</a></span></div>
+  </div>
+</header>
+
+<nav class="toc">
+  <h3>Contenido</h3>
+  <ol>
+    <li><a href="#intro">¿Qué es SIG Vial PBA?</a></li>
+    <li><a href="#acceso">Cómo se accede</a></li>
+    <li><a href="#instalar">Instalarla como app en el celular</a></li>
+    <li><a href="#redes">Navegador vs app instalada · WiFi/datos vs GPS</a></li>
+    <li><a href="#sync">Cómo sincroniza con el sistema de escritorio</a></li>
+    <li><a href="#lite">Uso de Captura Rápida (versión lite)</a></li>
+    <li><a href="#full">Uso de Campo (versión completa)</a></li>
+    <li><a href="#tipos">Tipos de relevamiento disponibles</a></li>
+    <li><a href="#faq">Preguntas frecuentes</a></li>
+  </ol>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="intro">
+<h2>1. ¿Qué es SIG Vial PBA?</h2>
+
+<div class="card">
+<p>Es la <strong>plataforma web integrada</strong> para el relevamiento y gestión de la red vial provincial de la DVBA. Tiene dos partes:</p>
+<ul>
+  <li>Una app móvil que instalás en el celular para <strong>sacar fotos con GPS</strong> en el campo.</li>
+  <li>Un sistema web de escritorio para <strong>gestionar todo desde la oficina</strong> (aprobar registros, cargar tareas, generar reportes).</li>
+</ul>
+<p>Todo lo que se cargue desde el celular aparece automáticamente en el sistema de escritorio cuando hay conexión a internet.</p>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="acceso">
+<h2>2. Cómo se accede</h2>
+
+<div class="card">
+<p>La URL de acceso es única para todo el sistema:</p>
+<p style="text-align:center;font-size:1.1rem"><a href="https://lemeit.github.io/DVBA/" style="color:var(--teal);font-weight:700">https://lemeit.github.io/DVBA/</a></p>
+
+<div class="grid2">
+  <div class="box">
+    <strong>Desde el celular</strong><br>
+    Abrir esa URL en <strong>Chrome</strong> (Android) o <strong>Safari</strong> (iOS). Se abre la app móvil.
+  </div>
+  <div class="box">
+    <strong>Desde una computadora</strong><br>
+    Abrir esa URL en cualquier navegador moderno. Se abre el portal escritorio con el mapa y las herramientas de oficina.
+  </div>
+</div>
+
+<div class="box tip">
+<strong>💡</strong> No hace falta bajar nada de una tienda de aplicaciones. Todo funciona con el navegador del celular o de la compu.
+</div>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="instalar">
+<h2>3. Instalar la app en el celular (PWA)</h2>
+
+<p>La app se instala como cualquier otra app del celular, pero <strong>sin pasar por la Play Store o App Store</strong>. El proceso lleva 30 segundos:</p>
+
+<div class="demo">
+  <div class="phone">
+    <div class="screen">
+      <div style="background:#009aae;padding:26px 12px 10px;color:#fff;font-weight:800;font-size:11px">SIG Vial PBA</div>
+      <div style="padding:16px;background:#f4f6f9;color:#1a2a3a;font-size:11px;height:calc(100% - 50px)">
+        <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,.15);text-align:center;margin-top:180px">
+          <div style="font-size:28px;margin-bottom:8px">📥</div>
+          <div style="font-weight:800;font-size:12px;margin-bottom:6px">Instalar SIG Vial PBA</div>
+          <div style="font-size:10px;color:#666;margin-bottom:12px">Agregar a la pantalla de inicio</div>
+          <div style="display:flex;gap:6px">
+            <div style="flex:1;padding:9px;background:#e0e0e0;color:#333;border-radius:6px;font-size:10px;font-weight:700">Cancelar</div>
+            <div style="flex:1;padding:9px;background:#009aae;color:#fff;border-radius:6px;font-size:10px;font-weight:700">Instalar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <h4>Paso a paso</h4>
+    <ol>
+      <li>Abrir <strong>Chrome</strong> en el celular.</li>
+      <li>Ir a <code>lemeit.github.io/DVBA/</code>.</li>
+      <li>Al abrir aparece un banner o el menú <kbd>⋮</kbd> muestra la opción <strong>"Instalar aplicación"</strong>.</li>
+      <li>Tocarla y aceptar. Se agrega el ícono al launcher del celular.</li>
+      <li>A partir de acá, abrís la app tocando ese ícono como cualquier otra app.</li>
+    </ol>
+    <div class="box info" style="margin-top:12px">
+      <strong>El ícono se llama "SIG Vial PBA"</strong> y aparece con el logo institucional DVBA.
+    </div>
+  </div>
+</div>
+
+<h3>Actualizaciones automáticas</h3>
+<p>Cuando hay una versión nueva del sistema, al abrir la app aparece un banner verde arriba:</p>
+
+<div class="demo">
+  <div class="phone">
+    <div class="screen">
+      <div class="pwa-update">
+        <div class="ub-icon">🔄</div>
+        <div class="ub-text"><b>Hay una versión más nueva</b><small>De v9.72 → v9.73 · tocá Actualizar</small></div>
+        <div class="ub-btn">Actualizar</div>
+      </div>
+      <div class="lite-hdr" style="margin-top:52px">
+        <div class="hdr-top">
+          <div class="logo">DVBA</div>
+          <div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div>
+        </div>
+        <div class="gps-badge on"><span class="dot"></span>±8m · 65m</div>
+      </div>
+      <div class="lite-main"><div class="big-btn"><div class="icon">📸</div><div class="lbl">Sacar foto</div><div class="sublbl">y guardar ubicación</div></div></div>
+    </div>
+  </div>
+  <div class="step">
+    <h4>Cómo actualizar</h4>
+    <ol>
+      <li>Al abrir la app, si hay versión nueva aparece el banner verde arriba.</li>
+      <li>Tocar <strong>Actualizar</strong>.</li>
+      <li>La app se recarga con la versión nueva en menos de 2 segundos.</li>
+    </ol>
+    <div class="box warn" style="margin-top:12px">
+      <strong>Importante</strong> · Si no tocás Actualizar, la app va a seguir funcionando con la versión vieja cacheada. No perdés nada, pero no tenés los últimos cambios.
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="redes">
+<h2>4. Navegador vs app instalada · WiFi/datos vs GPS</h2>
+
+<div class="grid2">
+  <div class="card" style="border-left:4px solid var(--warn)">
+    <h3 style="margin-top:0;color:var(--warn)">🌐 Desde el navegador (sin instalar)</h3>
+    <p>Si abrís la URL directamente en Chrome sin instalar la app:</p>
+    <ul>
+      <li>Necesitás <strong>obligatoriamente</strong> WiFi o datos móviles para que la app cargue.</li>
+      <li>Si se corta la conexión, se pierde todo lo que estabas haciendo.</li>
+      <li>No hay cola offline: cada foto necesita internet en el momento.</li>
+    </ul>
+    <p><strong>Uso recomendado</strong>: prueba rápida, primera vez, o desde la computadora de oficina.</p>
+  </div>
+
+  <div class="card" style="border-left:4px solid var(--good)">
+    <h3 style="margin-top:0;color:var(--good)">📱 Como app instalada (PWA)</h3>
+    <p>Una vez que instalaste la app y te logueaste al menos una vez con internet:</p>
+    <ul>
+      <li><strong>NO requiere WiFi ni datos</strong> para funcionar.</li>
+      <li>Solo necesita <strong>señal de GPS</strong> del celular (que funciona incluso sin internet).</li>
+      <li>Guarda las fotos en una cola local.</li>
+      <li>Sincroniza automáticamente cuando vuelva la conexión.</li>
+    </ul>
+    <p><strong>Uso recomendado</strong>: campo, zonas rurales, cualquier situación operativa.</p>
+  </div>
+</div>
+
+<div class="box tip">
+<strong>💡 Regla práctica</strong> · Instalá la app la primera vez que tengas WiFi (en la oficina). Después usala en el campo sin importar si tenés señal — el GPS funciona en cualquier lado. Cuando volvés a la oficina o entrás en zona con señal, todo se sincroniza solo.
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="sync">
+<h2>5. Cómo sincroniza con el sistema de escritorio</h2>
+
+<p>Todo lo que se carga desde el celular aparece automáticamente en el sistema de escritorio, sin que nadie tenga que hacer nada manual:</p>
+
+<div class="sync-diagram">
+  <div class="sync-node">
+    <div class="box-ico">📱</div>
+    <div class="name">App celular</div>
+    <div class="detail">Saca la foto con GPS<br>y la guarda en cola local</div>
+  </div>
+  <div class="sync-arrow">→</div>
+  <div class="sync-node">
+    <div class="box-ico">☁</div>
+    <div class="name">Supabase</div>
+    <div class="detail">Sube automáticamente<br>cuando hay conexión</div>
+  </div>
+  <div class="sync-arrow">→</div>
+  <div class="sync-node">
+    <div class="box-ico">🖥</div>
+    <div class="name">Portal escritorio</div>
+    <div class="detail">Aparece en el mapa,<br>lista para aprobar</div>
+  </div>
+</div>
+
+<h3>Qué ve el personal de oficina</h3>
+<p>Cuando el técnico de campo envía una foto, en el portal de escritorio (abierto en la computadora de la oficina o de cualquier notebook con conexión) aparece:</p>
+<ul>
+  <li>Un pin nuevo en el mapa, en la posición GPS exacta donde se sacó la foto.</li>
+  <li>Un registro en la cola de aprobación con estado <em>"campo"</em> (a la espera de revisión).</li>
+  <li>La foto cruda sin sello (el sello institucional se aplica al aprobar).</li>
+</ul>
+<p>Desde escritorio, el personal responsable revisa, completa datos y aprueba. La foto queda sellada con los datos definitivos y trazable con QR de Google Maps.</p>
+
+<div class="box info">
+<strong>🔒 Seguridad</strong> · Todos los registros llevan el ID del usuario que los cargó. Cada zona de la DVBA solo ve sus propios datos (excepto Gerencia y Admin, que ven todo).
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="lite">
+<h2>6. Uso de Captura Rápida (versión lite)</h2>
+
+<p>Es la app <strong>por default</strong> al instalar. Está pensada para operarios que necesitan solo sacar fotos con GPS, sin cargar formularios largos. Todos los demás datos los completa alguien en la oficina.</p>
+
+<h3>6.1 Primera vez que la abrís · Ingresar</h3>
+<div class="demo">
+  <div class="phone">
+    <div class="screen">
+      <div class="lite-hdr" style="padding-top:34px">
+        <div class="hdr-top">
+          <div class="logo">DVBA</div>
+          <div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div>
+        </div>
+        <div class="gps-badge"><span class="dot"></span>Ubicando…</div>
+      </div>
+      <div class="modal-lite">
+        <div class="modal-lite-box">
+          <div style="font-size:22px;margin-bottom:4px">🔐</div>
+          <h3>Ingresar</h3>
+          <p style="text-align:center;font-size:10px;color:#666;margin-bottom:10px">Ingresá con tu cuenta para poder enviar registros.</p>
+          <input type="text" placeholder="Correo">
+          <input type="password" placeholder="Contraseña">
+          <div style="background:#1a8a4a;color:#fff;padding:10px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;margin-top:4px">Ingresar</div>
+          <p style="font-size:9px;color:#888;margin-top:10px">O usá la <span style="color:#009aae;text-decoration:underline">app completa</span>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <h4>Instrucciones</h4>
+    <ol>
+      <li>Ingresá con el correo y contraseña que te asignó el administrador.</li>
+      <li>La primera vez <strong>necesitás WiFi o datos</strong> para que la app valide tu identidad con el servidor.</li>
+      <li>Una vez logueado, la app te recuerda por tiempo indefinido. Podés cerrar y abrir sin volver a poner clave.</li>
+    </ol>
+    <div class="box tip">
+      <strong>💡</strong> ¿No tenés usuario? Contactá al administrador (Ing. Luciano Lamaita · <a href="mailto:tecnica.dvba.z6@gmail.com">tecnica.dvba.z6@gmail.com</a>). Te van a dar de alta.
+    </div>
+  </div>
+</div>
+
+<h3>6.2 Verificar el GPS antes de sacar fotos</h3>
+<div class="demo">
+  <div class="phone">
+    <div class="screen">
+      <div class="lite-hdr" style="padding-top:34px">
+        <div class="hdr-top">
+          <div class="logo">DVBA</div>
+          <div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div>
+        </div>
+        <div class="gps-badge off"><span class="dot"></span>Sin ubicación · tocar</div>
+      </div>
+      <div class="lite-main">
+        <div class="big-btn dis"><div class="icon">📸</div><div class="lbl">Sacar foto</div><div class="sublbl">y guardar ubicación</div></div>
+        <div class="hint-alerta">⚠ La ubicación no está lista.<br><b>Tocá el indicador de arriba</b> para intentar de nuevo.</div>
+      </div>
+      <div class="lite-footer">
+        <div class="fb pend"><span class="ico">📤</span><span>Sin enviar</span></div>
+        <div class="fb"><span class="ico">⚙</span><span>App completa</span></div>
+        <div class="fb info"><span class="ico">ℹ</span><span>Info</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <h4>Instrucciones</h4>
+    <ol>
+      <li>El <strong>banner del GPS</strong> al pie del header cambia de color según el estado:
+        <ul>
+          <li>🟢 <strong>Verde · ±Nm</strong> · GPS OK, podés sacar fotos.</li>
+          <li>🟡 <strong>Amarillo · Ubicando…</strong> · Está buscando señal.</li>
+          <li>🔴 <strong>Rojo · Sin ubicación</strong> · No hay señal. Tocá para reintentar o abrir ajustes.</li>
+        </ul>
+      </li>
+      <li>Mientras el GPS esté en rojo, el botón central queda deshabilitado.</li>
+      <li>Si estás en zona sin buena señal, movete al aire libre y esperá 30 segundos.</li>
+    </ol>
+  </div>
+</div>
+
+<h3>6.3 Sacar y enviar una foto</h3>
+<div class="demo">
+  <div class="phone">
+    <div class="screen">
+      <div class="lite-hdr" style="padding-top:34px">
+        <div class="hdr-top">
+          <div class="logo">DVBA</div>
+          <div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div>
+        </div>
+        <div class="gps-badge on"><span class="dot"></span>±6m · 78m</div>
+      </div>
+      <div class="lite-main">
+        <div class="big-btn"><div class="icon">📸</div><div class="lbl">Sacar foto</div><div class="sublbl">y guardar ubicación</div></div>
+        <div class="hint">Solo tocá el botón para <b>sacar la foto</b> y guardar el <b>lugar exacto</b>.<br><br>Los demás datos los completa <b>alguien en la oficina</b>.</div>
+      </div>
+      <div class="lite-footer">
+        <div class="fb pend"><span class="ico">📤</span><span>Sin enviar</span><span style="background:#b20900;color:#fff;font-size:8px;padding:1px 5px;border-radius:6px;margin-top:-4px;margin-left:12px;position:absolute">2</span></div>
+        <div class="fb"><span class="ico">⚙</span><span>App completa</span></div>
+        <div class="fb info"><span class="ico">ℹ</span><span>Info</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="phone">
+    <div class="screen">
+      <div class="preview-ov">
+        <div class="prev-img"><div class="fake">🛣</div></div>
+        <div class="prev-info">📍 <b>Lat -35.641234   Long -59.784567</b><br><span style="opacity:.75">±6m · 78m alt · 19/07/2026, 08:45</span></div>
+        <div class="prev-actions">
+          <div class="btn btn-desc">↺ Sacar otra</div>
+          <div class="btn btn-gua">✓ Enviar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <h4>Instrucciones</h4>
+    <ol>
+      <li>Con el GPS en verde, tocá el <strong>botón grande "Sacar foto"</strong>.</li>
+      <li>Se abre la cámara del celular. Sacá la foto.</li>
+      <li>Aparece el <strong>preview</strong> con la foto y sus coordenadas.</li>
+      <li>Si te gustó → <strong>✓ Enviar</strong>. Si querés otra → <strong>↺ Sacar otra</strong>.</li>
+      <li>Al enviar, la foto queda en la cola local. Si hay internet, se sube al toque. Si no, queda esperando.</li>
+    </ol>
+    <div class="box info">
+      <strong>Feedback visual</strong> · Después de tocar Enviar, aparece un panel con el resultado: ✓ subida OK, 📴 sin conexión (queda en cola), ✗ error. Te dice cuántas fotos hay sin enviar en el celular.
+    </div>
+  </div>
+</div>
+
+<h3>6.4 Ver y gestionar los pendientes</h3>
+<div class="demo">
+  <div class="phone">
+    <div class="screen">
+      <div class="lite-hdr" style="padding-top:34px">
+        <div class="hdr-top"><div class="logo">DVBA</div><div class="brand">Fotos sin enviar<span class="sub">3 pendientes</span></div></div>
+      </div>
+      <div style="background:#fff;color:#1a1a1a;flex:1;padding:10px 8px;overflow-y:auto;height:calc(100% - 130px)">
+        <div style="display:flex;gap:8px;padding:8px;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:6px">
+          <div style="width:44px;height:44px;background:#8b6f47;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🛣</div>
+          <div style="flex:1;font-size:9.5px"><div style="font-weight:700;font-size:10px">19/07 08:45</div><div style="color:#888;font-size:9px">-35.6412, -59.7846</div></div>
+          <div style="background:#ffe8e8;color:#b20900;padding:5px 8px;border-radius:6px;font-size:9px;font-weight:800">Borrar</div>
+        </div>
+        <div style="display:flex;gap:8px;padding:8px;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:6px">
+          <div style="width:44px;height:44px;background:#a08055;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🛣</div>
+          <div style="flex:1;font-size:9.5px"><div style="font-weight:700;font-size:10px">19/07 09:02</div><div style="color:#888;font-size:9px">-35.6398, -59.7889</div><div style="color:#b20900;font-size:8.5px;font-weight:700">⚠ Sin ubicación GPS</div></div>
+          <div style="background:#ffe8e8;color:#b20900;padding:5px 8px;border-radius:6px;font-size:9px;font-weight:800">Borrar</div>
+        </div>
+      </div>
+      <div style="padding:8px;background:#f8f8f8;display:flex;gap:6px;border-top:1px solid #e0e0e0">
+        <div style="flex:1;padding:10px;background:#fff;color:#b20900;border:1.5px solid #d24040;border-radius:8px;font-size:9.5px;font-weight:800;text-align:center">Borrar todo</div>
+        <div style="flex:1;padding:10px;background:#1a8a4a;color:#fff;border-radius:8px;font-size:10px;font-weight:800;text-transform:uppercase;text-align:center">↻ Enviar ahora</div>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <h4>Instrucciones</h4>
+    <ol>
+      <li>Tocá <strong>📤 Sin enviar</strong> en el footer.</li>
+      <li>Aparece la lista de fotos que quedaron en cola local.</li>
+      <li>Cada foto muestra: miniatura, fecha, coordenadas y un aviso si falta GPS.</li>
+      <li>Botón <strong>Borrar</strong> por cada foto (por si quedó rota o sin GPS y no querés que se envíe).</li>
+      <li>Botón <strong>↻ Enviar ahora</strong> reintenta la sincronización si hay internet.</li>
+    </ol>
+  </div>
+</div>
+
+<h3>6.5 Panel de información y cerrar sesión</h3>
+<div class="demo">
+  <div class="phone">
+    <div class="screen">
+      <div class="lite-hdr" style="padding-top:34px">
+        <div class="hdr-top"><div class="logo">DVBA</div><div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div></div>
+      </div>
+      <div class="modal-lite" style="top:75px">
+        <div class="modal-lite-box" style="max-width:230px">
+          <div style="font-size:22px;color:#009aae;line-height:1;margin-bottom:6px">ℹ</div>
+          <h3 style="margin-bottom:10px">Información</h3>
+          <div style="text-align:left;font-size:10px;line-height:1.6;color:#333">
+            <b>SIG Vial PBA · Captura Rápida</b><br>
+            Versión <b>v9.73</b>
+            <hr style="border:0;border-top:1px solid #e0e0e0;margin:8px 0">
+            <b>Sesión</b><br>
+            <span style="font-size:9.5px;color:#555">👤 tecnica.dvba.z6@gmail.com</span><br>
+            <span style="font-size:9.5px;color:#555">🟢 Con internet</span><br>
+            <span style="font-size:9.5px;color:#555">📤 Sin enviar: <b>0</b></span>
+          </div>
+          <div class="actions">
+            <div class="btn gris">Cerrar</div>
+            <div class="btn rojo">Cerrar sesión</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <h4>Instrucciones</h4>
+    <ol>
+      <li>Tocá <strong>ℹ Info</strong> en el footer.</li>
+      <li>Aparece un panel con:
+        <ul>
+          <li>Nombre y versión de la app.</li>
+          <li>Sesión activa (correo del usuario).</li>
+          <li>Estado de conexión (🟢 con internet / 🔴 sin internet).</li>
+          <li>Cantidad de fotos sin enviar.</li>
+        </ul>
+      </li>
+      <li>Botón <strong>Cerrar sesión</strong> · si hay pendientes te avisa que se van a perder. Doble confirmación antes de proceder.</li>
+    </ol>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="full">
+<h2>7. Uso de Campo (versión completa)</h2>
+
+<p>Es la app tradicional con wizard completo. Se accede desde el link <strong>⚙ App completa</strong> del footer de la lite o directamente en <code>lemeit.github.io/DVBA/dvba_campo.html</code>. Se recomienda para operarios con fluidez técnica que quieren clasificar en el momento.</p>
+
+<h3>7.1 Elegir categoría</h3>
+<div class="demo">
+  <div class="phone">
+    <div class="screen">
+      <div class="full-hdr" style="padding-top:34px">SIG Vial PBA · Campo<span class="sub">Zona VI Saladillo</span></div>
+      <div style="background:#fff;color:#1a2a3a;padding:10px 12px 6px;font-size:10px;font-weight:700;color:#009aae">¿Qué vas a relevar?</div>
+      <div class="full-cats">
+        <div class="full-cat"><span class="ico">🛣️</span>Calzada</div>
+        <div class="full-cat"><span class="ico">💧</span>Drenaje</div>
+        <div class="full-cat"><span class="ico">🌉</span>Estructura</div>
+        <div class="full-cat"><span class="ico">🚧</span>Señalización</div>
+        <div class="full-cat"><span class="ico">🛑</span>Demarcación</div>
+        <div class="full-cat"><span class="ico">💡</span>Iluminación</div>
+        <div class="full-cat"><span class="ico">🌿</span>Entorno</div>
+        <div class="full-cat"><span class="ico">🚨</span>Seguridad</div>
+        <div class="full-cat"><span class="ico">🚜</span>Mantenimiento</div>
+        <div class="full-cat"><span class="ico">📝</span>Otro</div>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <h4>Instrucciones</h4>
+    <ol>
+      <li>Se muestra una grilla con <strong>10 categorías</strong> de relevamiento.</li>
+      <li>Tocá la que corresponde a lo que vas a relevar.</li>
+      <li>Se abre la lista de tipos específicos dentro de esa categoría.</li>
+    </ol>
+    <p>Ver la lista completa de tipos disponibles en la <a href="#tipos">sección 8</a>.</p>
+  </div>
+</div>
+
+<h3>7.2 Elegir tipo específico</h3>
+<div class="demo">
+  <div class="phone">
+    <div class="screen">
+      <div class="full-hdr" style="padding-top:34px">🛣️ Calzada<span class="sub">Elegí el tipo específico</span></div>
+      <div style="background:#fff;color:#1a2a3a;padding:8px;flex:1;overflow-y:auto">
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px">Bache</div>
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px;background:#e6f4f8;border-left:3px solid #009aae">Bache crítico</div>
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px">Pavimento fisurado</div>
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px">Huellas (camino tierra)</div>
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px">Anegamiento por mala conformación</div>
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px">Erosión de calzada</div>
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px">Calzada en buen estado</div>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <h4>Instrucciones</h4>
+    <ol>
+      <li>Buscá en la lista el tipo específico y tocalo.</li>
+      <li>El sistema activa los <strong>estados válidos</strong> para esa categoría.</li>
+      <li>Si el tipo aplica <strong>sub-atributos</strong> (superficie, modalidad), aparecen automáticamente.</li>
+      <li>Si el tipo ya incluye el sub-atributo en el nombre (ej. "Desmalezado <em>mecánico</em>"), el selector se oculta y el valor se guarda solo.</li>
+    </ol>
+  </div>
+</div>
+
+<h3>7.3 Completar datos, sacar foto y guardar</h3>
+<div class="demo">
+  <div class="phone">
+    <div class="screen">
+      <div class="full-hdr" style="padding-top:34px">Detalles del registro<span class="sub">Bache crítico · Calzada</span></div>
+      <div style="background:#fff;color:#1a2a3a;padding:12px;flex:1;overflow-y:auto;font-size:10.5px">
+        <div style="margin-bottom:8px"><label style="display:block;color:#666;font-size:9px;text-transform:uppercase;font-weight:700;margin-bottom:2px">Ruta</label><div style="padding:8px;background:#f4f6f9;border:1px solid #d4dce4;border-radius:6px;font-weight:600">RP 30</div></div>
+        <div style="margin-bottom:8px"><label style="display:block;color:#666;font-size:9px;text-transform:uppercase;font-weight:700;margin-bottom:2px">Progresiva</label><div style="padding:8px;background:#f4f6f9;border:1px solid #d4dce4;border-radius:6px;font-weight:600">274,50</div></div>
+        <div style="margin-bottom:8px"><label style="display:block;color:#666;font-size:9px;text-transform:uppercase;font-weight:700;margin-bottom:2px">Estado</label><div style="padding:8px;background:#fff4e0;border:1px solid #f0d090;border-radius:6px;font-weight:600;color:#c47a00">🟠 Malo</div></div>
+        <div style="margin-bottom:8px"><label style="display:block;color:#666;font-size:9px;text-transform:uppercase;font-weight:700;margin-bottom:2px">Superficie</label><div style="padding:8px;background:#f4f6f9;border:1px solid #d4dce4;border-radius:6px;font-weight:600">Asfalto</div></div>
+        <div style="background:#e6f4e8;border:1px solid #a0d0a5;border-radius:8px;padding:10px;text-align:center;margin-top:12px"><div style="font-size:20px;margin-bottom:4px">📷</div><div style="font-size:10px;color:#1a6a2e;font-weight:700">Foto tomada</div><div style="font-size:9px;color:#555;margin-top:2px">GPS ±5m · 82m</div></div>
+        <div style="background:#1a8a4a;color:#fff;padding:12px;border-radius:8px;text-align:center;font-weight:800;font-size:11px;text-transform:uppercase;margin-top:12px">Guardar</div>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <h4>Instrucciones</h4>
+    <ol>
+      <li>Completá la ruta y la progresiva (la app ayuda con autocomplete).</li>
+      <li>Elegí el <strong>estado</strong> (Bueno / Regular / Malo / Crítico según categoría).</li>
+      <li>Si aplica: superficie (asfalto/tierra/…), modalidad (manual/mecánico), observaciones.</li>
+      <li>Tocá el botón de <strong>cámara</strong> para sacar la foto.</li>
+      <li>Botón <strong>Guardar</strong>: se sube a Supabase o queda en cola offline.</li>
+    </ol>
+    <div class="box info">
+      <strong>Sellado en oficina</strong> · La foto se sube <em>sin sello</em>. El sello institucional v4 se aplica cuando alguien de oficina apruebe el registro con los datos definitivos.
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="tipos">
+<h2>8. Tipos de relevamiento disponibles</h2>
+
+<p>El sistema tiene <strong>10 categorías</strong> definidas en el catálogo <code>dvba_tipos.js</code>. Cada categoría agrupa ítems específicos con estados coherentes:</p>
+
+<div class="grid2">
+  <div class="card"><h4>🛣️ Calzada</h4>Bache · Bache crítico · Pavimento fisurado · Huellas (camino tierra) · Anegamiento · Erosión · Calzada en buen estado</div>
+  <div class="card"><h4>💧 Banquinas y drenaje</h4>Banquina deteriorada · Cuneta obstruida/dañada · Alcantarilla tapada/dañada · Erosión de talud</div>
+  <div class="card"><h4>🌉 Puentes y estructuras</h4>Puente con fisura tablero/estribo · Junta deteriorada · Baranda dañada · Alcantarilla mayor · Muro de contención dañado</div>
+  <div class="card"><h4>🚧 Señalización vertical</h4>Submenú extenso MSV 2017: P- (peligro), R- (reglamentario), I- (informativo), mojones, carteles de destino, guardarrails, delineadores</div>
+  <div class="card"><h4>🛑 Demarcación horizontal</h4>Eje borrado · Demarcación lateral borrada · Tachones faltantes · Demarcación inexistente · Línea de frenado · Senda peatonal</div>
+  <div class="card"><h4>💡 Iluminación</h4>Columna dañada/faltante · Lámpara fundida · Fallo eléctrico ramal · Tendido afectado</div>
+  <div class="card"><h4>🌿 Entorno</h4>Vegetación a desmalezar · Inundación · Derrumbe · Árbol caído · Tranquera dañada · Animal muerto</div>
+  <div class="card"><h4>🚨 Seguridad vial</h4>Siniestro vial · Punto negro · Zona peligrosa sin señalizar · Cámara de control · Radar de velocidad · Emergencia</div>
+  <div class="card"><h4>🚜 Mantenimiento / Tarea</h4>Reconformado de tierra · Desmalezado manual/mecánico · Limpieza de cuneta · Bacheo (frío/caliente/profundo) · Sellado de fisuras · Repavimentación · Riego asfáltico · Repintado · Reposición señal/mojón · Mejoramiento (dolomita/suelo cal) · Poda</div>
+  <div class="card"><h4>📝 Otro</h4>Ítem catch-all para casos no cubiertos por las otras categorías.</div>
+</div>
+
+<div class="box tip">
+<strong>💡</strong> Cada categoría tiene su propio set de estados coherentes. Ejemplo: Calzada usa <em>Bueno / Regular / Malo / Crítico</em>; Señalización vertical usa <em>OK / Dañada / Ilegible / Falta / Mal ubicada / En reposición</em>; Mantenimiento usa <em>Programado / En ejecución / Finalizado / Suspendido / Cancelado</em>.
+</div>
+
+<p>Ver el detalle completo del modelo Tipo↔Estado en <a href="MODELO_TIPOS_ESTADOS.md">docs/MODELO_TIPOS_ESTADOS.md</a>.</p>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="faq">
+<h2>9. Preguntas frecuentes</h2>
+
+<h3>¿Puedo usar la app sin instalar? ¿Solo desde el navegador?</h3>
+<p>Sí, pero <strong>necesitás internet</strong> siempre. La versión instalada como PWA funciona offline. Es fuertemente recomendado instalar.</p>
+
+<h3>¿Puedo instalar en varios celulares?</h3>
+<p>Sí, con el mismo usuario. Todo lo que subas desde cualquiera va al mismo backend.</p>
+
+<h3>¿Se pierde alguna foto si no tengo internet?</h3>
+<p>No. Todo queda en cola local (guardada en el propio celular). Cuando vuelve la señal se sincroniza automáticamente. Podés cerrar y volver a abrir la app; la cola persiste.</p>
+
+<h3>¿Cuántas fotos puedo tener en cola sin sincronizar?</h3>
+<p>Muchas (docenas). El límite es el espacio libre del celular. Cada foto comprimida pesa ~200-500 KB.</p>
+
+<h3>La cámara del celular se abre pero no se guarda la foto.</h3>
+<p>Verificar permiso de cámara (Ajustes → Apps → SIG Vial PBA → Permisos → Cámara).</p>
+
+<h3>La app dice que estoy sin GPS pero mi celular tiene GPS.</h3>
+<p>Verificar:</p>
+<ol>
+  <li>Permiso de ubicación al navegador (Ajustes → Apps → Chrome → Permisos → Ubicación).</li>
+  <li>GPS del sistema encendido (barra de notificaciones → tocar el ícono de ubicación).</li>
+  <li>Estar al aire libre con vista al cielo.</li>
+</ol>
+
+<h3>¿Qué pasa con las fotos que subo? ¿Quién las ve?</h3>
+<p>Van al backend (Supabase). El personal de oficina de tu misma zona las ve en el mapa y las aprueba. Fuera de tu zona no las ve nadie (salvo Gerencia y Admin).</p>
+
+<h3>¿La app funciona en iPhone / iPad?</h3>
+<p>Sí, pero con limitaciones de iOS: la instalación como PWA es distinta (Safari → Compartir → Agregar a pantalla de inicio) y el Service Worker tiene algunas restricciones. Para uso operativo recomendamos Android.</p>
+
+<h3>Me cambié de celular. ¿Cómo migro?</h3>
+<p>Antes de dejar de usar el celular viejo, verificá que <strong>no queden fotos en cola</strong> (tocá 📤 Sin enviar y confirmá que dice "0"). En el celular nuevo, instalá la app y logueate con el mismo usuario. Listo, no hay que copiar nada.</p>
+
+</section>
+
+<footer>
+Guía visual · SIG Vial PBA · v1.0 · 19 de julio de 2026<br>
+Ing. Luciano Lamaita · División Técnica DVBA · Departamento Zona VI Saladillo<br>
+<a href="https://lemeit.github.io/DVBA/">lemeit.github.io/DVBA/</a> · <a href="guia_sig_vial_pba.html">Manual textual completo ↗</a>
+</footer>
+
+</div>
+</body>
+</html>
