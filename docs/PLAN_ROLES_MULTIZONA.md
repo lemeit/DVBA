@@ -254,6 +254,28 @@ Stack técnico probable: **jsPDF + jsPDF-autotable** (client-side, ya usamos van
 7. ✅ v7.93 · Al guardar un parte/relevamiento nuevo, llenar `zona` desde `DVBA_PERFIL.zonaActual()`.
 8. ⏳ Fase 2c · Menú lateral filtrado por rol (esperar a que haya usuarios técnicos creados).
 
+#### 2d · Brand dinámico por zona en apps móviles (pendiente)
+
+Actualmente `dvba_campo.html` y `dvba_campo_lite.html` muestran hardcoded `"Zona VI Saladillo"` en el header y footer. Esto no rompe nada si alguien de Zona VII se loguea (los INSERT ya usan `DVBA_PERFIL.zonaActual()` que trae la zona real del `usuarios_perfil`), pero **visualmente sería incorrecto** — el técnico verá "Zona VI Saladillo" arriba mientras que sus registros se guardan como `zona='VII'`.
+
+**Fix planeado** (v9.7X futuro):
+- Agregar un `<span data-zona-brand>Zona VI Saladillo</span>` en los 3 lugares hardcoded (header lite, footer full, modal Info).
+- Mapping de zona → nombre en `datos/perfil.js`:
+  ```js
+  const ZONAS_LABEL = {
+    'I': 'Zona I La Plata', 'II': 'Zona II Mercedes', 'III': 'Zona III San Nicolás',
+    'IV': 'Zona IV Junín', 'V': 'Zona V Pehuajó', 'VI': 'Zona VI Saladillo',
+    'VII': 'Zona VII Bahía Blanca', 'VIII': 'Zona VIII Mar del Plata',
+    'IX': 'Zona IX Trenque Lauquen', 'X': 'Zona X Azul',
+    'XI': 'Zona XI Chascomús', 'XII': 'Zona XII Necochea'
+  };
+  DVBA_PERFIL.zonaLabel = () => ZONAS_LABEL[DVBA_PERFIL.zonaActual()] || 'Zona ??';
+  ```
+- Al cargar el perfil, `perfil.js` reemplaza `document.querySelectorAll('[data-zona-brand]')` con el label correspondiente.
+- Idem para el sello v4: prefijo del texto principal.
+
+**Bloqueo actual:** confirmar con Vialidad el nombre oficial de cabecera de cada zona (los 12 nombres arriba son la interpretación estándar del listado DVBA, pero conviene validarlos contra un documento oficial antes de hardcodearlos en el mapping).
+
 ### Fase 3 — Activar RLS zonal (1 sesión)
 
 9. `SQL_9_rls_zonal.sql`: reemplazar policies actuales por las nuevas.
