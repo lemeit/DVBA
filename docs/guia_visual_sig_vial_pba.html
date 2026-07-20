@@ -75,7 +75,8 @@ code{background:#eef3f9;color:var(--azul);padding:2px 6px;border-radius:3px;font
 /* Header PWA lite (imita dvba_campo_lite) */
 .lite-hdr{background:linear-gradient(135deg,#009aae,#007d90);color:#fff;padding:26px 12px 10px;display:flex;flex-direction:column;gap:6px}
 .lite-hdr .hdr-top{display:flex;align-items:center;gap:8px}
-.lite-hdr .logo{width:28px;height:28px;background:#ffd700;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#003366}
+.lite-hdr .logo{width:28px;height:28px;flex-shrink:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.lite-hdr .logo img{width:100%;height:100%;object-fit:contain}
 .lite-hdr .brand{font-size:11px;font-weight:800;flex:1;line-height:1.15}
 .lite-hdr .brand .sub{display:block;font-size:8.5px;font-weight:500;opacity:.85;margin-top:2px}
 .gps-badge{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.35);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:800;color:#fff}
@@ -293,7 +294,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
       </div>
       <div class="lite-hdr" style="margin-top:52px">
         <div class="hdr-top">
-          <div class="logo">DVBA</div>
+          <div class="logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div>
           <div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div>
         </div>
         <div class="gps-badge on"><span class="dot"></span>±8m · 65m</div>
@@ -401,7 +402,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
     <div class="screen">
       <div class="lite-hdr" style="padding-top:34px">
         <div class="hdr-top">
-          <div class="logo">DVBA</div>
+          <div class="logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div>
           <div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div>
         </div>
         <div class="gps-badge"><span class="dot"></span>Ubicando…</div>
@@ -438,7 +439,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
     <div class="screen">
       <div class="lite-hdr" style="padding-top:34px">
         <div class="hdr-top">
-          <div class="logo">DVBA</div>
+          <div class="logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div>
           <div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div>
         </div>
         <div class="gps-badge off"><span class="dot"></span>Sin ubicación · tocar</div>
@@ -476,7 +477,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
     <div class="screen">
       <div class="lite-hdr" style="padding-top:34px">
         <div class="hdr-top">
-          <div class="logo">DVBA</div>
+          <div class="logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div>
           <div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div>
         </div>
         <div class="gps-badge on"><span class="dot"></span>±6m · 78m</div>
@@ -524,7 +525,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
   <div class="phone">
     <div class="screen">
       <div class="lite-hdr" style="padding-top:34px">
-        <div class="hdr-top"><div class="logo">DVBA</div><div class="brand">Fotos sin enviar<span class="sub">3 pendientes</span></div></div>
+        <div class="hdr-top"><div class="logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div><div class="brand">Fotos sin enviar<span class="sub">3 pendientes</span></div></div>
       </div>
       <div style="background:#fff;color:#1a1a1a;flex:1;padding:10px 8px;overflow-y:auto;height:calc(100% - 130px)">
         <div style="display:flex;gap:8px;padding:8px;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:6px">
@@ -561,7 +562,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
   <div class="phone">
     <div class="screen">
       <div class="lite-hdr" style="padding-top:34px">
-        <div class="hdr-top"><div class="logo">DVBA</div><div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div></div>
+        <div class="hdr-top"><div class="logo"><img src="../datos/img/logo_dvba_clean.png" alt="DVBA"></div><div class="brand">SIG Vial PBA · Captura Rápida<span class="sub">Zona VI Saladillo</span></div></div>
       </div>
       <div class="modal-lite" style="top:75px">
         <div class="modal-lite-box" style="max-width:230px">
