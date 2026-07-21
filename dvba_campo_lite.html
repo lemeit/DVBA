@@ -11,7 +11,7 @@
 <script src="datos/auth.js"></script>
 <script src="datos/perfil.js" defer></script>
 <!-- v9.80 · piexifjs para inyectar EXIF (GPS+fecha) dentro del JPEG · fallback CDN -->
-<script>(function(){var s=document.createElement('script');s.src='datos/piexif.min.js';s.onerror=function(){var s2=document.createElement('script');s2.src='https://unpkg.com/piexifjs@1.0.6/piexif.min.js';document.head.appendChild(s2);};document.head.appendChild(s);})();</script>
+<script>(function(){var s=document.createElement('script');s.src='datos/piexif.min.js';s.onerror=function(){var s2=document.createElement('script');s2.src='datos/piexif.js';s2.onerror=function(){var s3=document.createElement('script');s3.src='https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.js';document.head.appendChild(s3);};document.head.appendChild(s2);};document.head.appendChild(s);})();</script>
 <script src="datos/exif_writer.js"></script>
 <style>
 :root{
@@ -359,7 +359,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.81';
+const APP_VER = 'v9.82';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -779,7 +779,14 @@ async function lGuardar(){
   try {
     // ── 1. Subir foto a Storage con fetch directo (igual que Modo Avanzado)
     const blob = await (await fetch(_fotoActual)).blob();
-    const path = 'fotos/' + Date.now() + '_lite.jpg';
+    // v9.82 · Nombre más limpio · timestamp legible + zona (sin "_lite_sello"). El
+    // nombre bueno al descargar se arma en el portal con ID+ruta+km desde showFoto().
+    const zActual = (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.zonaActual() : 'VI';
+    const d = new Date(_gpsCuandoSaco.ts);
+    const pad = n => String(n).padStart(2,'0');
+    const stamp = d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '_' +
+                  pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+    const path = 'fotos/' + stamp + '_Z' + zActual + '.jpg';
     const upUrl = SUPA_URL + '/storage/v1/object/' + BUCKET + '/' + path;
     console.log('[lite] subiendo:', upUrl, '· tamaño:', blob.size);
     const upResp = await fetch(upUrl, {
@@ -878,7 +885,13 @@ async function sincronizarCola(){
         throw new Error('Item incompleto (sin foto o sin GPS) — borrar desde la lista');
       }
       const blob = await (await fetch(item.foto)).blob();
-      const path = 'fotos/' + item.ts + '_lite.jpg';
+      // v9.82 · Mismo formato legible que el path online (timestamp + zona)
+      const zActual = (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.zonaActual() : 'VI';
+      const d = new Date(item.ts);
+      const pad = n => String(n).padStart(2,'0');
+      const stamp = d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '_' +
+                    pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+      const path = 'fotos/' + stamp + '_Z' + zActual + '.jpg';
       const upUrl = SUPA_URL + '/storage/v1/object/' + BUCKET + '/' + path;
       const upResp = await fetch(upUrl, {
         method:  'POST',

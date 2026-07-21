@@ -14,7 +14,7 @@
 <script src="datos/dvba_estados.js"></script>
 <script src="datos/qrcode.min.js"></script>
 <!-- v9.80 · piexifjs para inyectar EXIF -->
-<script>(function(){var s=document.createElement('script');s.src='datos/piexif.min.js';s.onerror=function(){var s2=document.createElement('script');s2.src='https://unpkg.com/piexifjs@1.0.6/piexif.min.js';document.head.appendChild(s2);};document.head.appendChild(s);})();</script>
+<script>(function(){var s=document.createElement('script');s.src='datos/piexif.min.js';s.onerror=function(){var s2=document.createElement('script');s2.src='datos/piexif.js';s2.onerror=function(){var s3=document.createElement('script');s3.src='https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.js';document.head.appendChild(s3);};document.head.appendChild(s2);};document.head.appendChild(s);})();</script>
 <script src="datos/exif_writer.js"></script>
 <script src="datos/armonizador.js" defer></script>
 <script src="datos/red_vial.js" defer></script>
@@ -2650,7 +2650,7 @@ function drawRegMarkers(){
       .bindPopup(`<b style="color:${meta.color}">${reg.ruta}</b>${reg.prog?` &middot; <b>Km</b> ${reg.prog}`:''}${reg.partido?` &middot; ${reg.partido}`:''}<br>
         ${reg.estado?`<span class="est est-${reg.estado}">${reg.estado}</span>`:'<span style="color:#888;font-size:10px">(sin estado)</span>'}${reg.tipo?` &middot; ${reg.tipo}`:''}<br>
         ${reg.obs?reg.obs+'<br>':''}
-        ${reg.foto?`<img src="${reg.foto}" style="max-width:200px;border-radius:3px;margin-top:4px;display:block;cursor:pointer" onclick="showFoto(this.src)">`:''}
+        ${reg.foto?`<img src="${reg.foto}" style="max-width:200px;border-radius:3px;margin-top:4px;display:block;cursor:pointer" onclick="showFoto(this.src, ${reg.id||0}, '${(reg.ruta||'').replace(/'/g,"\\'")}', '${(reg.prog||reg.progresiva||'').replace(/'/g,"\\'")}')">`:''}
         <div style="margin-top:5px;display:flex;gap:5px;align-items:center">
           <span style="color:#2a3a4a;font-size:9px;flex:1">${reg.fecha}</span>
           <button class="btn-edit" onclick="map.closePopup();editReg(${reg.id})">✏ Editar</button>
@@ -2716,7 +2716,7 @@ function renderRegs(){
         ${reg.partido ? ` &middot; <span style="color:#5a6a80">${reg.partido}</span>` : ''}
       </div>
       ${reg.obs?`<div style="color:#3a5060;margin-top:1px">${reg.obs}</div>`:''}
-      ${reg.foto?`<img src="${reg.foto}" class="fprev" style="display:block;cursor:pointer" onclick="showFoto(this.src)">`:''}
+      ${reg.foto?`<img src="${reg.foto}" class="fprev" style="display:block;cursor:pointer" onclick="showFoto(this.src, ${reg.id||0}, '${(reg.ruta||'').replace(/'/g,"\\'")}', '${(reg.prog||reg.progresiva||'').replace(/'/g,"\\'")}')">`:''}
       <div class="rfecha">${reg.fecha}${reg.lat?` &middot; ${reg.lat.toFixed(5)},${reg.lng.toFixed(5)}`:''}</div>
     </div>`;
   }).join('');
@@ -2745,10 +2745,28 @@ async function delReg(id){
   _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
 }
 
-function showFoto(src){
-  const ov=document.createElement('div'); ov.className='foto-modal';
-  ov.innerHTML=`<img src="${src}" style="max-width:90%;max-height:90%;border-radius:6px">`;
-  ov.onclick=()=>document.body.removeChild(ov); document.body.appendChild(ov);
+// v9.82 · showFoto ahora acepta datos del registro para armar buen nombre al descargar
+// SIGVialPBA_305_RP51_Km274+394.jpg en vez de 1784633313301_lite_sello.jpg
+function _nombreArchivoFoto(id, ruta, prog){
+  const partes = ['SIGVialPBA'];
+  if (id) partes.push('' + id);
+  if (ruta) partes.push(String(ruta).replace(/\s+/g, ''));
+  if (prog) partes.push('Km' + String(prog).replace(/\s+/g, '').replace(/\+/g,'+').replace(/,/,'.'));
+  return partes.join('_').replace(/[<>:"/\\|?*]/g, '') + '.jpg';
+}
+function showFoto(src, id, ruta, prog){
+  const ov = document.createElement('div');
+  ov.className = 'foto-modal';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';
+  const filename = _nombreArchivoFoto(id, ruta, prog);
+  ov.innerHTML =
+    '<img src="' + src + '" style="max-width:90%;max-height:82vh;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,.7)">' +
+    '<div style="margin-top:14px;display:flex;gap:10px">' +
+      '<a href="' + src + '" download="' + filename + '" style="background:#1a8a4a;color:#fff;padding:10px 20px;border-radius:8px;font-weight:700;text-decoration:none;font-size:13px" onclick="event.stopPropagation()">⬇ Descargar (' + filename + ')</a>' +
+      '<button style="background:#555;color:#fff;padding:10px 20px;border:0;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer" onclick="event.stopPropagation();this.closest(\'.foto-modal\').remove()">✕ Cerrar</button>' +
+    '</div>';
+  ov.onclick = e => { if (e.target === ov) ov.remove(); };
+  document.body.appendChild(ov);
 }
 
 function exportCSV(){
@@ -5442,7 +5460,7 @@ function renderColaItem(reg){
   const urgenteBadge = reg.prioridad === 'urgente'
     ? '<span class="cola-badge-urg">urgente</span>' : '';
   const fotoHTML = reg.foto
-    ? `<img src="${reg.foto}" onclick="showFoto('${reg.foto}')" alt="Foto">`
+    ? `<img src="${reg.foto}" onclick="showFoto('${reg.foto}', ${reg.id||0}, '${(reg.ruta||'').replace(/'/g,"\\'")}', '${(reg.prog||reg.progresiva||'').replace(/'/g,"\\'")}')" alt="Foto">`
     : '<div class="sin-foto">📷 sin foto</div>';
   // Normalizar prefijo RP: si reg.ruta ya empieza con RP/CS, no duplicar
   const rutaStr = reg.ruta || '?';

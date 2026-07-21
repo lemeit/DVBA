@@ -20,7 +20,7 @@
 <!-- v7.89 · dependencias para subida directa foto con sello -->
 <script src="datos/qrcode.min.js" defer></script>
 <!-- v9.80 · piexifjs para inyectar EXIF -->
-<script defer>(function(){var s=document.createElement('script');s.src='datos/piexif.min.js';s.onerror=function(){var s2=document.createElement('script');s2.src='https://unpkg.com/piexifjs@1.0.6/piexif.min.js';document.head.appendChild(s2);};document.head.appendChild(s);})();</script>
+<script defer>(function(){var s=document.createElement('script');s.src='datos/piexif.min.js';s.onerror=function(){var s2=document.createElement('script');s2.src='datos/piexif.js';s2.onerror=function(){var s3=document.createElement('script');s3.src='https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.js';document.head.appendChild(s3);};document.head.appendChild(s2);};document.head.appendChild(s);})();</script>
 <script src="datos/exif_writer.js" defer></script>
 <script src="datos/sello_v4.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js" defer></script>
