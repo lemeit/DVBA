@@ -10,6 +10,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="datos/auth.js"></script>
 <script src="datos/perfil.js" defer></script>
+<!-- v9.80 · piexifjs para inyectar EXIF (GPS+fecha) dentro del JPEG · fallback CDN -->
+<script>(function(){var s=document.createElement('script');s.src='datos/piexif.min.js';s.onerror=function(){var s2=document.createElement('script');s2.src='https://unpkg.com/piexifjs@1.0.6/piexif.min.js';document.head.appendChild(s2);};document.head.appendChild(s);})();</script>
+<script src="datos/exif_writer.js"></script>
 <style>
 :root{
   --p:#009aae;    --pd:#007d90;   --pl:#00b3c7;
@@ -356,7 +359,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.78';
+const APP_VER = 'v9.81';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -571,32 +574,80 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ─── CAPTURA FOTO · abre cámara nativa ────────────────────────────
+// v9.81 · Fix raíz · Al tocar "Sacar foto" forzamos getCurrentPosition SYNC
+// ANTES de abrir la cámara. Antes dependíamos del watchPosition (que puede
+// estar suspendido, con lectura vieja o pendiente de prompt del sistema), y
+// el user tenía que "adivinar" tocar el badge GPS primero para forzar una
+// lectura fresca. Ahora el sistema lo hace solo.
 function iniciarCaptura(){
-  $('btnCapturar').addEventListener('click', () => {
-    // v9.65 · No confiar solo en _gpsLat (puede estar cacheado si el user
-    // apagó el GPS después de una lectura previa). Chequear también el
-    // estado visual del indicador — si no está en verde, no dejar sacar foto.
-    const cls = $('gpsBadge').classList;
-    if (_gpsLat == null || !cls.contains('on')){
-      mostrarModalGps();  // el modal explicativo que ya existe
+  $('btnCapturar').addEventListener('click', async () => {
+    const btn = $('btnCapturar');
+    if (btn.disabled) return;
+    if (!navigator.geolocation){
+      mostrarModalGps();
       return;
     }
-    // Chequear edad de la última lectura (>60s = GPS pudo apagarse mientras)
-    const ahora = Date.now();
-    const ultimaLect = _gpsCuandoSaco ? _gpsCuandoSaco.ts : ahora;
-    // No podemos saber la edad de la última lectura del watchPosition, pero
-    // si el indicador está verde confiamos. El watch dispara cada movimiento.
-    $('foto-input').click();
+    // Feedback visual mientras fija el GPS (típicamente <1s si está caliente)
+    btn.disabled = true;
+    setGpsEstado('pending', 'Fijando GPS...');
+    try {
+      const pos = await new Promise((res, rej) => {
+        navigator.geolocation.getCurrentPosition(res, rej,
+          { enableHighAccuracy:true, timeout:12000, maximumAge:3000 });
+      });
+      // GPS fresco garantizado — snap acá, no en el input change
+      _gpsLat = pos.coords.latitude;
+      _gpsLng = pos.coords.longitude;
+      _gpsAcc = Math.round(pos.coords.accuracy);
+      _gpsAlt = pos.coords.altitude ? Math.round(pos.coords.altitude) : null;
+      _gpsCuandoSaco = { lat:_gpsLat, lng:_gpsLng, acc:_gpsAcc, alt:_gpsAlt, ts:Date.now() };
+      setGpsEstado('on', '±' + _gpsAcc + 'm' + (_gpsAlt!=null?' · '+_gpsAlt+'m':''));
+      // Ocultar cartel de alerta si estaba visible
+      const al = $('alertaGps'); if (al) al.style.display = 'none';
+      btn.disabled = false;
+      // Abrir cámara nativa
+      $('foto-input').click();
+    } catch(err){
+      console.warn('[GPS pre-foto]', err);
+      btn.disabled = false;
+      _gpsLat = null; _gpsLng = null; _gpsAcc = null; _gpsAlt = null;
+      const msg = err.code === 1 ? 'Permiso denegado · activá ubicación'
+                : err.code === 3 ? 'GPS timeout · movete al aire libre'
+                : 'Sin señal GPS · movete al aire libre';
+      setGpsEstado('off', msg);
+      mostrarModalGps();
+    }
   });
   $('foto-input').addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
     e.target.value = '';  // reset input para permitir misma foto de nuevo
-    // Snapshot del GPS al momento de la foto
-    _gpsCuandoSaco = { lat:_gpsLat, lng:_gpsLng, acc:_gpsAcc, alt:_gpsAlt, ts:Date.now() };
+    // v9.81 · _gpsCuandoSaco ya fue snapeado antes de abrir cámara. Si por
+    // algún motivo está null (edge case), lo intentamos con lo último del
+    // watch — pero el path principal ya tiene GPS fresco garantizado.
+    if (!_gpsCuandoSaco && _gpsLat != null){
+      _gpsCuandoSaco = { lat:_gpsLat, lng:_gpsLng, acc:_gpsAcc, alt:_gpsAlt, ts:Date.now() };
+    }
     // v9.78 · Bajado a 900/0.70. Con celulares low-RAM (2-3GB) el pico
     // sigue matando la app aún con 1000/0.72. 900px alcanza para el sello.
     _fotoActual = await comprimir(file, 900, 0.70);
+    // v9.80 · Inyectar EXIF con GPS + fecha aunque la foto vaya cruda sin sello.
+    // Así cualquier visor de fotos (Google Photos, Windows Fotos) muestra la
+    // ubicación en un mini-mapa. El sello institucional se aplica al aprobar en oficina.
+    if (typeof DVBA_EXIF !== 'undefined' && DVBA_EXIF.disponible()) {
+      try {
+        const d = new Date(_gpsCuandoSaco.ts);
+        const pad = n => String(n).padStart(2,'0');
+        const fechaISO = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+        const horaISO = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+        _fotoActual = DVBA_EXIF.inyectar(_fotoActual, {
+          lat: _gpsCuandoSaco.lat, lng: _gpsCuandoSaco.lng, alt: _gpsCuandoSaco.alt,
+          fecha: fechaISO, hora: horaISO,
+          zona: (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.zonaActual() : 'VI',
+          origen: 'campo'
+        });
+      } catch(e){ console.warn('[lite EXIF]', e); }
+    }
     // Mostrar preview
     $('prevImg').src = _fotoActual;
     $('prevGps').textContent = 'Lat ' + fmtCoord(_gpsCuandoSaco.lat) + '   Lng ' + fmtCoord(_gpsCuandoSaco.lng);

@@ -222,7 +222,22 @@ function aplicar(base64, datos, opts){
         const yVer = totalH - Math.round(bH * 0.08);
         ctx.fillText(stampInfo, tx, yVer);
         ctx.textBaseline = 'top';  // restaurar default por si se reutiliza
-        res(C.toDataURL('image/jpeg', 0.95));
+        let jpegOut = C.toDataURL('image/jpeg', 0.95);
+        // v9.80 · Inyectar metadatos EXIF (GPS + ruta + prog + tipo + registro JSON)
+        if (typeof DVBA_EXIF !== 'undefined' && DVBA_EXIF.disponible()) {
+          try {
+            jpegOut = DVBA_EXIF.inyectar(jpegOut, {
+              lat:     parseFloat(datos.lat),
+              lng:     parseFloat(datos.lng),
+              alt:     datos.alt ? parseFloat(datos.alt) : null,
+              fecha:   datos.fecha, hora: datos.hora,
+              ruta:    datos.ruta, prog: datos.prog, tipo: datos.tipo,
+              partido: datos.partido, zona: datos.zona,
+              origen:  origen
+            });
+          } catch(e){ console.warn('[sello_v4] EXIF post-sellado:', e); }
+        }
+        res(jpegOut);
       } catch(e){ rej(e); }
     };
     img.onerror = () => rej(new Error('Error cargando foto'));
