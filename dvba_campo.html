@@ -1473,7 +1473,9 @@ function agregarSello(base64,datos){
         ctx.strokeStyle='#d4a820'; ctx.lineWidth=Math.max(2,Math.round(H*0.0025));
         ctx.beginPath(); ctx.moveTo(0,y0); ctx.lineTo(W,y0); ctx.stroke();
         // === 3 columnas: logo izq + texto centro + QR der ===
-        const colSide=Math.round(bH*0.95);    // ancho de cada columna lateral (cuadrada)
+        // v9.82 · cap dinámico para fotos verticales · antes: bH*0.95 devoraba
+        // ~284px de fotos ~500px de ancho y el texto central se pisaba con QR.
+        const colSide=Math.min(Math.round(bH*0.95), Math.round(W*0.18));   // ancho de cada columna lateral
         const colLX=0, colRX=W-colSide;       // X izq, X der
         const colCX=colSide;                  // X inicio columna central
         const colCW=colRX-colSide;            // ancho columna central

@@ -137,8 +137,11 @@ function aplicar(base64, datos, opts){
         ctx.strokeStyle = '#d4a820';
         ctx.lineWidth = Math.max(2, Math.round(H*0.0025));
         ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
-        // 3 columnas
-        const colSide = Math.round(bH * 0.95);
+        // 3 columnas · v9.82 · cap dinámico para fotos verticales
+        // Antes: colSide = bH*0.95 (~142px). En foto vertical (W ≈ 500) las 2
+        // columnas laterales devoran 284px y el texto central se pisa con el QR.
+        // Ahora limitamos las columnas laterales a máx 18% del ancho total.
+        const colSide = Math.min(Math.round(bH * 0.95), Math.round(W * 0.18));
         const colLX = 0, colRX = W - colSide;
         const colCX = colSide;
         const colCW = colRX - colSide;
