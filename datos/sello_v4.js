@@ -288,23 +288,27 @@ function aplicar(base64, datos, opts){
           yB += Math.round(fS * 1.26);
         }
         // Versión + origen (campo/oficina/re-sello)
-        // v9.76 · Anclamos al FONDO del banner en vez de arrastrar yB — antes
-        // se salía cuando había muchas líneas (localidad+ruta+tipo+coords+fecha
-        // superaban bH y la versión quedaba fuera del banner).
-        const fV = Math.round(baseFont * 0.65);
+        // v9.85 · Ancla al FONDO del banner + AUTO-FIT del ancho para que no se
+        // corte a la derecha si el string es más largo que el maxW disponible.
+        let fV = Math.round(baseFont * 0.65);
         const appVer = (typeof APP_VER === 'string') ? APP_VER : 'v?';
         const stampInfo = [
           appVer + '·' + origen,
           (datos.esResellado ? '↻ re-sello' : 'sello ' + SELLO_VER)
         ].join('  ·  ');
-        ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
-        ctx.fillStyle = 'rgba(212,168,32,0.55)';
         ctx.textBaseline = 'bottom';
         ctx.textAlign = 'left';
+        ctx.fillStyle = 'rgba(212,168,32,0.55)';
+        // Auto-fit: bajar font-size hasta que entre en maxW
+        ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
+        while (ctx.measureText(stampInfo).width > maxW && fV > 8) {
+          fV--;
+          ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
+        }
         // Padding inferior fijo — la versión queda pegada al borde del banner
         const yVer = totalH - Math.round(bH * 0.08);
         ctx.fillText(stampInfo, tx, yVer);
-        ctx.textBaseline = 'top';  // restaurar default por si se reutiliza
+        ctx.textBaseline = 'top';  // restaurar default
         let jpegOut = C.toDataURL('image/jpeg', 0.95);
         // v9.80 · Inyectar metadatos EXIF (GPS + ruta + prog + tipo + registro JSON)
         if (typeof DVBA_EXIF !== 'undefined' && DVBA_EXIF.disponible()) {

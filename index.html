@@ -13,8 +13,10 @@
 <script src="dvba_tipos.js"></script>
 <script src="datos/dvba_estados.js"></script>
 <script src="datos/qrcode.min.js"></script>
-<!-- v9.80 · piexifjs para inyectar EXIF -->
-<script>(function(){var s=document.createElement('script');s.src='datos/piexif.min.js';s.onerror=function(){var s2=document.createElement('script');s2.src='datos/piexif.js';s2.onerror=function(){var s3=document.createElement('script');s3.src='https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.js';document.head.appendChild(s3);};document.head.appendChild(s2);};document.head.appendChild(s);})();</script>
+<!-- v9.85/v8.3 · piexifjs SINCRÓNICO (bloqueante en orden) para que esté listo antes de sello_v4.
+     Antes se cargaba dinámico con document.head.appendChild → race condition: sello_v4 corría
+     antes de que piexif estuviera listo y la inyección EXIF quedaba silenciosamente sin efecto. -->
+<script src="datos/piexif.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.js';s.async=false;document.head.appendChild(s);"></script>
 <script src="datos/exif_writer.js"></script>
 <script src="datos/armonizador.js" defer></script>
 <script src="datos/red_vial.js" defer></script>
@@ -416,7 +418,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.3</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.4</span></div>
   </div>
 </div>
 <div class="layout">
@@ -651,7 +653,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.3</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.4</span>
       </div>
     </div>
 
@@ -719,7 +721,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.3';
+const APP_VERSION = 'v8.4';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
