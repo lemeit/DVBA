@@ -66,50 +66,46 @@ function aplicar(base64, datos, opts){
         const bH = Math.max(150, Math.min(Math.round(W*0.16), 260));
         let H = img.height;
         if (datos.esResellado){
-          // v9.81 · Detectar banner viejo por escaneo de píxeles.
-          // Antes se asumía un alto fijo (bH_pred ≈ 260) — si el banner real
-          // era más chico se recortaba parte de la foto, y si era más grande
-          // quedaba banner-fantasma. Ahora buscamos la línea dorada #d4a820
-          // que separa foto de banner en TODOS los sellos v3/v4.
+          // v8.13 · Detección estricta · SOLO línea dorada #d4a820 (no falsos
+          // positivos con fila oscura, que confundía sombras de foto real con
+          // banner). Escanear desde ABAJO hacia arriba (banner siempre está
+          // al pie) y limitar la búsqueda a los últimos 350px (el banner nunca
+          // es más grande que eso).
           try {
             const probe = document.createElement('canvas');
             probe.width = W;
             probe.height = img.height;
-            const pctx = probe.getContext('2d');
+            const pctx = probe.getContext('2d', { willReadFrequently: true });
             pctx.drawImage(img, 0, 0);
-            // Escanear desde 40% hacia abajo buscando primera fila oscura homogénea
-            const scanFrom = Math.floor(img.height * 0.40);
-            const scanTo = img.height - 1;
+            const maxBannerH = Math.min(350, Math.floor(img.height * 0.35));
+            const scanFrom = img.height - maxBannerH;
+            const scanTo = img.height - 30;
             let bordeBanner = -1;
-            const step = Math.max(1, Math.floor(W / 60));  // ~60 muestras horizontales
+            const step = Math.max(1, Math.floor(W / 80));
+            // Escaneo estricto: SOLO buscar la línea dorada del separador
             for (let y = scanFrom; y < scanTo; y++) {
               const row = pctx.getImageData(0, y, W, 1).data;
-              let oscuros = 0, dorados = 0, total = 0;
+              let dorados = 0, total = 0;
               for (let x = 0; x < W; x += step) {
                 const i = x * 4;
                 const r = row[i], g = row[i+1], b = row[i+2];
-                const brillo = (r + g + b) / 3;
-                if (brillo < 30) oscuros++;
-                // Dorado ~ #d4a820 (r=212,g=168,b=32) — línea separadora
                 if (r > 180 && r < 240 && g > 130 && g < 190 && b < 60) dorados++;
                 total++;
               }
-              // Si 80%+ de la fila es oscura → estamos en el banner
-              if (oscuros / total > 0.80) { bordeBanner = y; break; }
-              // O si detectamos línea dorada (más precisa) → ahí está el borde
-              if (dorados / total > 0.40) { bordeBanner = y + 1; break; }
+              // Línea dorada: 50%+ de la fila es dorado → borde del banner
+              if (dorados / total > 0.50) { bordeBanner = y; break; }
             }
-            if (bordeBanner > 0 && bordeBanner < img.height - 50) {
+            if (bordeBanner > 0) {
               H = bordeBanner;
-              console.log('[sello_v4 resello] banner viejo detectado a y=' + bordeBanner + ' (alto ' + (img.height-bordeBanner) + 'px)');
+              console.log('[sello_v4 resello] línea dorada detectada a y=' + bordeBanner + ' (banner ' + (img.height-bordeBanner) + 'px)');
             } else {
-              // Fallback: asumir alto default v4
-              H = img.height - bH;
-              console.warn('[sello_v4 resello] no se detectó banner viejo, usando fallback bH=' + bH);
+              // Fallback: NO cortar (mejor mantener foto que perderla)
+              H = img.height;
+              console.warn('[sello_v4 resello] NO se detectó línea dorada — NO se corta banner viejo (foto queda con doble banner pero completa)');
             }
           } catch(e) {
             console.warn('[sello_v4 resello] error detectando banner:', e);
-            H = img.height - bH;  // fallback conservador
+            H = img.height;  // fallback seguro: no cortar
           }
         }
         const totalH = H + bH;
@@ -188,7 +184,8 @@ function aplicar(base64, datos, opts){
             const n = qr.getModuleCount();
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(qrX, qrY, qrSz, qrSz);
-            const pad = Math.round(qrSz*0.05);
+            // v8.13 · Padding chico (2%) para que el QR ocupe casi todo el cuadrado
+            const pad = Math.round(qrSz*0.02);
             const inner = qrSz - pad*2;
             const cell  = Math.floor(inner / n);
             const ox = qrX + pad + Math.floor((inner - cell*n)/2);
