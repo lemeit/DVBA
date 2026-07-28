@@ -26,6 +26,7 @@
    ══════════════════════════════════════════════════════════════════ */
 (function(global){
 'use strict';
+console.log('%c[exif_writer] v1.2 cargado · encodeURIComponent en UserComment', 'color:#009aae;font-weight:bold');
 
 function _disponible(){
   return typeof piexif !== 'undefined' && piexif && piexif.dump;
@@ -42,7 +43,13 @@ const _MAP_ACENTOS = {
 };
 function _asciiSafe(s){
   if (s == null) return '';
-  return String(s).replace(/[^\x00-\x7f]/g, ch => _MAP_ACENTOS[ch] || '?');
+  return String(s).replace(/[^\x00-\x7f]/g, ch => _MAP_ACENTOS[ch] || '_');
+}
+// v1.2 · Nuclear: escape URL-encoded, garantiza ASCII 100% para campos largos/variables
+function _asciiNuclear(s){
+  if (s == null) return '';
+  try { return encodeURIComponent(String(s)); }
+  catch(e) { return String(s).replace(/[^\x00-\x7f]/g, '_'); }
 }
 
 function _degToDmsRational(deg){
@@ -111,8 +118,11 @@ function inyectar(jpegBase64, datos){
       sello_version: 'v4'
     };
     // Prefix ASCII\0\0\0 requerido por EXIF spec para UserComment
+    // v1.2 · Usar _asciiNuclear (encodeURIComponent) para garantizar 100% ASCII
+    // en el JSON del UserComment · Windows Explorer lo lee como escaped pero
+    // no rompe la inyección con caracteres exóticos (emojis, símbolos raros).
     const commentPrefix = String.fromCharCode(65,83,67,73,73,0,0,0);
-    exif[piexif.ExifIFD.UserComment] = commentPrefix + _asciiSafe(JSON.stringify(meta));
+    exif[piexif.ExifIFD.UserComment] = commentPrefix + _asciiNuclear(JSON.stringify(meta));
 
     // ── GPS IFD ─────────────────────────────────────────────────
     const gps = {};
