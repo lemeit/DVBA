@@ -418,7 +418,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.6</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.7</span></div>
   </div>
 </div>
 <div class="layout">
@@ -654,7 +654,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.6</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.7</span>
       </div>
     </div>
 
@@ -722,7 +722,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.6';
+const APP_VERSION = 'v8.7';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1048,18 +1048,19 @@ function aplicarSelloDVBA(base64, datos){
             for (let r = 0; r < n; r++) for (let c = 0; c < n; c++){
               if (qr.isDark(r, c)) ctx.fillRect(ox + c*cell, oy + r*cell, cell, cell);
             }
-            // Logo DVBA al centro (~24% del QR, seguro con EC=H)
-            const logoQrSz = Math.round(qrSz * 0.24);
+            // Logo DVBA al centro · v8.7 · bajado a 18% (24% tapaba módulos
+            // críticos del QR y rompía el escaneo, aún con error correction H).
+            const logoQrSz = Math.round(qrSz * 0.18);
             const logoQrX = qrX + Math.round((qrSz - logoQrSz)/2);
             const logoQrY = qrY + Math.round((qrSz - logoQrSz)/2);
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(logoQrX, logoQrY, logoQrSz, logoQrSz);
             if (logoImg && logoImg.complete && logoImg.naturalWidth > 0){
-              const lp = Math.round(logoQrSz * 0.10);
+              const lp = Math.round(logoQrSz * 0.08);
               ctx.drawImage(logoImg, logoQrX + lp, logoQrY + lp, logoQrSz - lp*2, logoQrSz - lp*2);
             } else {
               ctx.fillStyle = '#003366';
-              ctx.font = '900 ' + Math.round(logoQrSz * 0.35) + 'px Arial,Helvetica,sans-serif';
+              ctx.font = '900 ' + Math.round(logoQrSz * 0.38) + 'px Arial,Helvetica,sans-serif';
               ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
               ctx.fillText('DVBA', logoQrX + logoQrSz/2, logoQrY + logoQrSz/2);
               ctx.textAlign = 'left'; ctx.textBaseline = 'top';
@@ -2793,13 +2794,14 @@ async function delReg(id){
   _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
 }
 
-// v9.84 · Nombre corto: SIGVialPBA_ID_RP.jpg (sin progresiva, ya está en el sello + EXIF).
-// El ID único garantiza que dos fotos del mismo tramo no colisionen.
+// v8.7 · Nombre corto: SIGVialPBA_ID_RP.jpg (sin progresiva, ya está en el sello + EXIF).
+// Filtra falsy para no dejar "_" colgado al final si falta algún dato.
 function _nombreArchivoFoto(id, ruta, prog){
   const partes = ['SIGVialPBA'];
-  if (id) partes.push('' + id);
-  if (ruta) partes.push(String(ruta).replace(/\s+/g, ''));
-  return partes.join('_').replace(/[<>:"/\\|?*]/g, '') + '.jpg';
+  if (id != null && id !== '' && id !== 0) partes.push('' + id);
+  const rutaLimpia = ruta ? String(ruta).trim().replace(/\s+/g, '') : '';
+  if (rutaLimpia) partes.push(rutaLimpia);
+  return partes.filter(Boolean).join('_').replace(/[<>:"/\\|?*]/g, '') + '.jpg';
 }
 // v9.83 · Download real (Chrome ignora <a download> cross-origin de Supabase).
 // Bajamos como blob y usamos createObjectURL para forzar el nombre custom.

@@ -197,8 +197,9 @@ function aplicar(base64, datos, opts){
             for (let r=0; r<n; r++) for (let c=0; c<n; c++){
               if (qr.isDark(r,c)) ctx.fillRect(ox+c*cell, oy+r*cell, cell, cell);
             }
-            // Logo DVBA al centro del QR (~22% del área, seguro con error correction H)
-            const logoQrSz = Math.round(qrSz * 0.24);
+            // Logo DVBA al centro del QR · v8.7 · bajado a 18% para no romper
+            // el escaneo (24% tapaba módulos críticos aún con EC=H)
+            const logoQrSz = Math.round(qrSz * 0.18);
             const logoQrX = qrX + Math.round((qrSz - logoQrSz)/2);
             const logoQrY = qrY + Math.round((qrSz - logoQrSz)/2);
             // Fondo blanco redondeado detrás del logo (para que resalte)
@@ -218,11 +219,11 @@ function aplicar(base64, datos, opts){
             ctx.fill();
             // Texto "DVBA" al centro (o el logoImg si es lo bastante chico)
             if (logoImg && logoImg.complete && logoImg.naturalWidth > 0) {
-              const lp = Math.round(logoQrSz * 0.10);  // padding interno
+              const lp = Math.round(logoQrSz * 0.08);  // padding interno
               ctx.drawImage(logoImg, logoQrX + lp, logoQrY + lp, logoQrSz - lp*2, logoQrSz - lp*2);
             } else {
               ctx.fillStyle = '#003366';
-              ctx.font = '900 ' + Math.round(logoQrSz * 0.35) + 'px Arial,Helvetica,sans-serif';
+              ctx.font = '900 ' + Math.round(logoQrSz * 0.38) + 'px Arial,Helvetica,sans-serif';
               ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
               ctx.fillText('DVBA', logoQrX + logoQrSz/2, logoQrY + logoQrSz/2);
               ctx.textAlign = 'left'; ctx.textBaseline = 'top';
