@@ -2754,6 +2754,32 @@ function _nombreArchivoFoto(id, ruta, prog){
   if (prog) partes.push('Km' + String(prog).replace(/\s+/g, '').replace(/\+/g,'+').replace(/,/,'.'));
   return partes.join('_').replace(/[<>:"/\\|?*]/g, '') + '.jpg';
 }
+// v9.83 · Download real (Chrome ignora <a download> cross-origin de Supabase).
+// Bajamos como blob y usamos createObjectURL para forzar el nombre custom.
+async function _descargarFotoConNombre(url, filename, btn){
+  const original = btn.textContent;
+  btn.textContent = '⏳ Bajando...';
+  btn.style.pointerEvents = 'none';
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const blob = await resp.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(objectUrl); a.remove(); }, 200);
+    btn.textContent = '✓ Descargado';
+    setTimeout(() => { btn.textContent = original; btn.style.pointerEvents = ''; }, 1500);
+  } catch(e){
+    console.error('[descargarFoto]', e);
+    btn.textContent = '❌ Error';
+    setTimeout(() => { btn.textContent = original; btn.style.pointerEvents = ''; }, 2000);
+    alert('No se pudo bajar la foto:\n' + (e.message || e));
+  }
+}
 function showFoto(src, id, ruta, prog){
   const ov = document.createElement('div');
   ov.className = 'foto-modal';
@@ -2761,12 +2787,18 @@ function showFoto(src, id, ruta, prog){
   const filename = _nombreArchivoFoto(id, ruta, prog);
   ov.innerHTML =
     '<img src="' + src + '" style="max-width:90%;max-height:82vh;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,.7)">' +
-    '<div style="margin-top:14px;display:flex;gap:10px">' +
-      '<a href="' + src + '" download="' + filename + '" style="background:#1a8a4a;color:#fff;padding:10px 20px;border-radius:8px;font-weight:700;text-decoration:none;font-size:13px" onclick="event.stopPropagation()">⬇ Descargar (' + filename + ')</a>' +
-      '<button style="background:#555;color:#fff;padding:10px 20px;border:0;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer" onclick="event.stopPropagation();this.closest(\'.foto-modal\').remove()">✕ Cerrar</button>' +
+    '<div style="margin-top:14px;display:flex;gap:10px;align-items:center">' +
+      '<button id="btn-desc-foto" style="background:#1a8a4a;color:#fff;padding:10px 20px;border:0;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer">⬇ Descargar</button>' +
+      '<span style="color:#bbb;font-size:11px;max-width:280px;word-break:break-all">' + filename + '</span>' +
+      '<button style="background:#555;color:#fff;padding:10px 16px;border:0;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;margin-left:auto" onclick="event.stopPropagation();this.closest(\'.foto-modal\').remove()">✕ Cerrar</button>' +
     '</div>';
   ov.onclick = e => { if (e.target === ov) ov.remove(); };
   document.body.appendChild(ov);
+  const btn = ov.querySelector('#btn-desc-foto');
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    _descargarFotoConNombre(src, filename, btn);
+  });
 }
 
 function exportCSV(){

@@ -359,7 +359,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.82';
+const APP_VER = 'v9.83';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -444,8 +444,11 @@ function iniciarGPS(){
     try { navigator.geolocation.clearWatch(_gpsWatchId); } catch(e){}
     _gpsWatchId = null;
   }
-  // v9.76 · Primero un getCurrentPosition explícito para disparar el prompt
-  // del sistema en Chrome/Android. El watch va después con las mismas creds.
+  // v9.83 · Arrancamos SIEMPRE el watch primero (funciona en segundo plano
+  // y va actualizando _gpsLat cada vez que hay movimiento). En paralelo,
+  // getCurrentPosition dispara el prompt del sistema y da lectura inicial
+  // rápida. Ninguno bloquea al otro — el watch NO depende del getCurrent.
+  arrancarWatchGPS();
   try {
     navigator.geolocation.getCurrentPosition(
       pos => {
@@ -455,21 +458,11 @@ function iniciarGPS(){
         _gpsAlt = pos.coords.altitude ? Math.round(pos.coords.altitude) : null;
         setGpsEstado('on', '±' + _gpsAcc + 'm' + (_gpsAlt!=null?' · '+_gpsAlt+'m':''));
         $('btnCapturar').disabled = false;
-        arrancarWatchGPS();
       },
-      err => {
-        console.warn('[GPS getCurrent inicial]', err);
-        const msg = err.code === 1 ? 'Permiso denegado · tocar' : 'Sin señal · tocar';
-        setGpsEstado('off', msg);
-        // Arrancamos el watch igual · si el user activa el GPS después, se prende solo.
-        arrancarWatchGPS();
-      },
+      err => { console.warn('[GPS getCurrent inicial]', err); /* watch sigue */ },
       { enableHighAccuracy:true, timeout:15000, maximumAge:0 }
     );
-  } catch(e){
-    console.warn('[GPS inicial excepción]', e);
-    arrancarWatchGPS();
-  }
+  } catch(e){ console.warn('[GPS inicial excepción]', e); }
 }
 function arrancarWatchGPS(){
   _gpsWatchId = navigator.geolocation.watchPosition(
@@ -574,49 +567,26 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ─── CAPTURA FOTO · abre cámara nativa ────────────────────────────
-// v9.81 · Fix raíz · Al tocar "Sacar foto" forzamos getCurrentPosition SYNC
-// ANTES de abrir la cámara. Antes dependíamos del watchPosition (que puede
-// estar suspendido, con lectura vieja o pendiente de prompt del sistema), y
-// el user tenía que "adivinar" tocar el badge GPS primero para forzar una
-// lectura fresca. Ahora el sistema lo hace solo.
+// v9.83 · Flow simplificado al máximo · REGLA: si el badge GPS está verde,
+// snap del último valor del watch y abrir cámara. Punto. Sin re-pedir GPS,
+// sin promises esperando, sin nada que pueda quedar colgado.
+// Si el badge NO está verde, mostrar modal explicativo y bloquear.
+// El GPS se mantiene actualizado por el watchPosition en segundo plano.
 function iniciarCaptura(){
-  $('btnCapturar').addEventListener('click', async () => {
+  $('btnCapturar').addEventListener('click', () => {
     const btn = $('btnCapturar');
-    if (btn.disabled) return;
-    if (!navigator.geolocation){
-      mostrarModalGps();
+    if (btn.disabled) { toast('El botón está deshabilitado (GPS pendiente)', 'warn'); return; }
+    const cls = $('gpsBadge').classList;
+    // Chequeo simple: badge verde + coord conocida = adelante
+    if (cls.contains('on') && _gpsLat != null && _gpsLng != null){
+      _gpsCuandoSaco = { lat:_gpsLat, lng:_gpsLng, acc:_gpsAcc, alt:_gpsAlt, ts:Date.now() };
+      console.log('[capturar] GPS snap:', _gpsCuandoSaco);
+      $('foto-input').click();
       return;
     }
-    // Feedback visual mientras fija el GPS (típicamente <1s si está caliente)
-    btn.disabled = true;
-    setGpsEstado('pending', 'Fijando GPS...');
-    try {
-      const pos = await new Promise((res, rej) => {
-        navigator.geolocation.getCurrentPosition(res, rej,
-          { enableHighAccuracy:true, timeout:12000, maximumAge:3000 });
-      });
-      // GPS fresco garantizado — snap acá, no en el input change
-      _gpsLat = pos.coords.latitude;
-      _gpsLng = pos.coords.longitude;
-      _gpsAcc = Math.round(pos.coords.accuracy);
-      _gpsAlt = pos.coords.altitude ? Math.round(pos.coords.altitude) : null;
-      _gpsCuandoSaco = { lat:_gpsLat, lng:_gpsLng, acc:_gpsAcc, alt:_gpsAlt, ts:Date.now() };
-      setGpsEstado('on', '±' + _gpsAcc + 'm' + (_gpsAlt!=null?' · '+_gpsAlt+'m':''));
-      // Ocultar cartel de alerta si estaba visible
-      const al = $('alertaGps'); if (al) al.style.display = 'none';
-      btn.disabled = false;
-      // Abrir cámara nativa
-      $('foto-input').click();
-    } catch(err){
-      console.warn('[GPS pre-foto]', err);
-      btn.disabled = false;
-      _gpsLat = null; _gpsLng = null; _gpsAcc = null; _gpsAlt = null;
-      const msg = err.code === 1 ? 'Permiso denegado · activá ubicación'
-                : err.code === 3 ? 'GPS timeout · movete al aire libre'
-                : 'Sin señal GPS · movete al aire libre';
-      setGpsEstado('off', msg);
-      mostrarModalGps();
-    }
+    // Si el badge no está verde, mostrar modal
+    console.warn('[capturar] GPS no listo · badge:', cls.contains('on'), '_gpsLat:', _gpsLat);
+    mostrarModalGps();
   });
   $('foto-input').addEventListener('change', async e => {
     const file = e.target.files[0];

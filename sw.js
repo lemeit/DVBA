@@ -2,6 +2,7 @@
    DVBA Campo · Service Worker v3.4
    Network-first + offline fallback + auto-purge de 404
 
+   v3.21: bump versión (v9.83) · fixes críticos post v9.82 · (1) Modo Básico GPS: flow simplificado, sin getCurrentPosition sync bloqueante → sacar foto responde inmediato si badge verde. (2) Modo Avanzado: cache defensivo _ultimaRutaCargada + restauración en guardarRegistro para prevenir "camino perdido al enviar". (3) Download foto en portal usa fetch→blob→objectURL (Chrome ignora <a download> cross-origin de Supabase). (4) QR: tamaño mínimo garantizado + logo DVBA al centro (error correction H). (5) Versión unificada v9.83 en ambos móviles + sw.
    v3.20: bump versión (v9.82) · 3 fixes UX · (1) Anti-sobresello v4 con detección real del banner viejo por escaneo de píxeles (línea dorada / fila oscura homogénea) → resuelve foto angosta + texto pisándose con QR al re-sellar sobre foto ya sellada. (2) Nombre de foto al descargar desde portal = 'SIGVialPBA_ID_ruta_Km274+394.jpg' via <a download>. (3) Path storage lite = 'fotos/YYYYMMDD_HHMMSS_ZVI.jpg' (más legible que timestamp ms). Fallback múltiple para piexif (local .min.js → local .js → CDN jsdelivr).
    v3.19: bump versión (v9.81) · FIX RAÍZ · Modo Básico ahora hace getCurrentPosition SYNC al tocar 'Sacar foto' antes de abrir la cámara. Antes dependía del watchPosition (que podía estar suspendido / con lectura vieja / esperando prompt del sistema), y el user tenía que tocar el badge GPS primero para forzar una lectura fresca. Ahora ese paso 'adivinar' se eliminó — el sistema garantiza GPS fresco automáticamente.
    v3.18: bump versión (v9.80) · EXIF metadata en fotos · piexifjs inyecta GPS lat/lng/alt/timestamp + Make/Model DVBA + ImageDescription (ruta+prog+tipo) + UserComment con JSON del registro completo. Aplica en sello_v4 (portal), Modo Avanzado (dvba_campo) y Modo Básico (foto cruda con GPS+fecha). Fotos ahora se ven ubicadas en Google Photos / Windows Fotos / iPhone. Header Modo Avanzado unificado con Modo Básico.
@@ -23,7 +24,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.82';
+const CACHE_NAME = 'dvba-campo-v9.83';
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';

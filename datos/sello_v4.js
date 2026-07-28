@@ -168,13 +168,17 @@ function aplicar(base64, datos, opts){
           ctx.textAlign = 'left';
         }
         // === COL DER: QR Google Maps ===
-        const qrSz = Math.round(bH * 0.82);
+        // v9.83 · QR con tamaño garantizado + logo DVBA al centro.
+        // Usamos 'H' (High) para error correction — permite tapar 30% del QR
+        // sin romper la lectura. Tamaño mínimo garantizado para foto vertical.
+        const qrSz = Math.max(Math.round(bH * 0.82), Math.round(colSide * 0.98));
         const qrX  = colRX + Math.round((colSide - qrSz)/2);
         const qrY  = y0    + Math.round((bH      - qrSz)/2);
         if (typeof qrcode === 'function' && datos.lat && datos.lng){
           try {
             const url = 'https://www.google.com/maps/search/?api=1&query=' + datos.lat + ',' + datos.lng;
-            const qr = qrcode(0, 'M'); qr.addData(url); qr.make();
+            const qr = qrcode(0, 'H');  // High error correction para logo al centro
+            qr.addData(url); qr.make();
             const n = qr.getModuleCount();
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(qrX, qrY, qrSz, qrSz);
@@ -186,6 +190,36 @@ function aplicar(base64, datos, opts){
             ctx.fillStyle = '#000000';
             for (let r=0; r<n; r++) for (let c=0; c<n; c++){
               if (qr.isDark(r,c)) ctx.fillRect(ox+c*cell, oy+r*cell, cell, cell);
+            }
+            // Logo DVBA al centro del QR (~22% del área, seguro con error correction H)
+            const logoQrSz = Math.round(qrSz * 0.24);
+            const logoQrX = qrX + Math.round((qrSz - logoQrSz)/2);
+            const logoQrY = qrY + Math.round((qrSz - logoQrSz)/2);
+            // Fondo blanco redondeado detrás del logo (para que resalte)
+            const rr = Math.round(logoQrSz * 0.15);
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.moveTo(logoQrX + rr, logoQrY);
+            ctx.lineTo(logoQrX + logoQrSz - rr, logoQrY);
+            ctx.quadraticCurveTo(logoQrX + logoQrSz, logoQrY, logoQrX + logoQrSz, logoQrY + rr);
+            ctx.lineTo(logoQrX + logoQrSz, logoQrY + logoQrSz - rr);
+            ctx.quadraticCurveTo(logoQrX + logoQrSz, logoQrY + logoQrSz, logoQrX + logoQrSz - rr, logoQrY + logoQrSz);
+            ctx.lineTo(logoQrX + rr, logoQrY + logoQrSz);
+            ctx.quadraticCurveTo(logoQrX, logoQrY + logoQrSz, logoQrX, logoQrY + logoQrSz - rr);
+            ctx.lineTo(logoQrX, logoQrY + rr);
+            ctx.quadraticCurveTo(logoQrX, logoQrY, logoQrX + rr, logoQrY);
+            ctx.closePath();
+            ctx.fill();
+            // Texto "DVBA" al centro (o el logoImg si es lo bastante chico)
+            if (logoImg && logoImg.complete && logoImg.naturalWidth > 0) {
+              const lp = Math.round(logoQrSz * 0.10);  // padding interno
+              ctx.drawImage(logoImg, logoQrX + lp, logoQrY + lp, logoQrSz - lp*2, logoQrSz - lp*2);
+            } else {
+              ctx.fillStyle = '#003366';
+              ctx.font = '900 ' + Math.round(logoQrSz * 0.35) + 'px Arial,Helvetica,sans-serif';
+              ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+              ctx.fillText('DVBA', logoQrX + logoQrSz/2, logoQrY + logoQrSz/2);
+              ctx.textAlign = 'left'; ctx.textBaseline = 'top';
             }
           } catch(e){ console.warn('[sello_v4] QR:', e); }
         }
