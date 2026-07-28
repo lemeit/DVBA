@@ -31,6 +31,20 @@ function _disponible(){
   return typeof piexif !== 'undefined' && piexif && piexif.dump;
 }
 
+// v1.1 · piexif usa btoa internamente que solo acepta Latin1. Convertimos
+// caracteres UTF-8 (ñ, tildes, ·, etc.) a equivalentes ASCII para que la
+// inyección no falle silenciosamente con "InvalidCharacterError".
+const _MAP_ACENTOS = {
+  'á':'a','é':'e','í':'i','ó':'o','ú':'u','ü':'u','Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','Ü':'U',
+  'ñ':'n','Ñ':'N','·':'-','º':'o','ª':'a','°':'o','€':'EUR','₂':'2','₃':'3',
+  '–':'-','—':'-','‘':"'",'’':"'",'“':'"','”':'"',
+  ' ':' ','…':'...','¿':'?','¡':'!'
+};
+function _asciiSafe(s){
+  if (s == null) return '';
+  return String(s).replace(/[^\x00-\x7f]/g, ch => _MAP_ACENTOS[ch] || '?');
+}
+
 function _degToDmsRational(deg){
   const abs = Math.abs(deg);
   const d = Math.floor(abs);
@@ -65,17 +79,18 @@ function inyectar(jpegBase64, datos){
       ? window.APP_VER : 'v?';
 
     // ── 0th IFD (metadata general) ──────────────────────────────
+    // v1.1 · Todos los strings pasan por _asciiSafe (btoa solo acepta Latin1).
     const zeroth = {
-      [piexif.ImageIFD.Make]:        'DVBA',
-      [piexif.ImageIFD.Model]:       'SIG Vial PBA · ' + (datos.origen === 'campo' ? 'Modo Avanzado/Básico' : 'Portal oficina'),
-      [piexif.ImageIFD.Software]:    'SIG Vial PBA ' + APP_VER + ' · sello v4',
-      [piexif.ImageIFD.Copyright]:   'DVBA - Departamento Zona ' + _pref(datos.zona || 'VI'),
-      [piexif.ImageIFD.ImageDescription]: [
+      [piexif.ImageIFD.Make]:        _asciiSafe('DVBA'),
+      [piexif.ImageIFD.Model]:       _asciiSafe('SIG Vial PBA - ' + (datos.origen === 'campo' ? 'Modo Avanzado/Basico' : 'Portal oficina')),
+      [piexif.ImageIFD.Software]:    _asciiSafe('SIG Vial PBA ' + APP_VER + ' - sello v4'),
+      [piexif.ImageIFD.Copyright]:   _asciiSafe('DVBA - Departamento Zona ' + _pref(datos.zona || 'VI')),
+      [piexif.ImageIFD.ImageDescription]: _asciiSafe([
         _pref(datos.ruta),
         datos.prog ? ('km ' + _pref(datos.prog)) : '',
         _pref(datos.tipo)
-      ].filter(Boolean).join(' · '),
-      [piexif.ImageIFD.Artist]:      'Sistema DVBA · SIG Vial PBA'
+      ].filter(Boolean).join(' - ')),
+      [piexif.ImageIFD.Artist]:      _asciiSafe('Sistema DVBA - SIG Vial PBA')
     };
 
     // ── Exif IFD (timestamp + user comment) ─────────────────────
@@ -86,17 +101,18 @@ function inyectar(jpegBase64, datos){
       exif[piexif.ExifIFD.DateTimeDigitized] = fechaExifStr;
     }
     // UserComment: JSON con todo el registro (trazabilidad completa)
+    // v1.1 · Escape ASCII para evitar InvalidCharacterError en btoa.
     const meta = {
       sistema: 'SIG Vial PBA', version: APP_VER,
-      ruta: datos.ruta || null, progresiva: datos.prog || null,
-      tipo: datos.tipo || null, partido: datos.partido || null,
-      zona: datos.zona || null, origen: datos.origen || null,
+      ruta: _asciiSafe(datos.ruta) || null, progresiva: _asciiSafe(datos.prog) || null,
+      tipo: _asciiSafe(datos.tipo) || null, partido: _asciiSafe(datos.partido) || null,
+      zona: _asciiSafe(datos.zona) || null, origen: datos.origen || null,
       lat: datos.lat, lng: datos.lng, alt: datos.alt || null,
       sello_version: 'v4'
     };
     // Prefix ASCII\0\0\0 requerido por EXIF spec para UserComment
     const commentPrefix = String.fromCharCode(65,83,67,73,73,0,0,0);
-    exif[piexif.ExifIFD.UserComment] = commentPrefix + JSON.stringify(meta);
+    exif[piexif.ExifIFD.UserComment] = commentPrefix + _asciiSafe(JSON.stringify(meta));
 
     // ── GPS IFD ─────────────────────────────────────────────────
     const gps = {};
@@ -127,9 +143,16 @@ function inyectar(jpegBase64, datos){
 
     const exifObj = { '0th': zeroth, 'Exif': exif, 'GPS': gps };
     const exifBytes = piexif.dump(exifObj);
-    return piexif.insert(exifBytes, jpegBase64);
+    const jpegConExif = piexif.insert(exifBytes, jpegBase64);
+    console.log('[exif_writer] EXIF inyectado OK ·', Object.keys(zeroth).length, '0th +',
+                Object.keys(exif).length, 'Exif +', Object.keys(gps).length, 'GPS');
+    return jpegConExif;
   } catch(e) {
-    console.warn('[exif_writer] error inyectando EXIF:', e);
+    console.error('[exif_writer] ERROR inyectando EXIF (foto SIN metadatos):', e.message, e);
+    // Toast visible si está disponible (portal)
+    if (typeof window !== 'undefined' && typeof window.toast === 'function') {
+      try { window.toast('⚠ EXIF no inyectado: ' + e.message.slice(0, 80), 'warn'); } catch(_){}
+    }
     return jpegBase64;  // fallback: retornar sin EXIF
   }
 }
