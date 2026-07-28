@@ -418,7 +418,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.10</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.11</span></div>
   </div>
 </div>
 <div class="layout">
@@ -654,7 +654,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.10</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.11</span>
       </div>
     </div>
 
@@ -722,7 +722,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.10';
+const APP_VERSION = 'v8.11';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -941,265 +941,52 @@ function _aplicarOrientCanvas(ctx, orient, W, H){
   }
 }
 
-function aplicarSelloDVBA(base64, datos){
+// v8.11 · Wrapper que delega en DVBA_SELLO.aplicar() del módulo datos/sello_v4.js.
+// Antes había ~250 líneas de sello EMBEBIDO que duplicaban el módulo compartido.
+// Cada fix había que hacerlo en dos lugares → causa raíz de bugs recurrentes.
+// Ahora un solo código fuente. La lógica específica del portal (rotación EXIF
+// + manual) queda en este wrapper como pre-procesamiento antes de sellar.
+async function aplicarSelloDVBA(base64, datos){
+  if (typeof DVBA_SELLO === 'undefined' || !DVBA_SELLO.aplicar) {
+    console.error('[aplicarSelloDVBA] DVBA_SELLO no cargado — datos/sello_v4.js falta');
+    alert('Error interno: sello_v4.js no está cargado. Recargá con Ctrl+F5.');
+    return base64;
+  }
   datos = datos || {};
+  datos.origen = datos.origen || 'oficina';
+  // Rotación EXIF + manual (feature del portal · no aplica en re-sellado)
+  let imgProcesada = base64;
+  if (!datos.esResellado) {
+    try {
+      const exifOrient = _exifOrientation(base64);
+      const orient = _combinarOrientacion(exifOrient, _rotacionManualSello);
+      if (orient !== 1) {
+        imgProcesada = await _rotarImagenBase64(base64, orient);
+      }
+    } catch(e){ console.warn('[aplicarSelloDVBA rotación]', e); }
+  }
+  // Delegar el sellado real al módulo compartido
+  return DVBA_SELLO.aplicar(imgProcesada, datos);
+}
+
+// Helper: rotar una imagen base64 según orient EXIF (1..8) y devolver base64 rotado
+function _rotarImagenBase64(base64, orient){
   return new Promise((res, rej) => {
     const img = new Image();
     img.onload = () => {
-      try{
-        // v7.81 · Si es re-sellado, la foto YA está sellada y re-encodeada por
-        // canvas → sin EXIF. Ignoramos rotación y trabajamos con dimensiones
-        // tal cual, cortando los últimos bH pixels (banner viejo).
-        let W, H_visible, orient;
-        if (datos.esResellado){
-          W = img.width;
-          // v8.9 · Detección REAL del banner viejo por escaneo de píxeles
-          // (antes se usaba bH_pred fijo de 340px que a veces cortaba parte
-          // de la foto real → "afinamiento"). Ahora buscamos la línea dorada
-          // #d4a820 o fila oscura homogénea para cortar exacto.
-          let bordeBanner = -1;
-          try {
-            const probe = document.createElement('canvas');
-            probe.width = W;
-            probe.height = img.height;
-            const pctx = probe.getContext('2d');
-            pctx.drawImage(img, 0, 0);
-            const scanFrom = Math.floor(img.height * 0.40);
-            const step = Math.max(1, Math.floor(W / 60));
-            for (let y = scanFrom; y < img.height - 1; y++) {
-              const row = pctx.getImageData(0, y, W, 1).data;
-              let oscuros = 0, dorados = 0, total = 0;
-              for (let x = 0; x < W; x += step) {
-                const i = x * 4;
-                const r = row[i], g = row[i+1], b = row[i+2];
-                const brillo = (r + g + b) / 3;
-                if (brillo < 30) oscuros++;
-                if (r > 180 && r < 240 && g > 130 && g < 190 && b < 60) dorados++;
-                total++;
-              }
-              if (oscuros / total > 0.80) { bordeBanner = y; break; }
-              if (dorados / total > 0.40) { bordeBanner = y + 1; break; }
-            }
-          } catch(e) { console.warn('[re-sello] escaneo píxeles falló:', e); }
-          if (bordeBanner > 0 && bordeBanner < img.height - 50) {
-            H_visible = bordeBanner;
-            console.log('[re-sello portal] banner viejo detectado a y=' + bordeBanner + ' (alto ' + (img.height - bordeBanner) + 'px)');
-          } else {
-            // Fallback conservador: usar el nuevo bH
-            const bH_fallback = Math.max(150, Math.min(Math.round(W*0.16), 260));
-            H_visible = Math.max(100, img.height - bH_fallback);
-            console.warn('[re-sello portal] no se detectó banner, fallback bH=' + bH_fallback);
-          }
-          orient = 1;  // sin rotación
-        } else {
-          // v7.46 — Rotación EXIF + manual antes del sello (primer sellado)
-          const exifOrient = _exifOrientation(base64);
-          orient = _combinarOrientacion(exifOrient, _rotacionManualSello);
-          const isPortrait = orient >= 5 && orient <= 8;
-          W = isPortrait ? img.height : img.width;
-          H_visible = isPortrait ? img.width : img.height;
-        }
-        // v7.82 · banner compactado (antes 200-340 px con W*0.22 → ahora 150-260 con W*0.16, ~30% más chico)
-        const bH = Math.max(150, Math.min(Math.round(W*0.16), 260));
-        const totalH = H_visible + bH;
-        const C = document.createElement('canvas'); C.width = W; C.height = totalH;
-        const ctx = C.getContext('2d');
-        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-        // Fondo extendido + foto arriba (con rotación aplicada si no es re-sellado)
-        ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, W, totalH);
-        ctx.save();
-        if (datos.esResellado){
-          // Recortar los últimos bH del sourceImage (banner viejo) al dibujar
-          ctx.drawImage(img, 0, 0, W, H_visible, 0, 0, W, H_visible);
-        } else {
-          _aplicarOrientCanvas(ctx, orient, img.width, img.height);
-          ctx.drawImage(img, 0, 0);
-        }
-        ctx.restore();
-        // Banner abajo (fondo sólido, sin transparencia)
-        const y0 = H_visible;
-        const grad = ctx.createLinearGradient(0, y0, 0, totalH);
-        grad.addColorStop(0, '#0d0d0d');
-        grad.addColorStop(1, '#000000');
-        ctx.fillStyle = grad; ctx.fillRect(0, y0, W, bH);
-        // Línea dorada superior
-        ctx.strokeStyle = '#d4a820';
-        ctx.lineWidth = Math.max(2, Math.round(H_visible*0.0025));
-        ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
-        // === Columnas · v8.6 layout adaptativo · foto vertical (W<700) apaga QR ===
-        const mostrarQR = W >= 700;
-        const colSide = mostrarQR
-          ? Math.min(Math.round(bH*0.9), Math.round(W*0.15))
-          : Math.min(Math.round(bH*0.9), Math.round(W*0.18));
-        const colLX = 0;
-        const colRX = mostrarQR ? (W - colSide) : W;
-        const colCX = colSide;
-        const colCW = colRX - colSide;
-        // Separadores verticales (dorado tenue) — totalH = H + bH
-        ctx.strokeStyle = 'rgba(212,168,32,0.35)'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(colSide, y0+bH*0.10); ctx.lineTo(colSide, totalH-bH*0.10); ctx.stroke();
-        if (mostrarQR) {
-          ctx.beginPath(); ctx.moveTo(colRX, y0+bH*0.10); ctx.lineTo(colRX, totalH-bH*0.10); ctx.stroke();
-        }
-        // === COLUMNA IZQUIERDA: Logo DVBA centrado vertical ===
-        const logoSz = Math.round(bH*0.78);
-        const logoX = colLX + Math.round((colSide - logoSz)/2);
-        const logoY = y0 + Math.round((bH - logoSz)/2);
-        if (logoImg && logoImg.complete && logoImg.naturalWidth > 0){
-          ctx.drawImage(logoImg, logoX, logoY, logoSz, logoSz);
-        } else {
-          const cx = logoX + logoSz/2, cy = logoY + logoSz/2;
-          ctx.fillStyle = '#d4a820';
-          ctx.beginPath(); ctx.arc(cx, cy, logoSz/2, 0, Math.PI*2); ctx.fill();
-          ctx.fillStyle = '#000';
-          ctx.font = '900 '+Math.round(logoSz*0.30)+'px Arial';
-          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.fillText('DVBA', cx, cy);
-          ctx.textAlign = 'left';
-        }
-        // === COLUMNA DERECHA: QR Google Maps === (solo si mostrarQR)
-        // v8.6 · QR con logo DVBA al centro + error correction H
-        const qrSz = Math.min(Math.round(bH*0.85), Math.round(colSide*0.98));
-        const qrX = colRX + Math.round((colSide - qrSz)/2);
-        const qrY = y0 + Math.round((bH - qrSz)/2);
-        if (mostrarQR && typeof qrcode === 'function' && datos.lat && datos.lng){
-          try{
-            const url = 'https://www.google.com/maps/search/?api=1&query='+datos.lat+','+datos.lng;
-            const qr = qrcode(0, 'H'); qr.addData(url); qr.make();  // H = permite tapar 30% (logo center)
-            const n = qr.getModuleCount();
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(qrX, qrY, qrSz, qrSz);
-            const pad = Math.round(qrSz*0.05);
-            const inner = qrSz - pad*2;
-            const cell = Math.floor(inner/n);
-            const ox = qrX + pad + Math.floor((inner - cell*n)/2);
-            const oy = qrY + pad + Math.floor((inner - cell*n)/2);
-            ctx.fillStyle = '#000000';
-            for (let r = 0; r < n; r++) for (let c = 0; c < n; c++){
-              if (qr.isDark(r, c)) ctx.fillRect(ox + c*cell, oy + r*cell, cell, cell);
-            }
-            // Logo DVBA al centro · v8.7 · bajado a 18% (24% tapaba módulos
-            // críticos del QR y rompía el escaneo, aún con error correction H).
-            const logoQrSz = Math.round(qrSz * 0.18);
-            const logoQrX = qrX + Math.round((qrSz - logoQrSz)/2);
-            const logoQrY = qrY + Math.round((qrSz - logoQrSz)/2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(logoQrX, logoQrY, logoQrSz, logoQrSz);
-            if (logoImg && logoImg.complete && logoImg.naturalWidth > 0){
-              const lp = Math.round(logoQrSz * 0.08);
-              ctx.drawImage(logoImg, logoQrX + lp, logoQrY + lp, logoQrSz - lp*2, logoQrSz - lp*2);
-            } else {
-              ctx.fillStyle = '#003366';
-              ctx.font = '900 ' + Math.round(logoQrSz * 0.38) + 'px Arial,Helvetica,sans-serif';
-              ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-              ctx.fillText('DVBA', logoQrX + logoQrSz/2, logoQrY + logoQrSz/2);
-              ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-            }
-          } catch(e){ console.warn('QR:', e); }
-        }
-        // === COLUMNA CENTRAL: Texto blanco grande ===
-        const padX = Math.round(W*0.018);
-        const tx = colCX + padX;
-        const maxW = colCW - padX*2;
-        // Tipografía v3 — texto BLANCO más grande y nítido
-        const baseFont = Math.max(16, Math.min(Math.round(W*0.022), 36));
-        const fT = Math.round(baseFont * 1.20);   // Localidad
-        const fM = Math.round(baseFont * 1.05);   // Ruta/Tipo
-        const fS = Math.round(baseFont * 0.85);   // Lat/lng, fecha
-        function txtFit(txt, x, y, mxW, fs, color, bold, mono){
-          if (!txt) return 0;
-          let sz = fs;
-          const ff = mono ? "'Courier New',monospace" : "Arial,Helvetica,sans-serif";
-          ctx.font = (bold?'700':'500')+' '+sz+'px '+ff;
-          while (ctx.measureText(txt).width > mxW && sz > 9){
-            sz--; ctx.font = (bold?'700':'500')+' '+sz+'px '+ff;
-          }
-          ctx.fillStyle = color; ctx.textBaseline = 'top';
-          ctx.shadowColor = 'rgba(0,0,0,0.9)';
-          ctx.shadowBlur = 2; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
-          ctx.fillText(txt, x, y);
-          ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
-          return sz;
-        }
-        let yB = y0 + Math.round(bH*0.10);
-        // Línea 1: Localidad (blanco bold)
-        if (datos.localidad){
-          txtFit(datos.localidad, tx, yB, maxW, fT, '#ffffff', true);
-          yB += Math.round(fT*1.28);
-        }
-        // Línea 2: Ruta/Camino + Km
-        const rutaKm = [datos.ruta, datos.prog ? 'Km '+datos.prog : ''].filter(Boolean).join('  ·  ');
-        if (rutaKm){
-          txtFit(rutaKm, tx, yB, maxW, fM, '#ffffff', true);
-          yB += Math.round(fM*1.26);
-        }
-        // Línea 3: Tipo de incidencia
-        if (datos.tipo){
-          txtFit(datos.tipo, tx, yB, maxW, fM, '#ffffff', false);
-          yB += Math.round(fM*1.26);
-        }
-        // Línea 4: Lat/Lng + alt (verde mono)
-        if (datos.lat && datos.lng){
-          let coords = 'Lat ' + datos.lat + '   Long ' + datos.lng;
-          if (datos.alt) coords += '   Alt ' + datos.alt + ' m';
-          txtFit(coords, tx, yB, maxW, fS, '#6ecba0', false, true);
-          yB += Math.round(fS*1.26);
-        }
-        // Línea 5: Fecha + Hora
-        const partes = [];
-        if (datos.fecha){
-          const m = datos.fecha.match(/^(\d{4})-(\d{2})-(\d{2})/);
-          if (m) partes.push(m[3]+'/'+m[2]+'/'+m[1]);
-          else partes.push(datos.fecha);
-        }
-        if (datos.hora){
-          const hm = datos.hora.split(':');
-          partes.push(hm[0]+':'+(hm[1]||'00')+' hs');
-        }
-        if (partes.length){
-          txtFit(partes.join('  ·  '), tx, yB, maxW, fS, '#dddddd', false);
-          yB += Math.round(fS*1.26);
-        }
-        // v8.9b · Versión con DOBLE anclaje: bottom del banner O justo debajo
-        // de la última línea de texto (max de los dos). Antes se pisaba con la
-        // fecha cuando había muchas líneas de texto y el bottom quedaba arriba.
-        let fV = Math.round(baseFont * 0.65);
-        const stampInfo = [
-          (typeof APP_VERSION === 'string' ? APP_VERSION : 'v?') + '·portal',
-          (datos.esResellado ? '↻ re-sello' : 'sello v4')
-        ].join('  ·  ');
-        ctx.textBaseline = 'bottom';
-        ctx.textAlign = 'left';
-        ctx.fillStyle = 'rgba(212,168,32,0.55)';
-        ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
-        while (ctx.measureText(stampInfo).width > maxW && fV > 8) {
-          fV--;
-          ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
-        }
-        // yVer debe estar (a) pegado al fondo del banner y (b) debajo del último yB
-        const yVerFondo = totalH - Math.round(bH * 0.08);
-        const yVerBajoTexto = yB + fV + 4;  // margen entre última línea y versión
-        const yVer = Math.max(yVerFondo, yVerBajoTexto);
-        ctx.fillText(stampInfo, tx, yVer);
-        ctx.textBaseline = 'top';
-        // v8.6 · Inyectar EXIF post-sellado (si piexif está cargado)
-        let jpegOut = C.toDataURL('image/jpeg', 0.95);
-        if (typeof DVBA_EXIF !== 'undefined' && DVBA_EXIF.disponible()) {
-          try {
-            jpegOut = DVBA_EXIF.inyectar(jpegOut, {
-              lat: parseFloat(datos.lat), lng: parseFloat(datos.lng),
-              alt: datos.alt ? parseFloat(datos.alt) : null,
-              fecha: datos.fecha, hora: datos.hora,
-              ruta: datos.ruta, prog: datos.prog, tipo: datos.tipo,
-              partido: datos.partido, zona: datos.zona,
-              origen: 'oficina'
-            });
-          } catch(e){ console.warn('[portal sello EXIF]', e); }
-        }
-        res(jpegOut);
+      try {
+        const c = document.createElement('canvas');
+        // Si orient es 5-8 (portrait), swap ancho/alto
+        const swap = orient >= 5 && orient <= 8;
+        c.width = swap ? img.height : img.width;
+        c.height = swap ? img.width : img.height;
+        const ctx = c.getContext('2d');
+        _aplicarOrientCanvas(ctx, orient, img.width, img.height);
+        ctx.drawImage(img, 0, 0);
+        res(c.toDataURL('image/jpeg', 0.95));
       } catch(e){ rej(e); }
     };
-    img.onerror = () => rej(new Error('Error cargando foto'));
+    img.onerror = () => rej(new Error('No se pudo cargar imagen para rotar'));
     img.src = base64;
   });
 }
@@ -2609,12 +2396,75 @@ async function guardar(){
   };
 
   if (fi.files[0]) {
-    const fr = new FileReader();
-    fr.onload = e => procesarYGuardar(e.target.result);
-    fr.readAsDataURL(fi.files[0]);
+    // v8.11 · Comprimir la foto ANTES del sello (max 1600px, quality 0.85).
+    // Antes se subía la foto full-size (3000-4000 px) directo al sello →
+    // cálculos anómalos de bH/colSide/qrSz por dimensiones no estándar.
+    // Con 1600px máximo, el sello siempre trabaja con dimensiones consistentes
+    // (mismo rango que la foto móvil comprimida) → resultado uniforme.
+    try {
+      const comprimida = await _comprimirImagenPreSello(fi.files[0], 1600, 0.85);
+      await procesarYGuardar(comprimida);
+    } catch(e){
+      console.warn('[precompresion PC]', e);
+      // Fallback: leer full-size si comprimir falló
+      const fr = new FileReader();
+      fr.onload = e => procesarYGuardar(e.target.result);
+      fr.readAsDataURL(fi.files[0]);
+    }
   } else {
     await procesarYGuardar(null);
   }
+}
+
+// v8.11 · Compresor para fotos que llegan desde PC (input file).
+// Reduce dimensiones a max 1600px y quality 0.85 → JPG de ~200-500 KB.
+// Usa createImageBitmap para bajo consumo de RAM (no decodea la full en memoria).
+async function _comprimirImagenPreSello(file, maxPx, quality){
+  if (!file || !file.type.startsWith('image/')) throw new Error('No es imagen');
+  // Si es chica ya, retornar como está
+  const useBitmap = typeof createImageBitmap === 'function';
+  if (useBitmap){
+    try {
+      const probe = await createImageBitmap(file, { resizeWidth: 100, resizeQuality: 'low' });
+      const ratio = probe.width / probe.height;
+      probe.close();
+      // Si es más grande que maxPx, comprimir; sino, leer sin resize
+      let w, h;
+      if (ratio >= 1) { w = maxPx; h = Math.round(maxPx / ratio); }
+      else            { h = maxPx; w = Math.round(maxPx * ratio); }
+      const bitmap = await createImageBitmap(file, {
+        resizeWidth: w, resizeHeight: h, resizeQuality: 'medium'
+      });
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(bitmap, 0, 0);
+      bitmap.close();
+      const dataUrl = c.toDataURL('image/jpeg', quality);
+      c.width = 0; c.height = 0;
+      return dataUrl;
+    } catch(e){
+      console.warn('[precompresion createImageBitmap falló]', e);
+    }
+  }
+  // Fallback: método clásico
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > maxPx || h > maxPx){
+        if (w > h){ h = Math.round(h*maxPx/w); w = maxPx; }
+        else       { w = Math.round(w*maxPx/h); h = maxPx; }
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      res(c.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('No se pudo cargar')); };
+    img.src = url;
+  });
 }
 
 // Set de registros seleccionados para mostrar en el mapa
