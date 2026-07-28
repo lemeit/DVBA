@@ -137,12 +137,12 @@ function aplicar(base64, datos, opts){
         ctx.strokeStyle = '#d4a820';
         ctx.lineWidth = Math.max(2, Math.round(H*0.0025));
         ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
-        // 3 columnas · v9.84 · layout adaptativo para foto vertical
-        // - En foto ancha (W > 700): columnas laterales normales (bH*0.9)
-        // - En foto vertical (W ≤ 700): columnas más chicas cap 15% del ancho
-        // - En foto MUY angosta (W < 500): APAGAR el QR (no entra bien, la
-        //   coord ya está en el texto de la col central). Solo 2 columnas.
-        const mostrarQR = W >= 500;
+        // 3 columnas · v9.85 · layout adaptativo · umbral W<700 para apagar QR
+        // (antes era 500 pero fotos verticales de 500-700 seguían pisando texto).
+        // - Foto ancha (W ≥ 700): 3 columnas (logo | texto | QR)
+        // - Foto vertical (W < 700): 2 columnas (logo | texto ancho) — el QR
+        //   se saca porque la coord ya está en el texto, es info redundante.
+        const mostrarQR = W >= 700;
         const colSide = mostrarQR
           ? Math.min(Math.round(bH * 0.9), Math.round(W * 0.15))
           : Math.min(Math.round(bH * 0.9), Math.round(W * 0.18));  // solo columna izq (logo)

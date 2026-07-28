@@ -418,7 +418,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.4</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.5</span></div>
   </div>
 </div>
 <div class="layout">
@@ -538,6 +538,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="button" id="btn-re-sellar" onclick="reSellarFotoEditada()" title="Aplicar sello v3 con los datos actuales del formulario" style="padding:6px 10px;border:1px solid #6aaa40;background:#1a2a10;color:#c4ffb0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;flex:1">🖋 Re-sellar</button>
       <button type="button" id="btn-desc-sidebar" onclick="descargarFotoDesdeEdit()" title="Descargar la foto con nombre SIGVialPBA_ID_ruta.jpg" style="padding:6px 10px;border:1px solid #4a6a8a;background:#0d2030;color:#a0c0e0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">⬇ Descargar</button>
       <button type="button" id="btn-test-exif" onclick="testExifDiag()" title="Ver si la foto actual tiene metadatos EXIF" style="padding:6px 10px;border:1px solid #4a8a6a;background:#0d2010;color:#a0e0c0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">🔍 EXIF</button>
+      <button type="button" id="btn-reinject-exif" onclick="reinyectarExifExistente()" title="Bajar la foto, re-inyectar metadatos EXIF y re-subirla (sin re-sellar visual)" style="padding:6px 10px;border:1px solid #8a6a4a;background:#201d0d;color:#e0c0a0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">🔧 EXIF+</button>
       <button type="button" id="btn-borrar-backup" onclick="borrarBackupOriginal()" title="Eliminar el archivo original SOLO de este registro — libera espacio pero no podrá re-sellarse limpio después" style="display:none;padding:6px 8px;border:1px solid #a04040;background:#1a0d0d;color:#d07070;border-radius:4px;cursor:pointer;font-size:11px">🗑 Backup de esta foto</button>
       <span id="rot-lbl" style="font-size:10px;color:#7aacbc;width:100%">Rotá la foto si se ve de costado, luego "Re-sellar"</span>
     </div>
@@ -653,7 +654,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.4</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.5</span>
       </div>
     </div>
 
@@ -721,7 +722,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.4';
+const APP_VERSION = 'v8.5';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2783,46 +2784,129 @@ async function _descargarFotoConNombre(url, filename, btn){
     alert('No se pudo bajar la foto:\n' + (e.message || e));
   }
 }
-// v9.84 · Diagnóstico EXIF · muestra qué metadatos tiene la foto seleccionada
+// v9.86/v8.5 · Diagnóstico EXIF · muestra qué metadatos tiene la foto REAL en Storage
 async function testExifDiag(){
   const disponible = (typeof piexif !== 'undefined' && piexif && piexif.dump);
   let msg = '── DIAGNÓSTICO EXIF ──\n\n';
-  msg += 'piexifjs cargado: ' + (disponible ? '✓ SÍ' : '✗ NO — el archivo datos/piexif.min.js no está o falla CDN') + '\n';
+  msg += 'piexifjs cargado: ' + (disponible ? '✓ SÍ' : '✗ NO') + '\n';
   msg += 'DVBA_EXIF cargado: ' + (typeof DVBA_EXIF !== 'undefined' ? '✓ SÍ' : '✗ NO') + '\n\n';
   if (!_regEditandoFoto || !_regEditandoFoto.foto){
-    msg += 'No hay foto seleccionada para inspeccionar.\nHacé click en una foto del sidebar primero.';
+    msg += 'No hay foto seleccionada.\nCargá una foto del sidebar primero.';
     alert(msg); return;
   }
-  if (!disponible){ alert(msg + 'Bajá piexif.js a datos/piexif.min.js para que funcione la inyección/lectura EXIF.'); return; }
-  msg += 'Foto del registro #' + (_regEditandoFoto.id || '?') + '\n';
+  if (!disponible){ alert(msg + 'Bajá piexif.js a datos/piexif.min.js.'); return; }
+  msg += 'Foto real del registro #' + (_regEditandoFoto.id || '?') + '\n';
+  msg += 'URL: ' + _regEditandoFoto.foto.slice(-50) + '\n';
   try {
     const resp = await fetch(_regEditandoFoto.foto);
     const blob = await resp.blob();
-    const reader = new FileReader();
-    reader.onload = e => {
-      const b64 = e.target.result;
-      const exif = piexif.load(b64);
-      const zeroth = exif['0th'] || {};
-      const gps = exif['GPS'] || {};
-      const exifIfd = exif['Exif'] || {};
-      msg += '\n0th (metadata general):\n';
-      msg += '  Make: ' + (zeroth[271] || '(vacío)') + '\n';
-      msg += '  Model: ' + (zeroth[272] || '(vacío)') + '\n';
-      msg += '  Software: ' + (zeroth[305] || '(vacío)') + '\n';
-      msg += '  Description: ' + (zeroth[270] || '(vacío)') + '\n';
-      msg += '\nGPS:\n';
-      msg += '  Lat: ' + (gps[2] ? gps[1]+' '+JSON.stringify(gps[2]) : '(vacío)') + '\n';
-      msg += '  Lng: ' + (gps[4] ? gps[3]+' '+JSON.stringify(gps[4]) : '(vacío)') + '\n';
-      msg += '  Alt: ' + (gps[6] ? JSON.stringify(gps[6]) : '(vacío)') + '\n';
-      msg += '\nExif:\n';
-      msg += '  DateTime: ' + (exifIfd[36867] || '(vacío)') + '\n';
-      const uc = exifIfd[37510];
-      msg += '  UserComment: ' + (uc ? String(uc).slice(0,100) : '(vacío)') + '\n';
-      alert(msg);
-    };
-    reader.readAsDataURL(blob);
+    const b64 = await new Promise((res, rej) => { const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(blob); });
+    const exif = piexif.load(b64);
+    const zeroth = exif['0th'] || {};
+    const gps = exif['GPS'] || {};
+    const exifIfd = exif['Exif'] || {};
+    const hayGps = !!(gps[2] && gps[4]);
+    const hayMake = !!zeroth[271];
+    msg += 'Peso archivo: ' + Math.round(blob.size/1024) + ' KB\n\n';
+    msg += (hayGps ? '✓' : '✗') + ' GPS presente\n';
+    msg += (hayMake ? '✓' : '✗') + ' Make/Model presente\n\n';
+    msg += '── Metadata general ──\n';
+    msg += 'Make: ' + (zeroth[271] || '(vacío)') + '\n';
+    msg += 'Model: ' + (zeroth[272] || '(vacío)') + '\n';
+    msg += 'Software: ' + (zeroth[305] || '(vacío)') + '\n';
+    msg += 'Descripción: ' + (zeroth[270] || '(vacío)') + '\n';
+    msg += 'Copyright: ' + (zeroth[33432] || '(vacío)') + '\n\n';
+    msg += '── GPS ──\n';
+    if (hayGps){
+      const latRef = gps[1] || '?', latDms = gps[2];
+      const lngRef = gps[3] || '?', lngDms = gps[4];
+      // Convertir DMS rational a decimal para verificar
+      const dmsToDec = dms => (dms[0][0]/dms[0][1]) + (dms[1][0]/dms[1][1])/60 + (dms[2][0]/dms[2][1])/3600;
+      const latDec = dmsToDec(latDms) * (latRef==='S'?-1:1);
+      const lngDec = dmsToDec(lngDms) * (lngRef==='W'?-1:1);
+      msg += 'Latitud: ' + latDec.toFixed(6) + ' (' + latRef + ')\n';
+      msg += 'Longitud: ' + lngDec.toFixed(6) + ' (' + lngRef + ')\n';
+      if (gps[6]) msg += 'Altitud: ' + (gps[6][0]/gps[6][1]).toFixed(1) + ' m\n';
+    } else {
+      msg += '(sin datos GPS)\n';
+    }
+    msg += '\n── Exif ──\n';
+    msg += 'Fecha original: ' + (exifIfd[36867] || '(vacío)') + '\n';
+    const uc = exifIfd[37510];
+    if (uc) msg += 'UserComment: ' + String(uc).slice(0,120) + '...\n';
+    if (!hayGps || !hayMake){
+      msg += '\n⚠ Esta foto NO tiene metadatos completos.\nTocá 🔧 EXIF+ para re-inyectarlos ahora sobre la foto existente.';
+    } else {
+      msg += '\n✓ La foto TIENE metadatos EXIF. Si en Windows Explorer no los ves:\n  1. En Windows: File > Refresh (F5).\n  2. Bajala de nuevo con ⬇ Descargar.\n  3. Verificá en Propiedades > Detalles.';
+    }
+    alert(msg);
   } catch(e){
-    alert(msg + '\n❌ Error leyendo la foto:\n' + (e.message || e));
+    alert(msg + '\n❌ Error: ' + (e.message || e));
+  }
+}
+
+// v9.86/v8.5 · Re-inyectar EXIF sobre foto ya sellada (sin re-sellar visual).
+// Útil cuando la foto fue sellada antes de v8.4 (piexif no cargaba a tiempo)
+// y quedó sin metadatos. Baja la foto, aplica DVBA_EXIF.inyectar con datos
+// del registro, y re-sube al mismo path.
+async function reinyectarExifExistente(){
+  if (!_regEditandoFoto || !_regEditandoFoto.foto){
+    alert('No hay foto para procesar en este registro.'); return;
+  }
+  if (typeof DVBA_EXIF === 'undefined' || !DVBA_EXIF.disponible()){
+    alert('piexifjs no está cargado.\n\nAsegurate que datos/piexif.min.js exista + hard-refresh Ctrl+Shift+R.');
+    return;
+  }
+  const reg = _regEditandoFoto;
+  const btn = document.getElementById('btn-reinject-exif');
+  const original = btn.textContent;
+  btn.textContent = '⏳ Bajando...';
+  btn.disabled = true;
+  try {
+    // 1. Bajar foto actual como base64
+    const resp = await fetch(reg.foto);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const blob = await resp.blob();
+    const jpegBase64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(blob);
+    });
+    btn.textContent = '⏳ Inyectando...';
+    // 2. Aplicar DVBA_EXIF con datos del registro
+    const [fecha, hora] = (reg.fechaISO || '').split('T');
+    const jpegConExif = DVBA_EXIF.inyectar(jpegBase64, {
+      lat: parseFloat(reg.lat),
+      lng: parseFloat(reg.lng),
+      alt: reg.alt ? parseFloat(reg.alt) : null,
+      fecha: fecha || null,
+      hora: hora ? hora.slice(0, 8) : null,
+      ruta: reg.ruta || null,
+      prog: reg.prog || reg.progresiva || null,
+      tipo: reg.tipo || null,
+      partido: reg.partido || null,
+      zona: reg.zona || 'VI',
+      origen: 'oficina'
+    });
+    // 3. Re-subir a la misma URL de Storage
+    btn.textContent = '⏳ Subiendo...';
+    const originalUrl = _regEditandoFoto.foto;
+    const pathMatch = originalUrl.match(/\/object\/public\/relevamientos\/(.+?)(\?|$)/);
+    if (!pathMatch) throw new Error('URL de foto no reconocida');
+    const path = decodeURIComponent(pathMatch[1]);
+    const newBlob = await (await fetch(jpegConExif)).blob();
+    const { error: upErr } = await _supa.storage.from('relevamientos')
+      .upload(path, newBlob, { contentType: 'image/jpeg', upsert: true });
+    if (upErr) throw new Error('Upload: ' + upErr.message);
+    btn.textContent = '✓ OK';
+    alert('✓ EXIF re-inyectado en la foto del registro #' + (reg.id || '?') + '.\n\nBajala de nuevo y en Windows > Propiedades > Detalles vas a ver GPS, cámara, fecha, etc.\n\nRecordá que Windows puede cachear las thumbnails viejas — usá "Actualizar" (F5) en la carpeta.');
+    setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 2500);
+  } catch(e){
+    console.error('[reinyectarExif]', e);
+    btn.textContent = '❌';
+    alert('Error re-inyectando EXIF:\n' + (e.message || e));
+    setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 2000);
   }
 }
 
