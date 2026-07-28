@@ -62,22 +62,22 @@ function aplicar(base64, datos, opts){
     img.onload = () => {
       try {
         const W = img.width;
-        // Banner compactado + AJUSTE DINÁMICO según líneas de texto (v8.14)
-        // Antes: bH fijo 150-260 → en foto vertical chica no alcanzaba para
-        // 5 líneas y el texto de versión quedaba fuera del banner.
-        // Ahora: calcular espacio requerido y elegir el mayor.
-        const bH_base = Math.max(150, Math.min(Math.round(W*0.16), 260));
+        // Banner con AJUSTE DINÁMICO · v8.15
+        // Interlineado GENEROSO (1.5 vs 1.28 anterior) → texto nunca se pisa.
+        // bH crece si hace falta espacio, sino usa el default.
+        const bH_base = Math.max(180, Math.min(Math.round(W*0.18), 300));
         const _baseF = Math.max(16, Math.min(Math.round(W*0.022), 36));
         const _fT_ = Math.round(_baseF*1.20), _fM_ = Math.round(_baseF*1.05),
               _fS_ = Math.round(_baseF*0.85), _fV_ = Math.round(_baseF*0.65);
-        let _espLineas = Math.round(bH_base*0.10);  // yB inicial
-        if (datos.localidad)            _espLineas += Math.round(_fT_*1.28);
-        if (datos.ruta || datos.prog)   _espLineas += Math.round(_fM_*1.26);
-        if (datos.tipo)                 _espLineas += Math.round(_fM_*1.26);
-        if (datos.lat && datos.lng)     _espLineas += Math.round(_fS_*1.26);
-        if (datos.fecha || datos.hora)  _espLineas += Math.round(_fS_*1.26);
-        _espLineas += _fV_ + 8;  // línea versión + margen
-        _espLineas += Math.round(bH_base*0.10);  // padding inferior
+        const _LH_ = 1.5;  // interlineado (era 1.26-1.28 · ahora respirado)
+        let _espLineas = Math.round(bH_base*0.12);  // padTop
+        if (datos.localidad)            _espLineas += Math.round(_fT_*_LH_);
+        if (datos.ruta || datos.prog)   _espLineas += Math.round(_fM_*_LH_);
+        if (datos.tipo)                 _espLineas += Math.round(_fM_*_LH_);
+        if (datos.lat && datos.lng)     _espLineas += Math.round(_fS_*_LH_);
+        if (datos.fecha || datos.hora)  _espLineas += Math.round(_fS_*_LH_);
+        _espLineas += Math.round(_fV_*1.4) + 6;  // versión + margen
+        _espLineas += Math.round(bH_base*0.10);  // padBottom
         const bH = Math.max(bH_base, _espLineas);
         let H = img.height;
         if (datos.esResellado){
@@ -148,15 +148,13 @@ function aplicar(base64, datos, opts){
         ctx.strokeStyle = '#d4a820';
         ctx.lineWidth = Math.max(2, Math.round(H*0.0025));
         ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
-        // 3 columnas · v9.85 · layout adaptativo · umbral W<700 para apagar QR
-        // (antes era 500 pero fotos verticales de 500-700 seguían pisando texto).
-        // - Foto ancha (W ≥ 700): 3 columnas (logo | texto | QR)
-        // - Foto vertical (W < 700): 2 columnas (logo | texto ancho) — el QR
-        //   se saca porque la coord ya está en el texto, es info redundante.
-        const mostrarQR = W >= 700;
+        // v8.15 · QR SIEMPRE presente (salvo W<400 extremo).
+        // Columnas laterales cap 15% del ancho — con bH dinámico + interlineado
+        // 1.5, el texto central respira aunque las 3 columnas sean apretadas.
+        const mostrarQR = W >= 400;
         const colSide = mostrarQR
-          ? Math.min(Math.round(bH * 0.9), Math.round(W * 0.15))
-          : Math.min(Math.round(bH * 0.9), Math.round(W * 0.18));  // solo columna izq (logo)
+          ? Math.min(Math.round(bH * 0.75), Math.round(W * 0.15))
+          : Math.min(Math.round(bH * 0.75), Math.round(W * 0.18));
         const colLX = 0;
         const colRX = mostrarQR ? (W - colSide) : W;   // sin QR → texto ocupa todo el resto
         const colCX = colSide;
@@ -269,22 +267,22 @@ function aplicar(base64, datos, opts){
         let yB = y0 + Math.round(bH * 0.10);
         if (datos.localidad){
           txtFit(datos.localidad, tx, yB, maxW, fT, '#ffffff', true);
-          yB += Math.round(fT * 1.28);
+          yB += Math.round(fT * 1.5);
         }
         const rutaKm = [datos.ruta, datos.prog ? 'Km ' + datos.prog : ''].filter(Boolean).join('  ·  ');
         if (rutaKm){
           txtFit(rutaKm, tx, yB, maxW, fM, '#ffffff', true);
-          yB += Math.round(fM * 1.26);
+          yB += Math.round(fM * 1.5);
         }
         if (datos.tipo){
           txtFit(datos.tipo, tx, yB, maxW, fM, '#ffffff', false);
-          yB += Math.round(fM * 1.26);
+          yB += Math.round(fM * 1.5);
         }
         if (datos.lat && datos.lng){
           let coords = 'Lat ' + datos.lat + '   Long ' + datos.lng;
           if (datos.alt) coords += '   Alt ' + datos.alt + ' m';
           txtFit(coords, tx, yB, maxW, fS, '#6ecba0', false, true);
-          yB += Math.round(fS * 1.26);
+          yB += Math.round(fS * 1.5);
         }
         const partes = [];
         if (datos.fecha){
@@ -298,7 +296,7 @@ function aplicar(base64, datos, opts){
         }
         if (partes.length){
           txtFit(partes.join('  ·  '), tx, yB, maxW, fS, '#dddddd', false);
-          yB += Math.round(fS * 1.26);
+          yB += Math.round(fS * 1.5);
         }
         // Versión + origen (campo/oficina/re-sello)
         // v9.85 · Ancla al FONDO del banner + AUTO-FIT del ancho para que no se
