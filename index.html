@@ -420,7 +420,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.16</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.17</span></div>
   </div>
 </div>
 <div class="layout">
@@ -656,7 +656,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.16</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.17</span>
       </div>
     </div>
 
@@ -724,7 +724,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.16';
+const APP_VERSION = 'v8.17';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -962,8 +962,12 @@ async function aplicarSelloDVBA(base64, datos){
     try {
       const exifOrient = _exifOrientation(base64);
       const orient = _combinarOrientacion(exifOrient, _rotacionManualSello);
+      console.log('[sello rotación] EXIF=' + exifOrient + ' · manual=' + _rotacionManualSello + ' pasos · combinada=' + orient);
       if (orient !== 1) {
         imgProcesada = await _rotarImagenBase64(base64, orient);
+        console.log('[sello rotación] ✓ foto rotada a orient=' + orient);
+      } else {
+        console.log('[sello rotación] · sin rotación (orient=1)');
       }
     } catch(e){ console.warn('[aplicarSelloDVBA rotación]', e); }
   }

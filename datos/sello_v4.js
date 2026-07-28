@@ -150,13 +150,13 @@ function aplicar(base64, datos, opts){
         ctx.strokeStyle = '#d4a820';
         ctx.lineWidth = Math.max(2, Math.round(H*0.0025));
         ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
-        // v8.15 · QR SIEMPRE presente (salvo W<400 extremo).
-        // Columnas laterales cap 15% del ancho — con bH dinámico + interlineado
-        // 1.5, el texto central respira aunque las 3 columnas sean apretadas.
+        // v8.16 · QR más grande + logo no invade texto.
+        // Cap subido a W*0.20 (era 0.15) → QR visible + legible en cualquier
+        // orientación de foto. Logo se limita al colSide para no invadir texto.
         const mostrarQR = W >= 400;
         const colSide = mostrarQR
-          ? Math.min(Math.round(bH * 0.75), Math.round(W * 0.15))
-          : Math.min(Math.round(bH * 0.75), Math.round(W * 0.18));
+          ? Math.min(Math.round(bH * 0.85), Math.round(W * 0.20))
+          : Math.min(Math.round(bH * 0.85), Math.round(W * 0.20));
         const colLX = 0;
         const colRX = mostrarQR ? (W - colSide) : W;   // sin QR → texto ocupa todo el resto
         const colCX = colSide;
@@ -169,7 +169,8 @@ function aplicar(base64, datos, opts){
           ctx.beginPath(); ctx.moveTo(colRX, y0+bH*0.10); ctx.lineTo(colRX, totalH-bH*0.10); ctx.stroke();
         }
         // === COL IZQ: Logo ===
-        const logoSz = Math.round(bH * 0.78);
+        // v8.16 · logoSz limitado por colSide para no invadir la columna del texto
+        const logoSz = Math.min(Math.round(bH * 0.78), Math.round(colSide * 0.9));
         const logoX  = colLX + Math.round((colSide - logoSz)/2);
         const logoY  = y0    + Math.round((bH      - logoSz)/2);
         if (logoImg && logoImg.complete && logoImg.naturalWidth > 0){
