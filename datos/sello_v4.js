@@ -137,19 +137,26 @@ function aplicar(base64, datos, opts){
         ctx.strokeStyle = '#d4a820';
         ctx.lineWidth = Math.max(2, Math.round(H*0.0025));
         ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
-        // 3 columnas · v9.82 · cap dinámico para fotos verticales
-        // Antes: colSide = bH*0.95 (~142px). En foto vertical (W ≈ 500) las 2
-        // columnas laterales devoran 284px y el texto central se pisa con el QR.
-        // Ahora limitamos las columnas laterales a máx 18% del ancho total.
-        const colSide = Math.min(Math.round(bH * 0.95), Math.round(W * 0.18));
-        const colLX = 0, colRX = W - colSide;
+        // 3 columnas · v9.84 · layout adaptativo para foto vertical
+        // - En foto ancha (W > 700): columnas laterales normales (bH*0.9)
+        // - En foto vertical (W ≤ 700): columnas más chicas cap 15% del ancho
+        // - En foto MUY angosta (W < 500): APAGAR el QR (no entra bien, la
+        //   coord ya está en el texto de la col central). Solo 2 columnas.
+        const mostrarQR = W >= 500;
+        const colSide = mostrarQR
+          ? Math.min(Math.round(bH * 0.9), Math.round(W * 0.15))
+          : Math.min(Math.round(bH * 0.9), Math.round(W * 0.18));  // solo columna izq (logo)
+        const colLX = 0;
+        const colRX = mostrarQR ? (W - colSide) : W;   // sin QR → texto ocupa todo el resto
         const colCX = colSide;
         const colCW = colRX - colSide;
         // Separadores verticales
         ctx.strokeStyle = 'rgba(212,168,32,0.35)';
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(colSide, y0+bH*0.10); ctx.lineTo(colSide, totalH-bH*0.10); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(colRX,  y0+bH*0.10); ctx.lineTo(colRX,  totalH-bH*0.10); ctx.stroke();
+        if (mostrarQR) {
+          ctx.beginPath(); ctx.moveTo(colRX, y0+bH*0.10); ctx.lineTo(colRX, totalH-bH*0.10); ctx.stroke();
+        }
         // === COL IZQ: Logo ===
         const logoSz = Math.round(bH * 0.78);
         const logoX  = colLX + Math.round((colSide - logoSz)/2);
@@ -167,14 +174,13 @@ function aplicar(base64, datos, opts){
           ctx.fillText('DVBA', cx, cy);
           ctx.textAlign = 'left';
         }
-        // === COL DER: QR Google Maps ===
-        // v9.83 · QR con tamaño garantizado + logo DVBA al centro.
-        // Usamos 'H' (High) para error correction — permite tapar 30% del QR
-        // sin romper la lectura. Tamaño mínimo garantizado para foto vertical.
-        const qrSz = Math.max(Math.round(bH * 0.82), Math.round(colSide * 0.98));
+        // === COL DER: QR Google Maps === (solo si mostrarQR)
+        // v9.84 · QR con tamaño garantizado + logo DVBA al centro.
+        // Se omite en foto muy angosta (W < 500) para no pisar el texto.
+        const qrSz = Math.min(Math.round(bH * 0.85), Math.round(colSide * 0.98));
         const qrX  = colRX + Math.round((colSide - qrSz)/2);
         const qrY  = y0    + Math.round((bH      - qrSz)/2);
-        if (typeof qrcode === 'function' && datos.lat && datos.lng){
+        if (mostrarQR && typeof qrcode === 'function' && datos.lat && datos.lng){
           try {
             const url = 'https://www.google.com/maps/search/?api=1&query=' + datos.lat + ',' + datos.lng;
             const qr = qrcode(0, 'H');  // High error correction para logo al centro

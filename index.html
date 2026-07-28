@@ -416,7 +416,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.2</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.3</span></div>
   </div>
 </div>
 <div class="layout">
@@ -534,6 +534,8 @@ body.modo-campo #campo-fab{display:flex}
       <button type="button" id="btn-rot-cw"  onclick="rotarFotoPreview(1)"  title="Rotar 90° a la derecha"  style="padding:6px 10px;border:1px solid #2a4050;background:#0d2030;color:var(--p);border-radius:4px;cursor:pointer;font-size:14px">↻ 90°</button>
       <button type="button" id="btn-rot-reset" onclick="rotarFotoPreview(0)" style="padding:6px 8px;border:1px solid #2a4050;background:#0d2030;color:#7aacbc;border-radius:4px;cursor:pointer;font-size:11px">Reset</button>
       <button type="button" id="btn-re-sellar" onclick="reSellarFotoEditada()" title="Aplicar sello v3 con los datos actuales del formulario" style="padding:6px 10px;border:1px solid #6aaa40;background:#1a2a10;color:#c4ffb0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;flex:1">🖋 Re-sellar</button>
+      <button type="button" id="btn-desc-sidebar" onclick="descargarFotoDesdeEdit()" title="Descargar la foto con nombre SIGVialPBA_ID_ruta.jpg" style="padding:6px 10px;border:1px solid #4a6a8a;background:#0d2030;color:#a0c0e0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">⬇ Descargar</button>
+      <button type="button" id="btn-test-exif" onclick="testExifDiag()" title="Ver si la foto actual tiene metadatos EXIF" style="padding:6px 10px;border:1px solid #4a8a6a;background:#0d2010;color:#a0e0c0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">🔍 EXIF</button>
       <button type="button" id="btn-borrar-backup" onclick="borrarBackupOriginal()" title="Eliminar el archivo original SOLO de este registro — libera espacio pero no podrá re-sellarse limpio después" style="display:none;padding:6px 8px;border:1px solid #a04040;background:#1a0d0d;color:#d07070;border-radius:4px;cursor:pointer;font-size:11px">🗑 Backup de esta foto</button>
       <span id="rot-lbl" style="font-size:10px;color:#7aacbc;width:100%">Rotá la foto si se ve de costado, luego "Re-sellar"</span>
     </div>
@@ -649,7 +651,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.2</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.3</span>
       </div>
     </div>
 
@@ -717,7 +719,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.2';
+const APP_VERSION = 'v8.3';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2745,13 +2747,12 @@ async function delReg(id){
   _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
 }
 
-// v9.82 · showFoto ahora acepta datos del registro para armar buen nombre al descargar
-// SIGVialPBA_305_RP51_Km274+394.jpg en vez de 1784633313301_lite_sello.jpg
+// v9.84 · Nombre corto: SIGVialPBA_ID_RP.jpg (sin progresiva, ya está en el sello + EXIF).
+// El ID único garantiza que dos fotos del mismo tramo no colisionen.
 function _nombreArchivoFoto(id, ruta, prog){
   const partes = ['SIGVialPBA'];
   if (id) partes.push('' + id);
   if (ruta) partes.push(String(ruta).replace(/\s+/g, ''));
-  if (prog) partes.push('Km' + String(prog).replace(/\s+/g, '').replace(/\+/g,'+').replace(/,/,'.'));
   return partes.join('_').replace(/[<>:"/\\|?*]/g, '') + '.jpg';
 }
 // v9.83 · Download real (Chrome ignora <a download> cross-origin de Supabase).
@@ -2780,6 +2781,77 @@ async function _descargarFotoConNombre(url, filename, btn){
     alert('No se pudo bajar la foto:\n' + (e.message || e));
   }
 }
+// v9.84 · Diagnóstico EXIF · muestra qué metadatos tiene la foto seleccionada
+async function testExifDiag(){
+  const disponible = (typeof piexif !== 'undefined' && piexif && piexif.dump);
+  let msg = '── DIAGNÓSTICO EXIF ──\n\n';
+  msg += 'piexifjs cargado: ' + (disponible ? '✓ SÍ' : '✗ NO — el archivo datos/piexif.min.js no está o falla CDN') + '\n';
+  msg += 'DVBA_EXIF cargado: ' + (typeof DVBA_EXIF !== 'undefined' ? '✓ SÍ' : '✗ NO') + '\n\n';
+  if (!_regEditandoFoto || !_regEditandoFoto.foto){
+    msg += 'No hay foto seleccionada para inspeccionar.\nHacé click en una foto del sidebar primero.';
+    alert(msg); return;
+  }
+  if (!disponible){ alert(msg + 'Bajá piexif.js a datos/piexif.min.js para que funcione la inyección/lectura EXIF.'); return; }
+  msg += 'Foto del registro #' + (_regEditandoFoto.id || '?') + '\n';
+  try {
+    const resp = await fetch(_regEditandoFoto.foto);
+    const blob = await resp.blob();
+    const reader = new FileReader();
+    reader.onload = e => {
+      const b64 = e.target.result;
+      const exif = piexif.load(b64);
+      const zeroth = exif['0th'] || {};
+      const gps = exif['GPS'] || {};
+      const exifIfd = exif['Exif'] || {};
+      msg += '\n0th (metadata general):\n';
+      msg += '  Make: ' + (zeroth[271] || '(vacío)') + '\n';
+      msg += '  Model: ' + (zeroth[272] || '(vacío)') + '\n';
+      msg += '  Software: ' + (zeroth[305] || '(vacío)') + '\n';
+      msg += '  Description: ' + (zeroth[270] || '(vacío)') + '\n';
+      msg += '\nGPS:\n';
+      msg += '  Lat: ' + (gps[2] ? gps[1]+' '+JSON.stringify(gps[2]) : '(vacío)') + '\n';
+      msg += '  Lng: ' + (gps[4] ? gps[3]+' '+JSON.stringify(gps[4]) : '(vacío)') + '\n';
+      msg += '  Alt: ' + (gps[6] ? JSON.stringify(gps[6]) : '(vacío)') + '\n';
+      msg += '\nExif:\n';
+      msg += '  DateTime: ' + (exifIfd[36867] || '(vacío)') + '\n';
+      const uc = exifIfd[37510];
+      msg += '  UserComment: ' + (uc ? String(uc).slice(0,100) : '(vacío)') + '\n';
+      alert(msg);
+    };
+    reader.readAsDataURL(blob);
+  } catch(e){
+    alert(msg + '\n❌ Error leyendo la foto:\n' + (e.message || e));
+  }
+}
+
+// v9.83b · Descargar la foto del registro que se está editando en el sidebar
+async function descargarFotoDesdeEdit(){
+  if (!_regEditandoFoto || !_regEditandoFoto.foto) {
+    alert('No hay foto para descargar en este registro.');
+    return;
+  }
+  const reg = _regEditandoFoto;
+  const filename = _nombreArchivoFoto(reg.id, reg.ruta, reg.prog || reg.progresiva);
+  const btn = document.getElementById('btn-desc-sidebar');
+  const original = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = '⏳...'; btn.disabled = true; }
+  try {
+    const resp = await fetch(reg.foto);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const blob = await resp.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(objectUrl); a.remove(); }, 200);
+    if (btn) { btn.textContent = '✓'; setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1500); }
+  } catch(e) {
+    console.error('[descargarFotoDesdeEdit]', e);
+    alert('No se pudo bajar la foto:\n' + (e.message || e));
+    if (btn) { btn.textContent = original; btn.disabled = false; }
+  }
+}
+
 function showFoto(src, id, ruta, prog){
   const ov = document.createElement('div');
   ov.className = 'foto-modal';
