@@ -418,7 +418,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.8</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.10</span></div>
   </div>
 </div>
 <div class="layout">
@@ -654,7 +654,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.8</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.10</span>
       </div>
     </div>
 
@@ -722,7 +722,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.8';
+const APP_VERSION = 'v8.10';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -953,13 +953,43 @@ function aplicarSelloDVBA(base64, datos){
         let W, H_visible, orient;
         if (datos.esResellado){
           W = img.width;
-          // v7.82 · Recorte defensivo: el banner viejo puede ser el grande
-          // de v7.81 y anteriores (W*0.22, 200-340) o el chico de v7.82+
-          // (W*0.16, 150-260). Usamos el mayor para asegurar cortarlo todo.
-          const bH_pred_viejo  = Math.max(200, Math.min(Math.round(W*0.22), 340));
-          const bH_pred_nuevo  = Math.max(150, Math.min(Math.round(W*0.16), 260));
-          const bH_pred = Math.max(bH_pred_viejo, bH_pred_nuevo);
-          H_visible = Math.max(100, img.height - bH_pred);
+          // v8.9 · Detección REAL del banner viejo por escaneo de píxeles
+          // (antes se usaba bH_pred fijo de 340px que a veces cortaba parte
+          // de la foto real → "afinamiento"). Ahora buscamos la línea dorada
+          // #d4a820 o fila oscura homogénea para cortar exacto.
+          let bordeBanner = -1;
+          try {
+            const probe = document.createElement('canvas');
+            probe.width = W;
+            probe.height = img.height;
+            const pctx = probe.getContext('2d');
+            pctx.drawImage(img, 0, 0);
+            const scanFrom = Math.floor(img.height * 0.40);
+            const step = Math.max(1, Math.floor(W / 60));
+            for (let y = scanFrom; y < img.height - 1; y++) {
+              const row = pctx.getImageData(0, y, W, 1).data;
+              let oscuros = 0, dorados = 0, total = 0;
+              for (let x = 0; x < W; x += step) {
+                const i = x * 4;
+                const r = row[i], g = row[i+1], b = row[i+2];
+                const brillo = (r + g + b) / 3;
+                if (brillo < 30) oscuros++;
+                if (r > 180 && r < 240 && g > 130 && g < 190 && b < 60) dorados++;
+                total++;
+              }
+              if (oscuros / total > 0.80) { bordeBanner = y; break; }
+              if (dorados / total > 0.40) { bordeBanner = y + 1; break; }
+            }
+          } catch(e) { console.warn('[re-sello] escaneo píxeles falló:', e); }
+          if (bordeBanner > 0 && bordeBanner < img.height - 50) {
+            H_visible = bordeBanner;
+            console.log('[re-sello portal] banner viejo detectado a y=' + bordeBanner + ' (alto ' + (img.height - bordeBanner) + 'px)');
+          } else {
+            // Fallback conservador: usar el nuevo bH
+            const bH_fallback = Math.max(150, Math.min(Math.round(W*0.16), 260));
+            H_visible = Math.max(100, img.height - bH_fallback);
+            console.warn('[re-sello portal] no se detectó banner, fallback bH=' + bH_fallback);
+          }
           orient = 1;  // sin rotación
         } else {
           // v7.46 — Rotación EXIF + manual antes del sello (primer sellado)
@@ -1130,9 +1160,9 @@ function aplicarSelloDVBA(base64, datos){
           txtFit(partes.join('  ·  '), tx, yB, maxW, fS, '#dddddd', false);
           yB += Math.round(fS*1.26);
         }
-        // v8.6 · Versión anclada al FONDO del banner + AUTO-FIT del ancho.
-        // Antes: fillText con yB acumulado + font-size fijo → se cortaba si
-        // había muchas líneas o el texto no entraba.
+        // v8.9b · Versión con DOBLE anclaje: bottom del banner O justo debajo
+        // de la última línea de texto (max de los dos). Antes se pisaba con la
+        // fecha cuando había muchas líneas de texto y el bottom quedaba arriba.
         let fV = Math.round(baseFont * 0.65);
         const stampInfo = [
           (typeof APP_VERSION === 'string' ? APP_VERSION : 'v?') + '·portal',
@@ -1146,7 +1176,10 @@ function aplicarSelloDVBA(base64, datos){
           fV--;
           ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
         }
-        const yVer = totalH - Math.round(bH * 0.08);
+        // yVer debe estar (a) pegado al fondo del banner y (b) debajo del último yB
+        const yVerFondo = totalH - Math.round(bH * 0.08);
+        const yVerBajoTexto = yB + fV + 4;  // margen entre última línea y versión
+        const yVer = Math.max(yVerFondo, yVerBajoTexto);
         ctx.fillText(stampInfo, tx, yVer);
         ctx.textBaseline = 'top';
         // v8.6 · Inyectar EXIF post-sellado (si piexif está cargado)
@@ -2811,7 +2844,7 @@ async function _descargarFotoConNombre(url, filename, btn){
   btn.textContent = '⏳ Bajando...';
   btn.style.pointerEvents = 'none';
   try {
-    const resp = await fetch(url);
+    const resp = await fetch(url, { cache: 'no-store' });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const blob = await resp.blob();
     const objectUrl = URL.createObjectURL(blob);
@@ -2844,7 +2877,7 @@ async function testExifDiag(){
   msg += 'Foto real del registro #' + (_regEditandoFoto.id || '?') + '\n';
   msg += 'URL: ' + _regEditandoFoto.foto.slice(-50) + '\n';
   try {
-    const resp = await fetch(_regEditandoFoto.foto);
+    const resp = await fetch(_regEditandoFoto.foto, { cache: 'no-store' });
     const blob = await resp.blob();
     const b64 = await new Promise((res, rej) => { const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(blob); });
     const exif = piexif.load(b64);
@@ -2975,7 +3008,7 @@ async function descargarFotoDesdeEdit(){
   const original = btn ? btn.textContent : '';
   if (btn) { btn.textContent = '⏳...'; btn.disabled = true; }
   try {
-    const resp = await fetch(reg.foto);
+    const resp = await fetch(reg.foto, { cache: 'no-store' });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const blob = await resp.blob();
     const objectUrl = URL.createObjectURL(blob);
