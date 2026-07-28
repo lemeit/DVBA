@@ -62,14 +62,14 @@ function aplicar(base64, datos, opts){
     img.onload = () => {
       try {
         const W = img.width;
-        // Banner con AJUSTE DINÁMICO · v8.15
-        // Interlineado GENEROSO (1.5 vs 1.28 anterior) → texto nunca se pisa.
-        // bH crece si hace falta espacio, sino usa el default.
-        const bH_base = Math.max(180, Math.min(Math.round(W*0.18), 300));
+        // Banner con AJUSTE DINÁMICO · v8.16
+        // Compromiso: banner menos "gordo" (foto se ve menos afinada) pero
+        // con interlineado suficiente para no pisarse.
+        const bH_base = Math.max(160, Math.min(Math.round(W*0.16), 270));
         const _baseF = Math.max(16, Math.min(Math.round(W*0.022), 36));
         const _fT_ = Math.round(_baseF*1.20), _fM_ = Math.round(_baseF*1.05),
               _fS_ = Math.round(_baseF*0.85), _fV_ = Math.round(_baseF*0.65);
-        const _LH_ = 1.5;  // interlineado (era 1.26-1.28 · ahora respirado)
+        const _LH_ = 1.35;  // interlineado (1.5 era demasiado, 1.26 pisaba)
         let _espLineas = Math.round(bH_base*0.12);  // padTop
         if (datos.localidad)            _espLineas += Math.round(_fT_*_LH_);
         if (datos.ruta || datos.prog)   _espLineas += Math.round(_fM_*_LH_);
@@ -123,28 +123,30 @@ function aplicar(base64, datos, opts){
             H = img.height;  // fallback seguro: no cortar
           }
         }
-        const totalH = H + bH;
+        // v8.16 · OVERLAY sobre la foto (no agrega altura → foto NO se afina).
+        // Banner semitransparente (fondo gris/negro con alpha) en la parte
+        // inferior de la imagen. Texto blanco + sombra negra para legibilidad.
+        // QR con fondo blanco sólido para conservar contraste de escaneo.
+        const totalH = H;  // <-- MISMO tamaño que la foto (no suma banner)
         const C = document.createElement('canvas');
         C.width = W; C.height = totalH;
         const ctx = C.getContext('2d');
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
-        // Fondo negro + foto arriba (recortando banner viejo si esResellado)
-        ctx.fillStyle = '#0a0a0a';
-        ctx.fillRect(0, 0, W, totalH);
+        // Dibujar la foto entera (recortando banner viejo si esResellado)
         if (datos.esResellado && img.height > H){
           ctx.drawImage(img, 0, 0, W, H, 0, 0, W, H);
         } else {
-          ctx.drawImage(img, 0, 0);
+          ctx.drawImage(img, 0, 0, W, H);
         }
-        // Banner degradado
-        const y0 = H;
-        const grad = ctx.createLinearGradient(0, y0, 0, totalH);
-        grad.addColorStop(0, '#0d0d0d');
-        grad.addColorStop(1, '#000000');
+        // Banner OVERLAY semitransparente (últimos bH px de la foto)
+        const y0 = H - bH;
+        const grad = ctx.createLinearGradient(0, y0, 0, H);
+        grad.addColorStop(0, 'rgba(0,0,0,0.55)');   // arriba: semitransparente
+        grad.addColorStop(1, 'rgba(0,0,0,0.75)');   // abajo: más oscuro
         ctx.fillStyle = grad;
         ctx.fillRect(0, y0, W, bH);
-        // Línea dorada superior
+        // Línea dorada superior (marca del banner para detección al re-sellar)
         ctx.strokeStyle = '#d4a820';
         ctx.lineWidth = Math.max(2, Math.round(H*0.0025));
         ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
@@ -267,22 +269,22 @@ function aplicar(base64, datos, opts){
         let yB = y0 + Math.round(bH * 0.10);
         if (datos.localidad){
           txtFit(datos.localidad, tx, yB, maxW, fT, '#ffffff', true);
-          yB += Math.round(fT * 1.5);
+          yB += Math.round(fT * 1.35);
         }
         const rutaKm = [datos.ruta, datos.prog ? 'Km ' + datos.prog : ''].filter(Boolean).join('  ·  ');
         if (rutaKm){
           txtFit(rutaKm, tx, yB, maxW, fM, '#ffffff', true);
-          yB += Math.round(fM * 1.5);
+          yB += Math.round(fM * 1.35);
         }
         if (datos.tipo){
           txtFit(datos.tipo, tx, yB, maxW, fM, '#ffffff', false);
-          yB += Math.round(fM * 1.5);
+          yB += Math.round(fM * 1.35);
         }
         if (datos.lat && datos.lng){
           let coords = 'Lat ' + datos.lat + '   Long ' + datos.lng;
           if (datos.alt) coords += '   Alt ' + datos.alt + ' m';
           txtFit(coords, tx, yB, maxW, fS, '#6ecba0', false, true);
-          yB += Math.round(fS * 1.5);
+          yB += Math.round(fS * 1.35);
         }
         const partes = [];
         if (datos.fecha){
@@ -296,7 +298,7 @@ function aplicar(base64, datos, opts){
         }
         if (partes.length){
           txtFit(partes.join('  ·  '), tx, yB, maxW, fS, '#dddddd', false);
-          yB += Math.round(fS * 1.5);
+          yB += Math.round(fS * 1.35);
         }
         // Versión + origen (campo/oficina/re-sello)
         // v9.85 · Ancla al FONDO del banner + AUTO-FIT del ancho para que no se

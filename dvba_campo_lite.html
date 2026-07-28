@@ -598,9 +598,10 @@ function iniciarCaptura(){
     if (!_gpsCuandoSaco && _gpsLat != null){
       _gpsCuandoSaco = { lat:_gpsLat, lng:_gpsLng, acc:_gpsAcc, alt:_gpsAlt, ts:Date.now() };
     }
-    // v9.78 · Bajado a 900/0.70. Con celulares low-RAM (2-3GB) el pico
-    // sigue matando la app aún con 1000/0.72. 900px alcanza para el sello.
-    _fotoActual = await comprimir(file, 900, 0.70);
+    // v9.88 · Subido a 1200/0.75 · con createImageBitmap (v9.78) el pico de RAM
+    // es bajo aunque la resolución sea mayor. 1200px da más "peso" visual a la
+    // foto contra el banner del sello → menos sensación de foto "afinada".
+    _fotoActual = await comprimir(file, 1200, 0.75);
     // v9.80 · Inyectar EXIF con GPS + fecha aunque la foto vaya cruda sin sello.
     // Así cualquier visor de fotos (Google Photos, Windows Fotos) muestra la
     // ubicación en un mini-mapa. El sello institucional se aplica al aprobar en oficina.
