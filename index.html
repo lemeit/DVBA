@@ -2307,7 +2307,14 @@ async function guardar(){
             fecha: fd.toISOString().slice(0, 10),
             hora: fd.toTimeString().slice(0, 8),
           };
+          // v8.17b · Sincronizar _rotacionManualSello con la rotación del sidebar
+          // antes de sellar. Sino la rotación que hizo el user con ↺↻ no se aplica.
+          const _rotBefore = _rotacionManualSello;
+          _rotacionManualSello = _rotacionPreview || 0;
+          console.log('[Aprobación post-edición] rotación sidebar=' + _rotacionPreview + ' → aplicada al sello');
           const b64Sellada = await aplicarSelloDVBA(b64, datosSello);
+          _rotacionManualSello = _rotBefore;  // restaurar
+          _rotacionPreview = 0;  // resetear preview del sidebar
           // Subir al MISMO path en Storage con upsert
           const blobSellada = await (await fetch(b64Sellada)).blob();
           const pathMatch = fotoUrlOrig.match(/\/object\/public\/relevamientos\/(.+?)(\?|$)/);
