@@ -418,7 +418,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.5</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.6</span></div>
   </div>
 </div>
 <div class="layout">
@@ -654,7 +654,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.5</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.6</span>
       </div>
     </div>
 
@@ -722,7 +722,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.5';
+const APP_VERSION = 'v8.6';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -996,15 +996,21 @@ function aplicarSelloDVBA(base64, datos){
         ctx.strokeStyle = '#d4a820';
         ctx.lineWidth = Math.max(2, Math.round(H_visible*0.0025));
         ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
-        // === 3 columnas: logo izq + texto centro + QR der ===
-        const colSide = Math.round(bH*0.95);
-        const colLX = 0, colRX = W - colSide;
+        // === Columnas · v8.6 layout adaptativo · foto vertical (W<700) apaga QR ===
+        const mostrarQR = W >= 700;
+        const colSide = mostrarQR
+          ? Math.min(Math.round(bH*0.9), Math.round(W*0.15))
+          : Math.min(Math.round(bH*0.9), Math.round(W*0.18));
+        const colLX = 0;
+        const colRX = mostrarQR ? (W - colSide) : W;
         const colCX = colSide;
         const colCW = colRX - colSide;
         // Separadores verticales (dorado tenue) — totalH = H + bH
         ctx.strokeStyle = 'rgba(212,168,32,0.35)'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(colSide, y0+bH*0.10); ctx.lineTo(colSide, totalH-bH*0.10); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(colRX, y0+bH*0.10); ctx.lineTo(colRX, totalH-bH*0.10); ctx.stroke();
+        if (mostrarQR) {
+          ctx.beginPath(); ctx.moveTo(colRX, y0+bH*0.10); ctx.lineTo(colRX, totalH-bH*0.10); ctx.stroke();
+        }
         // === COLUMNA IZQUIERDA: Logo DVBA centrado vertical ===
         const logoSz = Math.round(bH*0.78);
         const logoX = colLX + Math.round((colSide - logoSz)/2);
@@ -1021,15 +1027,15 @@ function aplicarSelloDVBA(base64, datos){
           ctx.fillText('DVBA', cx, cy);
           ctx.textAlign = 'left';
         }
-        // === COLUMNA DERECHA: QR Google Maps ===
-        const qrSz = Math.round(bH*0.82);
+        // === COLUMNA DERECHA: QR Google Maps === (solo si mostrarQR)
+        // v8.6 · QR con logo DVBA al centro + error correction H
+        const qrSz = Math.min(Math.round(bH*0.85), Math.round(colSide*0.98));
         const qrX = colRX + Math.round((colSide - qrSz)/2);
         const qrY = y0 + Math.round((bH - qrSz)/2);
-        if (typeof qrcode === 'function' && datos.lat && datos.lng){
+        if (mostrarQR && typeof qrcode === 'function' && datos.lat && datos.lng){
           try{
-            // URL oficial de Google Maps que pone un pin EXACTO en la coordenada (no la interpreta como búsqueda de texto)
             const url = 'https://www.google.com/maps/search/?api=1&query='+datos.lat+','+datos.lng;
-            const qr = qrcode(0, 'M'); qr.addData(url); qr.make();
+            const qr = qrcode(0, 'H'); qr.addData(url); qr.make();  // H = permite tapar 30% (logo center)
             const n = qr.getModuleCount();
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(qrX, qrY, qrSz, qrSz);
@@ -1041,6 +1047,22 @@ function aplicarSelloDVBA(base64, datos){
             ctx.fillStyle = '#000000';
             for (let r = 0; r < n; r++) for (let c = 0; c < n; c++){
               if (qr.isDark(r, c)) ctx.fillRect(ox + c*cell, oy + r*cell, cell, cell);
+            }
+            // Logo DVBA al centro (~24% del QR, seguro con EC=H)
+            const logoQrSz = Math.round(qrSz * 0.24);
+            const logoQrX = qrX + Math.round((qrSz - logoQrSz)/2);
+            const logoQrY = qrY + Math.round((qrSz - logoQrSz)/2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(logoQrX, logoQrY, logoQrSz, logoQrSz);
+            if (logoImg && logoImg.complete && logoImg.naturalWidth > 0){
+              const lp = Math.round(logoQrSz * 0.10);
+              ctx.drawImage(logoImg, logoQrX + lp, logoQrY + lp, logoQrSz - lp*2, logoQrSz - lp*2);
+            } else {
+              ctx.fillStyle = '#003366';
+              ctx.font = '900 ' + Math.round(logoQrSz * 0.35) + 'px Arial,Helvetica,sans-serif';
+              ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+              ctx.fillText('DVBA', logoQrX + logoQrSz/2, logoQrY + logoQrSz/2);
+              ctx.textAlign = 'left'; ctx.textBaseline = 'top';
             }
           } catch(e){ console.warn('QR:', e); }
         }
@@ -1107,19 +1129,40 @@ function aplicarSelloDVBA(base64, datos){
           txtFit(partes.join('  ·  '), tx, yB, maxW, fS, '#dddddd', false);
           yB += Math.round(fS*1.26);
         }
-        // v7.82 · Versión dentro del flujo (debajo de la fecha), no al pie
-        // — así no ensancha el banner. Chiquita, dorada tenue.
-        const fV = Math.round(baseFont * 0.65);
+        // v8.6 · Versión anclada al FONDO del banner + AUTO-FIT del ancho.
+        // Antes: fillText con yB acumulado + font-size fijo → se cortaba si
+        // había muchas líneas o el texto no entraba.
+        let fV = Math.round(baseFont * 0.65);
         const stampInfo = [
           (typeof APP_VERSION === 'string' ? APP_VERSION : 'v?') + '·portal',
           (datos.esResellado ? '↻ re-sello' : 'sello v4')
         ].join('  ·  ');
-        ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
-        ctx.fillStyle = 'rgba(212,168,32,0.55)';
-        ctx.textBaseline = 'top';
+        ctx.textBaseline = 'bottom';
         ctx.textAlign = 'left';
-        ctx.fillText(stampInfo, tx, yB);
-        res(C.toDataURL('image/jpeg', 0.95));
+        ctx.fillStyle = 'rgba(212,168,32,0.55)';
+        ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
+        while (ctx.measureText(stampInfo).width > maxW && fV > 8) {
+          fV--;
+          ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
+        }
+        const yVer = totalH - Math.round(bH * 0.08);
+        ctx.fillText(stampInfo, tx, yVer);
+        ctx.textBaseline = 'top';
+        // v8.6 · Inyectar EXIF post-sellado (si piexif está cargado)
+        let jpegOut = C.toDataURL('image/jpeg', 0.95);
+        if (typeof DVBA_EXIF !== 'undefined' && DVBA_EXIF.disponible()) {
+          try {
+            jpegOut = DVBA_EXIF.inyectar(jpegOut, {
+              lat: parseFloat(datos.lat), lng: parseFloat(datos.lng),
+              alt: datos.alt ? parseFloat(datos.alt) : null,
+              fecha: datos.fecha, hora: datos.hora,
+              ruta: datos.ruta, prog: datos.prog, tipo: datos.tipo,
+              partido: datos.partido, zona: datos.zona,
+              origen: 'oficina'
+            });
+          } catch(e){ console.warn('[portal sello EXIF]', e); }
+        }
+        res(jpegOut);
       } catch(e){ rej(e); }
     };
     img.onerror = () => rej(new Error('Error cargando foto'));
