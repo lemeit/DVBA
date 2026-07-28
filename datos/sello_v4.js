@@ -62,8 +62,23 @@ function aplicar(base64, datos, opts){
     img.onload = () => {
       try {
         const W = img.width;
-        // Banner compactado (mismo cálculo que móvil v9.58)
-        const bH = Math.max(150, Math.min(Math.round(W*0.16), 260));
+        // Banner compactado + AJUSTE DINÁMICO según líneas de texto (v8.14)
+        // Antes: bH fijo 150-260 → en foto vertical chica no alcanzaba para
+        // 5 líneas y el texto de versión quedaba fuera del banner.
+        // Ahora: calcular espacio requerido y elegir el mayor.
+        const bH_base = Math.max(150, Math.min(Math.round(W*0.16), 260));
+        const _baseF = Math.max(16, Math.min(Math.round(W*0.022), 36));
+        const _fT_ = Math.round(_baseF*1.20), _fM_ = Math.round(_baseF*1.05),
+              _fS_ = Math.round(_baseF*0.85), _fV_ = Math.round(_baseF*0.65);
+        let _espLineas = Math.round(bH_base*0.10);  // yB inicial
+        if (datos.localidad)            _espLineas += Math.round(_fT_*1.28);
+        if (datos.ruta || datos.prog)   _espLineas += Math.round(_fM_*1.26);
+        if (datos.tipo)                 _espLineas += Math.round(_fM_*1.26);
+        if (datos.lat && datos.lng)     _espLineas += Math.round(_fS_*1.26);
+        if (datos.fecha || datos.hora)  _espLineas += Math.round(_fS_*1.26);
+        _espLineas += _fV_ + 8;  // línea versión + margen
+        _espLineas += Math.round(bH_base*0.10);  // padding inferior
+        const bH = Math.max(bH_base, _espLineas);
         let H = img.height;
         if (datos.esResellado){
           // v8.13 · Detección estricta · SOLO línea dorada #d4a820 (no falsos
@@ -289,7 +304,10 @@ function aplicar(base64, datos, opts){
         // v9.85 · Ancla al FONDO del banner + AUTO-FIT del ancho para que no se
         // corte a la derecha si el string es más largo que el maxW disponible.
         let fV = Math.round(baseFont * 0.65);
-        const appVer = (typeof APP_VER === 'string') ? APP_VER : 'v?';
+        // v8.14 · Portal usa APP_VERSION, móvil usa APP_VER → probar ambos
+        const appVer = (typeof APP_VER === 'string') ? APP_VER
+                     : (typeof APP_VERSION === 'string') ? APP_VERSION
+                     : 'v?';
         const stampInfo = [
           appVer + '·' + origen,
           (datos.esResellado ? '↻ re-sello' : 'sello ' + SELLO_VER)
