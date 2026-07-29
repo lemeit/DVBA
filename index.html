@@ -420,7 +420,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.17</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.19</span></div>
   </div>
 </div>
 <div class="layout">
@@ -486,10 +486,12 @@ body.modo-campo #campo-fab{display:flex}
           <span style="font-size:7px;color:#3a5a70;margin-left:2px">· activá los que querés ver</span>
         </div>
       </div>
-      <div class="sec">
+      <div class="sec" id="sec-nuevo-registro">
         <div class="sec-title">Nuevo Registro</div>
         <div class="nota">Pasá el cursor sobre la ruta para autocompletar.</div>
         <div class="nota">Al pasar el cursor sobre una ruta los campos se autocompletan.</div>
+    <!-- v8.18 · Panel de edición movible entre sidebar y modal grande -->
+    <div id="edit-form-panel">
     <!-- v7.15 — Toggle Tipo de vía (RP/Camino) — paridad con app móvil -->
     <div class="tipo-via-toggle-d" style="display:flex;gap:0;background:#eef3f8;border-radius:5px;padding:2px;border:1px solid #cdd9e6;margin-bottom:3px">
       <button type="button" class="tv-btn-d active" data-tvd="rp" onclick="d_setTipoVia('rp')" style="flex:1;padding:5px 6px;border:none;background:transparent;font-size:.7rem;font-weight:600;color:#5a6a7a;border-radius:4px;cursor:pointer">🛣 Ruta Provincial</button>
@@ -555,7 +557,8 @@ body.modo-campo #campo-fab{display:flex}
       <button class="btn btn-xs" id="btnLimpiar" onclick="limpiarForm()" style="background:#0d1a1a;border:1px solid #2a4a4a;color:#5a8888;flex-shrink:0" title="Limpiar formulario">✕ Limpiar</button>
       <button class="btn btn-xs" id="btnCancelarEdit" onclick="cancelarEdit()" style="display:none;background:#1a0d0d;border-color:#a04040;color:#d07070">Cancelar edición</button>
     </div>
-  
+    </div><!-- /#edit-form-panel -->
+
       </div>
       <div class="sec" style="flex:1;border-bottom:none;display:flex;flex-direction:column">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
@@ -656,7 +659,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.17</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.19</span>
       </div>
     </div>
 
@@ -724,7 +727,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.17';
+const APP_VERSION = 'v8.19';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2147,6 +2150,18 @@ function prevFoto(input){
 async function guardar(){
   // Gate de auth: si no hay sesión, abrir login y abortar
   if (!(await requireAuth('Iniciá sesión para guardar registros.'))) return;
+  // v8.17c · Aviso si hay rotación pendiente sin re-sellar
+  if (_editandoId && _rotacionPreview > 0) {
+    const ok = confirm(
+      '⚠ Rotaste la foto ' + (_rotacionPreview * 90) + '° pero NO tocaste "🖋 Re-sellar".\n\n' +
+      '"Actualizar Registro" solo guarda los datos en la base — la rotación NO se guarda en la foto.\n\n' +
+      'Para aplicar la rotación necesitás tocar "🖋 Re-sellar" (o cancelá acá, hacé Re-sellar y después Actualizar).\n\n' +
+      '¿Continuar solo con datos (perder rotación)?'
+    );
+    if (!ok) return;
+    _rotacionPreview = 0;  // el user aceptó descartarla
+    if (typeof rotarFotoPreview === 'function') rotarFotoPreview(0);  // reset visual
+  }
   const ruta    = document.getElementById('fruta').value;
   const partido = document.getElementById('fpartido').value;
   const prog    = document.getElementById('fprog').value;
@@ -2652,7 +2667,7 @@ function renderRegs(){
         ${tipoViaBadge}
         ${wfBadge}
         ${reg.estado ? `<span class="est est-${reg.estado}">${reg.estado}</span>` : '<span class="est" style="background:#e0e0e0;color:#888">(sin estado)</span>'}
-        <button class="btn-edit" onclick="editReg(${reg.id})" title="Editar">✏</button>
+        <button class="btn-edit" onclick="editRegModal(${reg.id})" title="Editar en modal grande">✏</button>
         <button class="btn-del" onclick="delReg(${reg.id})" title="Eliminar">✕</button>
       </div>
       <div>
@@ -4458,10 +4473,31 @@ function rotarFotoPreview(delta){
   const prev = document.getElementById('iprev');
   const lbl  = document.getElementById('rot-lbl');
   if (prev) prev.style.transform = 'rotate(' + (_rotacionPreview * 90) + 'deg)';
+  // v8.18 · Sync con la foto grande del modal si está abierto
+  const prevModal = document.getElementById('me-iprev');
+  if (prevModal) prevModal.style.transform = 'rotate(' + (_rotacionPreview * 90) + 'deg)';
   if (lbl) {
     lbl.textContent = _rotacionPreview === 0
       ? 'Rotá la foto si se ve de costado, luego "Re-sellar"'
       : `Rotación: ${_rotacionPreview * 90}° — tocá "Re-sellar" para aplicar`;
+    // v8.17c · Estilo destacado cuando hay rotación pendiente
+    if (_rotacionPreview > 0) {
+      lbl.style.background = '#fff4e0';
+      lbl.style.color = '#c47a00';
+      lbl.style.padding = '4px 8px';
+      lbl.style.borderRadius = '4px';
+      lbl.style.border = '1px solid #f0d090';
+      lbl.style.fontWeight = '700';
+      lbl.style.display = 'inline-block';
+    } else {
+      lbl.style.background = '';
+      lbl.style.color = '';
+      lbl.style.padding = '';
+      lbl.style.borderRadius = '';
+      lbl.style.border = '';
+      lbl.style.fontWeight = '';
+      lbl.style.display = '';
+    }
   }
 }
 
@@ -4669,6 +4705,64 @@ async function reSellarFotoEditada(){
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = '🖋 Re-sellar'; }
   }
+}
+
+// v8.18 · Editar en MODAL grande · abre el modal y mueve el panel del sidebar
+function editRegModal(id){
+  editReg(id);  // popula todos los campos + estado
+  abrirModalEdit(id);
+}
+
+function abrirModalEdit(id){
+  const reg = regs.find(r => r.id === id);
+  if (!reg) return;
+  // Título del modal
+  const partes = ['#' + id];
+  if (reg.ruta && reg.ruta !== '?') partes.push(reg.ruta);
+  if (reg.tipo) partes.push(reg.tipo);
+  const tit = document.getElementById('me-titulo');
+  if (tit) tit.textContent = partes.join(' · ');
+  // Foto grande a la izq del modal (espejo de la del sidebar)
+  const iprevGrande = document.getElementById('me-iprev');
+  if (iprevGrande) {
+    if (reg.foto) {
+      iprevGrande.src = reg.foto;
+      iprevGrande.style.display = 'block';
+      iprevGrande.style.transform = 'rotate(' + (_rotacionPreview*90) + 'deg)';
+    } else {
+      iprevGrande.style.display = 'none';
+    }
+  }
+  // Mover el panel de form del sidebar al modal
+  const panel = document.getElementById('edit-form-panel');
+  const slot = document.getElementById('modal-edit-form-slot');
+  const sec = document.getElementById('sec-nuevo-registro');
+  if (panel && slot) {
+    slot.appendChild(panel);
+    // Placeholder en el sidebar mientras el form está en el modal
+    if (sec && !document.getElementById('edit-panel-placeholder')) {
+      const ph = document.createElement('div');
+      ph.id = 'edit-panel-placeholder';
+      ph.style.cssText = 'padding:16px;background:#0d2030;border:1px dashed #2a4050;border-radius:6px;color:#7aacbc;font-size:11px;text-align:center;line-height:1.6';
+      ph.innerHTML = '📝 Editando en modal grande<br><button onclick="cerrarModalEdit()" style="margin-top:8px;padding:5px 12px;background:#1a2a35;color:#c4dae6;border:1px solid #2a4a5a;border-radius:4px;font-size:11px;cursor:pointer">Volver aquí</button>';
+      sec.appendChild(ph);
+    }
+  }
+  // Mostrar el modal
+  const ov = document.getElementById('modal-edit-ov');
+  if (ov) ov.style.display = 'flex';
+}
+
+function cerrarModalEdit(){
+  // Devolver el panel al sidebar
+  const panel = document.getElementById('edit-form-panel');
+  const sec = document.getElementById('sec-nuevo-registro');
+  const ph = document.getElementById('edit-panel-placeholder');
+  if (ph) ph.remove();
+  if (panel && sec) sec.appendChild(panel);
+  // Ocultar modal
+  const ov = document.getElementById('modal-edit-ov');
+  if (ov) ov.style.display = 'none';
 }
 
 function editReg(id) {
@@ -5804,10 +5898,10 @@ async function rechazarRegistro(id){
   }
 }
 
-/* ── EDITAR DESDE COLA: cierra el modal cola, abre el modal de edición de registro ── */
+/* ── EDITAR DESDE COLA: cierra el modal cola, abre el modal de edición grande ── */
 function editarDesdeCola(id){
   cerrarColaPendientes();
-  setTimeout(() => editReg(id), 200);  // pequeña pausa para que termine la animación
+  setTimeout(() => editRegModal(id), 200);
 }
 
 /* ── APROBAR BATCH: aprueba todos los registros con validado_geo='auto_ok' ── */
@@ -6012,6 +6106,36 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
         ✅ Aprobar los verificados (<span id="batch-count">0</span>)
       </button>
       <button class="btn-cerrar" onclick="cerrarColaPendientes()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- v8.18 · Modal grande de EDICIÓN de registro (reemplaza edición en sidebar) -->
+<div class="mov-edit" id="modal-edit-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9500;align-items:center;justify-content:center;padding:20px;box-sizing:border-box">
+  <div id="modal-edit-box" style="background:#0a1620;border:1px solid #2a4050;border-radius:12px;width:100%;max-width:1100px;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);color:#c4dae6;font-family:inherit">
+    <!-- Header -->
+    <div style="padding:14px 22px;border-bottom:1px solid #1a3040;display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="font-size:15px;font-weight:700;color:#8ac0d8">
+        <span style="color:#d4a820">✏</span> Editar Registro <span id="me-titulo">#—</span>
+      </div>
+      <button onclick="cerrarModalEdit()" style="background:#1a2a35;border:1px solid #2a4a5a;color:#c4dae6;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">✕ Cerrar</button>
+    </div>
+    <!-- Body: 2 columnas · foto grande a la izq · form a la der -->
+    <div style="flex:1;overflow-y:auto;display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:20px;padding:16px 22px 6px">
+      <!-- Columna izq: foto grande -->
+      <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+        <div id="me-foto-container" style="background:#050d14;border:1px solid #1a3040;border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:300px;position:relative">
+          <img id="me-iprev" alt="Foto del registro" style="max-width:100%;max-height:460px;object-fit:contain;transform-origin:center;transition:transform .25s">
+        </div>
+      </div>
+      <!-- Columna der: form movido desde el sidebar -->
+      <div id="modal-edit-form-slot" style="min-width:0"></div>
+    </div>
+    <!-- Footer con acciones agrupadas -->
+    <div style="padding:12px 22px;border-top:1px solid #1a3040;background:#050d14;border-radius:0 0 12px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <span style="color:#6a8090;font-size:11px;flex:1">Los botones de sellado / rotación / EXIF están en el form a la derecha.</span>
+      <button onclick="cerrarModalEdit()" style="background:#0d1a1a;border:1px solid #2a4a4a;color:#5a8888;padding:8px 16px;border-radius:6px;font-size:13px;cursor:pointer">Cerrar sin guardar</button>
     </div>
   </div>
 </div>
