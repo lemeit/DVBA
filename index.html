@@ -71,6 +71,16 @@ header p{font-size:10px;color:rgba(255,255,255,.75);margin-top:1px;font-weight:5
 
 /* ═══ PANEL LATERAL ═════════════════════════════════════════ */
 .panel{width:300px;min-width:220px;max-width:540px;background:var(--w);display:flex;flex-direction:column;border-right:1px solid var(--light);flex-shrink:0;position:relative;transition:width .25s;height:100%;overflow:hidden;box-shadow:2px 0 8px rgba(0,0,0,.06)}
+/* v8.20 · Drawer colapsable · botón toggle en el borde derecho */
+.panel.collapsed{width:32px !important;min-width:32px}
+.panel.collapsed > *:not(.panel-toggle):not(.panel-resize){display:none !important}
+.panel-toggle{position:absolute;top:50%;right:-14px;transform:translateY(-50%);z-index:250;width:28px;height:52px;background:var(--p);color:#fff;border:1px solid #003366;border-left:none;border-radius:0 8px 8px 0;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;box-shadow:2px 2px 6px rgba(0,0,0,.2);transition:background .15s;user-select:none}
+.panel-toggle:hover{background:#00477a}
+.panel.collapsed .panel-toggle{right:2px;border-radius:0;border-left:1px solid #003366}
+.panel.collapsed .panel-toggle-ico::before{content:'▶'}
+.panel-toggle-ico::before{content:'◀'}
+/* Cuando el drawer está colapsado, mostrar un label vertical con "Sidebar" */
+.panel.collapsed::after{content:'⌘ Panel';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-90deg);white-space:nowrap;color:var(--mut);font-size:11px;font-weight:600;letter-spacing:.5px;pointer-events:none}
 .panel-resize{width:5px;background:transparent;cursor:col-resize;position:absolute;right:0;top:0;bottom:0;z-index:200;transition:background .15s}
 .panel-resize:hover,.panel-resize.dragging{background:var(--p)}
 
@@ -420,7 +430,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.19</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.20</span></div>
   </div>
 </div>
 <div class="layout">
@@ -429,6 +439,8 @@ body.modo-campo #campo-fab{display:flex}
 <div id="mob-overlay" onclick="closeSidebar()"></div>
 <div class="panel" id="sidebar">
   <div class="panel-resize" id="sbResize" title="Arrastrá para redimensionar"></div>
+  <!-- v8.20 · Botón para colapsar/expandir el sidebar y liberar el mapa -->
+  <button class="panel-toggle" id="sbToggle" onclick="togglePanelColapsado()" title="Colapsar/expandir panel (Ctrl+B)"><span class="panel-toggle-ico"></span></button>
   <div class="panel-tabs">
     <div class="ptab on"      id="ptab-mapa" onclick="showPtab('mapa',this)">🗺 Mapa</div>
     <div class="ptab tab-reg" id="ptab-regs" onclick="showPtab('regs',this)">📋 Registros</div>
@@ -659,7 +671,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.19</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.20</span>
       </div>
     </div>
 
@@ -727,7 +739,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.19';
+const APP_VERSION = 'v8.20';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2667,7 +2679,7 @@ function renderRegs(){
         ${tipoViaBadge}
         ${wfBadge}
         ${reg.estado ? `<span class="est est-${reg.estado}">${reg.estado}</span>` : '<span class="est" style="background:#e0e0e0;color:#888">(sin estado)</span>'}
-        <button class="btn-edit" onclick="editRegModal(${reg.id})" title="Editar en modal grande">✏</button>
+        <button class="btn-edit" onclick="editReg(${reg.id})" title="Editar">✏</button>
         <button class="btn-del" onclick="delReg(${reg.id})" title="Eliminar">✕</button>
       </div>
       <div>
@@ -4713,6 +4725,35 @@ function editRegModal(id){
   abrirModalEdit(id);
 }
 
+// v8.20 · Toggle drawer sidebar · libera el mapa cuando querés ver todo
+function togglePanelColapsado(){
+  const panel = document.getElementById('sidebar');
+  if (!panel) return;
+  const colapsado = panel.classList.toggle('collapsed');
+  // Persistir estado
+  try { localStorage.setItem('dvba_panel_colapsado', colapsado ? '1' : '0'); } catch(e){}
+  // Recalcular tamaño de Leaflet para que ocupe el espacio nuevo
+  if (typeof map !== 'undefined' && map && map.invalidateSize) {
+    setTimeout(() => map.invalidateSize(), 260);  // esperar transition
+  }
+}
+// Al cargar, restaurar el estado
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    if (localStorage.getItem('dvba_panel_colapsado') === '1') {
+      const p = document.getElementById('sidebar');
+      if (p) p.classList.add('collapsed');
+    }
+  } catch(e){}
+});
+// Ctrl+B para toggle (atajo estándar tipo VS Code / Cursor)
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'b' && !e.target.matches('input,textarea,select')) {
+    e.preventDefault();
+    togglePanelColapsado();
+  }
+});
+
 function abrirModalEdit(id){
   const reg = regs.find(r => r.id === id);
   if (!reg) return;
@@ -5898,10 +5939,10 @@ async function rechazarRegistro(id){
   }
 }
 
-/* ── EDITAR DESDE COLA: cierra el modal cola, abre el modal de edición grande ── */
+/* ── EDITAR DESDE COLA: cierra el modal cola, abre el sidebar de edición ── */
 function editarDesdeCola(id){
   cerrarColaPendientes();
-  setTimeout(() => editRegModal(id), 200);
+  setTimeout(() => editReg(id), 200);
 }
 
 /* ── APROBAR BATCH: aprueba todos los registros con validado_geo='auto_ok' ── */
