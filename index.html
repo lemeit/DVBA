@@ -518,7 +518,7 @@ body.modo-campo #campo-fab{display:flex}
     </div>
     <div style="display:flex;gap:4px">
       <input type="text" id="fprog" placeholder="Progresiva (ej: 45+500)" style="flex:1">
-      <button type="button" onclick="ubicarPorProgresiva()" title="Ubicar el pin usando ruta + progresiva" style="padding:0 10px;background:#0d2030;color:#d4a820;border:1px solid #2a4050;border-radius:4px;cursor:pointer;font-size:14px;font-weight:700">🎯</button>
+      <button type="button" onclick="ubicarPorProgresiva()" title="Ubicar pin en el mapa usando la ruta + progresiva que cargaste. Ej: RP 30 + km 274+935 → pin se ubica solo." style="padding:0 10px;background:#0d2030;color:#d4a820;border:1px solid #2a4050;border-radius:4px;cursor:pointer;font-size:14px;font-weight:700;white-space:nowrap">🎯 Ubicar</button>
     </div>
     <!-- Selector jerárquico de tipo — desktop -->
     <div id="z6-tipo-selector" class="z6-tipo-sel">
@@ -3683,10 +3683,12 @@ function nuevoPinDesdeMapa(){
 // usando CHAIN + ANCHORS. Retorna null si no se puede.
 function progresivaAPunto(rutaNum, kmTarget){
   rutaNum = String(rutaNum).replace(/^RP\s*/i, '').trim();
-  const meta = CHAINS_META && CHAINS_META[rutaNum];
-  const chain = CHAINS_DATA && CHAINS_DATA[rutaNum];
-  const anchors = ANCHORS_DATA && ANCHORS_DATA[rutaNum];
-  if (!chain || !anchors || !anchors.length) return null;
+  const chain = (typeof CHAINS_DATA !== 'undefined' && CHAINS_DATA) ? CHAINS_DATA[rutaNum] : null;
+  const anchors = (typeof ANCHORS_DATA !== 'undefined' && ANCHORS_DATA) ? ANCHORS_DATA[rutaNum] : null;
+  if (!chain || !anchors || !anchors.length) {
+    console.warn('[progresivaAPunto] sin chain/anchors para RP', rutaNum);
+    return null;
+  }
   const km = parseFloat(kmTarget);
   if (!isFinite(km)) return null;
   // km → acc con interpolación lineal entre anchors
