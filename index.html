@@ -466,7 +466,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.24</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.25</span></div>
   </div>
 </div>
 <div class="layout">
@@ -584,6 +584,8 @@ body.modo-campo #campo-fab{display:flex}
     <textarea id="fobs" placeholder="Observaciones..." rows="2" style="resize:vertical"></textarea>
     <label style="font-size:9px;color:#3d6a88;display:block;margin-bottom:2px">Adjuntar foto</label>
     <input type="file" id="ffoto" accept="image/*" onchange="prevFoto(this)">
+    <!-- v8.25 · Badge de origen del registro (aparece solo al editar) -->
+    <div id="edit-origen-badge" style="display:none;margin:6px 0"></div>
     <img id="iprev" class="fprev">
     <!-- v7.48 — Controles rotación + re-sellar foto (solo aparecen en modo edición) -->
     <div id="foto-tools" style="display:none;gap:6px;margin-top:4px;flex-wrap:wrap;align-items:center">
@@ -625,7 +627,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="sec" style="flex:1;border-bottom:none;display:flex;flex-direction:column">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
           <div class="sec-title" style="margin-bottom:0">Registros <span id="rcnt" style="color:#3a5a70;font-weight:400">(0)</span></div>
-          <button class="btn btn-xs btn-ghost" onclick="exportCSV()">↓ CSV</button>
+          <button onclick="exportCSV()" class="btn-side side-neutral" style="padding:3px 8px;font-size:10px">↓ CSV</button>
         </div>
         <input type="text" id="reg-busq" placeholder="🔍 Buscar ruta, tipo, partido, km…"
           style="margin-bottom:5px;font-size:10px;padding:4px 7px"
@@ -639,11 +641,11 @@ body.modo-campo #campo-fab{display:flex}
       <div class="sec" style="border-bottom:none">
         <div class="sec-title">Exportar Reportes</div>
         
-      <div style="font-size:9px;color:#4aaa6a;margin-bottom:8px;padding:5px 7px;background:#0a1f12;border-radius:4px;border-left:3px solid #4aaa6a">
-        El reporte incluye las rutas activas en el mapa.<br>Activalas/desactivalas desde la pestaña <b>Rutas</b>.
+      <div style="font-size:10px;color:var(--p);margin-bottom:10px;padding:8px 10px;background:#0d2830;border-radius:5px;border-left:3px solid var(--p);line-height:1.45">
+        El reporte incluye las rutas activas en el mapa.<br>Activalas/desactivalas desde la pestaña <b>Mapa</b>.
       </div>
 
-      <div style="font-size:9px;color:#3d6a88;margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Columnas</div>
+      <div style="font-size:10px;color:var(--p);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Columnas</div>
       <!-- Checkboxes de columnas -->
       <div id="rep-cols" style="display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;margin-bottom:8px">
         <label class="rep-chk"><input type="checkbox" id="rc-long" checked> Long. GIS (km)</label>
@@ -657,63 +659,58 @@ body.modo-campo #campo-fab{display:flex}
       </div>
 
       <!-- Filtro por tipo de registro -->
-      <div style="margin-bottom:8px;padding-top:6px;border-top:1px solid var(--light)">
-        <div style="font-size:9px;color:#7a9ab0;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Filtrar registros por tipo</div>
+      <div style="margin-bottom:10px;padding-top:8px;border-top:1px solid #1a3040">
+        <div style="font-size:10px;color:var(--p);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Filtrar registros por tipo</div>
         <div style="position:relative">
           <button onclick="toggleTipoDropdown()" id="tipo-dd-btn"
-            style="width:100%;text-align:left;padding:4px 8px;background:#0d1825;border:1px solid #2a4a6a;color:#8ab8d8;font-size:9px;border-radius:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+            style="width:100%;text-align:left;padding:6px 10px;background:#0d2030;border:1px solid #2a4050;color:var(--p);font-size:11px;border-radius:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
             <span id="tipo-dd-label">Todos los tipos</span>
             <span>▾</span>
           </button>
-          <div id="tipo-dropdown" style="display:none;position:absolute;z-index:999;width:100%;background:#0d1825;border:1px solid #2a4a6a;border-radius:4px;margin-top:2px;max-height:220px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.5)">
-            <div style="display:flex;gap:4px;padding:5px 6px;border-bottom:1px solid var(--light)">
-              <button onclick="selTiposTodos()" style="flex:1;font-size:8px;padding:2px;background:#0a2a18;border:1px solid #3a7a5a;color:#5aaa7a;border-radius:3px;cursor:pointer">✓ Todos</button>
-              <button onclick="selTiposNinguno()" style="flex:1;font-size:8px;padding:2px;background:#2a0a0a;border:1px solid #7a3a3a;color:#aa5a5a;border-radius:3px;cursor:pointer">✗ Ninguno</button>
+          <div id="tipo-dropdown" style="display:none;position:absolute;z-index:999;width:100%;background:#0a1620;border:1px solid #2a4050;border-radius:4px;margin-top:2px;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.4)">
+            <div style="display:flex;gap:6px;padding:6px 8px;border-bottom:1px solid #1a3040">
+              <button onclick="selTiposTodos()" class="btn-side side-neutral" style="flex:1">✓ Todos</button>
+              <button onclick="selTiposNinguno()" class="btn-side side-danger" style="flex:1">✗ Ninguno</button>
             </div>
             <div id="tipo-filtros" style="padding:4px 6px"></div>
           </div>
         </div>
       </div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">
-        <button class="btn btn-xs" onclick="generarReporte()" style="background:#1a3040;border-color:#d4a820;color:#d4a820;font-weight:700">
-          ▶ Generar
+      <!-- v8.25 · Botones unificados con .btn-side · Generar es CTA (primary turquesa), exports son neutral -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px">
+        <button onclick="generarReporte()" class="btn-side side-primary" style="grid-column:1/-1;padding:8px 10px;font-size:12px">
+          ▶ Generar reporte
         </button>
-        <button class="btn btn-xs" onclick="exportReporteCSV()" style="background:#0d2a1a;border-color:#4aaa6a;color:#4aaa6a;font-weight:600">
-          ↓ CSV
-        </button>
-        <button class="btn btn-xs" onclick="exportReportePDF()" style="background:#1a1a30;border-color:#6a8ad4;color:#6a8ad4;font-weight:600">
-          ↓ PDF rutas
-        </button>
-        <button class="btn btn-xs" onclick="exportRegistrosPDF()" style="background:#1a2030;border-color:#d46a8a;color:#d46a8a;font-weight:600">
-          ↓ PDF registros
-        </button>
+        <button onclick="exportReporteCSV()" class="btn-side side-neutral">↓ CSV</button>
+        <button onclick="exportReportePDF()" class="btn-side side-neutral">↓ PDF rutas</button>
+        <button onclick="exportRegistrosPDF()" class="btn-side side-neutral" style="grid-column:1/-1">↓ PDF registros</button>
       </div>
 
       <div id="rep-tabla" style="margin-top:8px"></div>
     </div>
 
-    <!-- v7.50 — Mantenimiento de Storage: limpieza masiva de backups -->
-    <div class="sec" style="border-top:1px solid var(--light);margin-top:8px;padding-top:8px">
-      <div class="sec-title">🧹 Mantenimiento Storage</div>
-      <div style="font-size:9px;color:#8d6a3a;margin-bottom:6px;padding:5px 7px;background:#1f1a0a;border-radius:4px;border-left:3px solid #c48b4a;line-height:1.4">
+    <!-- v7.50 · v8.25 · Mantenimiento de Storage + Auditoría (rediseño paleta PBA) -->
+    <div class="sec" style="border-top:1px solid #1a3040;margin-top:12px;padding-top:12px">
+      <div class="sec-title" style="font-family:'Encode Sans',sans-serif">🧹 Mantenimiento Storage</div>
+      <div style="font-size:10px;color:var(--am);margin-bottom:8px;padding:8px 10px;background:#1f1a0a;border-radius:5px;border-left:3px solid var(--am);line-height:1.45">
         Elimina los backups originales de registros aprobados. Después de esto los registros pasan a legacy (no re-sellables limpio).
       </div>
-      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
-        <label style="font-size:10px;color:#7aacbc;flex-shrink:0">Aprobados hace más de</label>
-        <input type="number" id="clean-days" value="30" min="1" max="3650" style="width:60px;padding:4px 6px;background:#0d1a1a;color:#c4e0d0;border:1px solid #2a4a4a;border-radius:4px;font-size:11px">
-        <label style="font-size:10px;color:#7aacbc">días</label>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <label style="font-size:10px;color:var(--p);flex-shrink:0;font-family:'Encode Sans',sans-serif">Aprobados hace más de</label>
+        <input type="number" id="clean-days" value="30" min="1" max="3650" style="width:60px;padding:5px 8px;background:#0d2030;color:var(--p);border:1px solid #2a4050;border-radius:4px;font-size:11px;font-family:inherit">
+        <label style="font-size:10px;color:var(--p);font-family:'Encode Sans',sans-serif">días</label>
       </div>
-      <button class="btn btn-xs" onclick="limpiarBackupsMasivo()" style="background:#2a1a10;border:1px solid #c48b4a;color:#c4ffb0;font-weight:600;width:100%;padding:6px">
+      <button onclick="limpiarBackupsMasivo()" class="btn-side side-danger" style="width:100%;padding:8px 10px;font-size:12px">
         🧹 Limpiar backups viejos
       </button>
-      <div id="clean-result" style="font-size:10px;color:#7aacbc;margin-top:6px"></div>
-      <!-- v8.22 · Auditar fechas sospechosas (futuras, muy viejas, formato roto) -->
-      <div style="border-top:1px dashed #2a4a4a;margin-top:10px;padding-top:8px">
-        <div style="font-size:10px;color:#8ac0d8;text-transform:uppercase;letter-spacing:.3px;font-weight:700;margin-bottom:4px">🔍 Auditar fechas</div>
-        <button class="btn btn-xs" onclick="auditarFechasSospechosas()" style="background:#0d2030;border:1px solid #4a6a8a;color:#a0c0e0;width:100%;padding:6px">
+      <div id="clean-result" style="font-size:10px;color:var(--p);margin-top:6px"></div>
+      <!-- v8.22 · v8.25 · Auditar fechas sospechosas -->
+      <div style="border-top:1px dashed #2a4050;margin-top:12px;padding-top:10px">
+        <div class="sec-title" style="font-family:'Encode Sans',sans-serif;font-size:11px">🔍 Auditar fechas</div>
+        <button onclick="auditarFechasSospechosas()" class="btn-side side-neutral" style="width:100%;padding:8px 10px;font-size:12px">
           Detectar registros con fecha sospechosa
         </button>
-        <div id="audit-fechas-result" style="font-size:10px;color:#7aacbc;margin-top:6px;max-height:200px;overflow-y:auto"></div>
+        <div id="audit-fechas-result" style="font-size:10px;color:var(--p);margin-top:6px;max-height:200px;overflow-y:auto"></div>
       </div>
     </div>
       </div>
@@ -729,7 +726,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.24</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.25</span>
       </div>
     </div>
 
@@ -801,7 +798,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.24';
+const APP_VERSION = 'v8.25';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2695,7 +2692,8 @@ function drawRegMarkers(){
     const meta=RUTA_META[(reg.ruta||'').replace(/^RP\s*/i,'')]||RUTA_META[reg.ruta]||{color:'#00aec3'};
     const ico=L.divIcon({className:'',html:`<div style="background:${meta.color};border:2px solid rgba(255,255,255,.4);width:10px;height:10px;border-radius:50%;box-shadow:0 1px 5px rgba(0,0,0,.6)"></div>`,iconAnchor:[5,5]});
     const mk=L.marker([reg.lat,reg.lng],{icon:ico}).addTo(map)
-      .bindPopup(`<b style="color:${meta.color}">${reg.ruta}</b>${reg.prog?` &middot; <b>Km</b> ${reg.prog}`:''}${reg.partido?` &middot; ${reg.partido}`:''}<br>
+      .bindPopup(`<div style="margin-bottom:5px">${_badgeOrigenRegistro(reg)}</div>
+        <b style="color:${meta.color}">${reg.ruta}</b>${reg.prog?` &middot; <b>Km</b> ${reg.prog}`:''}${reg.partido?` &middot; ${reg.partido}`:''}<br>
         ${reg.estado?`<span class="est est-${reg.estado}">${reg.estado}</span>`:'<span style="color:#888;font-size:10px">(sin estado)</span>'}${reg.tipo?` &middot; ${reg.tipo}`:''}<br>
         ${reg.obs?reg.obs+'<br>':''}
         ${reg.foto?`<img src="${reg.foto}" style="max-width:200px;border-radius:3px;margin-top:4px;display:block;cursor:pointer" onclick="showFoto(this.src, ${reg.id||0}, '${(reg.ruta||'').replace(/'/g,"\\'")}', '${(reg.prog||reg.progresiva||'').replace(/'/g,"\\'")}')">`:''}
@@ -2706,6 +2704,25 @@ function drawRegMarkers(){
         </div>`);
     capasReg.push(mk);
   });
+}
+
+// v8.25 · Detectar origen de un registro (Modo Básico / Avanzado / Portal) y devolver badge HTML
+function _badgeOrigenRegistro(reg){
+  const obs = (reg.obs || '');
+  const esPlaceholderLite = /Foto tomada con Modo B[aá]sico/i.test(obs)
+                         || /Foto tomada con Captura R[aá]pida/i.test(obs);
+  const rutaVacia = !reg.ruta || reg.ruta === '?' || reg.ruta === '-';
+  let etiqueta, color, ico;
+  if (esPlaceholderLite || (rutaVacia && reg.estado_workflow === 'campo')) {
+    etiqueta = 'Modo Básico'; color = '#00aec3'; ico = '📱';
+  } else if (reg.estado_workflow === 'campo') {
+    etiqueta = 'Modo Avanzado'; color = '#22a954'; ico = '📱';
+  } else if (reg.sello_version === 'v3' || reg.sello_version === 'v4') {
+    etiqueta = 'Portal · escritorio'; color = '#838383'; ico = '🖥';
+  } else {
+    etiqueta = 'Origen sin identificar'; color = '#838383'; ico = '❓';
+  }
+  return `<span title="Origen del registro (deducido de estado + placeholder)" style="display:inline-block;background:${color}22;color:${color};border:1px solid ${color}55;padding:2px 8px;border-radius:10px;font-size:9.5px;font-weight:700;font-family:'Encode Sans',sans-serif;letter-spacing:.2px;white-space:nowrap">${ico} ${etiqueta}</span>`;
 }
 
 let _regPage = 0; // página actual de registros (30 por página)
@@ -4165,7 +4182,7 @@ function generarReporte() {
 
     html += `<tr><td class="ruta-cell" style="color:${r.color};border-left:3px solid ${r.color}">${r.label}</td>`;
     if (showLong)     html += `<td>${r.longGis}</td>`;
-    if (showLOficial) html += `<td style="color:#d4a820">${r.longOf}</td>`;
+    if (showLOficial) html += `<td style="color:var(--p);font-weight:600">${r.longOf}</td>`;
     if (showSup)      html += `<td style="font-size:8px">${r.clase}</td><td>${barraCell}</td>`;
     if (showProg)     html += `<td>${r.progIni}</td><td>${r.progFin}</td>`;
     if (showCoords)   html += `<td style="font-size:8px">${r.coordIni}</td><td style="font-size:8px">${r.coordFin}</td>`;
@@ -4309,7 +4326,7 @@ function exportReportePDF() {
   .header-txt h2 { font-size:8pt; color:#444; font-weight:400; margin-top:2px; }
   table { width:100%; border-collapse:collapse; font-size:7.5pt; table-layout:auto; }
   .wrap-table { overflow-x:auto; width:100%; }
-  thead th { background:#0d1420; color:#d4a820; padding:4px 6px; text-align:left; font-size:7pt; white-space:nowrap; }
+  thead th { background:#00aec3; color:#fff; padding:5px 7px; text-align:left; font-size:7pt; white-space:nowrap; font-family:Encode Sans,sans-serif; font-weight:700; }
   tbody tr:nth-child(even) { background:#f5f7fa; }
   tbody td { padding:3px 6px; border-bottom:1px solid #e0e4ea; vertical-align:middle; }
   .meta-grid { display:flex; gap:16px; font-size:7.5pt; color:#444; margin-bottom:8px; flex-wrap:wrap; }
@@ -4473,7 +4490,7 @@ async function exportRegistrosPDF() {
   .ruta-count { font-size:7.5pt; color:#666; }
   table { width:100%; border-collapse:collapse; font-size:7.5pt; table-layout:auto; }
   .wrap-table { overflow-x:auto; width:100%; }
-  thead th { background:#0d1420; color:#d4a820; padding:3px 5px; text-align:left; font-size:7pt; white-space:nowrap; }
+  thead th { background:#00aec3; color:#fff; padding:4px 6px; text-align:left; font-size:7pt; white-space:nowrap; font-family:Encode Sans,sans-serif; font-weight:700; }
   tbody tr:nth-child(even) { background:#f8f9fc; }
   tbody td { padding:3px 5px; border-bottom:1px solid #e8ecf0; vertical-align:middle; }
   td:nth-child(8) { min-width:90px; color:#1a4a7a; }
@@ -5044,13 +5061,30 @@ function editReg(id) {
   // Ir a la pestaña Registro
   showPtab('regs', document.getElementById('ptab-regs'));
 
+  // v8.25 · Mostrar badge de origen en el sidebar (arriba de la foto)
+  const badgeBox = document.getElementById('edit-origen-badge');
+  if (badgeBox) {
+    badgeBox.innerHTML = _badgeOrigenRegistro(reg);
+    badgeBox.style.display = 'block';
+  }
+
   // Llenar formulario con datos del registro
   document.getElementById('fruta').value    = reg.ruta;
   document.getElementById('fpartido').value = reg.partido || '';
   document.getElementById('fprog').value    = reg.prog || '';
   z6TipoSetValor(reg.tipo || '');
   document.getElementById('festado').value  = reg.estado || '';
-  document.getElementById('fobs').value     = reg.obs || '';
+  // v8.25 · Si las observaciones son el placeholder auto-generado por el Modo Básico
+  // ("Foto tomada con Modo Básico (vX.XX) · GPS ±Ym · Completar datos en oficina."),
+  // mostrarlas VACÍAS en el input para que el user complete con datos reales sin
+  // borrar el placeholder manualmente. Al guardar, si sigue vacío queda null.
+  const obsRaw = reg.obs || '';
+  const esPlaceholderLite = /Foto tomada con Modo B[aá]sico.*Completar datos en oficina/i.test(obsRaw)
+                         || /Foto tomada con Captura R[aá]pida.*Completar datos en oficina/i.test(obsRaw);  // legacy
+  document.getElementById('fobs').value     = esPlaceholderLite ? '' : obsRaw;
+  if (esPlaceholderLite) {
+    document.getElementById('fobs').placeholder = 'Completá las observaciones (placeholder auto del móvil descartado)';
+  }
   document.getElementById('flat').value     = reg.lat ? reg.lat.toFixed(6) : '';
   document.getElementById('flng').value     = reg.lng ? reg.lng.toFixed(6) : '';
   document.getElementById('_editId').value  = id;
@@ -5187,6 +5221,9 @@ function cancelarEdit() {
   if (btnBackup) btnBackup.style.display = 'none';
   _rotacionPreview = 0;
   _regEditandoFoto = null;
+  // v8.25 · ocultar badge de origen al cancelar edición
+  const badgeBox = document.getElementById('edit-origen-badge');
+  if (badgeBox) { badgeBox.innerHTML = ''; badgeBox.style.display = 'none'; }
   if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
 }
 
