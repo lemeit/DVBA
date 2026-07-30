@@ -2,6 +2,11 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<!-- v8.24 · Google Fonts oficiales PBA (Anexo III) · Encode Sans + Roboto -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@500;600;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SIG Vial PBA · Reportes</title>
 <link rel="icon" href="datos/img/favicon.png">
@@ -14,8 +19,8 @@
 <script src="datos/perfil.js" defer></script>
 <style>
 :root{
-  --p:#009aae;    --pd:#007d90;   --pl:#00b3c7;
-  --acc:#c47a00;  --vd:#1a8a4a;   --am:#c47a00;  --ro:#b20900;
+  --p:#00aec3;    --pd:#007e8c;   --pl:#74c9e3;
+  --acc:#c47a00;  --vd:#22a954;   --am:#c47a00;  --ro:#BE1717;
   --txt:#404040;  --mut:#808080;  --light:#e0e0e0;
   --bg:#f0f0f0;   --w:#fff;       --r:8px;
 }
@@ -256,7 +261,7 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
     <span style="margin-left:8px">Módulo de reportes · Uso interno institucional.</span>
   </div>
   <div class="fr">
-    Desarrollado por <b style="color:rgba(255,255,255,.85)">Ing. Luciano Lamaita</b> · Div. Técnica DVBA · <span id="app-ver">v8.22</span>
+    Desarrollado por <b style="color:rgba(255,255,255,.85)">Ing. Luciano Lamaita</b> · Div. Técnica DVBA · <span id="app-ver">v8.24</span>
   </div>
 </footer>
 
@@ -268,7 +273,7 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
 // Charts con Chart.js CDN · Export CSV vanilla
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v8.22';
+const APP_VERSION = 'v8.24';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 let _supa = null;
@@ -509,7 +514,7 @@ function rpRenderCharts(partes, tareasMap){
       datasets: [{
         label: 'Tareas cargadas',
         data: timeData,
-        backgroundColor: '#009aae',
+        backgroundColor: '#00aec3',
         borderRadius: 4
       }]
     },

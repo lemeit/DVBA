@@ -5,6 +5,10 @@
   <link rel="icon" href="datos/img/favicon.png">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SIG Vial PBA · Portal</title>
+<!-- v8.23 · Google Fonts oficiales PBA: Encode Sans (titulares) + Roboto (body) — según Anexo III del manual de marca -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@500;600;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -34,15 +38,35 @@
 <script src="datos/caracteristicas_viales.js?v=7.55"></script>
 <style>
 :root{
-  --p:#009aae;--pd:#007d90;--pl:#00b3c7;
-  --vd:#1a8a4a;--ro:#b20900;--am:#c47a00;
-  --txt:#404040;--mut:#808080;--light:#e0e0e0;
-  --bg:#f0f0f0;--w:#fff;--r:8px;--gold:#c47a00;
+  /* v8.23 · Paleta oficial PBA (Anexo III del manual de marca "Buenos Aires") ═════
+     Principal: turquesa institucional #00aec3 · gris #838383 · negro #000000
+     Complementaria: rojo seguridad #BE1717 · verde OK #22a954 · azul #1f3464
+     Gradientes: turquesa claro #74c9e3 / #a3d8e7 / #cae7ea */
+  --p:#00aec3;      /* Turquesa institucional (era #00aec3, ahora oficial) */
+  --pd:#007e8c;     /* Turquesa oscuro derivado */
+  --pl:#74c9e3;     /* Turquesa claro (gradiente oficial) */
+  --p-xl:#cae7ea;   /* Turquesa casi blanco (fondos suaves) */
+  --p-ml:#a3d8e7;   /* Turquesa medio-claro */
+  --vd:#22a954;     /* Verde OK institucional PBA */
+  --ro:#BE1717;     /* Rojo seguridad institucional PBA */
+  --am:#c47a00;     /* Ámbar (advertencias, no oficial pero coherente) */
+  --gold:#c47a00;   /* alias legacy */
+  --azul:#1f3464;   /* Azul complementario PBA */
+  --morado:#592673; /* Púrpura para género (oficial PBA) */
+  --txt:#000000;    /* Negro puro texto principal */
+  --mut:#838383;    /* Gris oficial PBA */
+  --light:#e0e0e0;
+  --bg:#f0f0f0;
+  --w:#fff;
+  --r:8px;
 }
 
 /* ═══ RESET & BASE ═══════════════════════════════════════════ */
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Encode Sans','Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--txt);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+/* v8.23 · Tipografía oficial PBA: Encode Sans (Anexo III p.7) para titulares/UI + Roboto para body */
+body{font-family:'Roboto','Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--txt);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-weight:400}
+h1,h2,h3,h4,h5,h6,.sec-title,button.btn-save,header h1{font-family:'Encode Sans','Segoe UI',Arial,sans-serif;font-weight:600}
+h1,h2{font-weight:800}
 
 /* ═══ HEADER ════════════════════════════════════════════════ */
 header{background:var(--p);padding:6px 16px;display:flex;align-items:center;gap:12px;border-bottom:2px solid var(--pd);flex-shrink:0;z-index:400;color:#fff}
@@ -72,7 +96,16 @@ header p{font-size:10px;color:rgba(255,255,255,.75);margin-top:1px;font-weight:5
 /* ═══ PANEL LATERAL ═════════════════════════════════════════ */
 .panel{width:300px;min-width:220px;max-width:540px;background:var(--w);display:flex;flex-direction:column;border-right:1px solid var(--light);flex-shrink:0;position:relative;transition:width .25s;height:100%;overflow:hidden;box-shadow:2px 0 8px rgba(0,0,0,.06)}
 /* v8.21 · Animación de pulso al crear pin nuevo */
-@keyframes pulsopin{0%{box-shadow:0 0 0 0 rgba(26,138,74,.7)}70%{box-shadow:0 0 0 20px rgba(26,138,74,0)}100%{box-shadow:0 0 0 0 rgba(26,138,74,0)}}
+@keyframes pulsopin{0%{box-shadow:0 0 0 0 rgba(34,169,84,.7)}70%{box-shadow:0 0 0 20px rgba(34,169,84,0)}100%{box-shadow:0 0 0 0 rgba(34,169,84,0)}}
+/* v8.24 · Clase compartida para botones sidebar · unifica tamaño + tipografía + estados semánticos */
+.btn-side{padding:5px 10px;font-size:11px;font-weight:600;font-family:'Encode Sans','Segoe UI',Arial,sans-serif;line-height:1.3;border:1px solid;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .12s,border-color .12s;letter-spacing:.1px}
+.btn-side.side-primary{background:var(--p);color:#fff;border-color:var(--pd)}
+.btn-side.side-primary:hover{background:var(--pd)}
+.btn-side.side-neutral{background:#0d2030;color:var(--p);border-color:#2a4050}
+.btn-side.side-neutral:hover{background:#123040;border-color:var(--p)}
+.btn-side.side-danger{background:#1a0d0d;color:#d07070;border-color:#a04040}
+.btn-side.side-danger:hover{background:#2a1010}
+.btn-side:disabled{opacity:.4;cursor:not-allowed}
 /* v8.20 · Drawer colapsable · botón toggle en el borde derecho */
 .panel.collapsed{width:32px !important;min-width:32px}
 .panel.collapsed > *:not(.panel-toggle):not(.panel-resize){display:none !important}
@@ -367,8 +400,8 @@ body.modo-campo #campo-fab{display:flex}
 .modal-sello .ms-f button{flex:1;padding:11px 14px;border:none;border-radius:6px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
 .modal-sello .ms-canc{background:#1a2a35;color:#8ac0d8;border:1px solid #2a4050 !important}
 .modal-sello .ms-canc:hover{background:#243a48}
-.modal-sello .ms-ok{background:#1a8a4a;color:#fff;flex:1.5;box-shadow:0 4px 12px rgba(26,138,74,.3)}
-.modal-sello .ms-ok:hover{background:#146638}
+.modal-sello .ms-ok{background:#22a954;color:#fff;flex:1.5;box-shadow:0 4px 12px rgba(26,138,74,.3)}
+.modal-sello .ms-ok:hover{background:#1a8544}
 </style>
 <style>
 /* v7.99 · Fix FOUC · items marcados data-solo-gerencia arrancan ocultos
@@ -433,7 +466,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.22</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.24</span></div>
   </div>
 </div>
 <div class="layout">
@@ -519,7 +552,7 @@ body.modo-campo #campo-fab{display:flex}
     </div>
     <div style="display:flex;gap:4px">
       <input type="text" id="fprog" placeholder="Progresiva (ej: 45+500)" style="flex:1">
-      <button type="button" onclick="ubicarPorProgresiva()" title="Ubicar pin en el mapa usando la ruta + progresiva que cargaste. Ej: RP 30 + km 274+935 → pin se ubica solo." style="padding:0 8px;background:#0d2030;color:var(--p);border:1px solid #2a4050;border-radius:4px;cursor:pointer;font-size:10px;font-weight:600;white-space:nowrap;flex-shrink:0">🎯 Ubicar</button>
+      <button type="button" onclick="ubicarPorProgresiva()" class="btn-side side-neutral" title="Ubicar pin en el mapa usando la ruta + progresiva que cargaste. Ej: RP 30 + km 274+935 → pin se ubica solo.">🎯 Ubicar</button>
     </div>
     <!-- Selector jerárquico de tipo — desktop -->
     <div id="z6-tipo-selector" class="z6-tipo-sel">
@@ -567,7 +600,7 @@ body.modo-campo #campo-fab{display:flex}
     <div id="coords-row">
       <input type="text" id="flat" placeholder="Lat (manual o pin)" style="flex:1;font-size:10px;color:#7aacbc" oninput="onCoordsManual()">
       <input type="text" id="flng" placeholder="Lng (manual o pin)" style="flex:1;font-size:10px;color:#7aacbc" oninput="onCoordsManual()">
-      <button id="btnpin" onclick="togglePin()" style="padding:0 8px;background:#0d2030;color:var(--p);border:1px solid #2a4050;border-radius:4px;cursor:pointer;font-size:10px;font-weight:600;white-space:nowrap;flex-shrink:0">📍 Pin mapa</button>
+      <button id="btnpin" onclick="togglePin()" class="btn-side side-neutral" title="Poner un pin en el mapa (o quitarlo si ya hay uno)">📍 Pin mapa</button>
     </div>
     <input type="hidden" id="_editId" value="">
     <!-- v8.22 · Fecha y hora editables (solo aparece al editar un registro existente) -->
@@ -583,8 +616,8 @@ body.modo-campo #campo-fab{display:flex}
     </div>
     <div style="display:flex;gap:4px">
       <button class="btn btn-save" id="btnGuardar" onclick="guardar()" style="flex:1">Guardar Registro</button>
-      <button class="btn btn-xs" id="btnLimpiar" onclick="limpiarForm()" style="background:#0d1a1a;border:1px solid #2a4a4a;color:#5a8888;flex-shrink:0" title="Limpiar formulario">✕ Limpiar</button>
-      <button class="btn btn-xs" id="btnCancelarEdit" onclick="cancelarEdit()" style="display:none;background:#1a0d0d;border-color:#a04040;color:#d07070">Cancelar edición</button>
+      <button class="btn-side side-neutral" id="btnLimpiar" onclick="limpiarForm()" title="Limpiar formulario">✕ Limpiar</button>
+      <button class="btn-side side-danger" id="btnCancelarEdit" onclick="cancelarEdit()" style="display:none">✕ Cancelar edición</button>
     </div>
     </div><!-- /#edit-form-panel -->
 
@@ -696,14 +729,14 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.22</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.24</span>
       </div>
     </div>
 
   </div>
 <div id="map">
   <!-- v8.21 · Etapa 4 · Botón flotante para crear un pin nuevo en el mapa -->
-  <button id="btn-nuevo-pin" onclick="nuevoPinDesdeMapa()" title="Poner un pin en el centro del mapa y crear un registro nuevo" style="position:absolute;bottom:26px;right:14px;z-index:600;background:#1a8a4a;color:#fff;border:none;border-radius:24px;padding:10px 18px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);display:flex;align-items:center;gap:8px">
+  <button id="btn-nuevo-pin" onclick="nuevoPinDesdeMapa()" title="Poner un pin en el centro del mapa y crear un registro nuevo" style="position:absolute;bottom:26px;right:14px;z-index:600;background:#22a954;color:#fff;border:none;border-radius:24px;padding:10px 18px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);display:flex;align-items:center;gap:8px">
     <span style="font-size:18px;line-height:1">📍</span> Nuevo Pin
   </button>
   <div id="layer-btns">
@@ -768,7 +801,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.22';
+const APP_VERSION = 'v8.24';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2659,7 +2692,7 @@ function drawRegMarkers(){
     if(!reg.lat) return;
     if(!selRegs.has(String(reg.id))) return;
     // Mostrar aunque la ruta no esté activa en el mapa (registro explícitamente activado)
-    const meta=RUTA_META[(reg.ruta||'').replace(/^RP\s*/i,'')]||RUTA_META[reg.ruta]||{color:'#009aae'};
+    const meta=RUTA_META[(reg.ruta||'').replace(/^RP\s*/i,'')]||RUTA_META[reg.ruta]||{color:'#00aec3'};
     const ico=L.divIcon({className:'',html:`<div style="background:${meta.color};border:2px solid rgba(255,255,255,.4);width:10px;height:10px;border-radius:50%;box-shadow:0 1px 5px rgba(0,0,0,.6)"></div>`,iconAnchor:[5,5]});
     const mk=L.marker([reg.lat,reg.lng],{icon:ico}).addTo(map)
       .bindPopup(`<b style="color:${meta.color}">${reg.ruta}</b>${reg.prog?` &middot; <b>Km</b> ${reg.prog}`:''}${reg.partido?` &middot; ${reg.partido}`:''}<br>
@@ -2700,7 +2733,7 @@ function renderRegs(){
   if(!total){lista.innerHTML=`<div class="empty">Sin registros${busq?' para "'+busq+'"':''}.</div>`;return;}
 
   let html = pagina.map(reg=>{
-    const m=RUTA_META[reg.ruta]||{color:'#009aae',label:reg.ruta||'?'};
+    const m=RUTA_META[reg.ruta]||{color:'#00aec3',label:reg.ruta||'?'};
     // v7.13 — badge de workflow (estado del proceso de revisión)
     let wfBadge = '';
     if (reg.estado_workflow === 'campo') {
@@ -2715,7 +2748,7 @@ function renderRegs(){
     // v7.15 — Badge de tipo de vía (RP / Camino)
     const tipoViaBadge = reg.tipo_via === 'camino'
       ? '<span title="Camino Secundario" style="background:#7050b0;color:#fff;font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700;margin-right:3px">🚜 C</span>'
-      : '<span title="Ruta Provincial" style="background:#009aae;color:#fff;font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700;margin-right:3px">🛣 RP</span>';
+      : '<span title="Ruta Provincial" style="background:#00aec3;color:#fff;font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700;margin-right:3px">🛣 RP</span>';
     return `<div class="ritem" style="border-left-color:${m.color}">
       <div class="rhdr">
         <span class="rbadge" style="background:${m.color}">${m.label}</span>
@@ -2965,7 +2998,7 @@ function showFoto(src, id, ruta, prog){
   ov.innerHTML =
     '<img src="' + src + '" style="max-width:90%;max-height:82vh;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,.7)">' +
     '<div style="margin-top:14px;display:flex;gap:10px;align-items:center">' +
-      '<button id="btn-desc-foto" style="background:#1a8a4a;color:#fff;padding:10px 20px;border:0;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer">⬇ Descargar</button>' +
+      '<button id="btn-desc-foto" style="background:#22a954;color:#fff;padding:10px 20px;border:0;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer">⬇ Descargar</button>' +
       '<span style="color:#bbb;font-size:11px;max-width:280px;word-break:break-all">' + filename + '</span>' +
       '<button style="background:#555;color:#fff;padding:10px 16px;border:0;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;margin-left:auto" onclick="event.stopPropagation();this.closest(\'.foto-modal\').remove()">✕ Cerrar</button>' +
     '</div>';
@@ -3700,7 +3733,7 @@ function nuevoPinDesdeMapa(){
   if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
   const pinIcon = L.divIcon({
     className: 'pin-icon',
-    html: '<div style="background:#1a8a4a;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5);animation:pulsopin 1s ease-out 2"></div>',
+    html: '<div style="background:#22a954;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5);animation:pulsopin 1s ease-out 2"></div>',
     iconSize: [24,24], iconAnchor: [12,12]
   });
   pinMarker = L.marker([c.lat, c.lng], { draggable: true, icon: pinIcon }).addTo(map);
@@ -5079,7 +5112,7 @@ function editReg(id) {
     if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
     const pinIcon = L.divIcon({
       className: '',
-      html: '<div style="width:22px;height:22px;border-radius:50%;background:#009aae;border:3px solid #007d90;box-shadow:0 2px 12px rgba(0,0,0,.8);cursor:grab"></div>',
+      html: '<div style="width:22px;height:22px;border-radius:50%;background:#00aec3;border:3px solid #007e8c;box-shadow:0 2px 12px rgba(0,0,0,.8);cursor:grab"></div>',
       iconAnchor: [11,11]
     });
     pinMarker = L.marker([reg.lat, reg.lng], { icon: pinIcon, draggable: true }).addTo(map);

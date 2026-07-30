@@ -278,10 +278,20 @@ Actualmente `dvba_campo.html` y `dvba_campo_lite.html` muestran hardcoded `"Zona
 
 ### Fase 3 — Activar RLS zonal (1 sesión)
 
-9. `SQL_9_rls_zonal.sql`: reemplazar policies actuales por las nuevas.
-10. Testear que un técnico Zona VI no vea partes de otras zonas.
-11. Testear que un gerencia sí vea todo.
-12. Rollback plan: mantener las policies viejas comentadas para poder volver.
+9. ✅ **v8.23 · SQL creado en `docs/SQL_9_rls_zonal.sql`** — reemplaza las policies "authenticated puede todo" (SQL_5 + SETUP_AUTH) por versiones zone-aware. Cubre 4 tablas: `relevamientos`, `partes_diarios`, `parte_maquinarias`, `parte_fotos`. Incluye:
+   - Sanity check (verifica que funciones current_user_zona/rol de SQL_7 existan + columna zona de SQL_8).
+   - 4 policies por tabla principal (SELECT/INSERT/UPDATE/DELETE) que respetan los 4 roles: público lee mapa · técnico solo su zona · gerencia lee todo · admin CRUD global.
+   - Fallback para usuarios legacy sin perfil (`current_user_rol() IS NULL`) → tratados como técnicos de zona VI (default histórico, no rompe el flujo actual).
+   - Trato de `zona IS NULL` como accesible (protege registros históricos que no llegaron con backfill).
+   - Bloque **ROLLBACK completo comentado** al final para volver a SQL_5 si algo falla.
+   - SELECT de verificación (listar policies activas + contar registros por zona).
+10. ⏳ **Correr en Supabase** con service_role (SQL Editor).
+11. ⏳ Testear desde el frontend:
+    - Técnico Zona VI → solo ve zona VI.
+    - Técnico Zona VII (crear uno de prueba) → solo ve zona VII.
+    - Gerencia → ve todo, no puede editar.
+    - Admin → CRUD global.
+12. ⏳ Migrar `zona IS NULL` residuales a `'VI'` (comando comentado en el header del SQL_9).
 
 ### Fase 4 — Panel Admin (1-2 sesiones)
 
