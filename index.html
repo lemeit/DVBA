@@ -101,10 +101,11 @@ header p{font-size:10px;color:rgba(255,255,255,.75);margin-top:1px;font-weight:5
 .btn-side{padding:5px 10px;font-size:11px;font-weight:600;font-family:'Encode Sans','Segoe UI',Arial,sans-serif;line-height:1.3;border:1px solid;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .12s,border-color .12s;letter-spacing:.1px}
 .btn-side.side-primary{background:var(--p);color:#fff;border-color:var(--pd)}
 .btn-side.side-primary:hover{background:var(--pd)}
-.btn-side.side-neutral{background:#0d2030;color:var(--p);border-color:#2a4050}
-.btn-side.side-neutral:hover{background:#123040;border-color:var(--p)}
-.btn-side.side-danger{background:#1a0d0d;color:#d07070;border-color:#a04040}
-.btn-side.side-danger:hover{background:#2a1010}
+/* v8.26 · Paleta clara minimalista PBA (era fondos oscuros #0d2030) */
+.btn-side.side-neutral{background:var(--w);color:var(--pd);border-color:var(--light)}
+.btn-side.side-neutral:hover{background:var(--p-xl);border-color:var(--p)}
+.btn-side.side-danger{background:var(--w);color:var(--ro);border-color:var(--light)}
+.btn-side.side-danger:hover{background:#fbecec;border-color:var(--ro)}
 .btn-side:disabled{opacity:.4;cursor:not-allowed}
 /* v8.20 · Drawer colapsable · botón toggle en el borde derecho */
 .panel.collapsed{width:32px !important;min-width:32px}
@@ -589,31 +590,31 @@ body.modo-campo #campo-fab{display:flex}
     <img id="iprev" class="fprev">
     <!-- v7.48 — Controles rotación + re-sellar foto (solo aparecen en modo edición) -->
     <div id="foto-tools" style="display:none;gap:6px;margin-top:4px;flex-wrap:wrap;align-items:center">
-      <button type="button" id="btn-rot-ccw" onclick="rotarFotoPreview(-1)" title="Rotar 90° a la izquierda" style="padding:6px 10px;border:1px solid #2a4050;background:#0d2030;color:var(--p);border-radius:4px;cursor:pointer;font-size:14px">↺ 90°</button>
-      <button type="button" id="btn-rot-cw"  onclick="rotarFotoPreview(1)"  title="Rotar 90° a la derecha"  style="padding:6px 10px;border:1px solid #2a4050;background:#0d2030;color:var(--p);border-radius:4px;cursor:pointer;font-size:14px">↻ 90°</button>
-      <button type="button" id="btn-rot-reset" onclick="rotarFotoPreview(0)" style="padding:6px 8px;border:1px solid #2a4050;background:#0d2030;color:#7aacbc;border-radius:4px;cursor:pointer;font-size:11px">Reset</button>
-      <button type="button" id="btn-re-sellar" onclick="reSellarFotoEditada()" title="Aplicar sello v3 con los datos actuales del formulario" style="padding:6px 10px;border:1px solid #6aaa40;background:#1a2a10;color:#c4ffb0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;flex:1">🖋 Re-sellar</button>
-      <button type="button" id="btn-desc-sidebar" onclick="descargarFotoDesdeEdit()" title="Descargar la foto con nombre SIGVialPBA_ID_ruta.jpg" style="padding:6px 10px;border:1px solid #4a6a8a;background:#0d2030;color:#a0c0e0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">⬇ Descargar</button>
-      <button type="button" id="btn-test-exif" onclick="testExifDiag()" title="Ver si la foto actual tiene metadatos EXIF" style="padding:6px 10px;border:1px solid #4a8a6a;background:#0d2010;color:#a0e0c0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">🔍 EXIF</button>
-      <button type="button" id="btn-reinject-exif" onclick="reinyectarExifExistente()" title="Bajar la foto, re-inyectar metadatos EXIF y re-subirla (sin re-sellar visual)" style="padding:6px 10px;border:1px solid #8a6a4a;background:#201d0d;color:#e0c0a0;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">🔧 EXIF+</button>
-      <button type="button" id="btn-borrar-backup" onclick="borrarBackupOriginal()" title="Eliminar el archivo original SOLO de este registro — libera espacio pero no podrá re-sellarse limpio después" style="display:none;padding:6px 8px;border:1px solid #a04040;background:#1a0d0d;color:#d07070;border-radius:4px;cursor:pointer;font-size:11px">🗑 Backup de esta foto</button>
-      <span id="rot-lbl" style="font-size:10px;color:#7aacbc;width:100%">Rotá la foto si se ve de costado, luego "Re-sellar"</span>
+      <button type="button" id="btn-rot-ccw" onclick="rotarFotoPreview(-1)" title="Rotar 90° a la izquierda" style="padding:6px 10px;border:1px solid var(--light);background:var(--w);color:var(--pd);border-radius:4px;cursor:pointer;font-size:14px">↺ 90°</button>
+      <button type="button" id="btn-rot-cw"  onclick="rotarFotoPreview(1)"  title="Rotar 90° a la derecha"  style="padding:6px 10px;border:1px solid var(--light);background:var(--w);color:var(--pd);border-radius:4px;cursor:pointer;font-size:14px">↻ 90°</button>
+      <button type="button" id="btn-rot-reset" onclick="rotarFotoPreview(0)" style="padding:6px 8px;border:1px solid var(--light);background:var(--w);color:var(--mut);border-radius:4px;cursor:pointer;font-size:11px">Reset</button>
+      <button type="button" id="btn-re-sellar" onclick="reSellarFotoEditada()" title="Aplicar sello v3 con los datos actuales del formulario" style="padding:6px 10px;border:1px solid var(--vd);background:var(--w);color:var(--vd);border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;flex:1">🖋 Re-sellar</button>
+      <button type="button" id="btn-desc-sidebar" onclick="descargarFotoDesdeEdit()" title="Descargar la foto con nombre SIGVialPBA_ID_ruta.jpg" style="padding:6px 10px;border:1px solid var(--light);background:var(--w);color:var(--pd);border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">⬇ Descargar</button>
+      <button type="button" id="btn-test-exif" onclick="testExifDiag()" title="Ver si la foto actual tiene metadatos EXIF" style="padding:6px 10px;border:1px solid var(--light);background:var(--w);color:var(--pd);border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">🔍 EXIF</button>
+      <button type="button" id="btn-reinject-exif" onclick="reinyectarExifExistente()" title="Bajar la foto, re-inyectar metadatos EXIF y re-subirla (sin re-sellar visual)" style="padding:6px 10px;border:1px solid var(--light);background:var(--w);color:var(--am);border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">🔧 EXIF+</button>
+      <button type="button" id="btn-borrar-backup" onclick="borrarBackupOriginal()" title="Eliminar el archivo original SOLO de este registro — libera espacio pero no podrá re-sellarse limpio después" style="display:none;padding:6px 8px;border:1px solid var(--light);background:var(--w);color:var(--ro);border-radius:4px;cursor:pointer;font-size:11px">🗑 Backup de esta foto</button>
+      <span id="rot-lbl" style="font-size:10px;color:var(--mut);width:100%">Rotá la foto si se ve de costado, luego "Re-sellar"</span>
     </div>
     <div id="coords-row">
-      <input type="text" id="flat" placeholder="Lat (manual o pin)" style="flex:1;font-size:10px;color:#7aacbc" oninput="onCoordsManual()">
-      <input type="text" id="flng" placeholder="Lng (manual o pin)" style="flex:1;font-size:10px;color:#7aacbc" oninput="onCoordsManual()">
+      <input type="text" id="flat" placeholder="Lat (manual o pin)" style="flex:1;font-size:10px" oninput="onCoordsManual()">
+      <input type="text" id="flng" placeholder="Lng (manual o pin)" style="flex:1;font-size:10px" oninput="onCoordsManual()">
       <button id="btnpin" onclick="togglePin()" class="btn-side side-neutral" title="Poner un pin en el mapa (o quitarlo si ya hay uno)">📍 Pin mapa</button>
     </div>
     <input type="hidden" id="_editId" value="">
-    <!-- v8.22 · Fecha y hora editables (solo aparece al editar un registro existente) -->
-    <div id="fecha-hora-row" style="display:none;gap:4px;margin-top:4px;background:#0d2030;padding:6px 8px;border-radius:5px;border:1px solid #2a4050">
-      <label style="flex:1;font-size:9px;color:#8ac0d8;display:flex;flex-direction:column;gap:2px">
+    <!-- v8.26 · Fecha y hora editables · paleta clara minimalista PBA -->
+    <div id="fecha-hora-row" style="display:none;gap:4px;margin-top:4px;background:var(--bg);padding:6px 8px;border-radius:5px;border:1px solid var(--light)">
+      <label style="flex:1;font-size:9px;color:var(--mut);display:flex;flex-direction:column;gap:2px">
         <span style="text-transform:uppercase;letter-spacing:.3px;font-weight:700">Fecha</span>
-        <input type="date" id="ffecha" style="font-size:11px;color:#c4dae6;background:#0a1620;border:1px solid #2a4050;padding:3px 5px;border-radius:3px;font-family:inherit">
+        <input type="date" id="ffecha" style="font-size:11px;color:var(--txt);background:var(--w);border:1px solid var(--light);padding:3px 5px;border-radius:3px;font-family:inherit">
       </label>
-      <label style="flex:1;font-size:9px;color:#8ac0d8;display:flex;flex-direction:column;gap:2px">
+      <label style="flex:1;font-size:9px;color:var(--mut);display:flex;flex-direction:column;gap:2px">
         <span style="text-transform:uppercase;letter-spacing:.3px;font-weight:700">Hora</span>
-        <input type="time" id="fhora" step="1" style="font-size:11px;color:#c4dae6;background:#0a1620;border:1px solid #2a4050;padding:3px 5px;border-radius:3px;font-family:inherit">
+        <input type="time" id="fhora" step="1" style="font-size:11px;color:var(--txt);background:var(--w);border:1px solid var(--light);padding:3px 5px;border-radius:3px;font-family:inherit">
       </label>
     </div>
     <div style="display:flex;gap:4px">
@@ -659,16 +660,16 @@ body.modo-campo #campo-fab{display:flex}
       </div>
 
       <!-- Filtro por tipo de registro -->
-      <div style="margin-bottom:10px;padding-top:8px;border-top:1px solid #1a3040">
-        <div style="font-size:10px;color:var(--p);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Filtrar registros por tipo</div>
+      <div style="margin-bottom:10px;padding-top:8px;border-top:1px solid var(--light)">
+        <div style="font-size:10px;color:var(--pd);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Filtrar registros por tipo</div>
         <div style="position:relative">
           <button onclick="toggleTipoDropdown()" id="tipo-dd-btn"
-            style="width:100%;text-align:left;padding:6px 10px;background:#0d2030;border:1px solid #2a4050;color:var(--p);font-size:11px;border-radius:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+            style="width:100%;text-align:left;padding:6px 10px;background:var(--w);border:1px solid var(--light);color:var(--pd);font-size:11px;border-radius:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
             <span id="tipo-dd-label">Todos los tipos</span>
             <span>▾</span>
           </button>
-          <div id="tipo-dropdown" style="display:none;position:absolute;z-index:999;width:100%;background:#0a1620;border:1px solid #2a4050;border-radius:4px;margin-top:2px;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.4)">
-            <div style="display:flex;gap:6px;padding:6px 8px;border-bottom:1px solid #1a3040">
+          <div id="tipo-dropdown" style="display:none;position:absolute;z-index:999;width:100%;background:var(--w);border:1px solid var(--light);border-radius:4px;margin-top:2px;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.15)">
+            <div style="display:flex;gap:6px;padding:6px 8px;border-bottom:1px solid var(--light)">
               <button onclick="selTiposTodos()" class="btn-side side-neutral" style="flex:1">✓ Todos</button>
               <button onclick="selTiposNinguno()" class="btn-side side-danger" style="flex:1">✗ Ninguno</button>
             </div>
@@ -689,21 +690,21 @@ body.modo-campo #campo-fab{display:flex}
       <div id="rep-tabla" style="margin-top:8px"></div>
     </div>
 
-    <!-- v7.50 · v8.25 · Mantenimiento de Storage + Auditoría (rediseño paleta PBA) -->
-    <div class="sec" style="border-top:1px solid #1a3040;margin-top:12px;padding-top:12px">
+    <!-- v7.50 · v8.26 · Mantenimiento de Storage + Auditoría (paleta clara PBA) -->
+    <div class="sec" style="border-top:1px solid var(--light);margin-top:12px;padding-top:12px">
       <div class="sec-title" style="font-family:'Encode Sans',sans-serif">🧹 Mantenimiento Storage</div>
-      <div style="font-size:10px;color:var(--am);margin-bottom:8px;padding:8px 10px;background:#1f1a0a;border-radius:5px;border-left:3px solid var(--am);line-height:1.45">
+      <div style="font-size:10px;color:var(--am);margin-bottom:8px;padding:8px 10px;background:#fef6e4;border-radius:5px;border-left:3px solid var(--am);line-height:1.45">
         Elimina los backups originales de registros aprobados. Después de esto los registros pasan a legacy (no re-sellables limpio).
       </div>
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-        <label style="font-size:10px;color:var(--p);flex-shrink:0;font-family:'Encode Sans',sans-serif">Aprobados hace más de</label>
-        <input type="number" id="clean-days" value="30" min="1" max="3650" style="width:60px;padding:5px 8px;background:#0d2030;color:var(--p);border:1px solid #2a4050;border-radius:4px;font-size:11px;font-family:inherit">
-        <label style="font-size:10px;color:var(--p);font-family:'Encode Sans',sans-serif">días</label>
+        <label style="font-size:10px;color:var(--mut);flex-shrink:0;font-family:'Encode Sans',sans-serif">Aprobados hace más de</label>
+        <input type="number" id="clean-days" value="30" min="1" max="3650" style="width:60px;padding:5px 8px;background:var(--w);color:var(--txt);border:1px solid var(--light);border-radius:4px;font-size:11px;font-family:inherit">
+        <label style="font-size:10px;color:var(--mut);font-family:'Encode Sans',sans-serif">días</label>
       </div>
       <button onclick="limpiarBackupsMasivo()" class="btn-side side-danger" style="width:100%;padding:8px 10px;font-size:12px">
         🧹 Limpiar backups viejos
       </button>
-      <div id="clean-result" style="font-size:10px;color:var(--p);margin-top:6px"></div>
+      <div id="clean-result" style="font-size:10px;color:var(--mut);margin-top:6px"></div>
       <!-- v8.22 · v8.25 · Auditar fechas sospechosas -->
       <div style="border-top:1px dashed #2a4050;margin-top:12px;padding-top:10px">
         <div class="sec-title" style="font-family:'Encode Sans',sans-serif;font-size:11px">🔍 Auditar fechas</div>
@@ -732,10 +733,7 @@ body.modo-campo #campo-fab{display:flex}
 
   </div>
 <div id="map">
-  <!-- v8.21 · Etapa 4 · Botón flotante para crear un pin nuevo en el mapa -->
-  <button id="btn-nuevo-pin" onclick="nuevoPinDesdeMapa()" title="Poner un pin en el centro del mapa y crear un registro nuevo" style="position:absolute;bottom:26px;right:14px;z-index:600;background:#22a954;color:#fff;border:none;border-radius:24px;padding:10px 18px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);display:flex;align-items:center;gap:8px">
-    <span style="font-size:18px;line-height:1">📍</span> Nuevo Pin
-  </button>
+  <!-- v8.26 · Eliminado botón flotante "Nuevo Pin" (redundante con "Pin mapa" del sidebar y se solapaba con la rosa del Norte) -->
   <div id="layer-btns">
     <!-- v7.33 — Layout simple: botones sueltos verticales + mini-panel plegable de visualización -->
     <button id="btn-osm" class="active" onclick="setLayer('osm')">Mapa OSM</button>
@@ -798,7 +796,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.25';
+const APP_VERSION = 'v8.26';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -3735,33 +3733,8 @@ function actualizarPanelPosCamino(feat, latlng, km) {
 // y elige lo más cercano (RP o camino). Se usa al PONER UN PIN (click en mapa)
 // donde el user visualmente ya sabe qué está señalando. En hover, el toggle
 // del form manda para no interferir entre capas.
-// v8.21 · Etapa 4 · Crear registro nuevo poniendo pin en el centro del mapa
-function nuevoPinDesdeMapa(){
-  // Limpiar formulario para arrancar de cero
-  if (typeof limpiarForm === 'function') limpiarForm();
-  // Ir a la tab Registro para que el user vea el form
-  if (typeof showPtab === 'function') showPtab('regs', document.getElementById('ptab-regs'));
-  // Asegurar sidebar expandido
-  const panel = document.getElementById('sidebar');
-  if (panel && panel.classList.contains('collapsed')) togglePanelColapsado();
-  // Obtener el centro del viewport actual del mapa
-  const c = map.getCenter();
-  // Crear/mover el pin al centro
-  if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
-  const pinIcon = L.divIcon({
-    className: 'pin-icon',
-    html: '<div style="background:#22a954;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5);animation:pulsopin 1s ease-out 2"></div>',
-    iconSize: [24,24], iconAnchor: [12,12]
-  });
-  pinMarker = L.marker([c.lat, c.lng], { draggable: true, icon: pinIcon }).addTo(map);
-  pinMarker.on('drag',    ev => { const p = ev.target.getLatLng(); autoDetectarCampos(p.lat, p.lng, { forzarAuto:true }); document.getElementById('flat').value = p.lat.toFixed(6); document.getElementById('flng').value = p.lng.toFixed(6); });
-  pinMarker.on('dragend', ev => { const p = ev.target.getLatLng(); autoDetectarCampos(p.lat, p.lng, { forzarAuto:true }); document.getElementById('flat').value = p.lat.toFixed(6); document.getElementById('flng').value = p.lng.toFixed(6); });
-  // Auto-completar campos según posición inicial
-  document.getElementById('flat').value = c.lat.toFixed(6);
-  document.getElementById('flng').value = c.lng.toFixed(6);
-  autoDetectarCampos(c.lat, c.lng, { forzarAuto: true });
-  toast('📍 Pin ubicado en el centro. Arrastralo al lugar exacto + completá los datos + Guardar.', 'ok');
-}
+// v8.26 · Función nuevoPinDesdeMapa() eliminada · era redundante con togglePin()
+// del sidebar. El botón flotante verde también se removió del layout del mapa.
 
 // v8.21 · Etapa 3 · Inverso · dada ruta (num) + progresiva (km), devuelve {lat, lng}
 // usando CHAIN + ANCHORS. Retorna null si no se puede.
@@ -5031,8 +5004,8 @@ function abrirModalEdit(id){
     if (sec && !document.getElementById('edit-panel-placeholder')) {
       const ph = document.createElement('div');
       ph.id = 'edit-panel-placeholder';
-      ph.style.cssText = 'padding:16px;background:#0d2030;border:1px dashed #2a4050;border-radius:6px;color:#7aacbc;font-size:11px;text-align:center;line-height:1.6';
-      ph.innerHTML = '📝 Editando en modal grande<br><button onclick="cerrarModalEdit()" style="margin-top:8px;padding:5px 12px;background:#1a2a35;color:#c4dae6;border:1px solid #2a4a5a;border-radius:4px;font-size:11px;cursor:pointer">Volver aquí</button>';
+      ph.style.cssText = 'padding:16px;background:var(--bg);border:1px dashed var(--light);border-radius:6px;color:var(--mut);font-size:11px;text-align:center;line-height:1.6';
+      ph.innerHTML = '📝 Editando en modal grande<br><button onclick="cerrarModalEdit()" style="margin-top:8px;padding:5px 12px;background:var(--w);color:var(--pd);border:1px solid var(--light);border-radius:4px;font-size:11px;cursor:pointer">Volver aquí</button>';
       sec.appendChild(ph);
     }
   }
@@ -6436,21 +6409,21 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 </div>
 
 
-<!-- v8.18 · Modal grande de EDICIÓN de registro (reemplaza edición en sidebar) -->
-<div class="mov-edit" id="modal-edit-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9500;align-items:center;justify-content:center;padding:20px;box-sizing:border-box">
-  <div id="modal-edit-box" style="background:#0a1620;border:1px solid #2a4050;border-radius:12px;width:100%;max-width:1100px;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);color:#c4dae6;font-family:inherit">
+<!-- v8.26 · Modal grande de EDICIÓN de registro · paleta clara minimalista PBA -->
+<div class="mov-edit" id="modal-edit-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:9500;align-items:center;justify-content:center;padding:20px;box-sizing:border-box">
+  <div id="modal-edit-box" style="background:var(--w);border:1px solid var(--light);border-radius:12px;width:100%;max-width:1100px;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.15);color:var(--txt);font-family:inherit">
     <!-- Header -->
-    <div style="padding:14px 22px;border-bottom:1px solid #1a3040;display:flex;align-items:center;justify-content:space-between;gap:10px">
-      <div style="font-size:15px;font-weight:700;color:#8ac0d8">
-        <span style="color:#d4a820">✏</span> Editar Registro <span id="me-titulo">#—</span>
+    <div style="padding:14px 22px;border-bottom:1px solid var(--light);display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--p-xl);border-radius:12px 12px 0 0">
+      <div style="font-size:15px;font-weight:700;color:var(--pd);font-family:'Encode Sans',sans-serif">
+        <span style="color:var(--p)">✏</span> Editar Registro <span id="me-titulo">#—</span>
       </div>
-      <button onclick="cerrarModalEdit()" style="background:#1a2a35;border:1px solid #2a4a5a;color:#c4dae6;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">✕ Cerrar</button>
+      <button onclick="cerrarModalEdit()" style="background:var(--w);border:1px solid var(--light);color:var(--mut);padding:6px 12px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">✕ Cerrar</button>
     </div>
     <!-- Body: 2 columnas · foto grande a la izq · form a la der -->
-    <div style="flex:1;overflow-y:auto;display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:20px;padding:16px 22px 6px">
+    <div style="flex:1;overflow-y:auto;display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:20px;padding:16px 22px 6px;background:var(--w)">
       <!-- Columna izq: foto grande -->
       <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
-        <div id="me-foto-container" style="background:#050d14;border:1px solid #1a3040;border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:300px;position:relative">
+        <div id="me-foto-container" style="background:var(--bg);border:1px solid var(--light);border-radius:8px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:300px;position:relative">
           <img id="me-iprev" alt="Foto del registro" style="max-width:100%;max-height:460px;object-fit:contain;transform-origin:center;transition:transform .25s">
         </div>
       </div>
@@ -6458,9 +6431,9 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
       <div id="modal-edit-form-slot" style="min-width:0"></div>
     </div>
     <!-- Footer con acciones agrupadas -->
-    <div style="padding:12px 22px;border-top:1px solid #1a3040;background:#050d14;border-radius:0 0 12px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <span style="color:#6a8090;font-size:11px;flex:1">Los botones de sellado / rotación / EXIF están en el form a la derecha.</span>
-      <button onclick="cerrarModalEdit()" style="background:#0d1a1a;border:1px solid #2a4a4a;color:#5a8888;padding:8px 16px;border-radius:6px;font-size:13px;cursor:pointer">Cerrar sin guardar</button>
+    <div style="padding:12px 22px;border-top:1px solid var(--light);background:var(--bg);border-radius:0 0 12px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <span style="color:var(--mut);font-size:11px;flex:1">Los botones de sellado / rotación / EXIF están en el form a la derecha.</span>
+      <button onclick="cerrarModalEdit()" style="background:var(--w);border:1px solid var(--light);color:var(--mut);padding:8px 16px;border-radius:6px;font-size:13px;cursor:pointer">Cerrar sin guardar</button>
     </div>
   </div>
 </div>
