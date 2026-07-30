@@ -348,26 +348,27 @@ body.modo-campo #campo-fab{display:flex}
 .btn-rechaz:hover{background:#c82333}
 .cola-badge-urg{background:#e53935;color:#fff;font-size:.66rem;padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px;text-transform:uppercase}
 
-/* ── Modal "Editar datos del sello" v7.4 ── */
-.mov-sello{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
+/* ── Modal "Editar datos del sello" v8.22 · Paleta oscura alineada al portal ── */
+.mov-sello{position:fixed;inset:0;background:rgba(0,10,20,.75);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;backdrop-filter:blur(3px)}
 .mov-sello.on{display:flex}
-.modal-sello{width:100%;max-width:540px;background:#fff;border-radius:14px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:msFade .22s ease-out}
+.modal-sello{width:100%;max-width:540px;background:#0a1620;border:1px solid #2a4050;border-radius:12px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:msFade .22s ease-out;color:#c4dae6}
 @keyframes msFade{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
-.modal-sello .ms-h{padding:16px 20px 13px;border-bottom:1px solid #e2e2e2;font-weight:700;font-size:1.06rem;color:#222;display:flex;align-items:center;gap:10px;font-family:'Encode Sans',sans-serif}
+.modal-sello .ms-h{padding:14px 20px 12px;border-bottom:1px solid #1a3040;font-weight:700;font-size:1.05rem;color:#8ac0d8;display:flex;align-items:center;gap:10px;font-family:inherit;background:#050d14;border-radius:12px 12px 0 0}
 .modal-sello .ms-h-icon{width:26px;height:26px;background:#d4a820;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:12px;font-family:Arial,sans-serif;letter-spacing:-.5px}
-.modal-sello .ms-b{padding:14px 20px 18px;overflow-y:auto;flex:1;font-family:'Encode Sans',sans-serif}
-.modal-sello .ms-b label{display:block;font-size:11px;font-weight:600;color:#666;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.4px}
+.modal-sello .ms-b{padding:14px 20px 18px;overflow-y:auto;flex:1;font-family:inherit}
+.modal-sello .ms-b label{display:block;font-size:11px;font-weight:600;color:#8ac0d8;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.4px}
 .modal-sello .ms-b label:first-of-type{margin-top:2px}
-.modal-sello .ms-b input,.modal-sello .ms-b select{width:100%;padding:9px 11px;border:1.4px solid #d0d4dc;border-radius:7px;font-size:14px;font-family:inherit;background:#fafbfc;color:#222;box-sizing:border-box}
-.modal-sello .ms-b input:focus,.modal-sello .ms-b select:focus{outline:none;border-color:#d4a820;background:#fff}
+.modal-sello .ms-b input,.modal-sello .ms-b select{width:100%;padding:9px 11px;border:1px solid #2a4050;border-radius:6px;font-size:14px;font-family:inherit;background:#0d2030;color:#c4dae6;box-sizing:border-box}
+.modal-sello .ms-b input:focus,.modal-sello .ms-b select:focus{outline:none;border-color:#d4a820;background:#0f2638;box-shadow:0 0 0 2px rgba(212,168,32,.15)}
+.modal-sello .ms-b input::placeholder{color:#5a7080}
 .modal-sello .ms-g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.modal-sello .ms-hint{font-size:11px;color:#888;margin-top:10px;font-style:italic;line-height:1.4}
-.modal-sello .ms-f{padding:13px 20px;border-top:1px solid #e2e2e2;display:flex;gap:10px;background:#fff;border-radius:0 0 14px 14px}
-.modal-sello .ms-f button{flex:1;padding:11px 14px;border:none;border-radius:7px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s}
-.modal-sello .ms-canc{background:#eee;color:#555}
-.modal-sello .ms-canc:hover{background:#dcdcdc}
-.modal-sello .ms-ok{background:#d4a820;color:#000;flex:1.5}
-.modal-sello .ms-ok:hover{background:#c19919}
+.modal-sello .ms-hint{font-size:11px;color:#7aacbc;margin-top:10px;font-style:italic;line-height:1.4}
+.modal-sello .ms-f{padding:12px 20px;border-top:1px solid #1a3040;display:flex;gap:10px;background:#050d14;border-radius:0 0 12px 12px}
+.modal-sello .ms-f button{flex:1;padding:11px 14px;border:none;border-radius:6px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
+.modal-sello .ms-canc{background:#1a2a35;color:#8ac0d8;border:1px solid #2a4050 !important}
+.modal-sello .ms-canc:hover{background:#243a48}
+.modal-sello .ms-ok{background:#1a8a4a;color:#fff;flex:1.5;box-shadow:0 4px 12px rgba(26,138,74,.3)}
+.modal-sello .ms-ok:hover{background:#146638}
 </style>
 <style>
 /* v7.99 · Fix FOUC · items marcados data-solo-gerencia arrancan ocultos
@@ -432,7 +433,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.21</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.22</span></div>
   </div>
 </div>
 <div class="layout">
@@ -569,6 +570,17 @@ body.modo-campo #campo-fab{display:flex}
       <button id="btnpin" class="btn btn-xs" onclick="togglePin()" style="background:#0d2030;color:var(--p);border:1px solid #2a4050;white-space:nowrap;flex-shrink:0">Pin mapa</button>
     </div>
     <input type="hidden" id="_editId" value="">
+    <!-- v8.22 · Fecha y hora editables (solo aparece al editar un registro existente) -->
+    <div id="fecha-hora-row" style="display:none;gap:4px;margin-top:4px;background:#0d2030;padding:6px 8px;border-radius:5px;border:1px solid #2a4050">
+      <label style="flex:1;font-size:9px;color:#8ac0d8;display:flex;flex-direction:column;gap:2px">
+        <span style="text-transform:uppercase;letter-spacing:.3px;font-weight:700">Fecha</span>
+        <input type="date" id="ffecha" style="font-size:11px;color:#c4dae6;background:#0a1620;border:1px solid #2a4050;padding:3px 5px;border-radius:3px;font-family:inherit">
+      </label>
+      <label style="flex:1;font-size:9px;color:#8ac0d8;display:flex;flex-direction:column;gap:2px">
+        <span style="text-transform:uppercase;letter-spacing:.3px;font-weight:700">Hora</span>
+        <input type="time" id="fhora" step="1" style="font-size:11px;color:#c4dae6;background:#0a1620;border:1px solid #2a4050;padding:3px 5px;border-radius:3px;font-family:inherit">
+      </label>
+    </div>
     <div style="display:flex;gap:4px">
       <button class="btn btn-save" id="btnGuardar" onclick="guardar()" style="flex:1">Guardar Registro</button>
       <button class="btn btn-xs" id="btnLimpiar" onclick="limpiarForm()" style="background:#0d1a1a;border:1px solid #2a4a4a;color:#5a8888;flex-shrink:0" title="Limpiar formulario">✕ Limpiar</button>
@@ -662,6 +674,14 @@ body.modo-campo #campo-fab{display:flex}
         🧹 Limpiar backups viejos
       </button>
       <div id="clean-result" style="font-size:10px;color:#7aacbc;margin-top:6px"></div>
+      <!-- v8.22 · Auditar fechas sospechosas (futuras, muy viejas, formato roto) -->
+      <div style="border-top:1px dashed #2a4a4a;margin-top:10px;padding-top:8px">
+        <div style="font-size:10px;color:#8ac0d8;text-transform:uppercase;letter-spacing:.3px;font-weight:700;margin-bottom:4px">🔍 Auditar fechas</div>
+        <button class="btn btn-xs" onclick="auditarFechasSospechosas()" style="background:#0d2030;border:1px solid #4a6a8a;color:#a0c0e0;width:100%;padding:6px">
+          Detectar registros con fecha sospechosa
+        </button>
+        <div id="audit-fechas-result" style="font-size:10px;color:#7aacbc;margin-top:6px;max-height:200px;overflow-y:auto"></div>
+      </div>
     </div>
       </div>
     </div>
@@ -676,7 +696,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.21</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.22</span>
       </div>
     </div>
 
@@ -748,7 +768,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.21';
+const APP_VERSION = 'v8.22';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2263,8 +2283,22 @@ async function guardar(){
     const fotoOriginal = _editandoId ? (regs.find(r => r.id === _editandoId)?.foto || null) : null;
     const fotoFinal = foto_url || (fotoBase64 && !_supa ? fotoBase64 : null) || fotoOriginal;
 
-    // En edición: preservar fecha original. En nuevo: fecha actual.
+    // v8.22 · Fecha/hora editables: si el user cambió los inputs, componer nueva fecha ISO.
+    // En edición sin cambio: preservar fecha original. En nuevo sin input: fecha actual.
     const fechaOriginal = _editandoId ? (regs.find(r => r.id === _editandoId)?.fechaISO || null) : null;
+    const fInput = document.getElementById('ffecha')?.value || '';
+    const hInput = document.getElementById('fhora')?.value || '';
+    let fechaFinal;
+    if (fInput) {
+      const hStr = hInput || '12:00:00';
+      const hPart = hStr.split(':');
+      const hh = parseInt(hPart[0]||0, 10), mm = parseInt(hPart[1]||0, 10), ss = parseInt(hPart[2]||0, 10);
+      const [yy, mo, dd] = fInput.split('-').map(Number);
+      const d = new Date(yy, mo-1, dd, hh, mm, ss);
+      fechaFinal = d.toISOString();
+    } else {
+      fechaFinal = fechaOriginal || new Date().toISOString();
+    }
     const registro = {
       ruta, partido,
       progresiva:    prog,
@@ -2272,7 +2306,7 @@ async function guardar(){
       observaciones: obsFinal || null,
       foto_url:      fotoFinal,
       lat, lng,
-      fecha:         fechaOriginal || new Date().toISOString(),
+      fecha:         fechaFinal,
       tipo_via:      tipoVia,  // v7.15 — 'rp' | 'camino'
     };
 
@@ -4690,6 +4724,44 @@ async function borrarBackupOriginal(){
   }
 }
 
+// v8.22 · Auditar registros con fechas sospechosas (futuras, muy viejas, o rotas)
+function auditarFechasSospechosas(){
+  const out = document.getElementById('audit-fechas-result');
+  if (!out) return;
+  const hoy = new Date();
+  const hoyMs = hoy.getTime();
+  const hace10anios = new Date(hoy.getFullYear()-10, 0, 1).getTime();
+  const sospechosos = [];
+  regs.forEach(r => {
+    if (!r.fechaISO) { sospechosos.push({r, motivo:'sin fecha'}); return; }
+    const d = new Date(r.fechaISO);
+    const ts = d.getTime();
+    if (isNaN(ts)) { sospechosos.push({r, motivo:'fecha inválida: ' + r.fechaISO}); return; }
+    if (ts > hoyMs + 86400000) {  // más de 1 día en el futuro
+      sospechosos.push({r, motivo:'FUTURA · ' + d.toLocaleDateString('es-AR')});
+      return;
+    }
+    if (ts < hace10anios) {
+      sospechosos.push({r, motivo:'muy vieja · ' + d.toLocaleDateString('es-AR')});
+      return;
+    }
+  });
+  if (!sospechosos.length){
+    out.innerHTML = '<div style="color:#4a8a6a;font-weight:600">✓ No se detectaron fechas sospechosas en ' + regs.length + ' registros.</div>';
+    return;
+  }
+  const html = ['<div style="color:#c47a00;font-weight:700;margin-bottom:6px">⚠ ' + sospechosos.length + ' registro(s) sospechoso(s):</div>'];
+  sospechosos.slice(0, 50).forEach(s => {
+    const idBadge = '<a href="#" onclick="editReg(' + s.r.id + ');return false" style="color:#8ac0d8;font-weight:700;text-decoration:none">#' + s.r.id + '</a>';
+    html.push('<div style="padding:3px 0;border-bottom:1px dotted #2a4a4a">' +
+              idBadge + ' · ' + (s.r.ruta || '?') + ' · ' +
+              '<span style="color:#c47a00">' + s.motivo + '</span></div>');
+  });
+  if (sospechosos.length > 50) html.push('<div style="opacity:.7;margin-top:4px">... y ' + (sospechosos.length-50) + ' más</div>');
+  html.push('<div style="margin-top:6px;font-size:9px;color:#6a8090">Tocá el ID para abrir el registro y corregir la fecha en el sidebar.</div>');
+  out.innerHTML = html.join('');
+}
+
 // Botón masivo "🧹 Limpiar backups > N días" en tab Reportes
 async function limpiarBackupsMasivo(){
   const dias = parseInt(document.getElementById('clean-days').value, 10) || 30;
@@ -4949,6 +5021,17 @@ function editReg(id) {
   document.getElementById('flat').value     = reg.lat ? reg.lat.toFixed(6) : '';
   document.getElementById('flng').value     = reg.lng ? reg.lng.toFixed(6) : '';
   document.getElementById('_editId').value  = id;
+  // v8.22 · Poblar fecha/hora editables (solo al editar)
+  if (reg.fechaISO) {
+    const d = new Date(reg.fechaISO);
+    if (!isNaN(d.getTime())) {
+      const pad = n => String(n).padStart(2,'0');
+      document.getElementById('ffecha').value = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+      document.getElementById('fhora').value = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+    }
+  }
+  const fhrow = document.getElementById('fecha-hora-row');
+  if (fhrow) fhrow.style.display = 'flex';
 
   // Mostrar foto actual si existe
   if (reg.foto) {
@@ -5041,6 +5124,10 @@ function limpiarForm() {
   document.getElementById('flat').value = '';
   document.getElementById('flng').value = '';
   document.getElementById('ffoto').value = '';
+  // v8.22 · Limpiar fecha/hora editables y ocultar la fila
+  const ff = document.getElementById('ffecha'); if (ff) ff.value = '';
+  const fh = document.getElementById('fhora');  if (fh) fh.value = '';
+  const fhrow = document.getElementById('fecha-hora-row'); if (fhrow) fhrow.style.display = 'none';
   // Quitar pin del mapa si existe
   if (window._pinMarker) { map.removeLayer(window._pinMarker); window._pinMarker = null; }
 }
@@ -5052,12 +5139,14 @@ function cancelarEdit() {
   document.getElementById('btnGuardar').style.background = '';
   document.getElementById('btnGuardar').style.borderColor = '';
   document.getElementById('btnCancelarEdit').style.display = 'none';
-  ['fobs','festado','fprog'].forEach(id => document.getElementById(id).value = '');
+  ['fobs','festado','fprog','ffecha','fhora'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   z6TipoReset();
   document.getElementById('flat').value = '';
   document.getElementById('flng').value = '';
   document.getElementById('ffoto').value = '';
   document.getElementById('iprev').style.display = 'none';
+  // v8.22 · ocultar la fila fecha/hora al cancelar edición
+  const fhrow = document.getElementById('fecha-hora-row'); if (fhrow) fhrow.style.display = 'none';
   // v7.48 — Ocultar herramientas de rotación al cancelar edición
   const tools = document.getElementById('foto-tools');
   if (tools) tools.style.display = 'none';
