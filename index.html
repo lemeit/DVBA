@@ -690,6 +690,25 @@ body.modo-campo #campo-fab{display:flex}
       <div id="rep-tabla" style="margin-top:8px"></div>
     </div>
 
+    <!-- v8.27 · Reporte de Red Secundaria (Caminos) — reutiliza filtros de partido + clase del mapa -->
+    <div class="sec" style="border-top:1px solid var(--light);margin-top:12px;padding-top:12px">
+      <div class="sec-title" style="font-family:'Encode Sans',sans-serif">🚜 Red Secundaria · Caminos</div>
+      <div style="font-size:10px;color:var(--mut);margin-bottom:8px;line-height:1.45">
+        Reporta los caminos secundarios filtrados por <b style="color:var(--pd)">partido</b> y <b style="color:var(--pd)">clase</b> activos en el mapa. Ajustá esos filtros arriba (Partidos + capa Caminos) para acotar el resultado.
+      </div>
+      <div id="rep-cs-filtros" style="font-size:10px;color:var(--mut);background:var(--bg);border-left:3px solid var(--p);padding:6px 8px;border-radius:4px;margin-bottom:6px;line-height:1.45">
+        <i>Presioná "Generar" para ver los filtros aplicados y el resumen.</i>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px">
+        <button onclick="generarReporteCaminos()" class="btn-side side-primary" style="grid-column:1/-1;padding:8px 10px;font-size:12px">
+          ▶ Generar reporte de caminos
+        </button>
+        <button onclick="exportReporteCaminosCSV()" class="btn-side side-neutral">↓ CSV</button>
+        <button onclick="exportReporteCaminosPDF()" class="btn-side side-neutral">↓ PDF caminos</button>
+      </div>
+      <div id="rep-cs-tabla" style="margin-top:8px"></div>
+    </div>
+
     <!-- v7.50 · v8.26 · Mantenimiento de Storage + Auditoría (paleta clara PBA) -->
     <div class="sec" style="border-top:1px solid var(--light);margin-top:12px;padding-top:12px">
       <div class="sec-title" style="font-family:'Encode Sans',sans-serif">🧹 Mantenimiento Storage</div>
@@ -796,7 +815,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.26';
+const APP_VERSION = 'v8.27';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4503,6 +4522,233 @@ ${seccionesHtml}
   a.click();
   document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   v8.27 · REPORTE de RED SECUNDARIA (Caminos)
+   Reutiliza _caminosGeoJSON_cache + selP + csSelClases (filtros del mapa).
+   Muestra Denominación + Nomenclatura + Tramo + Long GIS/Oficial + Clase + Transitab.
+   ═══════════════════════════════════════════════════════════════════ */
+let _repCaminosData = [];
+
+// Etiqueta corta para clase (usado en tabla)
+function _csClaseCorta(cl){
+  if(!cl) return '—';
+  const c = String(cl).toUpperCase();
+  if(c.includes('TIERRA')) return 'Tierra';
+  if(c.includes('PAVIMENT')) return 'Pavimentado';
+  if(c.includes('MIXTO')) return 'Mixto';
+  if(c.includes('SIN ABRIR')) return 'Sin abrir';
+  return cl;
+}
+
+// Chip HTML para una clase (color oficial de CS_COLOR_CLASE)
+function _csClaseChip(cl){
+  const color = (typeof CS_COLOR_CLASE !== 'undefined' && CS_COLOR_CLASE[cl]) || '#888';
+  return `<span style="display:inline-block;width:9px;height:9px;background:${color};border-radius:50%;vertical-align:middle;margin-right:4px"></span>${_csClaseCorta(cl)}`;
+}
+
+// Recorre _caminosGeoJSON_cache y devuelve la lista filtrada por selP + csSelClases
+function buildReporteCaminosData(){
+  if (!_caminosGeoJSON_cache || !_caminosGeoJSON_cache.features) return [];
+  const partActivos = (typeof selP !== 'undefined') ? selP : null;
+  const clasesActivas = (typeof csSelClases !== 'undefined' && csSelClases) ? csSelClases : null;
+  const feats = _caminosGeoJSON_cache.features.filter(f => {
+    const p = f.properties || {};
+    if (partActivos && !partActivos.has(p.PARTIDO_NOMBRE)) return false;
+    if (clasesActivas && !clasesActivas.has(p.CLASE)) return false;
+    return true;
+  });
+  // Ordenar por partido + nomenclatura + tramo
+  return feats.map(f => {
+    const p = f.properties || {};
+    return {
+      partido: p.PARTIDO_NOMBRE || '—',
+      nomenclatura: p.NOMEMCLATURA || '—',
+      tramo: p.TRAMO_NUM || '',
+      denominacion: p.DENOMINACION || '—',
+      clase: p.CLASE || '—',
+      transit: p.TRANSITABIlIDAD || '—',
+      longGis: (p.LONGITUD_KM_WGS84 != null) ? Number(p.LONGITUD_KM_WGS84).toFixed(2) : '—',
+      longOf:  (p.LONGITUD_KM_ORIG  != null) ? Number(p.LONGITUD_KM_ORIG ).toFixed(2) : '—'
+    };
+  }).sort((a,b) => {
+    if (a.partido !== b.partido) return a.partido.localeCompare(b.partido);
+    if (a.nomenclatura !== b.nomenclatura) return String(a.nomenclatura).localeCompare(String(b.nomenclatura));
+    return String(a.tramo).localeCompare(String(b.tramo), undefined, {numeric:true});
+  });
+}
+
+function generarReporteCaminos(){
+  if (!_caminosGeoJSON_cache) {
+    document.getElementById('rep-cs-tabla').innerHTML =
+      '<div style="padding:10px;color:var(--am);background:#fef6e4;border-left:3px solid var(--am);border-radius:4px;font-size:11px">' +
+      '⚠ La capa de caminos no está cargada. Activá la capa "Caminos" en el mapa (menú de capas) y volvé a intentar.</div>';
+    return;
+  }
+  _repCaminosData = buildReporteCaminosData();
+
+  // Panel de filtros aplicados
+  const partActivos = (typeof selP !== 'undefined' && selP) ? [...selP].sort() : [];
+  const clasesActivas = (typeof csSelClases !== 'undefined' && csSelClases) ? [...csSelClases] : [];
+  document.getElementById('rep-cs-filtros').innerHTML =
+    `<b style="color:var(--pd)">Partidos:</b> ${partActivos.length ? partActivos.join(', ') : '<i>ninguno</i>'}<br>` +
+    `<b style="color:var(--pd)">Clases:</b> ${clasesActivas.length ? clasesActivas.map(_csClaseCorta).join(', ') : '<i>ninguna</i>'}`;
+
+  if (!_repCaminosData.length) {
+    document.getElementById('rep-cs-tabla').innerHTML =
+      '<div style="padding:10px;color:var(--mut);font-size:11px;text-align:center">Sin caminos que coincidan con los filtros actuales.</div>';
+    return;
+  }
+
+  // Totales
+  let totalKmGis = 0, totalKmOf = 0;
+  const porClase = {};
+  const porPartido = {};
+  _repCaminosData.forEach(r => {
+    if (r.longGis !== '—') totalKmGis += parseFloat(r.longGis);
+    if (r.longOf  !== '—') totalKmOf  += parseFloat(r.longOf);
+    porClase[r.clase] = (porClase[r.clase] || 0) + (r.longGis !== '—' ? parseFloat(r.longGis) : 0);
+    porPartido[r.partido] = (porPartido[r.partido] || 0) + (r.longGis !== '—' ? parseFloat(r.longGis) : 0);
+  });
+
+  // Tabla
+  let html = '<table class="rep-table"><thead><tr>' +
+    '<th>Partido</th><th>Nomencl.</th><th>Tramo</th><th>Denominación</th>' +
+    '<th>Clase</th><th>Transit.</th><th>Km GIS</th><th>Km Of.</th>' +
+    '</tr></thead><tbody>';
+  _repCaminosData.forEach(r => {
+    html += `<tr>` +
+      `<td style="font-size:9px">${r.partido}</td>` +
+      `<td style="font-family:'SF Mono',Menlo,monospace;font-size:9px;color:var(--pd)"><b>${r.nomenclatura}</b></td>` +
+      `<td style="text-align:center;font-size:9px">${r.tramo || '—'}</td>` +
+      `<td style="font-size:10px">${r.denominacion}</td>` +
+      `<td style="font-size:9px">${_csClaseChip(r.clase)}</td>` +
+      `<td style="font-size:9px">${r.transit === 'PERMANENTE' ? '<b style="color:var(--vd)">Perm.</b>' : r.transit === 'TEMPORARIO' ? '<span style="color:var(--am)">Temp.</span>' : r.transit}</td>` +
+      `<td style="text-align:right;font-family:'SF Mono',Menlo,monospace">${r.longGis}</td>` +
+      `<td style="text-align:right;font-family:'SF Mono',Menlo,monospace;color:var(--p);font-weight:600">${r.longOf}</td>` +
+      `</tr>`;
+  });
+  html += '</tbody></table>';
+
+  // Totales + desglose por clase
+  html += `<div class="rep-total">
+    <span>Tramos: <b>${_repCaminosData.length}</b></span>
+    <span>GIS: <b>${totalKmGis.toFixed(2)} km</b></span>
+    <span>Oficial: <b>${totalKmOf.toFixed(2)} km</b></span>
+  </div>`;
+  const claseRows = Object.entries(porClase)
+    .sort((a,b) => b[1]-a[1])
+    .map(([cl,km]) => `<span style="margin-right:10px">${_csClaseChip(cl)}: <b>${km.toFixed(2)} km</b></span>`)
+    .join('');
+  html += `<div style="font-size:9px;color:var(--mut);margin-top:6px"><b style="color:var(--pd)">Por clase:</b> ${claseRows}</div>`;
+  const partRows = Object.entries(porPartido)
+    .sort((a,b) => b[1]-a[1])
+    .map(([pt,km]) => `<span style="margin-right:10px">${pt}: <b style="color:var(--pd)">${km.toFixed(2)} km</b></span>`)
+    .join('');
+  html += `<div style="font-size:9px;color:var(--mut);margin-top:2px"><b style="color:var(--pd)">Por partido:</b> ${partRows}</div>`;
+
+  document.getElementById('rep-cs-tabla').innerHTML = html;
+}
+
+function exportReporteCaminosCSV(){
+  if (!_repCaminosData.length) generarReporteCaminos();
+  if (!_repCaminosData.length) return;
+  const cols = ['Partido','Nomenclatura','Tramo','Denominacion','Clase','Transitabilidad','Long_GIS_km','Long_Oficial_km'];
+  const rows = _repCaminosData.map(r => [
+    r.partido, r.nomenclatura, r.tramo, r.denominacion, r.clase, r.transit, r.longGis, r.longOf
+  ].map(v => '"' + String(v).replace(/"/g,'""') + '"').join(','));
+  const csv = '﻿' + cols.join(',') + '\n' + rows.join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'DVBA_ZonaVI_Caminos_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+function exportReporteCaminosPDF(){
+  if (!_repCaminosData.length) generarReporteCaminos();
+  if (!_repCaminosData.length) return;
+  const ahora = new Date().toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'});
+  const version = APP_VERSION;
+
+  // Totales
+  let totalKmGis = 0, totalKmOf = 0;
+  const porClase = {}, porPartido = {};
+  _repCaminosData.forEach(r => {
+    if (r.longGis !== '—') totalKmGis += parseFloat(r.longGis);
+    if (r.longOf  !== '—') totalKmOf  += parseFloat(r.longOf);
+    porClase[r.clase] = (porClase[r.clase] || 0) + (r.longGis !== '—' ? parseFloat(r.longGis) : 0);
+    porPartido[r.partido] = (porPartido[r.partido] || 0) + (r.longGis !== '—' ? parseFloat(r.longGis) : 0);
+  });
+
+  const filas = _repCaminosData.map(r => `<tr>
+    <td>${r.partido}</td>
+    <td style="font-family:monospace"><b>${r.nomenclatura}</b></td>
+    <td style="text-align:center">${r.tramo || '—'}</td>
+    <td>${r.denominacion}</td>
+    <td>${_csClaseCorta(r.clase)}</td>
+    <td>${r.transit === 'PERMANENTE' ? 'Perm.' : r.transit === 'TEMPORARIO' ? 'Temp.' : r.transit}</td>
+    <td style="text-align:right;font-family:monospace">${r.longGis}</td>
+    <td style="text-align:right;font-family:monospace">${r.longOf}</td>
+  </tr>`).join('');
+
+  const claseHtml = Object.entries(porClase).sort((a,b)=>b[1]-a[1])
+    .map(([cl,km])=>`<span style="margin-right:14px"><b>${_csClaseCorta(cl)}:</b> ${km.toFixed(2)} km</span>`).join('');
+  const partHtml = Object.entries(porPartido).sort((a,b)=>b[1]-a[1])
+    .map(([pt,km])=>`<span style="margin-right:14px"><b>${pt}:</b> ${km.toFixed(2)} km</span>`).join('');
+
+  const partActivos = (typeof selP !== 'undefined' && selP) ? [...selP].sort() : [];
+  const clasesActivas = (typeof csSelClases !== 'undefined' && csSelClases) ? [...csSelClases].map(_csClaseCorta) : [];
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>DVBA Zona VI · Reporte Red Secundaria</title>
+<style>
+  @page { size: A4 landscape; margin: 12mm; }
+  body{font-family:'Encode Sans','Segoe UI',Arial,sans-serif;font-size:9pt;color:#111;margin:0}
+  h1{font-size:14pt;color:#00aec3;margin:0 0 4px}
+  .sub{font-size:9pt;color:#555;margin-bottom:6px}
+  .filtros{background:#f0f8fa;border-left:3px solid #00aec3;padding:6px 10px;margin:6px 0 12px;font-size:9pt}
+  table{width:100%;border-collapse:collapse;margin-top:4px}
+  thead th{background:#00aec3;color:#fff;padding:5px 7px;text-align:left;font-size:8pt;font-weight:700}
+  tbody td{padding:4px 7px;border-bottom:1px solid #e0e6ea;font-size:8pt;vertical-align:top}
+  tbody tr:nth-child(even){background:#f7fbfc}
+  .total{margin-top:10px;padding:8px 12px;background:#f0f4f7;border:1px solid #e0e6ea;border-radius:4px}
+  .total b{color:#00aec3}
+  .footer{margin-top:14px;font-size:7pt;color:#888;border-top:1px solid #e0e6ea;padding-top:5px;display:flex;justify-content:space-between}
+</style></head><body>
+<h1>DVBA · Zona VI Saladillo · Reporte de Red Secundaria (Caminos)</h1>
+<div class="sub">Generado: <b>${ahora}</b> · Sistema SIG Vial PBA · <b>${version}</b></div>
+<div class="filtros">
+  <b>Partidos:</b> ${partActivos.length ? partActivos.join(', ') : 'ninguno'}<br>
+  <b>Clases:</b> ${clasesActivas.length ? clasesActivas.join(', ') : 'ninguna'}
+</div>
+<table>
+  <thead><tr>
+    <th>Partido</th><th>Nomencl.</th><th>Tramo</th><th>Denominación</th>
+    <th>Clase</th><th>Transit.</th><th>Km GIS</th><th>Km Oficial</th>
+  </tr></thead>
+  <tbody>${filas}</tbody>
+</table>
+<div class="total">
+  <div><b>Tramos:</b> ${_repCaminosData.length} &nbsp;·&nbsp; <b>Total GIS:</b> ${totalKmGis.toFixed(2)} km &nbsp;·&nbsp; <b>Total Oficial:</b> ${totalKmOf.toFixed(2)} km</div>
+  <div style="margin-top:6px"><b style="color:#00aec3">Por clase:</b> ${claseHtml}</div>
+  <div style="margin-top:2px"><b style="color:#00aec3">Por partido:</b> ${partHtml}</div>
+</div>
+<div class="footer">
+  <span>Sistema de Relevamiento Vial DVBA Zona VI · Ing. Luciano Lamaita</span>
+  <span>Dirección de Vialidad de la Provincia de Buenos Aires</span>
+</div>
+<script>window.onload = function() { window.print(); }<\/script>
+</body></html>`;
+
+  const blob = new Blob([html], { type:'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.target = '_blank'; a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
 
