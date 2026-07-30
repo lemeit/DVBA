@@ -12,16 +12,54 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 | URL | Archivo | Versión | Descripción |
 |---|---|---|---|
-| https://lemeit.github.io/DVBA/ | `index.html` | **v7.79** | Portal principal: mapa, sidebar con pills agrupadas, modal SIG Vial tipo DNV, cola de pendientes con sellado + rotación, **capa 📋 Partes** que dibuja cada parte sobre la traza real (RP o camino) con color por antigüedad, picker de zona en header, panel-footer institucional fijo con resumen |
-| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v7.79** | **Nueva app** "Plan de Seguridad en la Circulación" — alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido (vía interpolación de progresiva + point-in-polygon), autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead |
-| https://lemeit.github.io/DVBA/app.html | `app.html` → router | **v9.79** | **App móvil PWA (URL canónica pública)** — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia del usuario. Al instalar la PWA queda registrada como `SIG Vial PBA` (un solo ícono en el launcher). URL alternativa `campo.html` sigue funcionando como redirect por compatibilidad con instalaciones previas a v9.79. |
-| ↳ `dvba_campo_lite.html` (interno) | Modo Básico | v9.78 | UI minimalista: foto + GPS + envío directo. Diseñado para operarios sin fluidez tecnológica. |
-| ↳ `dvba_campo.html` (interno) | Modo Avanzado | v9.78 | Wizard completo con selección de tipo/estado/subatributos, autocomplete de rutas y caminos, edición fina. |
+| https://lemeit.github.io/DVBA/ | `index.html` | **v8.21** | Portal principal: mapa Leaflet + **sidebar drawer colapsable** (Ctrl+B) que libera el mapa cuando querés navegar. Pins arrastrables con auto-detección de partido/ruta/progresiva. **Botón `📍 Nuevo Pin`** para crear registros desde el mapa. **Botón `🎯 Ubicar`** para el flujo inverso: ruta+km → posiciona el pin. **Sello v4 overlay** semitransparente sobre la foto (no la afina) con QR + logo DVBA. **EXIF metadata** completo (GPS, Make, Model, DateTime) inyectado en cada foto. |
+| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v8.21** | App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo `sello_v4.js` con el portal. |
+| https://lemeit.github.io/DVBA/reportes.html | `reportes.html` | **v8.21** | Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia. |
+| https://lemeit.github.io/DVBA/app.html | `app.html` → router | **v9.88** | **App móvil PWA (URL canónica)** — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia. Instalado en el celu queda como `SIG Vial PBA` (un solo ícono). URL legacy `campo.html` sigue como redirect. |
+| ↳ `dvba_campo_lite.html` (interno) | Modo Básico | v9.88 | UI minimalista: foto + GPS + envío directo. Compresión 1200px/q=0.75 con `createImageBitmap` (low-memory). Inyección EXIF con GPS + fecha aunque la foto vaya cruda. Diseñado para operarios sin fluidez tecnológica. |
+| ↳ `dvba_campo.html` (interno) | Modo Avanzado | v9.88 | Wizard completo con selección de tipo/estado/subatributos, autocomplete de rutas y caminos, edición fina + sello v4 aplicado en móvil. |
 | https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte (subruta legacy — el portal principal ya cubre este flujo) |
 | https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.5 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
 | https://lemeit.github.io/DVBA/docs/guia_sig_vial_pba.html | guía textual | v1.1 | Manual completo de las apps móviles |
 | https://lemeit.github.io/DVBA/docs/guia_visual_sig_vial_pba.html | guía visual | v1.1 | 10 láminas navegables (mockups smartphone) · imprimible como PDF |
 | https://lemeit.github.io/DVBA/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
+
+## Funcionalidades destacadas (v8.11-v8.21 · v9.79-v9.88 · julio-agosto 2026)
+
+### Arquitectura del sello v4 unificado
+Un único módulo `datos/sello_v4.js` es la fuente de verdad para el sellado — importado por portal, partes_diarios y móvil. Antes había 3 copias embebidas descoordinadas.
+
+### Sello v4 con overlay semitransparente
+El banner ya no se agrega ABAJO de la foto (que la "afinaba"), sino que se dibuja **encima** de los últimos ~180-270px de la propia foto, con fondo `rgba(0,0,0,0.55→0.75)`. La foto conserva 100 % su ratio original. Texto blanco con sombra negra + QR con fondo blanco sólido + logo DVBA (18 %) al centro del QR.
+
+### Metadatos EXIF completos en cada foto
+Vía `datos/exif_writer.js` (wrapper sobre `piexifjs`), cada foto sellada lleva adentro:
+- `GPS` lat/lng/altitud/timestamp
+- `Make` = `DVBA` · `Model` = `SIG Vial PBA · Modo Básico/Avanzado/Portal`
+- `Software` = `SIG Vial PBA v8.21 · sello v4`
+- `ImageDescription` = `ruta · km · tipo`
+- `Copyright` = `DVBA - Departamento Zona VI`
+- `DateTimeOriginal` + `UserComment` (JSON completo del registro)
+
+Windows Explorer, Google Photos, iPhone Fotos y cualquier visor con soporte EXIF muestran la ubicación en un mini-mapa automáticamente.
+
+### 4 flujos de creación/edición coordinados
+
+1. **Móvil (Modo Básico)** → llega crudo con GPS → auto-ubicar en mapa + auto-completar partido/ruta/prog con `ARMONIZADOR`
+2. **Desde el mapa** → `📍 Nuevo Pin` en el centro del viewport → arrastrar + completar datos
+3. **Por progresiva** → elegir RP + escribir km + `🎯 Ubicar` → sistema calcula lat/lng con CHAIN+ANCHORS
+4. **Edición** → arrastrar pin recalcula todo al vuelo
+
+### Sidebar drawer colapsable
+Toggle `Ctrl+B` (o clic en `◀` del borde derecho) para maximizar el mapa. Persiste en `localStorage`. Leaflet recalcula tiles automático.
+
+### Nombre archivo al descargar
+Botón `⬇ Descargar` en modal/sidebar → `fetch → blob → objectURL` para forzar nombre `SIGVialPBA_ID_RP.jpg` (Chrome ignora `<a download>` cross-origin de Supabase).
+
+### PWA móvil unificada
+Una sola PWA (`app.html`) con dos modos internos. El user toggle entre Básico y Avanzado sin desinstalar. Un solo ícono en el launcher.
+
+---
 
 ## Modelo Tipo ↔ Estado (desde v9.18 / v7.10 — junio 2026)
 
