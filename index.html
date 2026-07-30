@@ -71,6 +71,8 @@ header p{font-size:10px;color:rgba(255,255,255,.75);margin-top:1px;font-weight:5
 
 /* ═══ PANEL LATERAL ═════════════════════════════════════════ */
 .panel{width:300px;min-width:220px;max-width:540px;background:var(--w);display:flex;flex-direction:column;border-right:1px solid var(--light);flex-shrink:0;position:relative;transition:width .25s;height:100%;overflow:hidden;box-shadow:2px 0 8px rgba(0,0,0,.06)}
+/* v8.21 · Animación de pulso al crear pin nuevo */
+@keyframes pulsopin{0%{box-shadow:0 0 0 0 rgba(26,138,74,.7)}70%{box-shadow:0 0 0 20px rgba(26,138,74,0)}100%{box-shadow:0 0 0 0 rgba(26,138,74,0)}}
 /* v8.20 · Drawer colapsable · botón toggle en el borde derecho */
 .panel.collapsed{width:32px !important;min-width:32px}
 .panel.collapsed > *:not(.panel-toggle):not(.panel-resize){display:none !important}
@@ -430,7 +432,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.20</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.21</span></div>
   </div>
 </div>
 <div class="layout">
@@ -514,7 +516,10 @@ body.modo-campo #campo-fab{display:flex}
       <select id="fpartido" onchange="d_actualizarCaminosDelPartido()"><option value="">-- Partido --</option></select>
       <select id="fruta"><option value="">-- Ruta --</option></select>
     </div>
-    <input type="text" id="fprog" placeholder="Progresiva (ej: 45+500)">
+    <div style="display:flex;gap:4px">
+      <input type="text" id="fprog" placeholder="Progresiva (ej: 45+500)" style="flex:1">
+      <button type="button" onclick="ubicarPorProgresiva()" title="Ubicar el pin usando ruta + progresiva" style="padding:0 10px;background:#0d2030;color:#d4a820;border:1px solid #2a4050;border-radius:4px;cursor:pointer;font-size:14px;font-weight:700">🎯</button>
+    </div>
     <!-- Selector jerárquico de tipo — desktop -->
     <div id="z6-tipo-selector" class="z6-tipo-sel">
       <div id="z6-tipo-display" class="z6-tipo-display" onclick="z6TipoToggle()">
@@ -671,12 +676,16 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.20</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.21</span>
       </div>
     </div>
 
   </div>
 <div id="map">
+  <!-- v8.21 · Etapa 4 · Botón flotante para crear un pin nuevo en el mapa -->
+  <button id="btn-nuevo-pin" onclick="nuevoPinDesdeMapa()" title="Poner un pin en el centro del mapa y crear un registro nuevo" style="position:absolute;bottom:26px;right:14px;z-index:600;background:#1a8a4a;color:#fff;border:none;border-radius:24px;padding:10px 18px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);display:flex;align-items:center;gap:8px">
+    <span style="font-size:18px;line-height:1">📍</span> Nuevo Pin
+  </button>
   <div id="layer-btns">
     <!-- v7.33 — Layout simple: botones sueltos verticales + mini-panel plegable de visualización -->
     <button id="btn-osm" class="active" onclick="setLayer('osm')">Mapa OSM</button>
@@ -739,7 +748,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.20';
+const APP_VERSION = 'v8.21';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -3642,6 +3651,120 @@ function actualizarPanelPosCamino(feat, latlng, km) {
 // y elige lo más cercano (RP o camino). Se usa al PONER UN PIN (click en mapa)
 // donde el user visualmente ya sabe qué está señalando. En hover, el toggle
 // del form manda para no interferir entre capas.
+// v8.21 · Etapa 4 · Crear registro nuevo poniendo pin en el centro del mapa
+function nuevoPinDesdeMapa(){
+  // Limpiar formulario para arrancar de cero
+  if (typeof limpiarForm === 'function') limpiarForm();
+  // Ir a la tab Registro para que el user vea el form
+  if (typeof showPtab === 'function') showPtab('regs', document.getElementById('ptab-regs'));
+  // Asegurar sidebar expandido
+  const panel = document.getElementById('sidebar');
+  if (panel && panel.classList.contains('collapsed')) togglePanelColapsado();
+  // Obtener el centro del viewport actual del mapa
+  const c = map.getCenter();
+  // Crear/mover el pin al centro
+  if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
+  const pinIcon = L.divIcon({
+    className: 'pin-icon',
+    html: '<div style="background:#1a8a4a;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5);animation:pulsopin 1s ease-out 2"></div>',
+    iconSize: [24,24], iconAnchor: [12,12]
+  });
+  pinMarker = L.marker([c.lat, c.lng], { draggable: true, icon: pinIcon }).addTo(map);
+  pinMarker.on('drag',    ev => { const p = ev.target.getLatLng(); autoDetectarCampos(p.lat, p.lng, { forzarAuto:true }); document.getElementById('flat').value = p.lat.toFixed(6); document.getElementById('flng').value = p.lng.toFixed(6); });
+  pinMarker.on('dragend', ev => { const p = ev.target.getLatLng(); autoDetectarCampos(p.lat, p.lng, { forzarAuto:true }); document.getElementById('flat').value = p.lat.toFixed(6); document.getElementById('flng').value = p.lng.toFixed(6); });
+  // Auto-completar campos según posición inicial
+  document.getElementById('flat').value = c.lat.toFixed(6);
+  document.getElementById('flng').value = c.lng.toFixed(6);
+  autoDetectarCampos(c.lat, c.lng, { forzarAuto: true });
+  toast('📍 Pin ubicado en el centro. Arrastralo al lugar exacto + completá los datos + Guardar.', 'ok');
+}
+
+// v8.21 · Etapa 3 · Inverso · dada ruta (num) + progresiva (km), devuelve {lat, lng}
+// usando CHAIN + ANCHORS. Retorna null si no se puede.
+function progresivaAPunto(rutaNum, kmTarget){
+  rutaNum = String(rutaNum).replace(/^RP\s*/i, '').trim();
+  const meta = CHAINS_META && CHAINS_META[rutaNum];
+  const chain = CHAINS_DATA && CHAINS_DATA[rutaNum];
+  const anchors = ANCHORS_DATA && ANCHORS_DATA[rutaNum];
+  if (!chain || !anchors || !anchors.length) return null;
+  const km = parseFloat(kmTarget);
+  if (!isFinite(km)) return null;
+  // km → acc con interpolación lineal entre anchors
+  const ancOrd = [...anchors].sort((a,b) => a.km - b.km);
+  let accTarget = null;
+  for (let i = 0; i < ancOrd.length - 1; i++) {
+    const a1 = ancOrd[i], a2 = ancOrd[i+1];
+    if (km >= a1.km && km <= a2.km) {
+      const f = (km - a1.km) / (a2.km - a1.km);
+      accTarget = a1.acc + f * (a2.acc - a1.acc);
+      break;
+    }
+  }
+  // Extrapolar si está fuera de rango
+  if (accTarget == null) {
+    if (km < ancOrd[0].km) accTarget = ancOrd[0].acc - (ancOrd[0].km - km);
+    else accTarget = ancOrd[ancOrd.length-1].acc + (km - ancOrd[ancOrd.length-1].km);
+  }
+  // acc → recorrer chain hasta llegar a accTarget
+  const hav = (lat1, lon1, lat2, lon2) => {
+    const R = 6371.0088;
+    const dl = (lat2-lat1)*Math.PI/180, dg = (lon2-lon1)*Math.PI/180;
+    const a = Math.sin(dl/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dg/2)**2;
+    return 2 * R * Math.asin(Math.sqrt(a));
+  };
+  let accum = 0;
+  for (let i = 1; i < chain.length; i++) {
+    const [x0,y0] = chain[i-1], [x1,y1] = chain[i];
+    const d = hav(y0, x0, y1, x1);
+    if (accum + d >= accTarget) {
+      const f = (accTarget - accum) / d;
+      return { lat: y0 + f*(y1-y0), lng: x0 + f*(x1-x0) };
+    }
+    accum += d;
+  }
+  // Fuera de rango: devolver último punto
+  const last = chain[chain.length-1];
+  return { lat: last[1], lng: last[0] };
+}
+
+// Handler: cuando el user tiene ruta + prog cargados, mover el pin ahí
+function ubicarPorProgresiva(){
+  const ruta = document.getElementById('fruta').value;
+  const prog = document.getElementById('fprog').value;
+  const tipoVia = document.getElementById('ftipo-via')?.value || 'rp';
+  if (!ruta) { toast('Elegí una ruta primero', 'warn'); return; }
+  if (!prog) { toast('Escribí la progresiva (ej: 274+935 o 274.9)', 'warn'); return; }
+  // Convertir "274+935" a 274.935
+  const kmNum = /^\d+\+\d+$/.test(prog)
+    ? (parseInt(prog.split('+')[0]) + parseInt(prog.split('+')[1])/1000)
+    : parseFloat(prog.replace(',', '.'));
+  if (!isFinite(kmNum)) { toast('Progresiva inválida', 'err'); return; }
+  if (tipoVia === 'camino') {
+    toast('Ubicación por progresiva solo funciona en RPs por ahora', 'warn');
+    return;
+  }
+  const rutaNum = ruta.replace(/^RP\s*/i, '').trim();
+  const punto = progresivaAPunto(rutaNum, kmNum);
+  if (!punto) { toast('No pude calcular el punto para ' + ruta + ' km ' + prog, 'err'); return; }
+  // Actualizar inputs
+  document.getElementById('flat').value = punto.lat.toFixed(6);
+  document.getElementById('flng').value = punto.lng.toFixed(6);
+  // Mover/crear pin en el mapa
+  if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
+  const pinIcon = L.divIcon({
+    className: 'pin-icon',
+    html: '<div style="background:#c47a00;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>',
+    iconSize: [22,22], iconAnchor: [11,11]
+  });
+  pinMarker = L.marker([punto.lat, punto.lng], { draggable: true, icon: pinIcon }).addTo(map);
+  pinMarker.on('drag',    ev => { const p = ev.target.getLatLng(); autoDetectarCampos(p.lat, p.lng, { forzarAuto:true }); });
+  pinMarker.on('dragend', ev => { const p = ev.target.getLatLng(); autoDetectarCampos(p.lat, p.lng, { forzarAuto:true }); });
+  map.flyTo([punto.lat, punto.lng], Math.max(map.getZoom(), 14), { duration: 0.6 });
+  toast('📍 Pin ubicado en ' + ruta + ' km ' + prog, 'ok');
+  // Auto-detectar partido después (por si el user quiere refinar)
+  autoDetectarCampos(punto.lat, punto.lng, { forzarAuto: false });
+}
+
 function autoDetectarCampos(lat, lng, opts) {
   opts = opts || {};
   // Partido
