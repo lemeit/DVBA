@@ -677,6 +677,13 @@ body.modo-campo #campo-fab{display:flex}
         <label class="rep-chk"><input type="checkbox" id="rc-moj"> Mojones</label>
       </div>
 
+      <!-- v8.30 · Opciones extra del PDF -->
+      <div style="font-size:10px;color:var(--pd);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Opciones del PDF</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;margin-bottom:8px">
+        <label class="rep-chk"><input type="checkbox" id="rc-mapa" checked> Incluir mapa SVG</label>
+        <label class="rep-chk"><input type="checkbox" id="rc-mapa-cap"> Captura real del mapa</label>
+      </div>
+
       <!-- Filtro por tipo de registro (aplica sólo si "Registros" está tildado) -->
       <div id="rep-filtro-tipos" style="margin-bottom:10px;padding-top:8px;border-top:1px solid var(--light)">
         <div style="font-size:10px;color:var(--pd);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Filtrar registros por tipo</div>
@@ -827,7 +834,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.29';
+const APP_VERSION = 'v8.30';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2060,6 +2067,13 @@ function drawRutas(){
     if(!selR.has(rid)||!RUTAS_DATA[rid]) return;
     const meta=RUTA_META[rid];
     const geo={type:'Feature',properties:{},geometry:{type:'MultiLineString',coordinates:RUTAS_DATA[rid]}};
+    // v8.30 · Halo dorado si esta RP está en _selRutas (paralelo al de caminos)
+    if (typeof _selRutas !== 'undefined' && _selRutas.has(String(rid))) {
+      const haloSel = L.geoJSON(geo, {
+        style: { color:'#ffb800', weight:12, opacity:.75, lineJoin:'round', lineCap:'round' }
+      }).addTo(map);
+      (capasR[rid] = capasR[rid] || []).push(haloSel);
+    }
     // v7.58 — Capa "hit" transparente MÁS GRUESA para capturar mouse events con
     // más margen de tolerancia. El user puede alejarse ~20px de la traza sin
     // que el cursor naranja se pierda. La capa visible sigue con weight normal.
@@ -4276,8 +4290,31 @@ function _expRepRutasCSV() {
   a.click();
 }
 
-// v8.29 · Renombrada a interna _expRepRutasPDF
-function _expRepRutasPDF() {
+// v8.30 · Captura real del mapa Leaflet (usa leaflet-image, se carga on-demand).
+// Devuelve una promesa que resuelve a un data:URL PNG del mapa actual, o null si falla.
+function _capturarMapaComoImg(){
+  return new Promise((resolve) => {
+    if (typeof map === 'undefined' || !map) return resolve(null);
+    const hacer = () => {
+      try {
+        leafletImage(map, (err, canvas) => {
+          if (err || !canvas) { console.warn('[capturaMapa]', err); return resolve(null); }
+          try { resolve(canvas.toDataURL('image/png')); } catch(e){ console.warn('[capturaMapa toDataURL]', e); resolve(null); }
+        });
+      } catch(e){ console.warn('[capturaMapa]', e); resolve(null); }
+    };
+    if (typeof leafletImage !== 'undefined') return hacer();
+    // Cargar leaflet-image on-demand
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/leaflet-image@0.4.0/leaflet-image.js';
+    s.onload = hacer;
+    s.onerror = () => { console.warn('[capturaMapa] no cargó leaflet-image'); resolve(null); };
+    document.head.appendChild(s);
+  });
+}
+
+// v8.29 · Renombrada a interna _expRepRutasPDF · v8.30 async por captura opcional
+async function _expRepRutasPDF() {
   _genRepRutas();
   if (!_repData.length) { alert('No hay datos para exportar'); return; }
 
@@ -4289,8 +4326,24 @@ function _expRepRutasPDF() {
   const showPartido  = document.getElementById('rc-partido').checked;
   const showRegs     = document.getElementById('rc-regs').checked;
   const showMoj      = document.getElementById('rc-moj').checked;
+  // v8.30 · Opciones nuevas del PDF
+  const showMapa     = !!document.getElementById('rc-mapa')?.checked;
+  const usarCaptura  = !!document.getElementById('rc-mapa-cap')?.checked;
 
-  const rutasOrden = [...selR].sort((a,b)=>parseInt(a)-parseInt(b));
+  // v8.30 · Respetar selección manual _selRutas si tiene items; sino cae a selR
+  const ridsBase = (_selRutas && _selRutas.size > 0) ? [..._selRutas] : [...selR];
+  const rutasOrden = ridsBase.sort((a,b)=>parseInt(a)-parseInt(b));
+
+  // v8.30 · Captura real del mapa si el user la pidió (antes de armar el HTML)
+  let mapaImgDataUrl = null;
+  if (showMapa && usarCaptura) {
+    mapaImgDataUrl = await _capturarMapaComoImg();
+    if (!mapaImgDataUrl) console.warn('[PDF] Captura del mapa falló, se usa SVG como fallback');
+  }
+  const mapaBlockHtml = !showMapa ? '' :
+    (mapaImgDataUrl
+      ? `<div style="margin-bottom:10px;text-align:center"><img src="${mapaImgDataUrl}" alt="Mapa" style="max-width:100%;max-height:340px;border:1px solid #e0e6ea;border-radius:4px"/><div style="font-size:7pt;color:#888;margin-top:2px">Captura real del mapa Leaflet</div></div>`
+      : `<div style="margin-bottom:10px">${generarMapaSVG(rutasOrden, 780, 320)}</div>`);
   const ahora = new Date().toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'});
   const version = APP_VERSION;
 
@@ -4382,9 +4435,7 @@ function _expRepRutasPDF() {
   ${showRegs     ? `<div class="meta-item">Registros: <b>${regs.length}</b></div>` : ''}
 </div>
 
-<div style="margin-bottom:10px">
-  ${generarMapaSVG(rutasOrden, 780, 320)}
-</div>
+${mapaBlockHtml}
 <table>
   <thead><tr>${thHtml}</tr></thead>
   <tbody>${rowsHtml}</tbody>
@@ -4419,6 +4470,9 @@ function _expRepRutasPDF() {
 }
 // ─── REPORTE DE REGISTROS POR RUTA ────────────────────────────
 async function exportRegistrosPDF() {
+  // v8.30 · Opciones del panel para el mapa
+  const showMapa_r    = !!document.getElementById('rc-mapa')?.checked;
+  const usarCaptura_r = !!document.getElementById('rc-mapa-cap')?.checked;
   // Esperar que OSRM termine antes de generar (máximo 8 segundos)
   const ridsActivos = [...selR];
   const osrmEl = document.getElementById('osrm-status');
@@ -4434,8 +4488,9 @@ async function exportRegistrosPDF() {
       setTimeout(resolve, 8000); // timeout de seguridad
     });
   }
-  // Usar rutas activas (selR), misma lógica que el reporte de rutas
-  const rutasOrden = [...selR].sort((a,b) => parseInt(a)-parseInt(b));
+  // v8.30 · Respetar selección manual _selRutas si tiene items; sino usar selR
+  const ridsBase = (_selRutas && _selRutas.size > 0) ? [..._selRutas] : [...selR];
+  const rutasOrden = ridsBase.sort((a,b) => parseInt(a)-parseInt(b));
   
   // Filtrar registros de esas rutas y agrupar por ruta
   const grupos = {};
@@ -4462,6 +4517,10 @@ async function exportRegistrosPDF() {
 
   // Lista plana de todos los registros (para el mapa centrado)
   const todosRegsLista = rutasOrden.flatMap(rid => (grupos[rid]||{lista:[]}).lista);
+
+  // v8.30 · Captura del mapa si el user la pidió
+  let mapaImgDataUrl_r = null;
+  if (showMapa_r && usarCaptura_r) mapaImgDataUrl_r = await _capturarMapaComoImg();
 
   const ahora   = new Date().toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'});
   const version = APP_VERSION;
@@ -4540,10 +4599,12 @@ async function exportRegistrosPDF() {
   </div>
 </div>
 
-<div style="margin-bottom:12px">
+${!showMapa_r ? '' : `<div style="margin-bottom:12px">
   <div style="font-size:7pt;color:#555;margin-bottom:3px;font-weight:600">UBICACI&Oacute;N DE REGISTROS</div>
-  ${generarMapaSVGRegistros(rutasOrden, todosRegsLista, 780, 280)}
-</div>
+  ${mapaImgDataUrl_r
+    ? `<div style="text-align:center"><img src="${mapaImgDataUrl_r}" alt="Mapa" style="max-width:100%;max-height:340px;border:1px solid #e0e6ea;border-radius:4px"/></div>`
+    : generarMapaSVGRegistros(rutasOrden, todosRegsLista, 780, 280)}
+</div>`}
 
 ${seccionesHtml}
 
@@ -4728,12 +4789,17 @@ function _expRepCaminosCSV(){
   a.click();
 }
 
-// v8.29 · Renombrada a interna _expRepCaminosPDF
-function _expRepCaminosPDF(){
+// v8.29 · Renombrada a interna _expRepCaminosPDF · v8.30 async por captura opcional
+async function _expRepCaminosPDF(){
   if (!_repCaminosData.length) _genRepCaminos();
   if (!_repCaminosData.length) return;
   const ahora = new Date().toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'});
   const version = APP_VERSION;
+  // v8.30 · Opciones de mapa
+  const showMapa_c    = !!document.getElementById('rc-mapa')?.checked;
+  const usarCaptura_c = !!document.getElementById('rc-mapa-cap')?.checked;
+  let mapaImgDataUrl_c = null;
+  if (showMapa_c && usarCaptura_c) mapaImgDataUrl_c = await _capturarMapaComoImg();
 
   // Totales
   let totalKmGis = 0, totalKmOf = 0;
@@ -4786,6 +4852,7 @@ function _expRepCaminosPDF(){
   <b>Partidos:</b> ${partActivos.length ? partActivos.join(', ') : 'ninguno'}<br>
   <b>Clases:</b> ${clasesActivas.length ? clasesActivas.join(', ') : 'ninguna'}
 </div>
+${(showMapa_c && mapaImgDataUrl_c) ? `<div style="margin:10px 0;text-align:center"><img src="${mapaImgDataUrl_c}" alt="Mapa" style="max-width:100%;max-height:340px;border:1px solid #e0e6ea;border-radius:4px"/><div style="font-size:7pt;color:#888;margin-top:2px">Captura real del mapa Leaflet</div></div>` : ''}
 <table>
   <thead><tr>
     <th>Partido</th><th>Nomencl.</th><th>Tramo</th><th>Denominación</th>
@@ -7014,6 +7081,7 @@ function toggleRutaSelActiva(){
   else _selRutas.add(rid);
   _actualizarBotonSelRP();
   _actualizarChipSelUnificado();
+  if (typeof drawRutas === 'function') drawRutas();  // v8.30 · repinta halo dorado
 }
 
 function limpiarSelRutas(){
@@ -7021,6 +7089,7 @@ function limpiarSelRutas(){
   _selRutas.clear();
   _actualizarBotonSelRP();
   _actualizarChipSelUnificado();
+  if (typeof drawRutas === 'function') drawRutas();  // v8.30 · quita halo
   const tabla = document.getElementById('rep-tabla');
   if (tabla && tabla.innerHTML.trim() && _repTipo() === 'rutas') generarReporte();
 }
