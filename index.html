@@ -467,7 +467,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.37</span></div>
+    <div class="footer">DVBA Zona VI Saladillo · <span id="login-app-ver">v8.38</span></div>
   </div>
 </div>
 <div class="layout">
@@ -642,11 +642,11 @@ body.modo-campo #campo-fab{display:flex}
       <div class="sec" style="border-bottom:none">
         <div class="sec-title">📊 Reportes de Vías</div>
 
-      <!-- v8.37 · SIN dropdown · el reporte detecta lo que hay seleccionado (RPs + Caminos) -->
+      <!-- v8.38 · SIN dropdown · el reporte detecta lo que hay seleccionado (RPs + Caminos) -->
       <!-- El select queda oculto por retrocompatibilidad con _repTipo() legacy -->
       <select id="rep-tipo" style="display:none"><option value="mixto" selected>mixto</option></select>
 
-      <!-- v8.33 · Chip contador SIEMPRE visible con estado + v8.37 lista expandible -->
+      <!-- v8.33 · Chip contador SIEMPRE visible con estado + v8.38 lista expandible -->
       <div id="rep-selchip" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--light);color:var(--mut);padding:5px 8px;border-radius:4px;margin-bottom:6px;font-size:11px;flex-wrap:wrap">
         <b class="chip-text">Sin selección manual · usa las vías activas del mapa</b>
         <button onclick="_toggleSelList()" class="chip-toggle" style="display:none;padding:2px 6px;background:var(--w);color:var(--vd);border:1px solid var(--vd);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">▾ Ver</button>
@@ -656,7 +656,7 @@ body.modo-campo #campo-fab{display:flex}
         </div>
       </div>
 
-      <!-- v8.37 · Info: selección MIXTA · el reporte arma automáticamente lo que hay -->
+      <!-- v8.38 · Info: selección MIXTA · el reporte arma automáticamente lo que hay -->
       <div id="rep-modo" style="font-size:10px;color:var(--mut);background:var(--bg);border-left:3px solid var(--p);padding:6px 8px;border-radius:4px;margin-bottom:8px;line-height:1.45">
         <b style="color:var(--pd)">Selección mixta (Rutas + Caminos):</b><br>
         Click en cualquier vía del mapa → <b style="color:var(--vd)">"+ Agregar al reporte"</b>. Se acumulan RPs y caminos en la misma selección. El reporte genera automáticamente las secciones que correspondan.
@@ -763,7 +763,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.37</span>
+        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.38</span>
       </div>
     </div>
 
@@ -832,7 +832,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.37';
+const APP_VERSION = 'v8.38';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2170,9 +2170,11 @@ function buildRutasUI(){
 function togR(rid){selR.has(rid)?selR.delete(rid):selR.add(rid);document.getElementById('rt-'+rid)?.classList.toggle('on');drawRutas();drawMojones();
   // Pre-calcular OSRM para nueva ruta activada
   precalcularOSRM([...selR], (n,total)=>{ if(n===total&&document.getElementById('osrm-status')) document.getElementById('osrm-status').textContent=_osrmFallback?'⚠ Refs aprox.':'✓ Referencias OK'; });
+  // v8.38 · refresh chip reportes (cambios en chips del mapa se reflejen)
+  if (typeof _actualizarChipSelUnificado === 'function') _actualizarChipSelUnificado();
 }
-function allR(){RUTAS_LIST.forEach(r=>{selR.add(r);document.getElementById('rt-'+r)?.classList.add('on');});drawRutas();drawMojones();}
-function noneR(){RUTAS_LIST.forEach(r=>{selR.delete(r);document.getElementById('rt-'+r)?.classList.remove('on');});drawRutas();drawMojones();}
+function allR(){RUTAS_LIST.forEach(r=>{selR.add(r);document.getElementById('rt-'+r)?.classList.add('on');});drawRutas();drawMojones();if (typeof _actualizarChipSelUnificado === 'function') _actualizarChipSelUnificado();}
+function noneR(){RUTAS_LIST.forEach(r=>{selR.delete(r);document.getElementById('rt-'+r)?.classList.remove('on');});drawRutas();drawMojones();if (typeof _actualizarChipSelUnificado === 'function') _actualizarChipSelUnificado();}
 
 function buildLeyenda(){
   // v7.80 · Leyenda rediseñada para paleta institucional (blanco/turquesa),
@@ -4238,7 +4240,7 @@ function _genRepRutas() {
   window._repRutasTramos = tramos;  // guardar para CSV/PDF
 
   if (!tramos.length) {
-    // v8.37 · No sobrescribir la tabla si estamos en modo mixto y ya hay caminos
+    // v8.38 · No sobrescribir la tabla si estamos en modo mixto y ya hay caminos
     if (!_repSecciones().caminos) {
       document.getElementById('rep-tabla').innerHTML =
         '<div style="padding:10px;color:var(--mut);font-size:11px;text-align:center">Sin rutas para reportar. Activá alguna RP en el mapa o seleccioná con click.</div>';
@@ -4308,7 +4310,7 @@ function _genRepRutas() {
   html += `<div style="font-size:9px;color:var(--mut);margin-top:2px"><b style="color:var(--pd)">Por partido:</b> ${partRows}</div>`;
   html += `<div style="font-size:8.5px;color:var(--mut);margin-top:6px;font-style:italic">* Km GIS por tramo es estimado (proporcional al total GIS de cada RP). Km Oficial es del CSV SALADILLO_RED (data DVBA).</div>`;
 
-  // v8.37 · Wrap en section con header para modo mixto
+  // v8.38 · Wrap en section con header para modo mixto
   const seccion = `<section style="margin-bottom:14px"><div style="background:var(--p-xl);border-left:4px solid var(--p);padding:6px 10px;border-radius:4px;margin-bottom:6px;font-family:'Encode Sans',sans-serif;font-weight:700;color:var(--pd);font-size:12px">🛣 Rutas Provinciales</div>${html}</section>`;
   document.getElementById('rep-tabla').innerHTML = seccion;
 }
@@ -4336,7 +4338,7 @@ function _expRepRutasCSV() {
 
 // v8.30 · Captura real del mapa Leaflet (usa leaflet-image, se carga on-demand).
 // v8.32 · Fix crítico: leaflet-image falla con divIcons custom (Cannot read 'match').
-// v8.37 · Acepta opts para ocultar contextualmente lo que no corresponde al reporte:
+// v8.38 · Acepta opts para ocultar contextualmente lo que no corresponde al reporte:
 //   { tipo: 'rutas'|'caminos', mostrarMojones: bool, mostrarRegistros: bool }
 function _capturarMapaComoImg(opts){
   opts = opts || {};
@@ -4349,7 +4351,7 @@ function _capturarMapaComoImg(opts){
         try { map.removeLayer(l); layersOcultados.push(l); } catch(e){}
       }
     });
-    // 2) v8.37 · Ocultar contextualmente según tipo de reporte
+    // 2) v8.38 · Ocultar contextualmente según tipo de reporte
     // Si tipo=rutas: ocultar caminos (halo, base, sel-halo). Y si !mostrarMojones: ocultar mojones.
     // Si tipo=caminos: ocultar rutas (todos los capasR).
     if (opts.tipo === 'rutas') {
@@ -4387,7 +4389,9 @@ function _capturarMapaComoImg(opts){
 }
 
 // v8.29 · Renombrada a interna _expRepRutasPDF · v8.30 async por captura opcional
-async function _expRepRutasPDF() {
+// v8.38 · Acepta opts.retornarHtml para devolver HTML en vez de abrir tab (para PDF mixto)
+async function _expRepRutasPDF(opts) {
+  opts = opts || {};
   const tramos = (window._repRutasTramos && window._repRutasTramos.length) ? window._repRutasTramos : buildReporteRutasTramos();
   if (!tramos.length) { alert('Sin datos para exportar. Generá el reporte primero.'); return; }
 
@@ -4416,7 +4420,7 @@ async function _expRepRutasPDF() {
   });
 
   // v8.30 · Captura real si el user la pidió (después de tener los datos)
-  // v8.37 · Pasar contexto: tipo=rutas + respetar checkbox rc-moj
+  // v8.38 · Pasar contexto: tipo=rutas + respetar checkbox rc-moj
   let mapaImgDataUrl = null;
   if (showMapa && usarCaptura) mapaImgDataUrl = await _capturarMapaComoImg({
     tipo: 'rutas',
@@ -4525,6 +4529,9 @@ ${mapaBlockHtml}
 <script>window.onload = function() { window.print(); }<\/script>
 </body></html>`;
 
+  // v8.38 · Modo mixto: devolver el HTML en lugar de abrir tab
+  if (opts.retornarHtml) return pdfHtml;
+
   const blob = new Blob([pdfHtml], { type:'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -4585,7 +4592,7 @@ async function exportRegistrosPDF() {
   // Lista plana de todos los registros (para el mapa centrado)
   const todosRegsLista = rutasOrden.flatMap(rid => (grupos[rid]||{lista:[]}).lista);
 
-  // v8.30 · Captura del mapa si el user la pidió · v8.37 tipo=rutas + registros ON (este es el PDF de relevamientos)
+  // v8.30 · Captura del mapa si el user la pidió · v8.38 tipo=rutas + registros ON (este es el PDF de relevamientos)
   let mapaImgDataUrl_r = null;
   if (showMapa_r && usarCaptura_r) mapaImgDataUrl_r = await _capturarMapaComoImg({
     tipo: 'rutas', mostrarMojones: false, mostrarRegistros: true
@@ -4723,7 +4730,7 @@ function _csClaseChip(cl){
 // v8.28 · Si _selCaminos tiene items, se usa como filtro estricto por fid
 // (selección manual desde el mapa). Si está vacío, cae al filtro amplio
 // por partido (selP) + clase (csSelClases).
-// v8.37 · Helper: features del cache que están en el reporte actual
+// v8.38 · Helper: features del cache que están en el reporte actual
 // Si hay selección manual, filtra por _selCaminos; sino aplica los mismos
 // filtros amplios que buildReporteCaminosData (partido + clase).
 function _featsCaminosDeReporte(){
@@ -4774,7 +4781,7 @@ function buildReporteCaminosData(){
   });
 }
 
-// v8.29 · Renombrada a interna _genRepCaminos · v8.37 acepta {append:true} para
+// v8.29 · Renombrada a interna _genRepCaminos · v8.38 acepta {append:true} para
 // concatenar al resultado de rutas cuando el reporte es mixto (RPs+Caminos)
 function _genRepCaminos(opts){
   opts = opts || {};
@@ -4859,7 +4866,7 @@ function _genRepCaminos(opts){
     .join('');
   html += `<div style="font-size:9px;color:var(--mut);margin-top:2px"><b style="color:var(--pd)">Por partido:</b> ${partRows}</div>`;
 
-  // v8.37 · Wrap en section con header para modo mixto + append si ya hay rutas
+  // v8.38 · Wrap en section con header para modo mixto + append si ya hay rutas
   const seccion = `<section style="margin-bottom:14px"><div style="background:#faf0eb;border-left:4px solid #c25a2a;padding:6px 10px;border-radius:4px;margin-bottom:6px;font-family:'Encode Sans',sans-serif;font-weight:700;color:#c25a2a;font-size:12px">🚜 Red Secundaria · Caminos</div>${html}</section>`;
   const tabla = document.getElementById('rep-tabla');
   if (opts.append) {
@@ -4869,18 +4876,36 @@ function _genRepCaminos(opts){
   }
 }
 
-/* v8.37 · Exports para modo MIXTO (RPs + Caminos)
-   Estrategia simple: descarga ambos archivos por separado. Robusto (no toca
-   funciones probadas). El usuario los archiva juntos. Iteración futura:
-   combinarlos en un solo PDF con html2pdf o jsPDF. */
+/* v8.38 · PDF MIXTO UNIFICADO en 1 sola pestaña.
+   Ambos individuales retornan HTML (retornarHtml:true), acá se extraen
+   los <body> y se combinan en un doc con salto de página entre secciones.
+   Evita popup blocker que descartaba el segundo tab. */
 async function _expRepMixtoPDF(){
   const sec = _repSecciones();
-  if (sec.rutas)   await _expRepRutasPDF();
-  if (sec.caminos) {
-    await new Promise(r => setTimeout(r, 400));
-    await _expRepCaminosPDF();
-  }
-  if (typeof toast === 'function') toast('📄 Reporte mixto · ' + (sec.rutas && sec.caminos ? '2 PDFs generados (Rutas + Caminos)' : '1 PDF'), 'ok');
+  const htmls = [];
+  if (sec.rutas)   htmls.push(await _expRepRutasPDF({retornarHtml:true}));
+  if (sec.caminos) htmls.push(await _expRepCaminosPDF({retornarHtml:true}));
+  if (!htmls.length) return;
+  const parseBody = (html) => {
+    const m = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+    return m ? m[1].replace(/<script[\s\S]*?<\/script>/gi, '') : '';
+  };
+  const parseHead = (html) => {
+    const m = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
+    return m ? m[1].replace(/<title[\s\S]*?<\/title>/i, '') : '';
+  };
+  const cssMixto = `<style>@page { size: A4 landscape; margin: 12mm; } .pagina-sec { page-break-after: always; } .pagina-sec:last-child { page-break-after: auto; }</style>`;
+  const bodies = htmls.map(h => `<div class="pagina-sec">${parseBody(h)}</div>`).join('');
+  const combinado = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>DVBA Zona VI · Reporte Mixto de Red Vial</title>${parseHead(htmls[0])}${cssMixto}</head><body>${bodies}<script>window.onload = function() { window.print(); }<\/script></body></html>`;
+  const blob = new Blob([combinado], { type:'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.target = '_blank'; a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  if (typeof toast === 'function') toast('📄 Reporte mixto generado · ' + htmls.length + ' secci' + (htmls.length===1?'ón':'ones') + ' en 1 PDF', 'ok');
 }
 function _expRepMixtoCSV(){
   const sec = _repSecciones();
@@ -4905,7 +4930,9 @@ function _expRepCaminosCSV(){
 }
 
 // v8.29 · Renombrada a interna _expRepCaminosPDF · v8.30 async por captura opcional
-async function _expRepCaminosPDF(){
+// v8.38 · Acepta opts.retornarHtml para PDF mixto
+async function _expRepCaminosPDF(opts){
+  opts = opts || {};
   if (!_repCaminosData.length) _genRepCaminos();
   if (!_repCaminosData.length) return;
   const ahora = new Date().toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'});
@@ -4913,7 +4940,7 @@ async function _expRepCaminosPDF(){
   // v8.30 · Opciones de mapa
   const showMapa_c    = !!document.getElementById('rc-mapa')?.checked;
   const usarCaptura_c = !!document.getElementById('rc-mapa-cap')?.checked;
-  // v8.37 · tipo=caminos oculta capas de rutas y mojones
+  // v8.38 · tipo=caminos oculta capas de rutas y mojones
   let mapaImgDataUrl_c = null;
   if (showMapa_c && usarCaptura_c) mapaImgDataUrl_c = await _capturarMapaComoImg({ tipo: 'caminos' });
 
@@ -4943,7 +4970,7 @@ async function _expRepCaminosPDF(){
   const partHtml = Object.entries(porPartido).sort((a,b)=>b[1]-a[1])
     .map(([pt,km])=>`<span style="margin-right:14px"><b>${pt}:</b> ${km.toFixed(2)} km</span>`).join('');
 
-  // v8.37 · Si hay selección manual, mostrar solo los partidos/clases de esa selección;
+  // v8.38 · Si hay selección manual, mostrar solo los partidos/clases de esa selección;
   // si no hay selección, sí mostrar los filtros globales
   const usarSelManual = (_selCaminos && _selCaminos.size > 0);
   const partActivos = usarSelManual
@@ -5000,6 +5027,9 @@ ${!showMapa_c ? '' : (mapaImgDataUrl_c
 <script>window.onload = function() { window.print(); }<\/script>
 </body></html>`;
 
+  // v8.38 · Modo mixto: devolver el HTML en lugar de abrir tab
+  if (opts.retornarHtml) return html;
+
   const blob = new Blob([html], { type:'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -5012,7 +5042,7 @@ ${!showMapa_c ? '' : (mapaImgDataUrl_c
 
 
 // ─── MAPA SVG BBOX PARA PDF ────────────────────────────────────
-// v8.37 · Mapa SVG para CAMINOS (Red Secundaria) · análogo a generarMapaSVG de rutas
+// v8.38 · Mapa SVG para CAMINOS (Red Secundaria) · análogo a generarMapaSVG de rutas
 // Toma los features filtrados por _repCaminosData (que ya respetan selección manual o filtros)
 function generarMapaSVGCaminos(featsArr, W, H) {
   if (!featsArr || !featsArr.length) return '';
@@ -7231,7 +7261,7 @@ let _sigRPActivaRid = null;  // v8.29 · rid de la última RP clickeada (para to
    v8.29 · Dispatchers unificados según #rep-tipo (rutas | caminos)
    Reemplazan las llamadas directas a las funciones específicas.
    ═════════════════════════════════════════════════════════════════ */
-// v8.37 · Modo MIXTO · el sistema detecta qué hay seleccionado y genera todo
+// v8.38 · Modo MIXTO · el sistema detecta qué hay seleccionado y genera todo
 // _repTipo() legacy sigue disponible por si algún código lo llama;
 // devuelve 'mixto' (fallback) o el tipo si el select está definido con valor específico.
 function _repTipo(){
@@ -7307,15 +7337,18 @@ function limpiarSelRutas(){
 }
 
 // Dispatch limpiar según tipo activo del panel
-// v8.37 · "Limpiar TODOS" limpia ambos tipos, no solo el activo
+// v8.38 · "Limpiar TODOS" limpia ambos tipos, no solo el activo
+// v8.38 · También destilda TODOS los chips activos del panel Mapa (selR → noneR)
 function limpiarSelReporteActual(){
-  const hadRutas = _selRutas.size > 0;
-  const hadCaminos = _selCaminos.size > 0;
-  if (hadRutas) limpiarSelRutas();
-  if (hadCaminos) limpiarSelCaminos();
-  // Forzar redraw del mapa por si quedó algún halo dorado colgado
+  if (_selRutas && _selRutas.size > 0) limpiarSelRutas();
+  if (_selCaminos && _selCaminos.size > 0) limpiarSelCaminos();
+  // Destildar chips del panel Mapa (todos los rid de selR)
+  if (typeof noneR === 'function') noneR();
+  _actualizarChipSelUnificado();
   if (typeof drawRutas === 'function') drawRutas();
   if (typeof csRefrescarLayer === 'function' && _caminosGeoJSON_cache) csRefrescarLayer();
+  const tabla = document.getElementById('rep-tabla');
+  if (tabla && tabla.innerHTML.trim()) generarReporte();
 }
 
 function _actualizarBotonSelRP(){
@@ -7336,11 +7369,16 @@ function _actualizarBotonSelRP(){
   }
 }
 
-// v8.37 · Chip MIXTO · muestra X rutas + Y tramos, ambos tipos a la vez
+// v8.38 · Chip MIXTO · muestra X rutas + Y tramos, ambos tipos a la vez
+// v8.38 · Cuenta también RPs de chips activos (selR) además de _selRutas manuales
 function _actualizarChipSelUnificado(){
   const chip = document.getElementById('rep-selchip');
   if (!chip) return;
-  const nR = _selRutas ? _selRutas.size : 0;
+  const nRman = _selRutas ? _selRutas.size : 0;
+  const nRchip = (typeof selR !== 'undefined')
+    ? [...selR].map(String).filter(r => !(_selRutas && _selRutas.has(r))).length
+    : 0;
+  const nR = nRman + nRchip;
   const nC = _selCaminos ? _selCaminos.size : 0;
   const total = nR + nC;
   const txt = chip.querySelector('.chip-text');
@@ -7383,18 +7421,46 @@ function _actualizarChipSelUnificado(){
   }
 }
 
-// v8.37 · Lista mixta con rutas + caminos agrupados por header
+// v8.38 · Lista mixta con rutas + caminos agrupados por header
+// v8.38 · También incluye RPs activas del panel Mapa (selR) con × que destilda el chip
 function _renderSelListMixto(){
   let html = '';
   if (_selRutas && _selRutas.size > 0) {
-    html += `<div style="font-weight:700;color:var(--pd);padding:4px 4px;background:#f0f8fa;border-radius:3px;margin-bottom:2px;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">🛣 Rutas Provinciales (${_selRutas.size})</div>`;
+    html += `<div style="font-weight:700;color:var(--pd);padding:4px 4px;background:#f0f8fa;border-radius:3px;margin-bottom:2px;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">🛣 Rutas · Selección manual (${_selRutas.size})</div>`;
     html += _renderSelList('rutas');
+  }
+  // v8.38 · RPs activas en panel Mapa (chips) que NO están ya en _selRutas
+  const ridsChipsExtra = (typeof selR !== 'undefined')
+    ? [...selR].map(String).filter(r => !(_selRutas && _selRutas.has(r)))
+    : [];
+  if (ridsChipsExtra.length > 0) {
+    html += `<div style="font-weight:700;color:var(--pd);padding:4px 4px;background:#eef4f7;border-radius:3px;margin:6px 0 2px;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">🛣 Rutas · Activas en panel Mapa (${ridsChipsExtra.length})</div>`;
+    html += ridsChipsExtra.sort((a,b)=>parseInt(a)-parseInt(b)).map(rid => {
+      const meta = RUTA_META[rid] || { label:'RP '+rid, color:'#888' };
+      const cvr = (typeof CARACT_VIALES !== 'undefined') ? CARACT_VIALES[rid] : null;
+      const km = cvr?.longitud_oficial_km ? cvr.longitud_oficial_km.toFixed(1) + ' km' : '';
+      return `<div style="display:flex;align-items:center;gap:6px;padding:3px 4px;border-bottom:1px solid #d4e0e6">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;color:${meta.color};font-family:'Encode Sans',sans-serif">${meta.label} <span style="font-size:8.5px;color:var(--mut);font-weight:400">(chip)</span></div>
+          <div style="font-size:9px;color:var(--mut)">${km} · ${cvr?.tramos?.length || 0} tramos</div>
+        </div>
+        <button onclick="_quitarRutaDeChips('${rid}')" title="Destildar chip del panel Mapa" style="padding:1px 6px;background:var(--w);color:var(--ro);border:1px solid var(--ro);border-radius:3px;cursor:pointer;font-size:11px;font-weight:700;line-height:1">×</button>
+      </div>`;
+    }).join('');
   }
   if (_selCaminos && _selCaminos.size > 0) {
     html += `<div style="font-weight:700;color:#c25a2a;padding:4px 4px;background:#faf0eb;border-radius:3px;margin:6px 0 2px;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">🚜 Red Secundaria (${_selCaminos.size})</div>`;
     html += _renderSelList('caminos');
   }
   return html;
+}
+
+// v8.38 · Destildar un chip de ruta del panel Mapa (togR hace el toggle)
+function _quitarRutaDeChips(rid){
+  if (typeof togR === 'function') togR(String(rid));
+  _actualizarChipSelUnificado();
+  const tabla = document.getElementById('rep-tabla');
+  if (tabla && tabla.innerHTML.trim()) generarReporte();
 }
 
 // Toggle mostrar/ocultar lista expandible
