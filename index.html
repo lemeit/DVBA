@@ -651,10 +651,14 @@ body.modo-campo #campo-fab{display:flex}
         </select>
       </div>
 
-      <!-- v8.33 · Chip contador SIEMPRE visible con estado (vacío / con selección) -->
-      <div id="rep-selchip" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--light);color:var(--mut);padding:5px 8px;border-radius:4px;margin-bottom:6px;font-size:11px">
+      <!-- v8.33 · Chip contador SIEMPRE visible con estado + v8.34 lista expandible -->
+      <div id="rep-selchip" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--light);color:var(--mut);padding:5px 8px;border-radius:4px;margin-bottom:6px;font-size:11px;flex-wrap:wrap">
         <b class="chip-text">Sin selección manual · usa las vías activas del mapa</b>
-        <button onclick="limpiarSelReporteActual()" class="chip-btn" style="margin-left:auto;padding:2px 8px;background:var(--w);color:var(--mut);border:1px solid var(--light);border-radius:3px;cursor:not-allowed;font-size:10px;font-weight:600" disabled>✕ Limpiar</button>
+        <button onclick="_toggleSelList()" class="chip-toggle" style="display:none;padding:2px 6px;background:var(--w);color:var(--vd);border:1px solid var(--vd);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">▾ Ver</button>
+        <button onclick="limpiarSelReporteActual()" class="chip-btn" style="margin-left:auto;padding:2px 8px;background:var(--w);color:var(--mut);border:1px solid var(--light);border-radius:3px;cursor:not-allowed;font-size:10px;font-weight:600" disabled>✕ Limpiar todos</button>
+        <div id="rep-sellist" style="display:none;width:100%;margin-top:4px;padding-top:6px;border-top:1px solid var(--vd);max-height:180px;overflow-y:auto;font-size:10px">
+          <!-- Items dinámicos -->
+        </div>
       </div>
 
       <!-- Modo/filtros aplicados (info) -->
@@ -834,7 +838,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.33';
+const APP_VERSION = 'v8.34';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4333,18 +4337,37 @@ function _expRepRutasCSV() {
 
 // v8.30 · Captura real del mapa Leaflet (usa leaflet-image, se carga on-demand).
 // v8.32 · Fix crítico: leaflet-image falla con divIcons custom (Cannot read 'match').
-// Ocultamos temporalmente todos los L.Marker (pins, registros) antes de capturar
-// — capturamos solo el basemap + rutas + caminos + halos, sin markers.
-function _capturarMapaComoImg(){
+// v8.34 · Acepta opts para ocultar contextualmente lo que no corresponde al reporte:
+//   { tipo: 'rutas'|'caminos', mostrarMojones: bool, mostrarRegistros: bool }
+function _capturarMapaComoImg(opts){
+  opts = opts || {};
   return new Promise((resolve) => {
     if (typeof map === 'undefined' || !map) return resolve(null);
-    // 1) Ocultar markers custom
     const layersOcultados = [];
+    // 1) Ocultar SIEMPRE markers custom (leaflet-image rompe con divIcons)
     map.eachLayer(l => {
       if (l instanceof L.Marker) {
         try { map.removeLayer(l); layersOcultados.push(l); } catch(e){}
       }
     });
+    // 2) v8.34 · Ocultar contextualmente según tipo de reporte
+    // Si tipo=rutas: ocultar caminos (halo, base, sel-halo). Y si !mostrarMojones: ocultar mojones.
+    // Si tipo=caminos: ocultar rutas (todos los capasR).
+    if (opts.tipo === 'rutas') {
+      [_caminosSecHalo, _caminosSecLayer, _caminosSecSelHalo].forEach(l => {
+        if (l && map.hasLayer(l)) { try { map.removeLayer(l); layersOcultados.push(l); } catch(e){} }
+      });
+      if (opts.mostrarMojones === false && typeof capasM !== 'undefined') {
+        capasM.forEach(l => { try { map.removeLayer(l); layersOcultados.push(l); } catch(e){} });
+      }
+    } else if (opts.tipo === 'caminos') {
+      if (typeof capasR !== 'undefined') {
+        Object.values(capasR).flat().forEach(l => { try { map.removeLayer(l); layersOcultados.push(l); } catch(e){} });
+      }
+      if (typeof capasM !== 'undefined') {
+        capasM.forEach(l => { try { map.removeLayer(l); layersOcultados.push(l); } catch(e){} });
+      }
+    }
     const restaurar = () => layersOcultados.forEach(l => { try { l.addTo(map); } catch(e){} });
     const hacer = () => {
       try {
@@ -4394,8 +4417,13 @@ async function _expRepRutasPDF() {
   });
 
   // v8.30 · Captura real si el user la pidió (después de tener los datos)
+  // v8.34 · Pasar contexto: tipo=rutas + respetar checkbox rc-moj
   let mapaImgDataUrl = null;
-  if (showMapa && usarCaptura) mapaImgDataUrl = await _capturarMapaComoImg();
+  if (showMapa && usarCaptura) mapaImgDataUrl = await _capturarMapaComoImg({
+    tipo: 'rutas',
+    mostrarMojones: !!document.getElementById('rc-moj')?.checked,
+    mostrarRegistros: !!document.getElementById('rc-regs')?.checked
+  });
 
   // Bloque del mapa: img si captura, SVG si no
   const mapaBlockHtml = !showMapa ? '' :
@@ -4558,9 +4586,11 @@ async function exportRegistrosPDF() {
   // Lista plana de todos los registros (para el mapa centrado)
   const todosRegsLista = rutasOrden.flatMap(rid => (grupos[rid]||{lista:[]}).lista);
 
-  // v8.30 · Captura del mapa si el user la pidió
+  // v8.30 · Captura del mapa si el user la pidió · v8.34 tipo=rutas + registros ON (este es el PDF de relevamientos)
   let mapaImgDataUrl_r = null;
-  if (showMapa_r && usarCaptura_r) mapaImgDataUrl_r = await _capturarMapaComoImg();
+  if (showMapa_r && usarCaptura_r) mapaImgDataUrl_r = await _capturarMapaComoImg({
+    tipo: 'rutas', mostrarMojones: false, mostrarRegistros: true
+  });
 
   const ahora   = new Date().toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'});
   const version = APP_VERSION;
@@ -4838,8 +4868,9 @@ async function _expRepCaminosPDF(){
   // v8.30 · Opciones de mapa
   const showMapa_c    = !!document.getElementById('rc-mapa')?.checked;
   const usarCaptura_c = !!document.getElementById('rc-mapa-cap')?.checked;
+  // v8.34 · tipo=caminos oculta capas de rutas y mojones
   let mapaImgDataUrl_c = null;
-  if (showMapa_c && usarCaptura_c) mapaImgDataUrl_c = await _capturarMapaComoImg();
+  if (showMapa_c && usarCaptura_c) mapaImgDataUrl_c = await _capturarMapaComoImg({ tipo: 'caminos' });
 
   // Totales
   let totalKmGis = 0, totalKmOf = 0;
@@ -7166,6 +7197,7 @@ function _actualizarBotonSelRP(){
 }
 
 // v8.33 · Chip SIEMPRE visible; cambia estado activo/inactivo
+// v8.34 · Lista expandible con items para deseleccionar 1 a 1
 function _actualizarChipSelUnificado(){
   const chip = document.getElementById('rep-selchip');
   if (!chip) return;
@@ -7174,12 +7206,13 @@ function _actualizarChipSelUnificado(){
   const label = (tipo === 'caminos') ? 'tramos' : 'rutas';
   const txt = chip.querySelector('.chip-text');
   const btn = chip.querySelector('.chip-btn');
+  const btnToggle = chip.querySelector('.chip-toggle');
+  const list = document.getElementById('rep-sellist');
   if (n > 0) {
-    // Activo · verde
     chip.style.background = '#e6f6ea';
     chip.style.borderColor = 'var(--vd)';
     chip.style.color = 'var(--vd)';
-    if (txt) txt.textContent = `✓ ${n} ${label} seleccionadas manualmente`;
+    if (txt) txt.textContent = `✓ ${n} ${label} seleccionadas`;
     if (btn) {
       btn.disabled = false;
       btn.style.background = 'var(--w)';
@@ -7187,8 +7220,10 @@ function _actualizarChipSelUnificado(){
       btn.style.borderColor = 'var(--ro)';
       btn.style.cursor = 'pointer';
     }
+    if (btnToggle) btnToggle.style.display = '';
+    // Poblar lista (aunque esté oculta) para que aparezca al desplegar
+    if (list) list.innerHTML = _renderSelList(tipo);
   } else {
-    // Vacío · gris
     chip.style.background = 'var(--bg)';
     chip.style.borderColor = 'var(--light)';
     chip.style.color = 'var(--mut)';
@@ -7200,7 +7235,68 @@ function _actualizarChipSelUnificado(){
       btn.style.borderColor = 'var(--light)';
       btn.style.cursor = 'not-allowed';
     }
+    if (btnToggle) btnToggle.style.display = 'none';
+    if (list) { list.style.display = 'none'; list.innerHTML = ''; }
   }
+}
+
+// Toggle mostrar/ocultar lista expandible
+function _toggleSelList(){
+  const list = document.getElementById('rep-sellist');
+  const btn = document.querySelector('#rep-selchip .chip-toggle');
+  if (!list) return;
+  const abierto = list.style.display !== 'none';
+  list.style.display = abierto ? 'none' : 'block';
+  if (btn) btn.textContent = abierto ? '▾ Ver' : '▴ Ocultar';
+}
+
+// Renderiza items de la lista con botón × por cada uno
+function _renderSelList(tipo){
+  if (tipo === 'caminos') {
+    return [..._selCaminos].sort().map(fid => {
+      // fid = NOMEMCLATURA#TRAMO_NUM
+      const feat = (_caminosGeoJSON_cache?.features || []).find(f => _caminoFid(f) === fid);
+      const p = feat?.properties || {};
+      const label = `${p.NOMEMCLATURA || fid}${p.TRAMO_NUM ? ' · t'+p.TRAMO_NUM : ''}`;
+      const sub = p.DENOMINACION || '';
+      return `<div style="display:flex;align-items:center;gap:6px;padding:3px 4px;border-bottom:1px solid #d4ecdc">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;color:var(--pd);font-family:monospace">${label}</div>
+          <div style="font-size:9px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sub}</div>
+        </div>
+        <button onclick="_quitarSelItem('caminos','${fid}')" title="Quitar" style="padding:1px 6px;background:var(--w);color:var(--ro);border:1px solid var(--ro);border-radius:3px;cursor:pointer;font-size:11px;font-weight:700;line-height:1">×</button>
+      </div>`;
+    }).join('');
+  }
+  // rutas
+  return [..._selRutas].sort((a,b)=>parseInt(a)-parseInt(b)).map(rid => {
+    const meta = RUTA_META[rid] || { label: 'RP '+rid, color: '#888' };
+    const cvr = (typeof CARACT_VIALES !== 'undefined') ? CARACT_VIALES[rid] : null;
+    const km = cvr?.longitud_oficial_km ? cvr.longitud_oficial_km.toFixed(1) + ' km' : '';
+    return `<div style="display:flex;align-items:center;gap:6px;padding:3px 4px;border-bottom:1px solid #d4ecdc">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;color:${meta.color};font-family:'Encode Sans',sans-serif">${meta.label}</div>
+        <div style="font-size:9px;color:var(--mut)">${km} · ${cvr?.tramos?.length || 0} tramos</div>
+      </div>
+      <button onclick="_quitarSelItem('rutas','${rid}')" title="Quitar" style="padding:1px 6px;background:var(--w);color:var(--ro);border:1px solid var(--ro);border-radius:3px;cursor:pointer;font-size:11px;font-weight:700;line-height:1">×</button>
+    </div>`;
+  }).join('');
+}
+
+// Quitar 1 item de la selección
+function _quitarSelItem(tipo, id){
+  if (tipo === 'caminos') {
+    _selCaminos.delete(id);
+    _actualizarChipSelUnificado();
+    if (typeof csRefrescarLayer === 'function') csRefrescarLayer();
+  } else {
+    _selRutas.delete(String(id));
+    _actualizarChipSelUnificado();
+    if (typeof drawRutas === 'function') drawRutas();
+  }
+  // Regenerar reporte si ya había uno visible
+  const tabla = document.getElementById('rep-tabla');
+  if (tabla && tabla.innerHTML.trim() && _repTipo() === tipo) generarReporte();
 }
 
 function _caminoFid(featOrProps){
