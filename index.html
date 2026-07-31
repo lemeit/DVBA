@@ -834,7 +834,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.30';
+const APP_VERSION = 'v8.31';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4152,9 +4152,71 @@ function kmToProgStr(km) {
 
 let _repData = [];
 
-// v8.29 · Renombrada a interna _genRepRutas (el dispatcher generarReporte() la llama)
+/* v8.31 · Nueva estructura HOMOGÉNEA con caminos: 1 fila por TRAMO.
+   Aprovecha CARACT_VIALES[rid].tramos[] (data oficial del CSV SALADILLO_RED).
+   Km GIS por tramo se estima proporcional al total GIS de la RP. */
+function buildReporteRutasTramos() {
+  const rows = [];
+  const ridsUsar = (_selRutas && _selRutas.size > 0) ? [..._selRutas] : [...selR];
+  ridsUsar.sort((a,b)=>parseInt(a)-parseInt(b)).forEach(rid => {
+    const meta   = RUTA_META[rid] || { color:'#888', label:'RP '+rid };
+    const cvr    = (typeof CARACT_VIALES !== 'undefined') ? CARACT_VIALES[rid] : null;
+    const longGisRuta = longitudRuta(rid);
+    const longOfRuta  = cvr && cvr.longitud_oficial_km ? cvr.longitud_oficial_km : null;
+    // Contadores para fila-resumen
+    const mojones = MOJONES_DATA.filter(m => m.ruta === rid).length;
+    const registros = regs.filter(r => r.ruta === rid).length;
+
+    if (cvr && cvr.tramos && cvr.tramos.length) {
+      cvr.tramos.forEach((t, i) => {
+        // Km GIS por tramo estimado proporcional al total (marcado con *)
+        const kmGisTramo = (longOfRuta && longOfRuta > 0 && longGisRuta > 0)
+          ? (longGisRuta * t.longitud_km / longOfRuta)
+          : null;
+        rows.push({
+          rid, rutaLabel: meta.label, color: meta.color,
+          partido: t.partido || '—',
+          nomenclatura: t.seccion_vial || '—',
+          tramoIdx: (i+1) + '/' + cvr.tramos.length,
+          denominacion: t.denominacion || '—',
+          clase: t.clase || '—',
+          sentido: (t.sentido && t.sentido !== '—') ? t.sentido : (cvr.doble_via ? 'Doble vía' : 'Único'),
+          longGis: kmGisTramo != null ? kmGisTramo.toFixed(2) + '*' : '—',
+          longOf:  t.longitud_km != null ? Number(t.longitud_km).toFixed(2) : '—',
+          esResumen: false, mojones: null, registros: null
+        });
+      });
+      // Fila-resumen por RP con totales + mojones + registros
+      rows.push({
+        rid, rutaLabel: meta.label, color: meta.color,
+        partido: (cvr.partidos || []).join(', ') || '—',
+        nomenclatura: '', tramoIdx: '',
+        denominacion: `TOTAL ${meta.label}${cvr.doble_via ? ' (doble vía)' : ''}`,
+        clase: (cvr.clases || []).join(' / ') || '—',
+        sentido: '',
+        longGis: longGisRuta ? longGisRuta.toFixed(2) : '—',
+        longOf:  longOfRuta  ? longOfRuta.toFixed(2)  : '—',
+        esResumen: true, mojones, registros
+      });
+    } else {
+      // Sin data CARACT_VIALES para esta RP → 1 sola fila resumen
+      rows.push({
+        rid, rutaLabel: meta.label, color: meta.color,
+        partido: '—', nomenclatura: '—', tramoIdx: '',
+        denominacion: `${meta.label} · sin data oficial CARACT_VIALES`,
+        clase: '—', sentido: '',
+        longGis: longGisRuta ? longGisRuta.toFixed(2) : '—',
+        longOf: '—',
+        esResumen: true, mojones, registros
+      });
+    }
+  });
+  return rows;
+}
+
+// v8.29 · Renombrada a interna _genRepRutas · v8.31 refactor a "1 fila por tramo"
 function _genRepRutas() {
-  _repData = buildReporteData();
+  _repData = buildReporteData();  // mantiene compat con _expRepRutasPDF que usa esta estructura
 
   // v8.29 · Panel modo (mismo id #rep-modo que usa caminos)
   const modoEl = document.getElementById('rep-modo');
@@ -4173,120 +4235,99 @@ function _genRepRutas() {
       modoEl.style.borderLeftColor = 'var(--p)';
     }
   }
-  const showLong     = document.getElementById('rc-long').checked;
-  const showLOficial = document.getElementById('rc-loficial').checked;
-  const showSup      = document.getElementById('rc-sup').checked;
-  const showProg     = document.getElementById('rc-prog').checked;
-  const showCoords   = document.getElementById('rc-coords').checked;
-  const showPartido  = document.getElementById('rc-partido').checked;
-  const showRegs     = document.getElementById('rc-regs').checked;
-  const showMoj      = document.getElementById('rc-moj').checked;
+  // v8.31 · Nueva tabla "1 fila por tramo" con formato homogéneo a caminos
+  const tramos = buildReporteRutasTramos();
+  window._repRutasTramos = tramos;  // guardar para CSV/PDF
 
-  let totalKmGIS = 0, totalKmOf = 0;
-  // Partidos involucrados (solo los que aparecen en el reporte)
-  const partidosSet = new Set();
+  if (!tramos.length) {
+    document.getElementById('rep-tabla').innerHTML =
+      '<div style="padding:10px;color:var(--mut);font-size:11px;text-align:center">Sin rutas para reportar. Activá alguna RP en el mapa o seleccioná con click.</div>';
+    return;
+  }
 
-  let html = '<table class="rep-table"><thead><tr>';
-  html += '<th>Ruta</th>';
-  if (showLong)     html += '<th>Long. GIS (km)</th>';
-  if (showLOficial) html += '<th>Long. Oficial (km)</th>';
-  if (showSup)      html += '<th>Clase</th><th>Superficie</th>';
-  if (showProg)     html += '<th>Prog. Inicio</th><th>Prog. Fin</th>';
-  if (showCoords)   html += '<th>Coord. Inicio</th><th>Coord. Fin</th>';
-  if (showPartido)  html += '<th>Partido Inicio</th><th>Partido Fin</th>';
-  if (showRegs)     html += '<th>Regs.</th>';
-  if (showMoj)      html += '<th>Mojones</th>';
-  html += '</tr></thead><tbody>';
-
-  _repData.forEach(r => {
-    totalKmGIS += parseFloat(r.longGis);
+  // Totales globales (solo filas-tramo, no resumen)
+  let totalKmGis = 0, totalKmOf = 0;
+  const porClase = {}, porPartido = {}, ridsSet = new Set();
+  const tramosOnly = tramos.filter(r => !r.esResumen);
+  tramosOnly.forEach(r => {
     if (r.longOf !== '—') totalKmOf += parseFloat(r.longOf);
-    if (r.pIni && r.pIni !== '—') partidosSet.add(r.pIni);
-    if (r.pFin && r.pFin !== '—') partidosSet.add(r.pFin);
-
-    // Barra de superficie
-    let barraCell = '';
-    if (r.supPct) {
-      // Tabla HTML con celdas coloreadas — imprime siempre en cualquier browser
-      const W_BAR = 72;
-      const wPav = Math.round(r.supPct.pav * W_BAR / 100);
-      const wTie = Math.round(r.supPct.tie * W_BAR / 100);
-      const wCon = Math.round(r.supPct.con * W_BAR / 100);
-      const tdPav = wPav>0 ? `<td style="width:${wPav}px;height:8px;background-color:#4d8ab0;padding:0" title="Pav ${r.supPct.pav}%"></td>` : '';
-      const tdTie = wTie>0 ? `<td style="width:${wTie}px;height:8px;background-color:#c8a820;padding:0" title="Tierra ${r.supPct.tie}%"></td>` : '';
-      const tdCon = wCon>0 ? `<td style="width:${wCon}px;height:8px;background-color:#5aaa6a;padding:0" title="Consol ${r.supPct.con}%"></td>` : '';
-      const resto = W_BAR - wPav - wTie - wCon;
-      const tdResto = resto>0 ? `<td style="width:${resto}px;height:8px;background-color:#dde8ee;padding:0"></td>` : '';
-      barraCell = `<table style="border-collapse:collapse;width:${W_BAR}px;margin-bottom:2px"><tr>${tdPav}${tdTie}${tdCon}${tdResto}</tr></table><div style="font-size:6.5pt;color:#445566">${r.supTxt}</div>`;
-    } else { barraCell = r.supTxt; }
-
-    html += `<tr><td class="ruta-cell" style="color:${r.color};border-left:3px solid ${r.color}">${r.label}</td>`;
-    if (showLong)     html += `<td>${r.longGis}</td>`;
-    if (showLOficial) html += `<td style="color:var(--p);font-weight:600">${r.longOf}</td>`;
-    if (showSup)      html += `<td style="font-size:8px">${r.clase}</td><td>${barraCell}</td>`;
-    if (showProg)     html += `<td>${r.progIni}</td><td>${r.progFin}</td>`;
-    if (showCoords)   html += `<td style="font-size:8px">${r.coordIni}</td><td style="font-size:8px">${r.coordFin}</td>`;
-    if (showPartido)  html += `<td>${r.pIni}${r.codIni?' <span style="font-size:7px;color:#5a7a8a">('+r.codIni+')</span>':''}</td><td>${r.pFin}${r.codFin?' <span style="font-size:7px;color:#5a7a8a">('+r.codFin+')</span>':''}</td>`;
-    if (showRegs)     html += `<td style="text-align:center;color:${r.cantRegs>0?'#4d8ab0':'#243040'}">${r.cantRegs}</td>`;
-    if (showMoj)      html += `<td style="font-size:8px">${r.mojones}</td>`;
-    html += '</tr>';
+    // Km GIS del tramo (sin el '*')
+    if (r.longGis !== '—') totalKmGis += parseFloat(String(r.longGis).replace('*',''));
+    porClase[r.clase] = (porClase[r.clase] || 0) + (r.longOf !== '—' ? parseFloat(r.longOf) : 0);
+    porPartido[r.partido] = (porPartido[r.partido] || 0) + (r.longOf !== '—' ? parseFloat(r.longOf) : 0);
+    ridsSet.add(r.rid);
   });
 
+  // Tabla HTML — 8 columnas fijas como caminos
+  let html = '<table class="rep-table"><thead><tr>' +
+    '<th>Partido</th><th>Nomencl.</th><th>Tramo</th><th>Denominación</th>' +
+    '<th>Clase</th><th>Sentido</th><th>Km GIS</th><th>Km Oficial</th>' +
+    '</tr></thead><tbody>';
+  tramos.forEach(r => {
+    if (r.esResumen) {
+      // Fila-resumen · fondo destacado con color de la ruta
+      const mojBadge = r.mojones != null ? ` &nbsp;·&nbsp; 🚧 ${r.mojones} mojón${r.mojones===1?'':'es'}` : '';
+      const regBadge = r.registros != null ? ` &nbsp;·&nbsp; 📋 ${r.registros} reg.` : '';
+      html += `<tr style="background:${r.color}18;border-top:2px solid ${r.color}">` +
+        `<td colspan="4" style="font-size:10px;color:${r.color};font-weight:700;font-family:'Encode Sans',sans-serif;padding:6px 8px">` +
+          `${r.denominacion}<span style="color:var(--mut);font-weight:400;font-size:9px">${mojBadge}${regBadge}</span></td>` +
+        `<td style="font-size:9px">${_csClaseChip ? _csClaseChip(r.clase.split(' / ')[0]) : r.clase}</td>` +
+        `<td></td>` +
+        `<td style="text-align:right;font-family:'SF Mono',Menlo,monospace;font-weight:700">${r.longGis}</td>` +
+        `<td style="text-align:right;font-family:'SF Mono',Menlo,monospace;font-weight:700;color:var(--p)">${r.longOf}</td>` +
+        `</tr>`;
+    } else {
+      // Fila de tramo normal
+      html += `<tr>` +
+        `<td style="font-size:9px">${r.partido}</td>` +
+        `<td style="font-family:'SF Mono',Menlo,monospace;font-size:9px;color:var(--pd)"><b>${r.nomenclatura}</b></td>` +
+        `<td style="text-align:center;font-size:9px;color:var(--mut)">${r.tramoIdx || '—'}</td>` +
+        `<td style="font-size:10px">${r.denominacion}</td>` +
+        `<td style="font-size:9px">${_csClaseChip ? _csClaseChip(r.clase) : r.clase}</td>` +
+        `<td style="font-size:9px;color:var(--mut)">${r.sentido || '—'}</td>` +
+        `<td style="text-align:right;font-family:'SF Mono',Menlo,monospace">${r.longGis}</td>` +
+        `<td style="text-align:right;font-family:'SF Mono',Menlo,monospace;color:var(--p);font-weight:600">${r.longOf}</td>` +
+        `</tr>`;
+    }
+  });
   html += '</tbody></table>';
-  const rutasStr  = _repData.map(r => r.label).join(', ');
-  const partStr   = [...partidosSet].sort().join(', ');
+
+  // Totales agregados
   html += `<div class="rep-total">
-    <span>Rutas: <b>${_repData.length}</b></span>
-    ${showLong     ? `<span>GIS: <b>${totalKmGIS.toFixed(1)} km</b></span>` : ''}
-    ${showLOficial ? `<span>Oficial: <b>${totalKmOf.toFixed(1)} km</b></span>` : ''}
-    ${showRegs     ? `<span>Relevamientos: <b>${regs.length}</b></span>` : ''}
-  </div>
-  <div style="font-size:9px;color:#5a7a8a;margin-top:4px">Rutas: <b style="color:var(--txt)">${rutasStr}</b></div>
-  <div style="font-size:9px;color:#5a7a8a;margin-top:2px">Partidos involucrados: <b style="color:#7aacbc">${partStr}</b></div>`;
+    <span>Tramos: <b>${tramosOnly.length}</b></span>
+    <span>Rutas: <b>${ridsSet.size}</b></span>
+    <span>GIS: <b>${totalKmGis.toFixed(2)} km*</b></span>
+    <span>Oficial: <b>${totalKmOf.toFixed(2)} km</b></span>
+  </div>`;
+  const claseRows = Object.entries(porClase).sort((a,b)=>b[1]-a[1])
+    .map(([cl,km]) => `<span style="margin-right:10px">${_csClaseChip ? _csClaseChip(cl) : cl}: <b>${km.toFixed(2)} km</b></span>`).join('');
+  html += `<div style="font-size:9px;color:var(--mut);margin-top:6px"><b style="color:var(--pd)">Por clase:</b> ${claseRows}</div>`;
+  const partRows = Object.entries(porPartido).sort((a,b)=>b[1]-a[1])
+    .map(([pt,km]) => `<span style="margin-right:10px">${pt}: <b style="color:var(--pd)">${km.toFixed(2)} km</b></span>`).join('');
+  html += `<div style="font-size:9px;color:var(--mut);margin-top:2px"><b style="color:var(--pd)">Por partido:</b> ${partRows}</div>`;
+  html += `<div style="font-size:8.5px;color:var(--mut);margin-top:6px;font-style:italic">* Km GIS por tramo es estimado (proporcional al total GIS de cada RP). Km Oficial es del CSV SALADILLO_RED (data DVBA).</div>`;
 
   document.getElementById('rep-tabla').innerHTML = html;
 }
 
-// v8.29 · Renombrada a interna _expRepRutasCSV
+// v8.29 · Renombrada a interna _expRepRutasCSV · v8.31 · Formato "1 fila por tramo"
 function _expRepRutasCSV() {
-  if (!_repData.length) _genRepRutas();
-  const showLong     = document.getElementById('rc-long').checked;
-  const showLOficial = document.getElementById('rc-loficial').checked;
-  const showSup      = document.getElementById('rc-sup').checked;
-  const showProg     = document.getElementById('rc-prog').checked;
-  const showCoords   = document.getElementById('rc-coords').checked;
-  const showPartido  = document.getElementById('rc-partido').checked;
-  const showRegs     = document.getElementById('rc-regs').checked;
-  const showMoj      = document.getElementById('rc-moj').checked;
+  const tramos = (window._repRutasTramos && window._repRutasTramos.length) ? window._repRutasTramos : buildReporteRutasTramos();
+  if (!tramos.length) { alert('Sin datos para exportar. Generá el reporte primero.'); return; }
 
-  const cols = ['Ruta'];
-  if (showLong)     cols.push('Long_GIS_km');
-  if (showLOficial) cols.push('Long_Oficial_km');
-  if (showSup)      cols.push('Clase','Pavimento_km','Tierra_km','Consolidado_km');
-  if (showProg)     cols.push('Prog_Inicio','Prog_Fin');
-  if (showCoords)   cols.push('Coord_Inicio','Coord_Fin');
-  if (showPartido)  cols.push('Partido_Inicio','Partido_Fin');
-  if (showRegs)     cols.push('Registros');
-  if (showMoj)      cols.push('Mojones');
-
-  const rows = _repData.map(r => {
-    const sup = SUPERFICIE_DATA[r.rid] || {};
-    const vals = [r.label];
-    if (showLong)     vals.push(r.longGis);
-    if (showLOficial) vals.push(r.longOf);
-    if (showSup)      vals.push(r.clase, sup.pav||0, sup.tie||0, sup.con||0);
-    if (showProg)     vals.push(r.progIni, r.progFin);
-    if (showCoords)   vals.push(r.coordIni, r.coordFin);
-    if (showPartido)  vals.push(r.pIni, r.pFin);
-    if (showRegs)     vals.push(r.cantRegs);
-    if (showMoj)      vals.push(r.mojones);
-    return vals.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',');
-  });
+  const cols = ['Ruta','Partido','Nomenclatura','Tramo','Denominacion','Clase','Sentido','Km_GIS_estimado','Km_Oficial','Mojones','Registros','Es_Resumen'];
+  const rows = tramos.map(r => [
+    r.rutaLabel, r.partido, r.nomenclatura, r.tramoIdx, r.denominacion, r.clase, r.sentido,
+    String(r.longGis).replace('*',''), r.longOf,
+    r.mojones != null ? r.mojones : '',
+    r.registros != null ? r.registros : '',
+    r.esResumen ? 'SI' : 'NO'
+  ].map(v => '"' + String(v).replace(/"/g,'""') + '"').join(','));
 
   const csv = '﻿' + cols.join(',') + '\n' + rows.join('\n');
   const a = document.createElement('a');
   a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = 'DVBA_ZonaVI_Reporte_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.download = 'DVBA_ZonaVI_Rutas_Tramos_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
 }
 
