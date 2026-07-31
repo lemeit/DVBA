@@ -651,10 +651,10 @@ body.modo-campo #campo-fab{display:flex}
         </select>
       </div>
 
-      <!-- Chip contador seleccionados manualmente + botón limpiar (visible sólo si hay selección manual del tipo activo) -->
-      <div id="rep-selchip" style="display:none;align-items:center;gap:6px;background:#e6f6ea;border:1px solid var(--vd);color:var(--vd);padding:5px 8px;border-radius:4px;margin-bottom:6px;font-size:11px">
-        <b>✓ <span class="chip-count">0</span> <span class="chip-label">ítems</span> seleccionados manualmente</b>
-        <button onclick="limpiarSelReporteActual()" style="margin-left:auto;padding:2px 8px;background:var(--w);color:var(--ro);border:1px solid var(--ro);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">✕ Limpiar</button>
+      <!-- v8.33 · Chip contador SIEMPRE visible con estado (vacío / con selección) -->
+      <div id="rep-selchip" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--light);color:var(--mut);padding:5px 8px;border-radius:4px;margin-bottom:6px;font-size:11px">
+        <b class="chip-text">Sin selección manual · usa las vías activas del mapa</b>
+        <button onclick="limpiarSelReporteActual()" class="chip-btn" style="margin-left:auto;padding:2px 8px;background:var(--w);color:var(--mut);border:1px solid var(--light);border-radius:3px;cursor:not-allowed;font-size:10px;font-weight:600" disabled>✕ Limpiar</button>
       </div>
 
       <!-- Modo/filtros aplicados (info) -->
@@ -834,7 +834,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.32';
+const APP_VERSION = 'v8.33';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4400,7 +4400,7 @@ async function _expRepRutasPDF() {
   // Bloque del mapa: img si captura, SVG si no
   const mapaBlockHtml = !showMapa ? '' :
     (mapaImgDataUrl
-      ? `<div style="margin:8px 0;text-align:center"><img src="${mapaImgDataUrl}" alt="Mapa" style="max-width:100%;max-height:340px;border:1px solid #e0e6ea;border-radius:4px"/><div style="font-size:7pt;color:#888;margin-top:2px">Captura real del mapa Leaflet</div></div>`
+      ? `<div style="margin:8px 0;text-align:center"><img src="${mapaImgDataUrl}" alt="Mapa" style="width:auto;height:auto;max-width:100%;max-height:340px;object-fit:contain;border:1px solid #e0e6ea;border-radius:4px;display:inline-block"/><div style="font-size:7pt;color:#888;margin-top:2px">Captura real del mapa Leaflet</div></div>`
       : `<div style="margin:8px 0">${generarMapaSVG(rutasOrden, 780, 320)}</div>`);
 
   // Filas de tramos (agrupadas por RP con fila-resumen)
@@ -4642,7 +4642,7 @@ async function exportRegistrosPDF() {
 ${!showMapa_r ? '' : `<div style="margin-bottom:12px">
   <div style="font-size:7pt;color:#555;margin-bottom:3px;font-weight:600">UBICACI&Oacute;N DE REGISTROS</div>
   ${mapaImgDataUrl_r
-    ? `<div style="text-align:center"><img src="${mapaImgDataUrl_r}" alt="Mapa" style="max-width:100%;max-height:340px;border:1px solid #e0e6ea;border-radius:4px"/></div>`
+    ? `<div style="text-align:center"><img src="${mapaImgDataUrl_r}" alt="Mapa" style="width:auto;height:auto;max-width:100%;max-height:340px;object-fit:contain;border:1px solid #e0e6ea;border-radius:4px;display:inline-block"/></div>`
     : generarMapaSVGRegistros(rutasOrden, todosRegsLista, 780, 280)}
 </div>`}
 
@@ -4893,7 +4893,7 @@ async function _expRepCaminosPDF(){
   <b>Clases:</b> ${clasesActivas.length ? clasesActivas.join(', ') : 'ninguna'}
 </div>
 ${!showMapa_c ? '' : (mapaImgDataUrl_c
-  ? `<div style="margin:10px 0;text-align:center"><img src="${mapaImgDataUrl_c}" alt="Mapa" style="max-width:100%;max-height:340px;border:1px solid #e0e6ea;border-radius:4px"/><div style="font-size:7pt;color:#888;margin-top:2px">Captura real del mapa Leaflet</div></div>`
+  ? `<div style="margin:10px 0;text-align:center"><img src="${mapaImgDataUrl_c}" alt="Mapa" style="width:auto;height:auto;max-width:100%;max-height:340px;object-fit:contain;border:1px solid #e0e6ea;border-radius:4px;display:inline-block"/><div style="font-size:7pt;color:#888;margin-top:2px">Captura real del mapa Leaflet</div></div>`
   : `<div style="margin:10px 0;padding:10px;background:#f7fbfc;border:1px dashed #cae7ea;border-radius:4px;font-size:8pt;color:#666;text-align:center">Para incluir mapa de los caminos, activá <b>"Captura real del mapa"</b> en las Opciones del PDF del sidebar.</div>`)}
 <table>
   <thead><tr>
@@ -4930,6 +4930,12 @@ ${!showMapa_c ? '' : (mapaImgDataUrl_c
 
 // ─── MAPA SVG BBOX PARA PDF ────────────────────────────────────
 function generarMapaSVG(ridsArr, W, H) {
+  // v8.33 · Forzar string (RUTAS_DATA keys son strings) + log de debug
+  ridsArr = (ridsArr || []).map(r => String(r));
+  const disponibles = ridsArr.filter(r => RUTAS_DATA[r] && RUTAS_DATA[r].length);
+  const faltantes = ridsArr.filter(r => !RUTAS_DATA[r] || !RUTAS_DATA[r].length);
+  console.log('[generarMapaSVG]', {input: ridsArr, disponibles, faltantes, keysDisponibles: Object.keys(RUTAS_DATA).slice(0,20)});
+  if (!disponibles.length) return '<div style="padding:20px;background:#fff3cd;border:1px dashed #ffb800;border-radius:4px;font-size:9pt;color:#a06010;text-align:center">⚠ No hay datos de trazas GIS para las rutas seleccionadas (' + ridsArr.join(', ') + '). RUTAS_DATA vacío.</div>';
   // Recopilar todos los puntos de las rutas seleccionadas
   let minLng=Infinity, maxLng=-Infinity, minLat=Infinity, maxLat=-Infinity;
   ridsArr.forEach(rid => {
@@ -4939,7 +4945,7 @@ function generarMapaSVG(ridsArr, W, H) {
       if(lat<minLat) minLat=lat; if(lat>maxLat) maxLat=lat;
     }));
   });
-  if(!isFinite(minLng)) return '';
+  if(!isFinite(minLng)) return '<div style="padding:20px;background:#fff3cd;border:1px dashed #ffb800;border-radius:4px;font-size:9pt;color:#a06010;text-align:center">⚠ Trazas sin puntos válidos.</div>';
 
   // Margen del 6%
   const mgLng=(maxLng-minLng)*0.06, mgLat=(maxLat-minLat)*0.06;
@@ -7159,17 +7165,42 @@ function _actualizarBotonSelRP(){
   }
 }
 
-// Chip unificado en el sidebar (muestra selección del tipo activo)
+// v8.33 · Chip SIEMPRE visible; cambia estado activo/inactivo
 function _actualizarChipSelUnificado(){
   const chip = document.getElementById('rep-selchip');
   if (!chip) return;
   const tipo = _repTipo();
   const n = (tipo === 'caminos') ? _selCaminos.size : _selRutas.size;
   const label = (tipo === 'caminos') ? 'tramos' : 'rutas';
-  if (n === 0) { chip.style.display = 'none'; return; }
-  chip.style.display = 'flex';
-  chip.querySelector('.chip-count').textContent = n;
-  chip.querySelector('.chip-label').textContent = label;
+  const txt = chip.querySelector('.chip-text');
+  const btn = chip.querySelector('.chip-btn');
+  if (n > 0) {
+    // Activo · verde
+    chip.style.background = '#e6f6ea';
+    chip.style.borderColor = 'var(--vd)';
+    chip.style.color = 'var(--vd)';
+    if (txt) txt.textContent = `✓ ${n} ${label} seleccionadas manualmente`;
+    if (btn) {
+      btn.disabled = false;
+      btn.style.background = 'var(--w)';
+      btn.style.color = 'var(--ro)';
+      btn.style.borderColor = 'var(--ro)';
+      btn.style.cursor = 'pointer';
+    }
+  } else {
+    // Vacío · gris
+    chip.style.background = 'var(--bg)';
+    chip.style.borderColor = 'var(--light)';
+    chip.style.color = 'var(--mut)';
+    if (txt) txt.textContent = 'Sin selección manual · usa las vías activas del mapa';
+    if (btn) {
+      btn.disabled = true;
+      btn.style.background = 'var(--w)';
+      btn.style.color = 'var(--mut)';
+      btn.style.borderColor = 'var(--light)';
+      btn.style.cursor = 'not-allowed';
+    }
+  }
 }
 
 function _caminoFid(featOrProps){
