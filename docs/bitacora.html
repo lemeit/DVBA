@@ -99,7 +99,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <div class="sub">DVBA · Departamento Zona VI Saladillo</div>
   <div class="meta">
     <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">18 de julio de 2026</span></div>
-    <div><span class="lbl">Versión bitácora</span><span class="val">v4.7 — apps v9.88 / v8.21 · 28-jul-2026</span></div>
+    <div><span class="lbl">Versión bitácora</span><span class="val">v4.8 — apps v9.89 / v8.42 · 31-jul-2026</span></div>
     <div><span class="lbl">Responsable</span><span class="val">Ing. Luciano Lamaita</span></div>
     <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></span></div>
     <div><span class="lbl">Estado general</span><span class="val">🟢 En desarrollo activo</span></div>
@@ -816,10 +816,66 @@ git push origin main
     <table>
       <tr><th>Artefacto</th><th>Versión</th><th>Archivo(s)</th><th>Bumpear con</th></tr>
       <tr><td><strong>📱 App Campo (PWA unificada)</strong></td><td><span class="badge b-ok">v9.88</span></td><td><code>app.html</code> (router) + <code>dvba_campo_lite.html</code> (Modo Básico) + <code>dvba_campo.html</code> (Modo Avanzado) + <code>sw.js</code></td><td>Manual: <code>APP_VER</code> en HTMLs + <code>CACHE_NAME</code> en <code>sw.js</code></td></tr>
-      <tr><td><strong>🖥 Familia escritorio</strong></td><td><span class="badge b-ok">v8.21</span></td><td><code>index.html</code>, <code>partes_diarios.html</code>, <code>reportes.html</code> + módulos <code>datos/</code></td><td>Manual en <code>const APP_VERSION</code> + spans footer en los 3</td></tr>
+      <tr><td><strong>🖥 Familia escritorio</strong></td><td><span class="badge b-ok">v8.42</span></td><td><code>index.html</code>, <code>partes_diarios.html</code>, <code>reportes.html</code> + módulos <code>datos/</code></td><td>Manual en <code>const APP_VERSION</code> + spans footer en los 3</td></tr>
       <tr><td><strong>🎨 Módulo sello v4</strong></td><td><span class="badge b-ok">unificado</span></td><td><code>datos/sello_v4.js</code> + <code>datos/exif_writer.js</code> + <code>datos/piexif.min.js</code></td><td>Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear</td></tr>
       <tr><td><strong>🛣 Caminos Secundarios</strong></td><td><span class="badge b-ok">v1.1</span></td><td><code>caminos_secundarios.html</code></td><td>—</td></tr>
     </table>
+
+    <h3>v8.29 – v8.42 · 29–31 julio 2026 — Sistema de reportes unificado Red Vial Provincial + paleta minimalista PBA</h3>
+    <p>Refactor completo del tab Reportes del portal, integrando Rutas Provinciales (Red Vial Provincial Primaria) y Caminos Secundarios (Red Vial Provincial Secundaria) en un único flujo simétrico basado en selección manual por click en el mapa. PDF unificado con logo DVBA, SVG con partidos + ciudades + trazas + mojones + registros, y toda la nomenclatura oficial DVBA aplicada.</p>
+
+    <h4>🎯 Selección homogénea Rutas ↔ Caminos (v8.29 – v8.31 · v8.36 · v8.39)</h4>
+    <ul>
+      <li><strong>Sin dropdown</strong> — el sistema detecta automáticamente qué tipos hay seleccionados (RPs, Caminos o ambos) y genera el reporte correspondiente</li>
+      <li><strong>Selección solo manual</strong> por click en la vía → botón "+ Agregar al reporte" del modal SIG Vial. Los chips del panel Mapa quedaron solo para visualización, no entran al reporte (evita el bug de "se reportan las 15 RPs si tildo todas")</li>
+      <li><strong>Halo dorado #ffb800</strong> en el mapa para cada RP o tramo seleccionado (paralelo entre ambos tipos)</li>
+      <li><strong>Chip contador único</strong> `✓ 🛣 N rutas · 🚜 M tramos` siempre visible, con lista expandible por tipo y × por cada item para deseleccionar</li>
+      <li>Tabla RUTAS reescrita a formato <strong>1 fila por tramo</strong> homogéneo con Caminos aprovechando <code>CARACT_VIALES[rid].tramos[]</code> del CSV oficial SALADILLO_RED (96 tramos, 15 RPs)</li>
+    </ul>
+
+    <h4>📄 PDF mixto unificado (v8.38 · v8.40)</h4>
+    <ul>
+      <li>Reporte mixto abre <strong>1 sola pestaña de PDF</strong> con las 2 secciones consecutivas (evita popup blocker que descartaba el 2do tab)</li>
+      <li>Ambos PDFs con <strong>header institucional idéntico</strong>: logo DVBA + título + fecha + línea turquesa PBA</li>
+      <li><strong>Banner sello institucional</strong>: "📋 Datos oficiales de la Red Vial Provincial (Primaria + Secundaria) de Zona VI Saladillo · Fuente: DVBA - PBA" — se muestra para cualquier rol, sirve cuando el PDF circula por email/WhatsApp/impreso</li>
+      <li>Nomenclatura oficial en títulos: "Reporte de Red Vial Provincial Primaria" y "Reporte de Red Vial Provincial Secundaria (Caminos)"</li>
+    </ul>
+
+    <h4>🗺 Mapa SVG enriquecido para Caminos (v8.37 · v8.41)</h4>
+    <ul>
+      <li>Nueva función <code>generarMapaSVGCaminos()</code> análoga a la de rutas, dibuja contornos de partidos, ciudades de referencia, trazas coloreadas por CLASE, mojones (si <code>rc-moj</code>) y registros (si <code>rc-regs</code>) dentro del bbox</li>
+      <li>Grilla dashed sutil, norte y escala; orden Z: grilla → partidos (fondo) → ciudades → trazas → mojones → registros → escala/norte</li>
+      <li>Único elemento que sigue requiriendo captura real (`rc-mapa-cap` con leaflet-image): el basemap OSM de tiles</li>
+      <li>Fix crítico <code>leaflet-image</code>: los divIcons custom (pin, mojones) rompían la captura con "Cannot read 'match'". Ahora se ocultan temporalmente los <code>L.Marker</code> antes de la captura y se restauran al terminar</li>
+      <li>Captura contextual: al generar PDF de rutas se ocultan capas de caminos (y viceversa), y los mojones se muestran según el checkbox</li>
+    </ul>
+
+    <h4>🎨 Paleta minimalista PBA (v8.26 – v8.34)</h4>
+    <ul>
+      <li>Sacados todos los fondos oscuros tipo IDE (<code>#0d2030</code>, <code>#1a0d0d</code>, <code>#0a1620</code>, <code>#1a2a35</code>) del panel edición del sidebar</li>
+      <li>Botones sidebar variantes .side-neutral y .side-danger: fondo blanco con borde <code>--light</code>, texto en color institucional</li>
+      <li>Modal grande de edición de registros: fondo blanco con header banda turquesa PBA, botón Cerrar blanco con borde suave</li>
+      <li>Fila fecha/hora, filtro por tipo, panel Mantenimiento Storage, todos migrados a paleta clara</li>
+      <li>Footer <code>reportes.html</code> pasa de <code>#1f2732</code> a <code>--bg</code> claro con texto <code>--mut</code></li>
+    </ul>
+
+    <h4>📚 Nomenclatura oficial DVBA (v8.42)</h4>
+    <p>Aplicada en títulos formales de PDFs y headers de secciones. Nueva memoria de referencia (<code>reference_nomenclatura_red_vial.md</code>):</p>
+    <ul>
+      <li><strong>Red Vial Provincial Primaria</strong> = Rutas Provinciales (RPs)</li>
+      <li><strong>Red Vial Provincial Secundaria</strong> = Caminos secundarios</li>
+      <li><strong>Red Vial Terciaria</strong> = Caminos municipales (aún no implementado)</li>
+    </ul>
+
+    <h4>🐛 Bugs críticos resueltos</h4>
+    <ul>
+      <li>v8.32: <code>leaflet-image</code> rompía la captura con "Cannot read 'match'" por divIcons custom (fix: ocultar markers)</li>
+      <li>v8.33: SVG del mapa sin trazas cuando <code>_selRutas</code> vacía + captura apaisada (fix: forzar String(rid) + <code>object-fit:contain</code>)</li>
+      <li>v8.34: Botón "Nuevo Pin" verde flotante eliminado (redundante con "Pin mapa" y se solapaba con la rosa del Norte)</li>
+      <li>v8.35 (patch v8.34): "Limpiar todos" del chip solo limpiaba caminos aunque hubiera RPs (fix: limpia ambos)</li>
+      <li>v8.37: PDF caminos mostraba lista GLOBAL de partidos/clases del mapa aunque el reporte fuera de 1 solo camino (fix: derivar del <code>_repCaminosData</code>)</li>
+      <li>v8.38: PDF mixto solo generaba el 1er tab por popup blocker (fix: combinar en 1 solo PDF con salto de página)</li>
+    </ul>
 
     <h3>v8.11 – v8.21 / v9.79 – v9.88 · 21–28 julio 2026 — Refactor sello + EXIF metadata + rediseño arquitectura edición</h3>
     <p><strong>Sprint intensivo de 8 días con 25+ versiones incrementales que refactorizó completamente el sistema de sellado y el flujo de edición de registros.</strong> Cambio arquitectónico crítico + varios diferenciales técnicos nuevos.</p>

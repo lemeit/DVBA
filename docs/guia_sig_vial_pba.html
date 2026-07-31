@@ -88,7 +88,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
   <h1>📖 Guía de uso · SIG Vial PBA</h1>
   <div class="sub">Plataforma web integral para el relevamiento y gestión de la red vial provincial · Piloto Departamento Zona VI Saladillo</div>
   <div class="meta">
-    <div><span class="lbl">Versión guía</span><span class="val">v1.0</span></div>
+    <div><span class="lbl">Versión guía</span><span class="val">v1.2 — apps v8.42 / v9.89 · 31-jul-2026</span></div>
     <div><span class="lbl">Sistema</span><span class="val">Escritorio v8.2 · Móvil v9.78</span></div>
     <div><span class="lbl">Última actualización</span><span class="val">19 de julio de 2026</span></div>
     <div><span class="lbl">URL</span><span class="val"><a href="https://lemeit.github.io/DVBA/" target="_blank">lemeit.github.io/DVBA/ ↗</a></span></div>
@@ -106,7 +106,8 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:44px;pad
     <li><a href="#lite">App móvil · Modo Básico</a></li>
     <li><a href="#campo">App móvil · Modo Avanzado</a></li>
     <li><a href="#partes">Plan de Seguridad en la Circulación</a></li>
-    <li><a href="#reportes">Módulo Reportes</a></li>
+    <li><a href="#reportes-portal">Reportes de Red Vial Provincial (portal)</a></li>
+    <li><a href="#reportes">Módulo Reportes (dashboard gerencial)</a></li>
     <li><a href="#sello">Sello institucional v4</a></li>
     <li><a href="#offline">Modo offline y sincronización</a></li>
     <li><a href="#faq">Preguntas frecuentes</a></li>
@@ -482,10 +483,62 @@ Contactá al administrador del sistema con tu correo institucional. Te van a asi
 </section>
 
 <!-- ════════════════════════════════════════════════════════════ -->
-<section id="reportes">
-<h2>7. Módulo Reportes</h2>
+<section id="reportes-portal">
+<h2>7. Reportes de Red Vial Provincial (portal)</h2>
 
-<p>Módulo escritorio (<code>reportes.html</code>) accesible desde el link 📊 <strong>Reportes</strong> del header. <strong>Solo visible para roles gerencia y admin</strong>.</p>
+<p>El <strong>portal principal</strong> (<code>index.html</code>) incluye en su sidebar un panel de reportes unificado para la <strong>Red Vial Provincial</strong> — tanto Primaria (Rutas) como Secundaria (Caminos). Diseñado como <em>información pública</em>: los datos oficiales de la red vial son consultables por cualquier ciudadano, técnico o autoridad, sin necesidad de login. Los relevamientos con fotos (uso técnico DVBA interno) son un módulo aparte con acceso restringido.</p>
+
+<h3>Flujo de selección (por click en el mapa)</h3>
+<ol>
+  <li>Hacé click sobre cualquier ruta o camino visible en el mapa.</li>
+  <li>Se abre el modal <em>SIG Vial</em> con los datos oficiales de esa vía.</li>
+  <li>Tocá el botón verde <strong>"+ Agregar al reporte"</strong> en el footer del modal.</li>
+  <li>La vía queda marcada con <strong>halo dorado</strong> (<code>#ffb800</code>) en el mapa y aparece en el chip contador del sidebar.</li>
+  <li>Repetí para tantas rutas y caminos como quieras — se acumulan RPs + Caminos en la misma selección.</li>
+</ol>
+
+<div class="box info">
+  <strong>Chips del panel Mapa vs. selección del reporte:</strong> los chips de rutas y filtros de caminos del panel Mapa <em>solo controlan qué se ve dibujado en el mapa</em>, NO entran al reporte. Para el reporte, la única forma de agregar es con click en la vía + botón "Agregar al reporte". Esto evita confusiones (antes se reportaban las 15 RPs si tildabas todas).
+</div>
+
+<h3>Chip contador + lista expandible</h3>
+<p>Encima de las columnas del reporte, un chip verde muestra en tiempo real <strong>"✓ 🛣 N rutas · 🚜 M tramos"</strong>. Al lado, botón <em>"▾ Ver"</em> despliega la lista completa con:</p>
+<ul>
+  <li>Cada RP con su color oficial + km oficial + cantidad de tramos + botón × para quitar</li>
+  <li>Cada tramo de camino con su nomenclatura (034-01), tramo N°, denominación + botón × para quitar</li>
+  <li>Botón "✕ Limpiar todos" para vaciar toda la selección</li>
+</ul>
+
+<h3>Tabla y opciones del PDF</h3>
+<p>Las columnas se controlan con checkboxes: Long GIS · Long Oficial · Clase/Superficie · Prog. inicio/fin · Coords · Partido · Registros asociados · Mojones asociados. Además hay opciones del PDF:</p>
+<ul>
+  <li><strong>Incluir mapa SVG</strong> — genera un mapa vectorial en el PDF con contornos de partidos + ciudades de referencia + trazas coloreadas por clase + mojones y registros dentro del bbox del reporte</li>
+  <li><strong>Captura real del mapa</strong> — usa <code>leaflet-image</code> para capturar el mapa Leaflet completo (con basemap OSM real de tiles) y embebe el PNG en el PDF</li>
+</ul>
+
+<h3>PDF unificado con secciones</h3>
+<p>Si tenés seleccionados solo RPs, el PDF sale como <strong>Reporte de Red Vial Provincial Primaria</strong>. Si son solo caminos, sale como <strong>Reporte de Red Vial Provincial Secundaria</strong>. Si tenés ambos, el PDF combina las 2 secciones consecutivas con salto de página, cada una con su header institucional (logo DVBA + título + fecha) y tabla homogénea de 8 columnas: <em>Partido · Nomencl · Tramo · Denominación · Clase (chip color) · Sentido/Transitabilidad · Km GIS · Km Oficial</em>.</p>
+
+<p>Al pie de cada PDF: banner sello institucional <em>"📋 Datos oficiales de la Red Vial Provincial (Primaria + Secundaria) de Zona VI Saladillo · Fuente: Dirección de Vialidad de la Provincia de Buenos Aires"</em>.</p>
+
+<h3>Exports</h3>
+<ul>
+  <li><strong>▶ Generar reporte</strong> — muestra la tabla en el sidebar</li>
+  <li><strong>↓ CSV</strong> — descarga CSV con 12 columnas por tramo (Ruta, Partido, Nomenclatura, Tramo, Denominación, Clase, Sentido, Km_GIS_estimado, Km_Oficial, Mojones, Registros, Es_Resumen). En modo mixto descarga 2 archivos (rutas + caminos)</li>
+  <li><strong>↓ PDF</strong> — PDF landscape A4 institucional con logo DVBA y paleta PBA</li>
+  <li><strong>↓ PDF de relevamientos con fotos</strong> (sección aparte, uso técnico DVBA) — agrupa registros con fotos por ruta, con mapa SVG de ubicación</li>
+</ul>
+
+<div class="img-placeholder">
+📷 <b>Screenshot:</b> panel de reportes del sidebar con chip contador, columnas, opciones del PDF y banner "Datos oficiales".
+</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<section id="reportes">
+<h2>8. Módulo Reportes (dashboard gerencial)</h2>
+
+<p>Módulo escritorio (<code>reportes.html</code>) accesible desde el link 📊 <strong>Reportes</strong> del header. <strong>Solo visible para roles gerencia y admin</strong>. Distinto del panel de reportes del portal (sección 7), este módulo consolida <em>relevamientos + partes diarios + vehículos</em> con dashboard gerencial y charts.</p>
 
 <h3>Contenido</h3>
 <div class="grid2">
