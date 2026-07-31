@@ -690,11 +690,16 @@ body.modo-campo #campo-fab{display:flex}
       <div id="rep-tabla" style="margin-top:8px"></div>
     </div>
 
-    <!-- v8.27 · Reporte de Red Secundaria (Caminos) — reutiliza filtros de partido + clase del mapa -->
+    <!-- v8.27 · v8.28 · Reporte de Red Secundaria (Caminos) — filtros amplios O selección manual por click en mapa -->
     <div class="sec" style="border-top:1px solid var(--light);margin-top:12px;padding-top:12px">
       <div class="sec-title" style="font-family:'Encode Sans',sans-serif">🚜 Red Secundaria · Caminos</div>
       <div style="font-size:10px;color:var(--mut);margin-bottom:8px;line-height:1.45">
-        Reporta los caminos secundarios filtrados por <b style="color:var(--pd)">partido</b> y <b style="color:var(--pd)">clase</b> activos en el mapa. Ajustá esos filtros arriba (Partidos + capa Caminos) para acotar el resultado.
+        <b style="color:var(--pd)">Dos modos:</b> (1) hacé click en un camino del mapa → botón <b style="color:var(--vd)">"+ Agregar al reporte"</b> del modal (selección manual, tramo a tramo). (2) Sin selección manual, usa los filtros amplios de <b>partido + clase</b> activos en el mapa.
+      </div>
+      <!-- v8.28 · Chip contador de seleccionados con botón limpiar (visible sólo si _selCaminos.size > 0) -->
+      <div id="rep-cs-selchip" style="display:none;align-items:center;gap:6px;background:#e6f6ea;border:1px solid var(--vd);color:var(--vd);padding:5px 8px;border-radius:4px;margin-bottom:6px;font-size:11px">
+        <b>✓ <span class="chip-count">0</span> tramos seleccionados</b>
+        <button onclick="limpiarSelCaminos()" style="margin-left:auto;padding:2px 8px;background:var(--w);color:var(--ro);border:1px solid var(--ro);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">✕ Limpiar</button>
       </div>
       <div id="rep-cs-filtros" style="font-size:10px;color:var(--mut);background:var(--bg);border-left:3px solid var(--p);padding:6px 8px;border-radius:4px;margin-bottom:6px;line-height:1.45">
         <i>Presioná "Generar" para ver los filtros aplicados y el resumen.</i>
@@ -815,7 +820,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.27';
+const APP_VERSION = 'v8.28';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4548,13 +4553,20 @@ function _csClaseChip(cl){
   return `<span style="display:inline-block;width:9px;height:9px;background:${color};border-radius:50%;vertical-align:middle;margin-right:4px"></span>${_csClaseCorta(cl)}`;
 }
 
-// Recorre _caminosGeoJSON_cache y devuelve la lista filtrada por selP + csSelClases
+// Recorre _caminosGeoJSON_cache y devuelve la lista filtrada.
+// v8.28 · Si _selCaminos tiene items, se usa como filtro estricto por fid
+// (selección manual desde el mapa). Si está vacío, cae al filtro amplio
+// por partido (selP) + clase (csSelClases).
 function buildReporteCaminosData(){
   if (!_caminosGeoJSON_cache || !_caminosGeoJSON_cache.features) return [];
+  const usarSelManual = (_selCaminos && _selCaminos.size > 0);
   const partActivos = (typeof selP !== 'undefined') ? selP : null;
   const clasesActivas = (typeof csSelClases !== 'undefined' && csSelClases) ? csSelClases : null;
   const feats = _caminosGeoJSON_cache.features.filter(f => {
     const p = f.properties || {};
+    if (usarSelManual) {
+      return _selCaminos.has(_caminoFid(f));
+    }
     if (partActivos && !partActivos.has(p.PARTIDO_NOMBRE)) return false;
     if (clasesActivas && !clasesActivas.has(p.CLASE)) return false;
     return true;
@@ -4588,12 +4600,20 @@ function generarReporteCaminos(){
   }
   _repCaminosData = buildReporteCaminosData();
 
-  // Panel de filtros aplicados
-  const partActivos = (typeof selP !== 'undefined' && selP) ? [...selP].sort() : [];
-  const clasesActivas = (typeof csSelClases !== 'undefined' && csSelClases) ? [...csSelClases] : [];
-  document.getElementById('rep-cs-filtros').innerHTML =
-    `<b style="color:var(--pd)">Partidos:</b> ${partActivos.length ? partActivos.join(', ') : '<i>ninguno</i>'}<br>` +
-    `<b style="color:var(--pd)">Clases:</b> ${clasesActivas.length ? clasesActivas.map(_csClaseCorta).join(', ') : '<i>ninguna</i>'}`;
+  // v8.28 · Panel de filtros aplicados. Cambia según modo (selección manual vs filtros amplios)
+  const usarSelManual = (_selCaminos && _selCaminos.size > 0);
+  if (usarSelManual) {
+    document.getElementById('rep-cs-filtros').innerHTML =
+      `<b style="color:var(--vd)">Modo:</b> Selección manual desde el mapa<br>` +
+      `<b style="color:var(--vd)">Tramos elegidos:</b> ${_selCaminos.size}`;
+  } else {
+    const partActivos = (typeof selP !== 'undefined' && selP) ? [...selP].sort() : [];
+    const clasesActivas = (typeof csSelClases !== 'undefined' && csSelClases) ? [...csSelClases] : [];
+    document.getElementById('rep-cs-filtros').innerHTML =
+      `<b style="color:var(--pd)">Modo:</b> Filtros amplios (partido + clase)<br>` +
+      `<b style="color:var(--pd)">Partidos:</b> ${partActivos.length ? partActivos.join(', ') : '<i>ninguno</i>'}<br>` +
+      `<b style="color:var(--pd)">Clases:</b> ${clasesActivas.length ? clasesActivas.map(_csClaseCorta).join(', ') : '<i>ninguna</i>'}`;
+  }
 
   if (!_repCaminosData.length) {
     document.getElementById('rep-cs-tabla').innerHTML =
@@ -5655,9 +5675,12 @@ function csResetFiltros(){
 
 // v7.29 — Migración del sistema de renderizado desde caminos_secundarios.html
 // Doble capa HALO + BASE. Estilos idénticos a los validados en la subruta.
+// v8.28 — Tercera capa SEL_HALO (halo dorado) para tramos seleccionados en _selCaminos.
 let _caminosSecHalo = null;
+let _caminosSecSelHalo = null;  // v8.28
 const CS_ESTILO_BASE = cl => ({color: (CS_COLOR_CLASE[cl] || '#a07842'), weight:3, opacity:.9, lineJoin:'round', lineCap:'round'});
 const CS_ESTILO_HALO = cl => ({color: (CS_COLOR_CLASE[cl] || '#a07842'), weight:18, opacity:.16, lineCap:'round', lineJoin:'round'});
+const CS_ESTILO_SEL_HALO = ({color:'#ffb800', weight:12, opacity:.75, lineCap:'round', lineJoin:'round'});
 
 // Construir o refrescar la capa de Leaflet filtrada
 function csRefrescarLayer(){
@@ -5667,9 +5690,10 @@ function csRefrescarLayer(){
       .then(geo => { _caminosGeoJSON_cache = geo; csRefrescarLayer(); });
     return;
   }
-  // Eliminar capas anteriores (halo + base)
-  if (_caminosSecHalo)  map.removeLayer(_caminosSecHalo);
-  if (_caminosSecLayer) map.removeLayer(_caminosSecLayer);
+  // Eliminar capas anteriores (halo + base + sel_halo)
+  if (_caminosSecHalo)    map.removeLayer(_caminosSecHalo);
+  if (_caminosSecLayer)   map.removeLayer(_caminosSecLayer);
+  if (_caminosSecSelHalo) map.removeLayer(_caminosSecSelHalo);
   // Construir features filtrados
   const featuresVisibles = _caminosGeoJSON_cache.features.filter(f => {
     const p = f.properties;
@@ -5679,6 +5703,14 @@ function csRefrescarLayer(){
     return true;
   });
   const fc = {type:'FeatureCollection', features: featuresVisibles};
+  // v8.28 · Sub-FC de features seleccionados para el reporte (halo dorado)
+  const featsSel = featuresVisibles.filter(f => _selCaminos.has(_caminoFid(f)));
+  const fcSel = {type:'FeatureCollection', features: featsSel};
+  // 0) SEL_HALO (halo dorado ancho para tramos elegidos)
+  _caminosSecSelHalo = L.geoJSON(fcSel, {
+    style: () => CS_ESTILO_SEL_HALO,
+    interactive: false
+  });
   // 1) HALO (sombreado ancho translúcido, sin eventos)
   _caminosSecHalo = L.geoJSON(fc, {
     style: f => CS_ESTILO_HALO(f.properties.CLASE),
@@ -5698,8 +5730,10 @@ function csRefrescarLayer(){
   });
   if (_caminosSecVisible) {
     _caminosSecHalo.addTo(map);
+    // v8.28 · SEL_HALO va entre HALO y BASE (dorado bien visible)
+    if (featsSel.length) _caminosSecSelHalo.addTo(map);
     _caminosSecLayer.addTo(map);
-    // HALO debajo, BASE encima. Ambos por encima de partidos.
+    // HALO debajo, SEL_HALO en medio, BASE encima. Todos por encima de partidos.
     _caminosSecHalo.bringToBack();
     Object.values(capasP).forEach(l => l.bringToBack && l.bringToBack());
   }
@@ -5710,21 +5744,24 @@ function toggleCaminosLayer(){
     csRefrescarLayer();
     _caminosSecVisible = true;
     setTimeout(() => {
-      if (_caminosSecHalo)  { _caminosSecHalo.addTo(map);  _caminosSecHalo.bringToBack(); }
-      if (_caminosSecLayer) { _caminosSecLayer.addTo(map); }
+      if (_caminosSecHalo)    { _caminosSecHalo.addTo(map);  _caminosSecHalo.bringToBack(); }
+      if (_caminosSecSelHalo && _selCaminos.size) _caminosSecSelHalo.addTo(map);
+      if (_caminosSecLayer)   { _caminosSecLayer.addTo(map); }
       Object.values(capasP).forEach(l => l.bringToBack && l.bringToBack());
     }, 200);
     _csUpdateBtnEstado(true);
     return;
   }
   if (_caminosSecVisible) {
-    if (_caminosSecHalo)  map.removeLayer(_caminosSecHalo);
-    if (_caminosSecLayer) map.removeLayer(_caminosSecLayer);
+    if (_caminosSecHalo)    map.removeLayer(_caminosSecHalo);
+    if (_caminosSecSelHalo) map.removeLayer(_caminosSecSelHalo);
+    if (_caminosSecLayer)   map.removeLayer(_caminosSecLayer);
     _caminosSecVisible = false;
     _csUpdateBtnEstado(false);
   } else {
-    if (_caminosSecHalo)  { _caminosSecHalo.addTo(map);  _caminosSecHalo.bringToBack(); }
-    if (_caminosSecLayer) { _caminosSecLayer.addTo(map); }
+    if (_caminosSecHalo)    { _caminosSecHalo.addTo(map);  _caminosSecHalo.bringToBack(); }
+    if (_caminosSecSelHalo && _selCaminos.size) _caminosSecSelHalo.addTo(map);
+    if (_caminosSecLayer)   { _caminosSecLayer.addTo(map); }
     Object.values(capasP).forEach(l => l.bringToBack && l.bringToBack());
     _caminosSecVisible = true;
     _csUpdateBtnEstado(true);
@@ -6739,6 +6776,8 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
       <!-- Contenido dinámico -->
     </div>
     <div class="ms-f" id="sig-f" style="padding:10px 16px;border-top:1px solid #e8ecef;background:#fafbfc;display:flex;gap:8px;justify-content:flex-end">
+      <!-- v8.28 · Botón toggle selección · sólo visible para caminos -->
+      <button onclick="toggleCaminoSelActivo()" id="sig-sel-cno" style="display:none;padding:7px 14px;border:1px solid var(--vd);background:#fff;color:var(--vd);border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">+ Agregar al reporte</button>
       <button onclick="editarCaractRP()" id="sig-editar" style="padding:7px 14px;border:1px solid #003366;background:#fff;color:#003366;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">✏ Editar datos viales</button>
       <button onclick="cerrarModalSIGVial()" style="padding:7px 14px;border:0;background:#003366;color:#fff;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">Cerrar</button>
     </div>
@@ -6753,6 +6792,10 @@ function mostrarModalSIGVial(rid, latlng){
   const c = (typeof CARACT_VIALES !== 'undefined') ? CARACT_VIALES[rid] : null;
   if (!c) { alert('Sin datos oficiales cargados para RP ' + rid); return; }
   _sigRPActiva = rid;
+  // v8.28 · No es camino → ocultar botón toggle selección y limpiar feat activo
+  _sigFeatActivo = null;
+  const btnSelCno = document.getElementById('sig-sel-cno');
+  if (btnSelCno) btnSelCno.style.display = 'none';
   const meta = (typeof RUTA_META !== 'undefined') ? RUTA_META[rid] : {color:'#003366'};
   // Header con color de la RP
   const hdr = document.getElementById('sig-h');
@@ -6850,6 +6893,9 @@ function cerrarModalSIGVial(){
   document.getElementById('modal-sigvial').style.display = 'none';
   _sigRPActiva = null;
   _sigCaminoActivo = null;  // v7.57
+  _sigFeatActivo = null;    // v8.28
+  const btnSel = document.getElementById('sig-sel-cno');
+  if (btnSel) btnSel.style.display = 'none';
 }
 
 function editarCaractRP(){
@@ -6862,11 +6908,78 @@ function editarCaractRP(){
 // v7.57 — Modal SIG Vial para CAMINOS SECUNDARIOS (mismo formato que RP)
 let _sigCaminoActivo = null;
 
+/* ═════════════════════════════════════════════════════════════════
+   v8.28 · Selección de tramos de caminos para el reporte
+   Set _selCaminos con fids únicos (NOMEMCLATURA#TRAMO_NUM).
+   Si tiene items, buildReporteCaminosData() lo usa como filtro
+   estricto; si está vacío, cae al filtro amplio (selP + csSelClases).
+   ═════════════════════════════════════════════════════════════════ */
+let _selCaminos = new Set();
+let _sigFeatActivo = null;   // feature del último camino clickeado en el mapa
+
+function _caminoFid(featOrProps){
+  const p = featOrProps.properties || featOrProps;
+  if (!p) return null;
+  const nm = p.NOMEMCLATURA || '?';
+  const tr = (p.TRAMO_NUM != null && p.TRAMO_NUM !== '') ? p.TRAMO_NUM : '0';
+  return nm + '#' + tr;
+}
+
+function toggleCaminoSelActivo(){
+  if (!_sigFeatActivo) return;
+  const fid = _caminoFid(_sigFeatActivo);
+  if (!fid) return;
+  if (_selCaminos.has(fid)) _selCaminos.delete(fid);
+  else _selCaminos.add(fid);
+  _actualizarBotonSelCno();
+  _actualizarChipSelCaminos();
+  csRefrescarLayer();  // repinta con halo dorado en los seleccionados
+}
+
+function limpiarSelCaminos(){
+  if (_selCaminos.size === 0) return;
+  _selCaminos.clear();
+  _actualizarBotonSelCno();
+  _actualizarChipSelCaminos();
+  csRefrescarLayer();
+  // Si ya había reporte generado, regenerarlo para reflejar el cambio
+  if (typeof _repCaminosData !== 'undefined' && _repCaminosData.length) generarReporteCaminos();
+}
+
+function _actualizarBotonSelCno(){
+  const btn = document.getElementById('sig-sel-cno');
+  if (!btn) return;
+  if (!_sigFeatActivo) { btn.style.display = 'none'; return; }
+  btn.style.display = '';
+  const fid = _caminoFid(_sigFeatActivo);
+  if (_selCaminos.has(fid)) {
+    btn.textContent = '✕ Quitar del reporte';
+    btn.style.background = 'var(--ro)';
+    btn.style.color = '#fff';
+    btn.style.borderColor = 'var(--ro)';
+  } else {
+    btn.textContent = '+ Agregar al reporte';
+    btn.style.background = '#fff';
+    btn.style.color = 'var(--vd)';
+    btn.style.borderColor = 'var(--vd)';
+  }
+}
+
+// Chip informativo en el panel de reportes con contador + botón limpiar
+function _actualizarChipSelCaminos(){
+  const chip = document.getElementById('rep-cs-selchip');
+  if (!chip) return;
+  if (_selCaminos.size === 0) { chip.style.display = 'none'; return; }
+  chip.style.display = 'flex';
+  chip.querySelector('.chip-count').textContent = _selCaminos.size;
+}
+
 function mostrarModalSIGVialCamino(feat, latlng){
   const p = feat.properties;
   if (!p) return;
   _sigCaminoActivo = p.NOMEMCLATURA;
   _sigRPActiva = null;
+  _sigFeatActivo = feat;   // v8.28 · guardar feat para el toggle de selección
   const meta = document.getElementById('sig-h');
   // v7.59 — Usar el color REAL del camino según su CLASE (paleta existente)
   //   DE TIERRA=#a07842, PAVIMENTADO=#3a7bd5, MIXTO=#7050b0, SIN ABRIR=#888888
@@ -6969,6 +7082,8 @@ function mostrarModalSIGVialCamino(feat, latlng){
   // El botón "Editar" del footer cambia de comportamiento según sea RP o camino
   const btnEd = document.getElementById('sig-editar');
   if (btnEd) btnEd.onclick = editarCaractCamino;
+  // v8.28 · Mostrar botón toggle selección con estado actual
+  _actualizarBotonSelCno();
   document.getElementById('modal-sigvial').style.display = 'flex';
 }
 
