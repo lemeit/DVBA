@@ -637,30 +637,48 @@ body.modo-campo #campo-fab{display:flex}
       </div>
     </div>
 
-    <!-- ══ TAB REPORTES ═══════════════════════════════════════════ -->
+    <!-- ══ TAB REPORTES · v8.29 UNIFICADO ═══════════════════════════════ -->
     <div class="pane" id="pane-rep">
       <div class="sec" style="border-bottom:none">
-        <div class="sec-title">Exportar Reportes</div>
-        
-      <div style="font-size:10px;color:var(--p);margin-bottom:10px;padding:8px 10px;background:#0d2830;border-radius:5px;border-left:3px solid var(--p);line-height:1.45">
-        El reporte incluye las rutas activas en el mapa.<br>Activalas/desactivalas desde la pestaña <b>Mapa</b>.
+        <div class="sec-title">📊 Reportes de Vías</div>
+
+      <!-- v8.29 · Selector Tipo de Vía (RP/Cno) unificado -->
+      <div style="margin-bottom:8px">
+        <label for="rep-tipo" style="font-size:10px;color:var(--pd);font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif;display:block;margin-bottom:4px">Tipo de vía</label>
+        <select id="rep-tipo" onchange="onCambioTipoReporte()" style="width:100%;padding:7px 10px;font-size:12px;font-family:inherit;color:var(--txt);background:var(--w);border:1px solid var(--light);border-radius:4px;font-weight:600">
+          <option value="rutas">🛣 Rutas Provinciales</option>
+          <option value="caminos">🚜 Red Secundaria · Caminos</option>
+        </select>
       </div>
 
-      <div style="font-size:10px;color:var(--p);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Columnas</div>
-      <!-- Checkboxes de columnas -->
+      <!-- Chip contador seleccionados manualmente + botón limpiar (visible sólo si hay selección manual del tipo activo) -->
+      <div id="rep-selchip" style="display:none;align-items:center;gap:6px;background:#e6f6ea;border:1px solid var(--vd);color:var(--vd);padding:5px 8px;border-radius:4px;margin-bottom:6px;font-size:11px">
+        <b>✓ <span class="chip-count">0</span> <span class="chip-label">ítems</span> seleccionados manualmente</b>
+        <button onclick="limpiarSelReporteActual()" style="margin-left:auto;padding:2px 8px;background:var(--w);color:var(--ro);border:1px solid var(--ro);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">✕ Limpiar</button>
+      </div>
+
+      <!-- Modo/filtros aplicados (info) -->
+      <div id="rep-modo" style="font-size:10px;color:var(--mut);background:var(--bg);border-left:3px solid var(--p);padding:6px 8px;border-radius:4px;margin-bottom:8px;line-height:1.45">
+        <b style="color:var(--pd)">Cómo elegir qué reportar:</b><br>
+        (1) Hacé click en una vía del mapa → botón <b style="color:var(--vd)">"+ Agregar al reporte"</b> en el modal.<br>
+        (2) Sin selección, usa las vías <b>activas en el mapa</b> (RPs activadas o caminos filtrados por partido/clase).
+      </div>
+
+      <!-- Columnas a incluir (aplican a ambos tipos) -->
+      <div style="font-size:10px;color:var(--pd);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Columnas a incluir</div>
       <div id="rep-cols" style="display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;margin-bottom:8px">
         <label class="rep-chk"><input type="checkbox" id="rc-long" checked> Long. GIS (km)</label>
         <label class="rep-chk"><input type="checkbox" id="rc-loficial" checked> Long. oficial (km)</label>
         <label class="rep-chk"><input type="checkbox" id="rc-sup" checked> Clase / Superficie</label>
         <label class="rep-chk"><input type="checkbox" id="rc-prog" checked> Prog. inicio/fin</label>
         <label class="rep-chk"><input type="checkbox" id="rc-coords"> Coords inicio/fin</label>
-        <label class="rep-chk"><input type="checkbox" id="rc-partido" checked> Partido inicio/fin</label>
+        <label class="rep-chk"><input type="checkbox" id="rc-partido" checked> Partido</label>
         <label class="rep-chk"><input type="checkbox" id="rc-regs" checked> Registros</label>
         <label class="rep-chk"><input type="checkbox" id="rc-moj"> Mojones</label>
       </div>
 
-      <!-- Filtro por tipo de registro -->
-      <div style="margin-bottom:10px;padding-top:8px;border-top:1px solid var(--light)">
+      <!-- Filtro por tipo de registro (aplica sólo si "Registros" está tildado) -->
+      <div id="rep-filtro-tipos" style="margin-bottom:10px;padding-top:8px;border-top:1px solid var(--light)">
         <div style="font-size:10px;color:var(--pd);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Filtrar registros por tipo</div>
         <div style="position:relative">
           <button onclick="toggleTipoDropdown()" id="tipo-dd-btn"
@@ -677,41 +695,30 @@ body.modo-campo #campo-fab{display:flex}
           </div>
         </div>
       </div>
-      <!-- v8.25 · Botones unificados con .btn-side · Generar es CTA (primary turquesa), exports son neutral -->
+
+      <!-- Botones unificados · dispatchean según #rep-tipo -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px">
         <button onclick="generarReporte()" class="btn-side side-primary" style="grid-column:1/-1;padding:8px 10px;font-size:12px">
           ▶ Generar reporte
         </button>
         <button onclick="exportReporteCSV()" class="btn-side side-neutral">↓ CSV</button>
-        <button onclick="exportReportePDF()" class="btn-side side-neutral">↓ PDF rutas</button>
-        <button onclick="exportRegistrosPDF()" class="btn-side side-neutral" style="grid-column:1/-1">↓ PDF registros</button>
+        <button onclick="exportReportePDF()" class="btn-side side-neutral">↓ PDF</button>
+      </div>
+
+      <!-- Banner "Info pública" al pie del panel (aclaración institucional) -->
+      <div style="font-size:9px;color:var(--mut);background:var(--p-xl);border-left:3px solid var(--p);padding:6px 8px;border-radius:4px;margin-bottom:8px;line-height:1.45">
+        <b style="color:var(--pd)">ℹ Información pública</b> de la Red Vial de Zona VI (Rutas Provinciales + Red Secundaria). Consultable sin login. Fuente oficial: DVBA Provincia de Buenos Aires.
       </div>
 
       <div id="rep-tabla" style="margin-top:8px"></div>
-    </div>
 
-    <!-- v8.27 · v8.28 · Reporte de Red Secundaria (Caminos) — filtros amplios O selección manual por click en mapa -->
-    <div class="sec" style="border-top:1px solid var(--light);margin-top:12px;padding-top:12px">
-      <div class="sec-title" style="font-family:'Encode Sans',sans-serif">🚜 Red Secundaria · Caminos</div>
-      <div style="font-size:10px;color:var(--mut);margin-bottom:8px;line-height:1.45">
-        <b style="color:var(--pd)">Dos modos:</b> (1) hacé click en un camino del mapa → botón <b style="color:var(--vd)">"+ Agregar al reporte"</b> del modal (selección manual, tramo a tramo). (2) Sin selección manual, usa los filtros amplios de <b>partido + clase</b> activos en el mapa.
+      <!-- v8.29 · PDF interno con relevamientos + fotos (se mantiene aparte porque requiere login) -->
+      <div style="margin-top:12px;padding-top:8px;border-top:1px dashed var(--light)">
+        <div style="font-size:10px;color:var(--mut);margin-bottom:6px;line-height:1.45">
+          <b style="color:var(--pd)">Reporte interno con relevamientos + fotos</b> (uso técnico DVBA)
+        </div>
+        <button onclick="exportRegistrosPDF()" class="btn-side side-neutral" style="width:100%;padding:7px 10px;font-size:11px">↓ PDF de relevamientos con fotos</button>
       </div>
-      <!-- v8.28 · Chip contador de seleccionados con botón limpiar (visible sólo si _selCaminos.size > 0) -->
-      <div id="rep-cs-selchip" style="display:none;align-items:center;gap:6px;background:#e6f6ea;border:1px solid var(--vd);color:var(--vd);padding:5px 8px;border-radius:4px;margin-bottom:6px;font-size:11px">
-        <b>✓ <span class="chip-count">0</span> tramos seleccionados</b>
-        <button onclick="limpiarSelCaminos()" style="margin-left:auto;padding:2px 8px;background:var(--w);color:var(--ro);border:1px solid var(--ro);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">✕ Limpiar</button>
-      </div>
-      <div id="rep-cs-filtros" style="font-size:10px;color:var(--mut);background:var(--bg);border-left:3px solid var(--p);padding:6px 8px;border-radius:4px;margin-bottom:6px;line-height:1.45">
-        <i>Presioná "Generar" para ver los filtros aplicados y el resumen.</i>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px">
-        <button onclick="generarReporteCaminos()" class="btn-side side-primary" style="grid-column:1/-1;padding:8px 10px;font-size:12px">
-          ▶ Generar reporte de caminos
-        </button>
-        <button onclick="exportReporteCaminosCSV()" class="btn-side side-neutral">↓ CSV</button>
-        <button onclick="exportReporteCaminosPDF()" class="btn-side side-neutral">↓ PDF caminos</button>
-      </div>
-      <div id="rep-cs-tabla" style="margin-top:8px"></div>
     </div>
 
     <!-- v7.50 · v8.26 · Mantenimiento de Storage + Auditoría (paleta clara PBA) -->
@@ -820,7 +827,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.28';
+const APP_VERSION = 'v8.29';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -4068,7 +4075,10 @@ function codigoPartido(nombre) {
 // Construir datos del reporte para todas las rutas
 function buildReporteData() {
   const rows = [];
-  [...selR].sort((a,b)=>parseInt(a)-parseInt(b)).forEach(rid => {
+  // v8.29 · Si hay selección manual desde el mapa, se usa como filtro estricto.
+  // Sino, cae a selR (rutas activas en el mapa) como venía.
+  const ridsUsar = (_selRutas && _selRutas.size > 0) ? [..._selRutas] : [...selR];
+  ridsUsar.sort((a,b)=>parseInt(a)-parseInt(b)).forEach(rid => {
     const meta  = RUTA_META[rid] || { color: '#888', label: 'RP '+rid };
     const mojs  = MOJONES_DATA.filter(m => m.ruta === rid);
     const regsR = regs.filter(r => r.ruta === rid);
@@ -4128,8 +4138,27 @@ function kmToProgStr(km) {
 
 let _repData = [];
 
-function generarReporte() {
+// v8.29 · Renombrada a interna _genRepRutas (el dispatcher generarReporte() la llama)
+function _genRepRutas() {
   _repData = buildReporteData();
+
+  // v8.29 · Panel modo (mismo id #rep-modo que usa caminos)
+  const modoEl = document.getElementById('rep-modo');
+  if (modoEl) {
+    const usarSelManual = (_selRutas && _selRutas.size > 0);
+    if (usarSelManual) {
+      modoEl.innerHTML =
+        `<b style="color:var(--vd)">Modo:</b> Selección manual desde el mapa<br>` +
+        `<b style="color:var(--vd)">Rutas elegidas:</b> ${_selRutas.size}`;
+      modoEl.style.borderLeftColor = 'var(--vd)';
+    } else {
+      const nSelR = (typeof selR !== 'undefined') ? selR.size : 0;
+      modoEl.innerHTML =
+        `<b style="color:var(--pd)">Modo:</b> Rutas activas en el mapa<br>` +
+        `<b style="color:var(--pd)">Rutas activas:</b> ${nSelR}`;
+      modoEl.style.borderLeftColor = 'var(--p)';
+    }
+  }
   const showLong     = document.getElementById('rc-long').checked;
   const showLOficial = document.getElementById('rc-loficial').checked;
   const showSup      = document.getElementById('rc-sup').checked;
@@ -4204,8 +4233,9 @@ function generarReporte() {
   document.getElementById('rep-tabla').innerHTML = html;
 }
 
-function exportReporteCSV() {
-  if (!_repData.length) generarReporte();
+// v8.29 · Renombrada a interna _expRepRutasCSV
+function _expRepRutasCSV() {
+  if (!_repData.length) _genRepRutas();
   const showLong     = document.getElementById('rc-long').checked;
   const showLOficial = document.getElementById('rc-loficial').checked;
   const showSup      = document.getElementById('rc-sup').checked;
@@ -4246,8 +4276,9 @@ function exportReporteCSV() {
   a.click();
 }
 
-function exportReportePDF() {
-  generarReporte();
+// v8.29 · Renombrada a interna _expRepRutasPDF
+function _expRepRutasPDF() {
+  _genRepRutas();
   if (!_repData.length) { alert('No hay datos para exportar'); return; }
 
   const showLong     = document.getElementById('rc-long').checked;
@@ -4361,6 +4392,11 @@ function exportReportePDF() {
 
 <div class="rutas-line">Rutas incluidas: <b>${rutasStr}</b></div>
 <div class="partidos-line">Partidos involucrados: <b>${partidoStr}</b></div>
+
+<!-- v8.29 · Banner "Info pública" -->
+<div style="margin-top:10px;padding:6px 10px;background:#e6f6fa;border-left:3px solid #00aec3;border-radius:3px;font-size:7pt;color:#444">
+  <b>ℹ Información pública</b> de la Red Vial de Zona VI Saladillo. Consultable sin login. Fuente oficial: Dirección de Vialidad de la Provincia de Buenos Aires.
+</div>
 
 <div class="footer">
   <span>Generado: <b>${ahora}</b> &nbsp;·&nbsp; Sistema de Relevamiento Vial DVBA Zona VI &nbsp;·&nbsp; <b>${version}</b> &nbsp;·&nbsp; Desarrollado por Ing. Luciano Lamaita</span>
@@ -4591,33 +4627,39 @@ function buildReporteCaminosData(){
   });
 }
 
-function generarReporteCaminos(){
+// v8.29 · Renombrada a interna _genRepCaminos (dispatcher generarReporte() la llama)
+function _genRepCaminos(){
   if (!_caminosGeoJSON_cache) {
-    document.getElementById('rep-cs-tabla').innerHTML =
+    document.getElementById('rep-tabla').innerHTML =
       '<div style="padding:10px;color:var(--am);background:#fef6e4;border-left:3px solid var(--am);border-radius:4px;font-size:11px">' +
       '⚠ La capa de caminos no está cargada. Activá la capa "Caminos" en el mapa (menú de capas) y volvé a intentar.</div>';
     return;
   }
   _repCaminosData = buildReporteCaminosData();
 
-  // v8.28 · Panel de filtros aplicados. Cambia según modo (selección manual vs filtros amplios)
+  // v8.29 · Panel "modo activo" en el sidebar unificado (mismo id: #rep-modo)
   const usarSelManual = (_selCaminos && _selCaminos.size > 0);
-  if (usarSelManual) {
-    document.getElementById('rep-cs-filtros').innerHTML =
-      `<b style="color:var(--vd)">Modo:</b> Selección manual desde el mapa<br>` +
-      `<b style="color:var(--vd)">Tramos elegidos:</b> ${_selCaminos.size}`;
-  } else {
-    const partActivos = (typeof selP !== 'undefined' && selP) ? [...selP].sort() : [];
-    const clasesActivas = (typeof csSelClases !== 'undefined' && csSelClases) ? [...csSelClases] : [];
-    document.getElementById('rep-cs-filtros').innerHTML =
-      `<b style="color:var(--pd)">Modo:</b> Filtros amplios (partido + clase)<br>` +
-      `<b style="color:var(--pd)">Partidos:</b> ${partActivos.length ? partActivos.join(', ') : '<i>ninguno</i>'}<br>` +
-      `<b style="color:var(--pd)">Clases:</b> ${clasesActivas.length ? clasesActivas.map(_csClaseCorta).join(', ') : '<i>ninguna</i>'}`;
+  const modoEl = document.getElementById('rep-modo');
+  if (modoEl) {
+    if (usarSelManual) {
+      modoEl.innerHTML =
+        `<b style="color:var(--vd)">Modo:</b> Selección manual desde el mapa<br>` +
+        `<b style="color:var(--vd)">Tramos elegidos:</b> ${_selCaminos.size}`;
+      modoEl.style.borderLeftColor = 'var(--vd)';
+    } else {
+      const partActivos = (typeof selP !== 'undefined' && selP) ? [...selP].sort() : [];
+      const clasesActivas = (typeof csSelClases !== 'undefined' && csSelClases) ? [...csSelClases] : [];
+      modoEl.innerHTML =
+        `<b style="color:var(--pd)">Modo:</b> Filtros amplios (partido + clase activos en el mapa)<br>` +
+        `<b style="color:var(--pd)">Partidos:</b> ${partActivos.length ? partActivos.join(', ') : '<i>ninguno</i>'}<br>` +
+        `<b style="color:var(--pd)">Clases:</b> ${clasesActivas.length ? clasesActivas.map(_csClaseCorta).join(', ') : '<i>ninguna</i>'}`;
+      modoEl.style.borderLeftColor = 'var(--p)';
+    }
   }
 
   if (!_repCaminosData.length) {
-    document.getElementById('rep-cs-tabla').innerHTML =
-      '<div style="padding:10px;color:var(--mut);font-size:11px;text-align:center">Sin caminos que coincidan con los filtros actuales.</div>';
+    document.getElementById('rep-tabla').innerHTML =
+      '<div style="padding:10px;color:var(--mut);font-size:11px;text-align:center">Sin caminos que coincidan con los filtros actuales. Activá la capa Caminos, elegí partidos, o seleccioná tramos con click en el mapa.</div>';
     return;
   }
 
@@ -4668,11 +4710,12 @@ function generarReporteCaminos(){
     .join('');
   html += `<div style="font-size:9px;color:var(--mut);margin-top:2px"><b style="color:var(--pd)">Por partido:</b> ${partRows}</div>`;
 
-  document.getElementById('rep-cs-tabla').innerHTML = html;
+  document.getElementById('rep-tabla').innerHTML = html;
 }
 
-function exportReporteCaminosCSV(){
-  if (!_repCaminosData.length) generarReporteCaminos();
+// v8.29 · Renombrada a interna _expRepCaminosCSV
+function _expRepCaminosCSV(){
+  if (!_repCaminosData.length) _genRepCaminos();
   if (!_repCaminosData.length) return;
   const cols = ['Partido','Nomenclatura','Tramo','Denominacion','Clase','Transitabilidad','Long_GIS_km','Long_Oficial_km'];
   const rows = _repCaminosData.map(r => [
@@ -4685,8 +4728,9 @@ function exportReporteCaminosCSV(){
   a.click();
 }
 
-function exportReporteCaminosPDF(){
-  if (!_repCaminosData.length) generarReporteCaminos();
+// v8.29 · Renombrada a interna _expRepCaminosPDF
+function _expRepCaminosPDF(){
+  if (!_repCaminosData.length) _genRepCaminos();
   if (!_repCaminosData.length) return;
   const ahora = new Date().toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'});
   const version = APP_VERSION;
@@ -4754,8 +4798,11 @@ function exportReporteCaminosPDF(){
   <div style="margin-top:6px"><b style="color:#00aec3">Por clase:</b> ${claseHtml}</div>
   <div style="margin-top:2px"><b style="color:#00aec3">Por partido:</b> ${partHtml}</div>
 </div>
+<div style="margin-top:10px;padding:6px 10px;background:#e6f6fa;border-left:3px solid #00aec3;border-radius:3px;font-size:7pt;color:#444">
+  <b>ℹ Información pública</b> de la Red Vial de Zona VI Saladillo. Consultable sin login. Fuente oficial: Dirección de Vialidad de la Provincia de Buenos Aires.
+</div>
 <div class="footer">
-  <span>Sistema de Relevamiento Vial DVBA Zona VI · Ing. Luciano Lamaita</span>
+  <span>Sistema SIG Vial PBA · DVBA Zona VI · Ing. Luciano Lamaita</span>
   <span>Dirección de Vialidad de la Provincia de Buenos Aires</span>
 </div>
 <script>window.onload = function() { window.print(); }<\/script>
@@ -6776,8 +6823,10 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
       <!-- Contenido dinámico -->
     </div>
     <div class="ms-f" id="sig-f" style="padding:10px 16px;border-top:1px solid #e8ecef;background:#fafbfc;display:flex;gap:8px;justify-content:flex-end">
-      <!-- v8.28 · Botón toggle selección · sólo visible para caminos -->
+      <!-- v8.28 · Botón toggle selección para caminos -->
       <button onclick="toggleCaminoSelActivo()" id="sig-sel-cno" style="display:none;padding:7px 14px;border:1px solid var(--vd);background:#fff;color:var(--vd);border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">+ Agregar al reporte</button>
+      <!-- v8.29 · Botón toggle selección para RPs (paralelo al de caminos) -->
+      <button onclick="toggleRutaSelActiva()" id="sig-sel-rp" style="display:none;padding:7px 14px;border:1px solid var(--vd);background:#fff;color:var(--vd);border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">+ Agregar al reporte</button>
       <button onclick="editarCaractRP()" id="sig-editar" style="padding:7px 14px;border:1px solid #003366;background:#fff;color:#003366;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">✏ Editar datos viales</button>
       <button onclick="cerrarModalSIGVial()" style="padding:7px 14px;border:0;background:#003366;color:#fff;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">Cerrar</button>
     </div>
@@ -6792,10 +6841,13 @@ function mostrarModalSIGVial(rid, latlng){
   const c = (typeof CARACT_VIALES !== 'undefined') ? CARACT_VIALES[rid] : null;
   if (!c) { alert('Sin datos oficiales cargados para RP ' + rid); return; }
   _sigRPActiva = rid;
+  _sigRPActivaRid = rid;   // v8.29 · para toggleRutaSelActiva
   // v8.28 · No es camino → ocultar botón toggle selección y limpiar feat activo
   _sigFeatActivo = null;
   const btnSelCno = document.getElementById('sig-sel-cno');
   if (btnSelCno) btnSelCno.style.display = 'none';
+  // v8.29 · Actualizar botón toggle de RPs
+  _actualizarBotonSelRP();
   const meta = (typeof RUTA_META !== 'undefined') ? RUTA_META[rid] : {color:'#003366'};
   // Header con color de la RP
   const hdr = document.getElementById('sig-h');
@@ -6892,10 +6944,13 @@ function mostrarModalSIGVial(rid, latlng){
 function cerrarModalSIGVial(){
   document.getElementById('modal-sigvial').style.display = 'none';
   _sigRPActiva = null;
+  _sigRPActivaRid = null;   // v8.29
   _sigCaminoActivo = null;  // v7.57
   _sigFeatActivo = null;    // v8.28
-  const btnSel = document.getElementById('sig-sel-cno');
-  if (btnSel) btnSel.style.display = 'none';
+  ['sig-sel-cno','sig-sel-rp'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.style.display = 'none';
+  });
 }
 
 function editarCaractRP(){
@@ -6915,7 +6970,96 @@ let _sigCaminoActivo = null;
    estricto; si está vacío, cae al filtro amplio (selP + csSelClases).
    ═════════════════════════════════════════════════════════════════ */
 let _selCaminos = new Set();
+let _selRutas = new Set();   // v8.29 · Set<rid> rutas seleccionadas manualmente para reporte
 let _sigFeatActivo = null;   // feature del último camino clickeado en el mapa
+let _sigRPActivaRid = null;  // v8.29 · rid de la última RP clickeada (para toggle sel)
+
+/* ═════════════════════════════════════════════════════════════════
+   v8.29 · Dispatchers unificados según #rep-tipo (rutas | caminos)
+   Reemplazan las llamadas directas a las funciones específicas.
+   ═════════════════════════════════════════════════════════════════ */
+function _repTipo(){
+  const el = document.getElementById('rep-tipo');
+  return el ? el.value : 'rutas';
+}
+
+function generarReporte(){
+  return _repTipo() === 'caminos' ? _genRepCaminos() : _genRepRutas();
+}
+function exportReporteCSV(){
+  return _repTipo() === 'caminos' ? _expRepCaminosCSV() : _expRepRutasCSV();
+}
+function exportReportePDF(){
+  return _repTipo() === 'caminos' ? _expRepCaminosPDF() : _expRepRutasPDF();
+}
+
+// Callback del <select> — refresca chip contador + modo, y regenera si ya había resultado
+function onCambioTipoReporte(){
+  _actualizarChipSelUnificado();
+  const tabla = document.getElementById('rep-tabla');
+  if (tabla && tabla.innerHTML.trim()) generarReporte();
+}
+
+// Toggle unificado desde el modal SIG Vial (dispatch según tipo activo)
+function toggleSelReporteActivo(){
+  if (_sigFeatActivo) return toggleCaminoSelActivo();
+  if (_sigRPActivaRid != null) return toggleRutaSelActiva();
+}
+
+// v8.29 · Selección de RUTAS por click en el mapa (paralelo a _selCaminos)
+function toggleRutaSelActiva(){
+  if (_sigRPActivaRid == null) return;
+  const rid = String(_sigRPActivaRid);
+  if (_selRutas.has(rid)) _selRutas.delete(rid);
+  else _selRutas.add(rid);
+  _actualizarBotonSelRP();
+  _actualizarChipSelUnificado();
+}
+
+function limpiarSelRutas(){
+  if (_selRutas.size === 0) return;
+  _selRutas.clear();
+  _actualizarBotonSelRP();
+  _actualizarChipSelUnificado();
+  const tabla = document.getElementById('rep-tabla');
+  if (tabla && tabla.innerHTML.trim() && _repTipo() === 'rutas') generarReporte();
+}
+
+// Dispatch limpiar según tipo activo del panel
+function limpiarSelReporteActual(){
+  return _repTipo() === 'caminos' ? limpiarSelCaminos() : limpiarSelRutas();
+}
+
+function _actualizarBotonSelRP(){
+  const btn = document.getElementById('sig-sel-rp');
+  if (!btn) return;
+  if (_sigRPActivaRid == null) { btn.style.display = 'none'; return; }
+  btn.style.display = '';
+  if (_selRutas.has(String(_sigRPActivaRid))) {
+    btn.textContent = '✕ Quitar del reporte';
+    btn.style.background = 'var(--ro)';
+    btn.style.color = '#fff';
+    btn.style.borderColor = 'var(--ro)';
+  } else {
+    btn.textContent = '+ Agregar al reporte';
+    btn.style.background = '#fff';
+    btn.style.color = 'var(--vd)';
+    btn.style.borderColor = 'var(--vd)';
+  }
+}
+
+// Chip unificado en el sidebar (muestra selección del tipo activo)
+function _actualizarChipSelUnificado(){
+  const chip = document.getElementById('rep-selchip');
+  if (!chip) return;
+  const tipo = _repTipo();
+  const n = (tipo === 'caminos') ? _selCaminos.size : _selRutas.size;
+  const label = (tipo === 'caminos') ? 'tramos' : 'rutas';
+  if (n === 0) { chip.style.display = 'none'; return; }
+  chip.style.display = 'flex';
+  chip.querySelector('.chip-count').textContent = n;
+  chip.querySelector('.chip-label').textContent = label;
+}
 
 function _caminoFid(featOrProps){
   const p = featOrProps.properties || featOrProps;
@@ -6932,7 +7076,7 @@ function toggleCaminoSelActivo(){
   if (_selCaminos.has(fid)) _selCaminos.delete(fid);
   else _selCaminos.add(fid);
   _actualizarBotonSelCno();
-  _actualizarChipSelCaminos();
+  _actualizarChipSelUnificado();
   csRefrescarLayer();  // repinta con halo dorado en los seleccionados
 }
 
@@ -6940,10 +7084,11 @@ function limpiarSelCaminos(){
   if (_selCaminos.size === 0) return;
   _selCaminos.clear();
   _actualizarBotonSelCno();
-  _actualizarChipSelCaminos();
+  _actualizarChipSelUnificado();
   csRefrescarLayer();
   // Si ya había reporte generado, regenerarlo para reflejar el cambio
-  if (typeof _repCaminosData !== 'undefined' && _repCaminosData.length) generarReporteCaminos();
+  const tabla = document.getElementById('rep-tabla');
+  if (tabla && tabla.innerHTML.trim() && _repTipo() === 'caminos') _genRepCaminos();
 }
 
 function _actualizarBotonSelCno(){
@@ -6965,21 +7110,19 @@ function _actualizarBotonSelCno(){
   }
 }
 
-// Chip informativo en el panel de reportes con contador + botón limpiar
-function _actualizarChipSelCaminos(){
-  const chip = document.getElementById('rep-cs-selchip');
-  if (!chip) return;
-  if (_selCaminos.size === 0) { chip.style.display = 'none'; return; }
-  chip.style.display = 'flex';
-  chip.querySelector('.chip-count').textContent = _selCaminos.size;
-}
+// v8.29 · Compat · redirige al chip unificado (el chip viejo #rep-cs-selchip fue eliminado)
+function _actualizarChipSelCaminos(){ _actualizarChipSelUnificado(); }
 
 function mostrarModalSIGVialCamino(feat, latlng){
   const p = feat.properties;
   if (!p) return;
   _sigCaminoActivo = p.NOMEMCLATURA;
   _sigRPActiva = null;
-  _sigFeatActivo = feat;   // v8.28 · guardar feat para el toggle de selección
+  _sigRPActivaRid = null;   // v8.29 · limpiar rid RP para que no interfiera con toggleCno
+  _sigFeatActivo = feat;    // v8.28 · guardar feat para el toggle de selección
+  // v8.29 · Ocultar botón toggle de RPs (este es camino)
+  const btnSelRp = document.getElementById('sig-sel-rp');
+  if (btnSelRp) btnSelRp.style.display = 'none';
   const meta = document.getElementById('sig-h');
   // v7.59 — Usar el color REAL del camino según su CLASE (paleta existente)
   //   DE TIERRA=#a07842, PAVIMENTADO=#3a7bd5, MIXTO=#7050b0, SIN ABRIR=#888888
