@@ -1,6 +1,11 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- SQL 9 · Row Level Security ZONAL (multi-zona activo)
 -- v8.23 · Fase 3 del Plan de Roles y Escalado Multi-Zona
+-- v8.44 · Fix: bloque de defensa que elimina CUALQUIER policy legacy con nombres
+--         distintos a los conocidos (escritura_publica, allow anon update,
+--         borrado_publico y otros que puedan aparecer en instalaciones futuras).
+--         Antes: si convivía una policy legacy con la nueva zonal, PostgreSQL
+--         las combinaba con OR y la más permisiva ganaba → RLS zonal ANULADO.
 --
 -- OBJETIVO
 --   Reemplazar las policies "authenticated puede todo" de SQL_5 y SETUP_AUTH por
@@ -83,15 +88,34 @@ END $$;
 ALTER TABLE relevamientos ENABLE ROW LEVEL SECURITY;
 
 -- Sacar policies viejas (los IF EXISTS toleran ausencias)
+-- v8.44 · Drop de policies legacy conocidas (nombres varían según setup)
 DROP POLICY IF EXISTS "lectura_publica"       ON relevamientos;
 DROP POLICY IF EXISTS "insert_authenticated"  ON relevamientos;
 DROP POLICY IF EXISTS "update_authenticated"  ON relevamientos;
 DROP POLICY IF EXISTS "delete_authenticated"  ON relevamientos;
+-- v8.44 · Policies legacy con nombres alternativos (setup Supabase inicial DVBA VI)
+DROP POLICY IF EXISTS "escritura_publica"     ON relevamientos;
+DROP POLICY IF EXISTS "allow anon update"     ON relevamientos;
+DROP POLICY IF EXISTS "borrado_publico"       ON relevamientos;
 DROP POLICY IF EXISTS relev_read_zonal        ON relevamientos;
 DROP POLICY IF EXISTS relev_insert_zonal      ON relevamientos;
 DROP POLICY IF EXISTS relev_update_zonal      ON relevamientos;
 DROP POLICY IF EXISTS relev_delete_zonal      ON relevamientos;
 DROP POLICY IF EXISTS relev_read_publico      ON relevamientos;
+
+-- v8.44 · Bloque de defensa: eliminar CUALQUIER policy sobre relevamientos que
+-- NO empiece con 'relev_' (paraguas para no dejar policies legacy colgadas
+-- en instalaciones futuras donde puedan tener otros nombres)
+DO $$
+DECLARE p RECORD;
+BEGIN
+  FOR p IN SELECT policyname FROM pg_policies
+           WHERE tablename='relevamientos' AND policyname NOT LIKE 'relev\_%' ESCAPE '\'
+  LOOP
+    EXECUTE format('DROP POLICY %I ON relevamientos', p.policyname);
+    RAISE NOTICE 'v8.44 · Policy legacy eliminada: %', p.policyname;
+  END LOOP;
+END $$;
 
 -- SELECT · público ve aprobados (mapa) + técnico ve su zona + gerencia/admin ven todo
 CREATE POLICY relev_read_zonal ON relevamientos
@@ -157,6 +181,18 @@ DROP POLICY IF EXISTS partes_insert_zonal   ON partes_diarios;
 DROP POLICY IF EXISTS partes_update_zonal   ON partes_diarios;
 DROP POLICY IF EXISTS partes_delete_zonal   ON partes_diarios;
 
+-- v8.44 · Bloque de defensa para partes_diarios (mismo patrón que relevamientos)
+DO $$
+DECLARE p RECORD;
+BEGIN
+  FOR p IN SELECT policyname FROM pg_policies
+           WHERE tablename='partes_diarios' AND policyname NOT LIKE 'partes\_%\_zonal' ESCAPE '\'
+  LOOP
+    EXECUTE format('DROP POLICY %I ON partes_diarios', p.policyname);
+    RAISE NOTICE 'v8.44 · Policy legacy eliminada: %', p.policyname;
+  END LOOP;
+END $$;
+
 CREATE POLICY partes_read_zonal ON partes_diarios
   FOR SELECT USING (
        (current_user_rol() = 'admin')
@@ -209,6 +245,19 @@ DROP POLICY IF EXISTS parte_maq_upd_auth    ON parte_maquinarias;
 DROP POLICY IF EXISTS parte_maq_del_auth    ON parte_maquinarias;
 DROP POLICY IF EXISTS parte_maq_zonal       ON parte_maquinarias;
 
+-- v8.44 · Bloque de defensa para parte_maquinarias
+DO $$
+DECLARE p RECORD;
+BEGIN
+  FOR p IN SELECT policyname FROM pg_policies
+           WHERE tablename='parte_maquinarias' AND policyname != 'parte_maq_zonal'
+  LOOP
+    EXECUTE format('DROP POLICY %I ON parte_maquinarias', p.policyname);
+    RAISE NOTICE 'v8.44 · Policy legacy eliminada: %', p.policyname;
+  END LOOP;
+END $$;
+DROP POLICY IF EXISTS parte_maq_zonal       ON parte_maquinarias;
+
 CREATE POLICY parte_maq_zonal ON parte_maquinarias
   FOR ALL USING (
     EXISTS (SELECT 1 FROM partes_diarios pd WHERE pd.id = parte_maquinarias.parte_id)
@@ -221,6 +270,19 @@ ALTER TABLE parte_fotos ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS parte_fotos_read_auth  ON parte_fotos;
 DROP POLICY IF EXISTS parte_fotos_write_auth ON parte_fotos;
+DROP POLICY IF EXISTS parte_fotos_zonal      ON parte_fotos;
+
+-- v8.44 · Bloque de defensa para parte_fotos
+DO $$
+DECLARE p RECORD;
+BEGIN
+  FOR p IN SELECT policyname FROM pg_policies
+           WHERE tablename='parte_fotos' AND policyname != 'parte_fotos_zonal'
+  LOOP
+    EXECUTE format('DROP POLICY %I ON parte_fotos', p.policyname);
+    RAISE NOTICE 'v8.44 · Policy legacy eliminada: %', p.policyname;
+  END LOOP;
+END $$;
 DROP POLICY IF EXISTS parte_fotos_zonal      ON parte_fotos;
 
 CREATE POLICY parte_fotos_zonal ON parte_fotos
