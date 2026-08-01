@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DVBA · Panel de Administración de Usuarios</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;600;700;800&family=Roboto:wght@400;500;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --p:#00aec3; --pd:#007e8c; --pl:#74c9e3; --p-xl:#cae7ea;
+  --vd:#22a954; --ro:#BE1717; --am:#c47a00;
+  --txt:#000; --mut:#838383; --light:#e0e0e0; --bg:#f0f0f0; --w:#fff;
+  --r:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Roboto','Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-weight:400}
+h1,h2,h3{font-family:'Encode Sans','Segoe UI',Arial,sans-serif;font-weight:700}
+
+/* Header institucional */
+header{background:var(--p);padding:12px 20px;display:flex;align-items:center;gap:14px;border-bottom:2px solid var(--pd);color:#fff;flex-wrap:wrap}
+header h1{font-size:16px;color:#fff;line-height:1.2}
+header h1 span{color:#ffd060}
+header .hbadge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:9px;margin-left:6px;letter-spacing:.5px}
+header .nav{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+header .nav a, header .nav button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit}
+header .nav a:hover, header .nav button:hover{background:rgba(255,255,255,.28)}
+
+/* Guard */
+#guard{position:fixed;inset:0;background:#f0f0f0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+#guard .box{background:#fff;border:1px solid var(--light);border-radius:10px;padding:30px;max-width:480px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.1)}
+#guard h2{color:var(--pd);margin-bottom:10px;font-size:18px}
+#guard p{color:var(--mut);font-size:13px;line-height:1.5;margin-bottom:16px}
+#guard .btn{padding:8px 16px;background:var(--p);color:#fff;border:0;border-radius:6px;font-weight:700;cursor:pointer;font-family:inherit;font-size:12px}
+
+/* Main */
+main{padding:20px;max-width:1400px;margin:0 auto}
+
+/* Métricas */
+.mets{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:20px}
+.mets .card{background:#fff;border:1px solid var(--light);border-radius:6px;padding:12px 14px}
+.mets .card .lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.mets .card .val{font-size:22px;color:var(--pd);font-weight:800;margin-top:4px;font-family:'Encode Sans',sans-serif}
+.mets .card .sub{font-size:10px;color:var(--mut);margin-top:2px}
+
+/* Toolbar */
+.toolbar{background:#fff;border:1px solid var(--light);border-radius:6px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toolbar label{font-size:10px;color:var(--pd);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.toolbar select,.toolbar input[type=text]{padding:6px 10px;font-size:12px;font-family:inherit;border:1px solid var(--light);border-radius:4px;background:#fff;color:var(--txt);min-width:120px}
+.toolbar select:focus,.toolbar input[type=text]:focus{outline:none;border-color:var(--p)}
+.toolbar .btn{padding:6px 12px;font-size:11px;font-family:inherit;font-weight:600;border:1px solid var(--pd);background:var(--p);color:#fff;border-radius:4px;cursor:pointer}
+.toolbar .btn:hover{background:var(--pd)}
+.toolbar .btn.ghost{background:#fff;color:var(--pd)}
+.toolbar .btn.ghost:hover{background:var(--p-xl)}
+
+/* Tabla */
+.tabla-wrap{background:#fff;border:1px solid var(--light);border-radius:6px;overflow:auto}
+table.usuarios{width:100%;border-collapse:collapse;font-size:12px}
+table.usuarios thead{background:var(--p);color:#fff;position:sticky;top:0;z-index:2}
+table.usuarios thead th{padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;font-family:'Encode Sans',sans-serif;white-space:nowrap}
+table.usuarios tbody td{padding:7px 10px;border-bottom:1px solid #eef2f5;vertical-align:middle}
+table.usuarios tbody tr:hover{background:#f7fbfc}
+table.usuarios tbody tr.inactivo{opacity:.5}
+.email{font-family:'SF Mono',Menlo,monospace;font-size:10px;color:var(--pd);word-break:break-all}
+.nombre{font-weight:600}
+.chip-rol{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.chip-rol.admin{background:#c9e8ee;color:var(--pd)}
+.chip-rol.gerencia{background:#f4e1c9;color:#8a5a10}
+.chip-rol.tecnico{background:#e6f6ea;color:#1a5c2e}
+.chip-rol.none{background:var(--bg);color:var(--mut)}
+.chip-zona{display:inline-block;padding:2px 7px;border-radius:4px;background:var(--bg);color:var(--txt);font-size:10px;font-family:'SF Mono',Menlo,monospace;font-weight:700;border:1px solid var(--light)}
+.chip-zona.sin{color:var(--mut);font-style:italic}
+.badge-activo{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--vd);vertical-align:middle;margin-right:4px}
+.badge-activo.no{background:var(--ro)}
+.acciones{display:flex;gap:4px;flex-wrap:wrap}
+.acciones .btn-acc{padding:3px 8px;font-size:10px;border-radius:3px;border:1px solid var(--light);background:#fff;color:var(--pd);cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap}
+.acciones .btn-acc:hover{background:var(--p-xl);border-color:var(--p)}
+.acciones .btn-acc.danger{color:var(--ro);border-color:#f0c0c0}
+.acciones .btn-acc.danger:hover{background:#fbecec;border-color:var(--ro)}
+.fecha{font-size:10px;color:var(--mut);white-space:nowrap}
+
+/* Modal */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-ov.on{display:flex}
+.modal{background:#fff;border-radius:10px;max-width:520px;width:100%;max-height:90vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.modal .m-h{background:var(--p-xl);padding:12px 20px;border-bottom:1px solid var(--light);border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:space-between}
+.modal .m-h h3{color:var(--pd);font-size:14px}
+.modal .m-h button{background:none;border:0;font-size:20px;color:var(--mut);cursor:pointer;line-height:1}
+.modal .m-b{padding:20px}
+.modal .m-b .row{margin-bottom:14px}
+.modal .m-b label{display:block;font-size:10px;color:var(--pd);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.modal .m-b input,.modal .m-b select{width:100%;padding:8px 10px;border:1px solid var(--light);border-radius:5px;font-size:13px;font-family:inherit}
+.modal .m-b input:focus,.modal .m-b select:focus{outline:none;border-color:var(--p)}
+.modal .m-b .hint{font-size:10px;color:var(--mut);margin-top:3px;font-style:italic}
+.modal .m-f{padding:12px 20px;border-top:1px solid var(--light);background:var(--bg);border-radius:0 0 10px 10px;display:flex;gap:8px;justify-content:flex-end}
+.modal .m-f .btn{padding:8px 16px;border:0;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.modal .m-f .btn.cancel{background:#fff;color:var(--mut);border:1px solid var(--light)}
+.modal .m-f .btn.ok{background:var(--vd);color:#fff}
+.modal .m-f .btn.ok:hover{background:#1a8544}
+
+/* Toast */
+#toaster{position:fixed;top:70px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:10px 16px;border:1px solid;border-radius:6px;font-size:12px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.15);max-width:340px;line-height:1.4;opacity:0;transition:opacity .18s;background:#fff}
+.toast.on{opacity:1}
+.toast.ok{background:#e6f6ea;border-color:var(--vd);color:#1a5c2e}
+.toast.warn{background:#fef6e4;border-color:var(--am);color:#7a4400}
+.toast.err{background:#fbecec;border-color:var(--ro);color:#7a0f0f}
+
+/* Footer */
+footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-top:1px solid var(--light);text-align:center;background:var(--w)}
+</style>
+</head>
+<body>
+
+<div id="guard">
+  <div class="box">
+    <h2>🔒 Verificando acceso...</h2>
+    <p id="guardMsg">Chequeando tus permisos.</p>
+    <button class="btn" onclick="location.href='index.html'" id="guardBtn" style="display:none">Volver al portal</button>
+  </div>
+</div>
+
+<header>
+  <h1>🛡 DVBA · <span>Panel Admin</span> · Gestión de Usuarios <span class="hbadge">v8.45</span></h1>
+  <div class="nav">
+    <span id="hUser" style="font-size:11px;color:rgba(255,255,255,.9)"></span>
+    <a href="index.html">← Portal</a>
+    <button onclick="cerrarSesion()">Salir</button>
+  </div>
+</header>
+
+<main>
+  <!-- Métricas -->
+  <div class="mets" id="mets">
+    <div class="card"><div class="lbl">Total users</div><div class="val" id="mTotal">—</div><div class="sub">registrados en Auth</div></div>
+    <div class="card"><div class="lbl">Admins</div><div class="val" id="mAdmin">—</div><div class="sub">rol admin</div></div>
+    <div class="card"><div class="lbl">Gerencia</div><div class="val" id="mGer">—</div><div class="sub">rol gerencia</div></div>
+    <div class="card"><div class="lbl">Técnicos</div><div class="val" id="mTec">—</div><div class="sub">todas las zonas</div></div>
+    <div class="card"><div class="lbl">Sin perfil</div><div class="val" id="mSin">—</div><div class="sub">falta asignar rol</div></div>
+    <div class="card"><div class="lbl">Inactivos</div><div class="val" id="mInact">—</div><div class="sub">deshabilitados</div></div>
+  </div>
+
+  <!-- Toolbar filtros -->
+  <div class="toolbar">
+    <label for="fRol">Rol</label>
+    <select id="fRol" onchange="renderTabla()">
+      <option value="">Todos</option>
+      <option value="admin">Admin</option>
+      <option value="gerencia">Gerencia</option>
+      <option value="tecnico">Técnico</option>
+      <option value="__nulo__">Sin perfil</option>
+    </select>
+    <label for="fZona">Zona</label>
+    <select id="fZona" onchange="renderTabla()">
+      <option value="">Todas</option>
+      <option value="I">I</option><option value="II">II</option><option value="III">III</option>
+      <option value="IV">IV</option><option value="V">V</option><option value="VI">VI</option>
+      <option value="VII">VII</option><option value="VIII">VIII</option><option value="IX">IX</option>
+      <option value="X">X</option><option value="XI">XI</option><option value="XII">XII</option>
+      <option value="__nulo__">Sin zona</option>
+    </select>
+    <label for="fEstado">Estado</label>
+    <select id="fEstado" onchange="renderTabla()">
+      <option value="">Todos</option>
+      <option value="1">Activos</option>
+      <option value="0">Inactivos</option>
+    </select>
+    <label for="fBuscar">Buscar</label>
+    <input type="text" id="fBuscar" placeholder="email o nombre..." oninput="renderTabla()" style="flex:1;min-width:180px">
+    <button class="btn ghost" onclick="cargarUsuarios()">🔄 Refrescar</button>
+    <button class="btn" onclick="abrirModalInvitar()">+ Invitar user</button>
+  </div>
+
+  <!-- Tabla -->
+  <div class="tabla-wrap">
+    <table class="usuarios">
+      <thead>
+        <tr>
+          <th>Email / Nombre</th>
+          <th>Rol</th>
+          <th>Zona</th>
+          <th>Estado</th>
+          <th>Registrado</th>
+          <th>Último acceso</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"><tr><td colspan="7" style="padding:20px;text-align:center;color:var(--mut)">Cargando...</td></tr></tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Modal editar user -->
+<div class="modal-ov" id="mEdit">
+  <div class="modal">
+    <div class="m-h">
+      <h3>✏ Editar usuario</h3>
+      <button onclick="cerrarModal('mEdit')">×</button>
+    </div>
+    <div class="m-b">
+      <div class="row">
+        <label>Email</label>
+        <input type="text" id="eEmail" disabled style="background:var(--bg);color:var(--mut)">
+      </div>
+      <div class="row">
+        <label>Nombre</label>
+        <input type="text" id="eNombre" placeholder="Nombre y apellido">
+      </div>
+      <div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <label>Rol</label>
+          <select id="eRol">
+            <option value="tecnico">Técnico</option>
+            <option value="gerencia">Gerencia</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div>
+          <label>Zona</label>
+          <select id="eZona">
+            <option value="">— sin asignar —</option>
+            <option value="I">I</option><option value="II">II</option><option value="III">III</option>
+            <option value="IV">IV</option><option value="V">V</option><option value="VI">VI</option>
+            <option value="VII">VII</option><option value="VIII">VIII</option><option value="IX">IX</option>
+            <option value="X">X</option><option value="XI">XI</option><option value="XII">XII</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <label>Estado</label>
+        <select id="eActivo">
+          <option value="true">✓ Activo</option>
+          <option value="false">✕ Inactivo (no puede loguearse)</option>
+        </select>
+        <div class="hint">Un user inactivo mantiene su cuenta pero sin permisos.</div>
+      </div>
+      <input type="hidden" id="eUserId">
+    </div>
+    <div class="m-f">
+      <button class="btn cancel" onclick="cerrarModal('mEdit')">Cancelar</button>
+      <button class="btn ok" onclick="guardarEdicion()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal invitar -->
+<div class="modal-ov" id="mInvitar">
+  <div class="modal">
+    <div class="m-h">
+      <h3>+ Invitar nuevo usuario</h3>
+      <button onclick="cerrarModal('mInvitar')">×</button>
+    </div>
+    <div class="m-b">
+      <div class="row" style="background:#fef6e4;border-left:3px solid var(--am);padding:10px;border-radius:4px;font-size:11px;line-height:1.5;color:#7a4400">
+        <b>📋 Flujo de invitación:</b><br>
+        1. El usuario nuevo se registra por su cuenta desde <a href="index.html" target="_blank" style="color:var(--pd)">el portal</a> con su email y una contraseña.<br>
+        2. Volvés a esta pantalla, refrescás la lista y le asignás rol + zona con el botón <b>✏ Editar</b>.<br>
+        Es más simple y no requiere permisos especiales de Auth.
+      </div>
+      <div class="row">
+        <label>Email a invitar (para copiar)</label>
+        <input type="text" id="iEmail" placeholder="ejemplo@vialidad.gba.gov.ar">
+        <div class="hint">Usalo para armar un mail o WhatsApp con las instrucciones.</div>
+      </div>
+      <div class="row">
+        <label>Mensaje sugerido</label>
+        <textarea id="iMsg" rows="6" readonly style="width:100%;padding:8px 10px;border:1px solid var(--light);border-radius:5px;font-size:11px;font-family:inherit;background:var(--bg);color:var(--txt);resize:vertical" onclick="this.select()"></textarea>
+        <div class="hint">Click en el texto para seleccionar todo y copiar.</div>
+      </div>
+    </div>
+    <div class="m-f">
+      <button class="btn cancel" onclick="cerrarModal('mInvitar')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toaster"></div>
+
+<footer>
+  DVBA Zona VI Saladillo · Panel Admin v8.45 · Desarrollado por Ing. Luciano Lamaita
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// Setup Supabase
+// ═══════════════════════════════════════════════════════════════════════════════
+const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
+const _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+let _users = [];  // cache
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Toast helper
+// ═══════════════════════════════════════════════════════════════════════════════
+function toast(msg, tipo){
+  const el = document.createElement('div');
+  el.className = 'toast ' + (tipo || '');
+  el.textContent = msg;
+  document.getElementById('toaster').appendChild(el);
+  requestAnimationFrame(() => el.classList.add('on'));
+  setTimeout(() => { el.classList.remove('on'); setTimeout(() => el.remove(), 220); }, tipo === 'err' ? 5000 : 3000);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Guard · sólo admin
+// ═══════════════════════════════════════════════════════════════════════════════
+async function chequearAcceso(){
+  const guardMsg = document.getElementById('guardMsg');
+  const guardBtn = document.getElementById('guardBtn');
+  try {
+    const { data: { session } } = await _supa.auth.getSession();
+    if (!session) {
+      guardMsg.innerHTML = '<b style="color:var(--ro)">Sesión no iniciada.</b><br>Iniciá sesión desde el portal principal.';
+      guardBtn.style.display = 'inline-block';
+      return false;
+    }
+    document.getElementById('hUser').textContent = session.user.email;
+    const { data: rol, error } = await _supa.rpc('current_user_rol');
+    if (error) throw error;
+    if (rol !== 'admin') {
+      guardMsg.innerHTML = '<b style="color:var(--ro)">Acceso denegado.</b><br>Necesitás rol <b>admin</b> para acceder al Panel de Administración.<br><br>Tu rol actual: <code>' + (rol || 'sin perfil') + '</code>';
+      guardBtn.style.display = 'inline-block';
+      return false;
+    }
+    document.getElementById('guard').style.display = 'none';
+    return true;
+  } catch (e) {
+    console.error('[guard]', e);
+    guardMsg.innerHTML = '<b style="color:var(--ro)">Error al verificar acceso.</b><br>' + (e.message || e);
+    guardBtn.style.display = 'inline-block';
+    return false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Cargar usuarios via RPC admin_listar_usuarios()
+// ═══════════════════════════════════════════════════════════════════════════════
+async function cargarUsuarios(){
+  document.getElementById('tbody').innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--mut)">Cargando...</td></tr>';
+  const { data, error } = await _supa.rpc('admin_listar_usuarios');
+  if (error) {
+    toast('Error al cargar users: ' + error.message, 'err');
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--ro)">Error: ' + error.message + '</td></tr>';
+    return;
+  }
+  _users = data || [];
+  renderMetricas();
+  renderTabla();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Métricas
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderMetricas(){
+  const total = _users.length;
+  const admins = _users.filter(u => u.rol === 'admin').length;
+  const ger    = _users.filter(u => u.rol === 'gerencia').length;
+  const tec    = _users.filter(u => u.rol === 'tecnico').length;
+  const sinPerfil = _users.filter(u => !u.rol).length;
+  const inact  = _users.filter(u => u.rol && !u.activo).length;
+  document.getElementById('mTotal').textContent = total;
+  document.getElementById('mAdmin').textContent = admins;
+  document.getElementById('mGer').textContent = ger;
+  document.getElementById('mTec').textContent = tec;
+  document.getElementById('mSin').textContent = sinPerfil;
+  document.getElementById('mInact').textContent = inact;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Tabla · aplica filtros y renderiza
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderTabla(){
+  const fRol = document.getElementById('fRol').value;
+  const fZona = document.getElementById('fZona').value;
+  const fEstado = document.getElementById('fEstado').value;
+  const fBuscar = document.getElementById('fBuscar').value.toLowerCase().trim();
+
+  let filas = _users.filter(u => {
+    if (fRol === '__nulo__') { if (u.rol) return false; }
+    else if (fRol && u.rol !== fRol) return false;
+    if (fZona === '__nulo__') { if (u.zona) return false; }
+    else if (fZona && u.zona !== fZona) return false;
+    if (fEstado === '1' && !u.activo) return false;
+    if (fEstado === '0' && u.activo) return false;
+    if (fBuscar) {
+      const hay = (u.email + ' ' + (u.nombre || '')).toLowerCase();
+      if (!hay.includes(fBuscar)) return false;
+    }
+    return true;
+  });
+
+  const tb = document.getElementById('tbody');
+  if (!filas.length) {
+    tb.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--mut)">Sin resultados con los filtros actuales.</td></tr>';
+    return;
+  }
+  tb.innerHTML = filas.map(u => {
+    const rolClass = u.rol ? 'chip-rol ' + u.rol : 'chip-rol none';
+    const rolTxt = u.rol || 'sin perfil';
+    const zonaHtml = u.zona
+      ? '<span class="chip-zona">' + u.zona + '</span>'
+      : '<span class="chip-zona sin">—</span>';
+    const activoTxt = u.rol
+      ? (u.activo
+          ? '<span class="badge-activo"></span>activo'
+          : '<span class="badge-activo no"></span>inactivo')
+      : '<span style="color:var(--mut);font-style:italic">sin perfil</span>';
+    const fmtFecha = f => f ? new Date(f).toLocaleDateString('es-AR', {day:'2-digit',month:'short',year:'numeric'}) : '—';
+    const fmtHace = f => {
+      if (!f) return '<span style="color:var(--mut)">nunca</span>';
+      const d = Math.round((Date.now() - new Date(f).getTime()) / 86400000);
+      if (d === 0) return 'hoy';
+      if (d === 1) return 'ayer';
+      if (d < 30) return 'hace ' + d + ' días';
+      if (d < 365) return 'hace ' + Math.round(d/30) + ' meses';
+      return 'hace ' + Math.round(d/365) + ' años';
+    };
+    const escapeEmail = (u.email || '').replace(/'/g, "\\'");
+    return '<tr' + (u.rol && !u.activo ? ' class="inactivo"' : '') + '>' +
+      '<td><div class="nombre">' + (u.nombre || '<span style="color:var(--mut);font-style:italic">sin nombre</span>') + '</div>' +
+      '<div class="email">' + u.email + '</div></td>' +
+      '<td><span class="' + rolClass + '">' + rolTxt + '</span></td>' +
+      '<td>' + zonaHtml + '</td>' +
+      '<td>' + activoTxt + '</td>' +
+      '<td class="fecha">' + fmtFecha(u.created_at) + '</td>' +
+      '<td class="fecha">' + fmtHace(u.last_sign_in) + '</td>' +
+      '<td><div class="acciones">' +
+        '<button class="btn-acc" onclick="abrirModalEditar(\'' + u.user_id + '\')">✏ Editar</button>' +
+        '<button class="btn-acc" onclick="resetPassword(\'' + escapeEmail + '\')">🔑 Reset</button>' +
+        (u.rol && u.activo
+          ? '<button class="btn-acc danger" onclick="toggleActivo(\'' + u.user_id + '\', false)">✕ Desactivar</button>'
+          : (u.rol ? '<button class="btn-acc" onclick="toggleActivo(\'' + u.user_id + '\', true)">✓ Activar</button>' : '')) +
+      '</div></td>' +
+    '</tr>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Modal editar
+// ═══════════════════════════════════════════════════════════════════════════════
+function abrirModalEditar(userId){
+  const u = _users.find(x => x.user_id === userId);
+  if (!u) return toast('Usuario no encontrado', 'err');
+  document.getElementById('eUserId').value = userId;
+  document.getElementById('eEmail').value = u.email;
+  document.getElementById('eNombre').value = u.nombre || '';
+  document.getElementById('eRol').value = u.rol || 'tecnico';
+  document.getElementById('eZona').value = u.zona || '';
+  document.getElementById('eActivo').value = String(!!u.activo);
+  document.getElementById('mEdit').classList.add('on');
+}
+
+async function guardarEdicion(){
+  const userId = document.getElementById('eUserId').value;
+  const nombre = document.getElementById('eNombre').value.trim() || null;
+  const rol = document.getElementById('eRol').value;
+  const zona = document.getElementById('eZona').value || null;
+  const activo = document.getElementById('eActivo').value === 'true';
+  const { error } = await _supa.from('usuarios_perfil').upsert({
+    user_id: userId, nombre, rol, zona, activo, updated_at: new Date().toISOString()
+  }, { onConflict: 'user_id' });
+  if (error) return toast('Error: ' + error.message, 'err');
+  toast('✓ Usuario actualizado', 'ok');
+  cerrarModal('mEdit');
+  await cargarUsuarios();
+}
+
+async function toggleActivo(userId, nuevoEstado){
+  const u = _users.find(x => x.user_id === userId);
+  if (!u) return toast('Usuario no encontrado', 'err');
+  if (!confirm((nuevoEstado ? 'Activar' : 'Desactivar') + ' a ' + u.email + '?')) return;
+  const { error } = await _supa.from('usuarios_perfil').upsert({
+    user_id: userId, activo: nuevoEstado, updated_at: new Date().toISOString()
+  }, { onConflict: 'user_id' });
+  if (error) return toast('Error: ' + error.message, 'err');
+  toast('✓ ' + (nuevoEstado ? 'Activado' : 'Desactivado'), 'ok');
+  await cargarUsuarios();
+}
+
+async function resetPassword(email){
+  if (!confirm('Enviar mail de reset password a ' + email + '?')) return;
+  const { error } = await _supa.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/index.html'
+  });
+  if (error) return toast('Error: ' + error.message, 'err');
+  toast('📧 Mail de reset enviado a ' + email, 'ok');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Modal invitar
+// ═══════════════════════════════════════════════════════════════════════════════
+function abrirModalInvitar(){
+  document.getElementById('iEmail').value = '';
+  actualizarMsgInvitar();
+  document.getElementById('iEmail').oninput = actualizarMsgInvitar;
+  document.getElementById('mInvitar').classList.add('on');
+}
+function actualizarMsgInvitar(){
+  const email = document.getElementById('iEmail').value || '<TU_EMAIL@EJEMPLO.COM>';
+  const msg = 'Hola,\n\nTe estoy invitando al Sistema SIG Vial PBA (DVBA).\n\n' +
+    'Pasos para registrarte:\n' +
+    '1. Entrá a: https://lemeit.github.io/DVBA/\n' +
+    '2. Registrate con tu email (' + email + ') y una contraseña.\n' +
+    '3. Confirmá el mail que Supabase te envíe.\n' +
+    '4. Avisame cuando esté hecho y te asigno el rol y la zona.\n\n' +
+    'Saludos,\nAdministrador DVBA';
+  document.getElementById('iMsg').value = msg;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Helpers UI
+// ═══════════════════════════════════════════════════════════════════════════════
+function cerrarModal(id){ document.getElementById(id).classList.remove('on'); }
+async function cerrarSesion(){
+  await _supa.auth.signOut();
+  location.href = 'index.html';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Init
+// ═══════════════════════════════════════════════════════════════════════════════
+(async () => {
+  const ok = await chequearAcceso();
+  if (ok) await cargarUsuarios();
+})();
+</script>
+
+</body>
+</html>
