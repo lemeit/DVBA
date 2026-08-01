@@ -1374,7 +1374,7 @@ function aplicarVisibilidadRol(){
     el.classList.toggle('role-oculto', !esGerenciaOAdmin);
   });
   // v8.45 · Items marcados data-solo-admin="1" solo se muestran a admin
-  const esAdmin = perfil && perfil.rol === 'admin';
+  // (reusa la const esAdmin ya declarada arriba en la línea 1343)
   document.querySelectorAll('[data-solo-admin="1"]').forEach(el => {
     el.classList.toggle('role-oculto', !esAdmin);
   });
