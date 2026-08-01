@@ -1457,14 +1457,21 @@ async function hacerLogin(){
 
 async function hacerLogout(){
   if (!confirm('¿Cerrar sesión? Vas a poder seguir consultando el mapa pero no editar.')) return;
-  try { if (_supa) await _supa.auth.signOut(); } catch(e){}
-  await dvbaAuth.logout();
+  // v8.46 · Logout robusto ante 403 (token expirado / sesión rara).
+  // scope:'local' evita el POST /logout que a veces da 403 y solo limpia
+  // la sesión del browser (que es lo que queremos).
+  try { if (_supa) await _supa.auth.signOut({ scope: 'local' }); } catch(e){ console.warn('[logout]', e); }
+  try { await dvbaAuth.logout(); } catch(e){ console.warn('[dvbaAuth.logout]', e); }
   // v7.96 · Limpiar cache del perfil (rol + zona) y refrescar visibilidad.
-  // Sin esto el panel Visualizacion queda visible aunque el user haya cerrado sesion.
   try { if (typeof DVBA_PERFIL !== 'undefined') DVBA_PERFIL.limpiar(); } catch(e){}
+  // v8.46 · Limpiar TODO el localStorage relacionado a Supabase (por si quedó tokens colgados)
+  try {
+    Object.keys(localStorage).filter(k => k.startsWith('sb-') || k.startsWith('supabase.')).forEach(k => localStorage.removeItem(k));
+  } catch(e){}
   aplicarVisibilidadRol();
-  // En lugar de forzar login, volver al modo lectura pública con el botón "Iniciar sesión"
   mostrarBotonLogin();
+  // v8.46 · Forzar reload para que el estado quede limpio de verdad
+  setTimeout(() => location.reload(), 300);
 }
 
 function mostrarUsuario(){
