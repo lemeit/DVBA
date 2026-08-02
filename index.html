@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
   <link rel="icon" href="datos/img/favicon.png">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SIG Vial PBA · Portal</title>
+<title>SIG Vial PBAᵝ · Portal</title>
 <!-- v8.23 · Google Fonts oficiales PBA: Encode Sans (titulares) + Roboto (body) — según Anexo III del manual de marca -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -407,7 +407,7 @@ body.modo-campo #campo-fab{display:flex}
 <style>
 /* v7.99 · Fix FOUC · items marcados data-solo-gerencia arrancan ocultos
    por CSS; aplicarVisibilidadRol() los revela solo a gerencia+admin.
-   v8.49 · data-solo-admin sólo se revela a admin. */
+   v8.50 · data-solo-admin sólo se revela a admin. */
 [data-solo-gerencia="1"].role-oculto{display:none !important}
 [data-solo-admin="1"].role-oculto{display:none !important}
 </style>
@@ -435,7 +435,7 @@ body.modo-campo #campo-fab{display:flex}
         </select>
       </span>
     </h1>
-    <p>Dirección de Vialidad de la Provincia de Buenos Aires &nbsp;&middot;&nbsp; Sistema de Relevamiento y Gestión de la Red Vial</p>
+    <p><b>SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup></b> &nbsp;&middot;&nbsp; Dirección de Vialidad de la Provincia de Buenos Aires &nbsp;&middot;&nbsp; Sistema de Relevamiento y Gestión de la Red Vial</p>
   </div>
   <div class="hright">
     <!-- v7.12 — Badge cola de pendientes (visible solo logueado con registros estado_workflow=campo) -->
@@ -459,10 +459,10 @@ body.modo-campo #campo-fab{display:flex}
   </div>
 </header>
 
-<!-- Modal de login Supabase Auth · v8.49 texto general multi-zona -->
+<!-- Modal de login Supabase Auth · v8.50 texto general multi-zona -->
 <div id="login-ov">
   <div id="login-box">
-    <h2>🔐 SIG Vial PBA · Acceso al sistema</h2>
+    <h2>🔐 SIG Vial PBA<sup style="font-size:.65em;color:var(--am);letter-spacing:0">β</sup> · Acceso al sistema</h2>
     <p class="sub">Ingresá con tu cuenta autorizada para cargar y gestionar registros. El sistema aplica automáticamente los permisos según tu rol (técnico, gerencia, admin) y tu zona.<br><span style="font-size:11px;color:var(--mut);font-style:italic">La consulta del mapa y datos oficiales sigue siendo pública, sin login.</span></p>
     <form id="login-form" onsubmit="return false">
       <label>Email</label>
@@ -472,7 +472,7 @@ body.modo-campo #campo-fab{display:flex}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">Dirección de Vialidad de la Provincia de Buenos Aires · <span id="login-app-ver">v8.49</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.50</span> · Dirección de Vialidad de la Provincia de Buenos Aires</div>
   </div>
 </div>
 <div class="layout">
@@ -647,11 +647,11 @@ body.modo-campo #campo-fab{display:flex}
       <div class="sec" style="border-bottom:none">
         <div class="sec-title">📊 Reportes de Vías</div>
 
-      <!-- v8.49 · SIN dropdown · el reporte detecta lo que hay seleccionado (RPs + Caminos) -->
+      <!-- v8.50 · SIN dropdown · el reporte detecta lo que hay seleccionado (RPs + Caminos) -->
       <!-- El select queda oculto por retrocompatibilidad con _repTipo() legacy -->
       <select id="rep-tipo" style="display:none"><option value="mixto" selected>mixto</option></select>
 
-      <!-- v8.33 · Chip contador SIEMPRE visible con estado + v8.49 lista expandible -->
+      <!-- v8.33 · Chip contador SIEMPRE visible con estado + v8.50 lista expandible -->
       <div id="rep-selchip" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--light);color:var(--mut);padding:5px 8px;border-radius:4px;margin-bottom:6px;font-size:11px;flex-wrap:wrap">
         <b class="chip-text">Sin selección manual · usa las vías activas del mapa</b>
         <button onclick="_toggleSelList()" class="chip-toggle" style="display:none;padding:2px 6px;background:var(--w);color:var(--vd);border:1px solid var(--vd);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">▾ Ver</button>
@@ -661,7 +661,7 @@ body.modo-campo #campo-fab{display:flex}
         </div>
       </div>
 
-      <!-- v8.49 · Info: solo selección manual entra al reporte (chips del mapa son solo visualización) -->
+      <!-- v8.50 · Info: solo selección manual entra al reporte (chips del mapa son solo visualización) -->
       <div id="rep-modo" style="font-size:10px;color:var(--mut);background:var(--bg);border-left:3px solid var(--p);padding:6px 8px;border-radius:4px;margin-bottom:8px;line-height:1.45">
         <b style="color:var(--pd)">Selección para el reporte:</b><br>
         Solo lo que agregás con <b style="color:var(--vd)">click en la vía del mapa → "+ Agregar al reporte"</b>. Los chips del panel Mapa (tildar rutas o filtrar caminos) sólo sirven para ver u ocultar en el mapa, no entran al reporte.
@@ -768,7 +768,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        © 2026 DVBA · Desarrollado por <b>Ing. Luciano Lamaita</b> · Div. Técnica · <span id="app-ver-footer">v8.49</span>
+        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.50</span> · <a href="#" onclick="event.preventDefault();abrirAcercaDe()" style="color:var(--pd);text-decoration:none;font-weight:600">ℹ Acerca de</a>
       </div>
     </div>
 
@@ -837,7 +837,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.49';
+const APP_VERSION = 'v8.50';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1353,7 +1353,7 @@ function aplicarVisibilidadRol(){
   if (esTecnico && perfil.zona){
     try { aplicarZonaPortal(perfil.zona); } catch(e){}
   }
-  // v8.49 · User-info: mostrar SIEMPRE Rol + Zona (nunca el mail).
+  // v8.50 · User-info: mostrar SIEMPRE Rol + Zona (nunca el mail).
   // El nombre real va al tooltip. Formato: "🛡 Admin" | "📊 Gerencia" | "👷 Técnico · VI"
   if (perfil){
     const emailEl = document.getElementById('user-email');
@@ -1376,7 +1376,7 @@ function aplicarVisibilidadRol(){
   document.querySelectorAll('[data-solo-gerencia="1"]').forEach(el => {
     el.classList.toggle('role-oculto', !esGerenciaOAdmin);
   });
-  // v8.49 · Items marcados data-solo-admin="1" solo se muestran a admin
+  // v8.50 · Items marcados data-solo-admin="1" solo se muestran a admin
   // (reusa la const esAdmin ya declarada arriba en la línea 1343)
   document.querySelectorAll('[data-solo-admin="1"]').forEach(el => {
     el.classList.toggle('role-oculto', !esAdmin);
@@ -1448,7 +1448,7 @@ async function hacerLogin(){
     await dvbaAuth.login(email, pass);
     await sincronizarSupaConSesion();
     document.getElementById('login-pass').value = '';
-    // v8.49 · Reload post-login para evitar race condition:
+    // v8.50 · Reload post-login para evitar race condition:
     // La app arranca cargando datos con el token anterior (anon/otro user)
     // y las RLS policies filtran con ese contexto viejo. Reload garantiza
     // que TODO se cargue con el nuevo JWT: rol, zona, registros filtrados
@@ -1487,7 +1487,7 @@ function mostrarUsuario(){
   const u = dvbaAuth.user();
   if (!u) return;
   const el = document.getElementById('user-info');
-  // v8.49 · Si el perfil ya está en localStorage (cache del login previo),
+  // v8.50 · Si el perfil ya está en localStorage (cache del login previo),
   // usarlo directo para mostrar Rol+Zona sin esperar el fetch de la BD.
   // Evita el flash "👤 Usuario" al arrancar.
   let etiqueta = '👤 Usuario';
@@ -3027,7 +3027,7 @@ async function reinyectarExifExistente(){
       prog: reg.prog || reg.progresiva || null,
       tipo: reg.tipo || null,
       partido: reg.partido || null,
-      // v8.49 · No hardcodear zona. El trigger BEFORE INSERT/UPDATE de SQL_10
+      // v8.50 · No hardcodear zona. El trigger BEFORE INSERT/UPDATE de SQL_10
       // fuerza zona = current_user_zona() para técnicos. Admin puede mandar
       // zona explícita si necesita reasignar.
       zona: reg.zona || null,
@@ -3820,7 +3820,7 @@ function actualizarPanelPosCamino(feat, latlng, km) {
 // v8.26 · Función nuevoPinDesdeMapa() eliminada · era redundante con togglePin()
 // del sidebar. El botón flotante verde también se removió del layout del mapa.
 
-// v8.49 · Progresiva inversa PARA CAMINOS secundarios · dada nomenclatura
+// v8.50 · Progresiva inversa PARA CAMINOS secundarios · dada nomenclatura
 // (ej "034-01") + progresiva en km, devuelve {lat, lng} sobre la traza real.
 // Algoritmo: reusa _offsetTramoCache (offset acumulado por NOMEMCLATURA+TRAMO_NUM),
 // encuentra el tramo que contiene el km target, aplana coords y acumula
@@ -3937,7 +3937,7 @@ function progresivaAPunto(rutaNum, kmTarget){
   return { lat: last[1], lng: last[0] };
 }
 
-// v8.49 · Toast helper global · notificaciones flotantes livianas
+// v8.50 · Toast helper global · notificaciones flotantes livianas
 // tipo: 'ok' (verde) | 'warn' (ámbar) | 'err' (rojo) | default (gris)
 function toast(msg, tipo){
   const colores = {
@@ -3969,7 +3969,7 @@ function ubicarPorProgresiva(){
     ? (parseInt(prog.split('+')[0]) + parseInt(prog.split('+')[1])/1000)
     : parseFloat(prog.replace(',', '.'));
   if (!isFinite(kmNum)) { toast('Progresiva inválida', 'err'); return; }
-  // v8.49 · Dispatch según tipo de vía: RP usa CHAINS+ANCHORS, camino usa
+  // v8.50 · Dispatch según tipo de vía: RP usa CHAINS+ANCHORS, camino usa
   // offsets de tramos + aplanado de coords + haversine.
   let punto;
   if (tipoVia === 'camino') {
@@ -4289,7 +4289,7 @@ let _repData = [];
    Km GIS por tramo se estima proporcional al total GIS de la RP. */
 function buildReporteRutasTramos() {
   const rows = [];
-  // v8.49 · SIMETRÍA con Caminos · usa SOLO _selRutas (selección manual).
+  // v8.50 · SIMETRÍA con Caminos · usa SOLO _selRutas (selección manual).
   // Los chips del panel Mapa (selR) solo controlan visualización, no reporte.
   const ridsUsar = (_selRutas && _selRutas.size > 0) ? [..._selRutas] : [];
   ridsUsar.sort((a,b)=>parseInt(a)-parseInt(b)).forEach(rid => {
@@ -4374,7 +4374,7 @@ function _genRepRutas() {
   window._repRutasTramos = tramos;  // guardar para CSV/PDF
 
   if (!tramos.length) {
-    // v8.49 · No sobrescribir la tabla si estamos en modo mixto y ya hay caminos
+    // v8.50 · No sobrescribir la tabla si estamos en modo mixto y ya hay caminos
     if (!_repSecciones().caminos) {
       document.getElementById('rep-tabla').innerHTML =
         '<div style="padding:10px;color:var(--mut);font-size:11px;text-align:center">Sin rutas para reportar. Activá alguna RP en el mapa o seleccioná con click.</div>';
@@ -4444,7 +4444,7 @@ function _genRepRutas() {
   html += `<div style="font-size:9px;color:var(--mut);margin-top:2px"><b style="color:var(--pd)">Por partido:</b> ${partRows}</div>`;
   html += `<div style="font-size:8.5px;color:var(--mut);margin-top:6px;font-style:italic">* Km GIS por tramo es estimado (proporcional al total GIS de cada RP). Km Oficial es del CSV SALADILLO_RED (data DVBA).</div>`;
 
-  // v8.49 · Wrap en section con header para modo mixto
+  // v8.50 · Wrap en section con header para modo mixto
   const seccion = `<section style="margin-bottom:14px"><div style="background:var(--p-xl);border-left:4px solid var(--p);padding:6px 10px;border-radius:4px;margin-bottom:6px;font-family:'Encode Sans',sans-serif;font-weight:700;color:var(--pd);font-size:12px">🛣 Red Vial Provincial Primaria (Rutas)</div>${html}</section>`;
   document.getElementById('rep-tabla').innerHTML = seccion;
 }
@@ -4472,7 +4472,7 @@ function _expRepRutasCSV() {
 
 // v8.30 · Captura real del mapa Leaflet (usa leaflet-image, se carga on-demand).
 // v8.32 · Fix crítico: leaflet-image falla con divIcons custom (Cannot read 'match').
-// v8.49 · Acepta opts para ocultar contextualmente lo que no corresponde al reporte:
+// v8.50 · Acepta opts para ocultar contextualmente lo que no corresponde al reporte:
 //   { tipo: 'rutas'|'caminos', mostrarMojones: bool, mostrarRegistros: bool }
 function _capturarMapaComoImg(opts){
   opts = opts || {};
@@ -4485,7 +4485,7 @@ function _capturarMapaComoImg(opts){
         try { map.removeLayer(l); layersOcultados.push(l); } catch(e){}
       }
     });
-    // 2) v8.49 · Ocultar contextualmente según tipo de reporte
+    // 2) v8.50 · Ocultar contextualmente según tipo de reporte
     // Si tipo=rutas: ocultar caminos (halo, base, sel-halo). Y si !mostrarMojones: ocultar mojones.
     // Si tipo=caminos: ocultar rutas (todos los capasR).
     if (opts.tipo === 'rutas') {
@@ -4523,7 +4523,7 @@ function _capturarMapaComoImg(opts){
 }
 
 // v8.29 · Renombrada a interna _expRepRutasPDF · v8.30 async por captura opcional
-// v8.49 · Acepta opts.retornarHtml para devolver HTML en vez de abrir tab (para PDF mixto)
+// v8.50 · Acepta opts.retornarHtml para devolver HTML en vez de abrir tab (para PDF mixto)
 async function _expRepRutasPDF(opts) {
   opts = opts || {};
   const tramos = (window._repRutasTramos && window._repRutasTramos.length) ? window._repRutasTramos : buildReporteRutasTramos();
@@ -4537,7 +4537,7 @@ async function _expRepRutasPDF(opts) {
   const usarCaptura = !!document.getElementById('rc-mapa-cap')?.checked;
 
   // Rutas incluidas y filtros aplicados
-  const ridsBase = (_selRutas && _selRutas.size > 0) ? [..._selRutas] : [];  // v8.49 · solo selección manual
+  const ridsBase = (_selRutas && _selRutas.size > 0) ? [..._selRutas] : [];  // v8.50 · solo selección manual
   const rutasOrden = ridsBase.sort((a,b)=>parseInt(a)-parseInt(b));
   const rutasStr = rutasOrden.map(r => (RUTA_META[r]||{label:'RP '+r}).label).join(', ') || 'ninguna';
   const usarSelManual = (_selRutas && _selRutas.size > 0);
@@ -4554,7 +4554,7 @@ async function _expRepRutasPDF(opts) {
   });
 
   // v8.30 · Captura real si el user la pidió (después de tener los datos)
-  // v8.49 · Pasar contexto: tipo=rutas + respetar checkbox rc-moj
+  // v8.50 · Pasar contexto: tipo=rutas + respetar checkbox rc-moj
   let mapaImgDataUrl = null;
   if (showMapa && usarCaptura) mapaImgDataUrl = await _capturarMapaComoImg({
     tipo: 'rutas',
@@ -4598,7 +4598,7 @@ async function _expRepRutasPDF(opts) {
   const partHtml = Object.entries(porPartido).sort((a,b)=>b[1]-a[1])
     .map(([pt,km])=>`<span style="margin-right:14px"><b>${pt}:</b> ${km.toFixed(2)} km</span>`).join('');
 
-  // v8.49 · Exponer logoSVG como global window.LOGO_DVBA para que _expRepCaminosPDF también lo use
+  // v8.50 · Exponer logoSVG como global window.LOGO_DVBA para que _expRepCaminosPDF también lo use
   window.LOGO_DVBA = window.LOGO_DVBA || null;
   const logoSVG = window.LOGO_DVBA = `<img src="data:image/png;base64,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" style="width:52px;height:52px;border-radius:50%;flex-shrink:0">`;
 
@@ -4665,7 +4665,7 @@ ${mapaBlockHtml}
 <script>window.onload = function() { window.print(); }<\/script>
 </body></html>`;
 
-  // v8.49 · Modo mixto: devolver el HTML en lugar de abrir tab
+  // v8.50 · Modo mixto: devolver el HTML en lugar de abrir tab
   if (opts.retornarHtml) return pdfHtml;
 
   const blob = new Blob([pdfHtml], { type:'text/html;charset=utf-8' });
@@ -4699,7 +4699,7 @@ async function exportRegistrosPDF() {
     });
   }
   // v8.30 · Respetar selección manual _selRutas si tiene items; sino usar selR
-  const ridsBase = (_selRutas && _selRutas.size > 0) ? [..._selRutas] : [];  // v8.49 · solo selección manual
+  const ridsBase = (_selRutas && _selRutas.size > 0) ? [..._selRutas] : [];  // v8.50 · solo selección manual
   const rutasOrden = ridsBase.sort((a,b) => parseInt(a)-parseInt(b));
   
   // Filtrar registros de esas rutas y agrupar por ruta
@@ -4728,7 +4728,7 @@ async function exportRegistrosPDF() {
   // Lista plana de todos los registros (para el mapa centrado)
   const todosRegsLista = rutasOrden.flatMap(rid => (grupos[rid]||{lista:[]}).lista);
 
-  // v8.30 · Captura del mapa si el user la pidió · v8.49 tipo=rutas + registros ON (este es el PDF de relevamientos)
+  // v8.30 · Captura del mapa si el user la pidió · v8.50 tipo=rutas + registros ON (este es el PDF de relevamientos)
   let mapaImgDataUrl_r = null;
   if (showMapa_r && usarCaptura_r) mapaImgDataUrl_r = await _capturarMapaComoImg({
     tipo: 'rutas', mostrarMojones: false, mostrarRegistros: true
@@ -4866,7 +4866,7 @@ function _csClaseChip(cl){
 // v8.28 · Si _selCaminos tiene items, se usa como filtro estricto por fid
 // (selección manual desde el mapa). Si está vacío, cae al filtro amplio
 // por partido (selP) + clase (csSelClases).
-// v8.49 · Helper: features del cache que están en el reporte actual
+// v8.50 · Helper: features del cache que están en el reporte actual
 // Si hay selección manual, filtra por _selCaminos; sino aplica los mismos
 // filtros amplios que buildReporteCaminosData (partido + clase).
 function _featsCaminosDeReporte(){
@@ -4917,7 +4917,7 @@ function buildReporteCaminosData(){
   });
 }
 
-// v8.29 · Renombrada a interna _genRepCaminos · v8.49 acepta {append:true} para
+// v8.29 · Renombrada a interna _genRepCaminos · v8.50 acepta {append:true} para
 // concatenar al resultado de rutas cuando el reporte es mixto (RPs+Caminos)
 function _genRepCaminos(opts){
   opts = opts || {};
@@ -5002,7 +5002,7 @@ function _genRepCaminos(opts){
     .join('');
   html += `<div style="font-size:9px;color:var(--mut);margin-top:2px"><b style="color:var(--pd)">Por partido:</b> ${partRows}</div>`;
 
-  // v8.49 · Wrap en section con header para modo mixto + append si ya hay rutas
+  // v8.50 · Wrap en section con header para modo mixto + append si ya hay rutas
   const seccion = `<section style="margin-bottom:14px"><div style="background:#faf0eb;border-left:4px solid #c25a2a;padding:6px 10px;border-radius:4px;margin-bottom:6px;font-family:'Encode Sans',sans-serif;font-weight:700;color:#c25a2a;font-size:12px">🚜 Red Vial Provincial Secundaria (Caminos)</div>${html}</section>`;
   const tabla = document.getElementById('rep-tabla');
   if (opts.append) {
@@ -5012,7 +5012,7 @@ function _genRepCaminos(opts){
   }
 }
 
-/* v8.49 · PDF MIXTO UNIFICADO en 1 sola pestaña.
+/* v8.50 · PDF MIXTO UNIFICADO en 1 sola pestaña.
    Ambos individuales retornan HTML (retornarHtml:true), acá se extraen
    los <body> y se combinan en un doc con salto de página entre secciones.
    Evita popup blocker que descartaba el segundo tab. */
@@ -5066,7 +5066,7 @@ function _expRepCaminosCSV(){
 }
 
 // v8.29 · Renombrada a interna _expRepCaminosPDF · v8.30 async por captura opcional
-// v8.49 · Acepta opts.retornarHtml para PDF mixto
+// v8.50 · Acepta opts.retornarHtml para PDF mixto
 async function _expRepCaminosPDF(opts){
   opts = opts || {};
   if (!_repCaminosData.length) _genRepCaminos();
@@ -5076,7 +5076,7 @@ async function _expRepCaminosPDF(opts){
   // v8.30 · Opciones de mapa
   const showMapa_c    = !!document.getElementById('rc-mapa')?.checked;
   const usarCaptura_c = !!document.getElementById('rc-mapa-cap')?.checked;
-  // v8.49 · tipo=caminos oculta capas de rutas y mojones
+  // v8.50 · tipo=caminos oculta capas de rutas y mojones
   let mapaImgDataUrl_c = null;
   if (showMapa_c && usarCaptura_c) mapaImgDataUrl_c = await _capturarMapaComoImg({ tipo: 'caminos' });
 
@@ -5106,7 +5106,7 @@ async function _expRepCaminosPDF(opts){
   const partHtml = Object.entries(porPartido).sort((a,b)=>b[1]-a[1])
     .map(([pt,km])=>`<span style="margin-right:14px"><b>${pt}:</b> ${km.toFixed(2)} km</span>`).join('');
 
-  // v8.49 · Si hay selección manual, mostrar solo los partidos/clases de esa selección;
+  // v8.50 · Si hay selección manual, mostrar solo los partidos/clases de esa selección;
   // si no hay selección, sí mostrar los filtros globales
   const usarSelManual = (_selCaminos && _selCaminos.size > 0);
   const partActivos = usarSelManual
@@ -5170,7 +5170,7 @@ ${!showMapa_c ? '' : (mapaImgDataUrl_c
 <script>window.onload = function() { window.print(); }<\/script>
 </body></html>`;
 
-  // v8.49 · Modo mixto: devolver el HTML en lugar de abrir tab
+  // v8.50 · Modo mixto: devolver el HTML en lugar de abrir tab
   if (opts.retornarHtml) return html;
 
   const blob = new Blob([html], { type:'text/html;charset=utf-8' });
@@ -5185,7 +5185,7 @@ ${!showMapa_c ? '' : (mapaImgDataUrl_c
 
 
 // ─── MAPA SVG BBOX PARA PDF ────────────────────────────────────
-// v8.49 · Mapa SVG para CAMINOS (Red Secundaria) · dibuja partidos + ciudades + trazas + mojones + registros
+// v8.50 · Mapa SVG para CAMINOS (Red Secundaria) · dibuja partidos + ciudades + trazas + mojones + registros
 // Toma los features filtrados por _repCaminosData (que ya respetan selección manual o filtros)
 function generarMapaSVGCaminos(featsArr, W, H) {
   if (!featsArr || !featsArr.length) return '';
@@ -5225,7 +5225,7 @@ function generarMapaSVGCaminos(featsArr, W, H) {
     });
   });
 
-  // v8.49 · Partidos (contornos + nombres) — mismo tratamiento que rutas
+  // v8.50 · Partidos (contornos + nombres) — mismo tratamiento que rutas
   let partidosSVG = '';
   if (typeof PARTIDOS_GEO !== 'undefined') {
     PARTIDOS_GEO.features.forEach(f => {
@@ -5243,7 +5243,7 @@ function generarMapaSVGCaminos(featsArr, W, H) {
     });
   }
 
-  // v8.49 · Ciudades de referencia dentro del bbox
+  // v8.50 · Ciudades de referencia dentro del bbox
   let ciudadesSVG = '';
   if (typeof CIUDADES_REF !== 'undefined') {
     CIUDADES_REF.forEach(c => {
@@ -5253,7 +5253,7 @@ function generarMapaSVGCaminos(featsArr, W, H) {
     });
   }
 
-  // v8.49 · Mojones (si rc-moj tildado) que caen en bbox
+  // v8.50 · Mojones (si rc-moj tildado) que caen en bbox
   let mojonesSVG = '';
   if (!!document.getElementById('rc-moj')?.checked && typeof MOJONES_DATA !== 'undefined') {
     MOJONES_DATA.filter(m => m.km!==null && m.lat && m.lng && m.lng>=minLng && m.lng<=maxLng && m.lat>=minLat && m.lat<=maxLat)
@@ -5264,7 +5264,7 @@ function generarMapaSVGCaminos(featsArr, W, H) {
       });
   }
 
-  // v8.49 · Registros (si rc-regs tildado) que caen en bbox
+  // v8.50 · Registros (si rc-regs tildado) que caen en bbox
   let regsSVG = '';
   if (!!document.getElementById('rc-regs')?.checked && typeof regs !== 'undefined') {
     regs.filter(r => r.lat && r.lng && r.lng>=minLng && r.lng<=maxLng && r.lat>=minLat && r.lat<=maxLat)
@@ -7285,6 +7285,70 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 </div>
 
 
+<!-- v8.50 · Modal "Acerca de" · autor + versión + tecnologías + estado beta -->
+<div class="mov-sello" id="modal-acerca" style="display:none">
+  <div class="modal-sello" style="max-width:560px;background:#fff;color:var(--txt)">
+    <div class="ms-h" style="background:linear-gradient(135deg,var(--p),var(--pd));color:#fff">
+      <div style="flex:1">
+        <div style="font-size:17px;font-weight:800">Acerca de SIG Vial PBA<sup style="font-size:.65em;color:#ffd060">β</sup></div>
+        <div style="font-size:10.5px;opacity:.85;margin-top:2px">Sistema de Relevamiento y Gestión de la Red Vial Provincial</div>
+      </div>
+      <button onclick="cerrarAcercaDe()" style="background:transparent;border:0;color:#fff;font-size:22px;cursor:pointer;padding:0 8px" title="Cerrar">×</button>
+    </div>
+    <div class="ms-b" style="max-height:70vh;overflow-y:auto;padding:16px 20px;color:var(--txt);background:#fff;font-family:Roboto,sans-serif">
+
+      <div style="background:#fef6e4;border-left:3px solid var(--am);padding:10px 12px;border-radius:4px;margin-bottom:14px;font-size:11.5px;line-height:1.55;color:#7a4400">
+        <b>Versión BETA · en desarrollo activo.</b><br>
+        Sistema piloto desarrollado para el Departamento Zona VI Saladillo (Dirección de Vialidad de la Provincia de Buenos Aires). Aún no es una versión oficial de la DVBA; se presenta al <b>XLI Concurso Vial DVBA 2026</b> como propuesta técnica.
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.50</span> · Familia escritorio</div>
+        <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.89</b></div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Autoría</div>
+        <div style="font-size:13px;font-weight:600;color:var(--pd)">Ing. Luciano Lamaita</div>
+        <div style="font-size:11px;color:var(--mut);margin-top:2px">División Técnica · Departamento Zona VI Saladillo</div>
+        <div style="font-size:11px;margin-top:6px">
+          Contacto: <a href="mailto:tecnica.dvba.z6@gmail.com" style="color:var(--pd);text-decoration:none;font-family:'SF Mono',Menlo,monospace">tecnica.dvba.z6@gmail.com</a>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Alcance actual</div>
+        <div style="font-size:11.5px;line-height:1.55;color:#333">
+          Portal web + 2 apps móviles PWA + módulo Plan de Seguridad + reportes de Red Vial Provincial (Primaria + Secundaria) + panel administrativo. RLS multi-zona activo con 4 roles (público / técnico zonal / gerencia / admin). Diseñado para escalar a las 12 zonas de la DVBA.
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Tecnologías</div>
+        <div style="font-size:11px;color:#333;line-height:1.55">
+          HTML5 + JavaScript vanilla · Leaflet 1.9.4 · Supabase (PostgreSQL 15 + Auth + Storage + RLS) · PWA con Service Worker · jsPDF + jsPDF-autotable · piexifjs · leaflet-image · QGIS (procesamiento GIS) · GitHub Pages
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Institución</div>
+        <div style="font-size:11.5px;color:#333;line-height:1.55">
+          Dirección de Vialidad de la Provincia de Buenos Aires (DVBA) · Departamento Zona VI Saladillo · Cobertura: 8 partidos (Saladillo, Gral. Alvear, Gral. Las Heras, Lobos, Roque Pérez, Las Flores, Navarro, 25 de Mayo)
+        </div>
+      </div>
+
+      <div style="font-size:9.5px;color:var(--mut);border-top:1px solid var(--light);padding-top:8px;margin-top:14px;text-align:center;font-style:italic">
+        Aplicación en <b style="color:var(--am)">versión BETA</b> · sujeta a cambios. La consulta del mapa y datos oficiales es pública.
+      </div>
+
+    </div>
+    <div class="ms-f" style="padding:10px 16px;border-top:1px solid var(--light);background:var(--bg);display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="cerrarAcercaDe()" style="padding:7px 14px;border:0;background:var(--p);color:#fff;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- v7.54 — Modal SIG Vial tipo DNV: datos oficiales por RP -->
 <div class="mov-sello" id="modal-sigvial" style="display:none">
   <div class="modal-sello" style="max-width:760px;background:#fff">
@@ -7417,6 +7481,16 @@ function mostrarModalSIGVial(rid, latlng){
   document.getElementById('modal-sigvial').style.display = 'flex';
 }
 
+// v8.50 · Modal Acerca de
+function abrirAcercaDe(){
+  const verEl = document.getElementById('ad-ver');
+  if (verEl && typeof APP_VERSION !== 'undefined') verEl.textContent = APP_VERSION;
+  document.getElementById('modal-acerca').style.display = 'flex';
+}
+function cerrarAcercaDe(){
+  document.getElementById('modal-acerca').style.display = 'none';
+}
+
 function cerrarModalSIGVial(){
   document.getElementById('modal-sigvial').style.display = 'none';
   _sigRPActiva = null;
@@ -7454,7 +7528,7 @@ let _sigRPActivaRid = null;  // v8.29 · rid de la última RP clickeada (para to
    v8.29 · Dispatchers unificados según #rep-tipo (rutas | caminos)
    Reemplazan las llamadas directas a las funciones específicas.
    ═════════════════════════════════════════════════════════════════ */
-// v8.49 · Modo MIXTO · el sistema detecta qué hay seleccionado y genera todo
+// v8.50 · Modo MIXTO · el sistema detecta qué hay seleccionado y genera todo
 // _repTipo() legacy sigue disponible por si algún código lo llama;
 // devuelve 'mixto' (fallback) o el tipo si el select está definido con valor específico.
 function _repTipo(){
@@ -7463,7 +7537,7 @@ function _repTipo(){
 }
 
 // Detectar qué secciones incluir según la selección manual
-// v8.49 · SIMETRÍA con Caminos · solo mira _selRutas, no selR
+// v8.50 · SIMETRÍA con Caminos · solo mira _selRutas, no selR
 function _repSecciones(){
   const hayRutas = (_selRutas && _selRutas.size > 0);
   const hayCaminos = (_selCaminos && _selCaminos.size > 0);
@@ -7531,10 +7605,10 @@ function limpiarSelRutas(){
 }
 
 // Dispatch limpiar según tipo activo del panel
-// v8.49 · "Limpiar TODOS" limpia ambos tipos, no solo el activo
-// v8.49 · También destilda TODOS los chips activos del panel Mapa (selR → noneR)
+// v8.50 · "Limpiar TODOS" limpia ambos tipos, no solo el activo
+// v8.50 · También destilda TODOS los chips activos del panel Mapa (selR → noneR)
 function limpiarSelReporteActual(){
-  // v8.49 · SIMETRÍA · sólo limpia selección manual del reporte
+  // v8.50 · SIMETRÍA · sólo limpia selección manual del reporte
   // (chips del panel Mapa NO se tocan, esos son visualización aparte)
   if (_selRutas && _selRutas.size > 0) limpiarSelRutas();
   if (_selCaminos && _selCaminos.size > 0) limpiarSelCaminos();
@@ -7563,12 +7637,12 @@ function _actualizarBotonSelRP(){
   }
 }
 
-// v8.49 · Chip MIXTO · muestra X rutas + Y tramos, ambos tipos a la vez
-// v8.49 · Cuenta también RPs de chips activos (selR) además de _selRutas manuales
+// v8.50 · Chip MIXTO · muestra X rutas + Y tramos, ambos tipos a la vez
+// v8.50 · Cuenta también RPs de chips activos (selR) además de _selRutas manuales
 function _actualizarChipSelUnificado(){
   const chip = document.getElementById('rep-selchip');
   if (!chip) return;
-  // v8.49 · SIMETRÍA · solo cuenta selección manual (los chips del mapa NO cuentan al reporte)
+  // v8.50 · SIMETRÍA · solo cuenta selección manual (los chips del mapa NO cuentan al reporte)
   const nR = _selRutas ? _selRutas.size : 0;
   const nC = _selCaminos ? _selCaminos.size : 0;
   const total = nR + nC;
@@ -7612,15 +7686,15 @@ function _actualizarChipSelUnificado(){
   }
 }
 
-// v8.49 · Lista mixta con rutas + caminos agrupados por header
-// v8.49 · También incluye RPs activas del panel Mapa (selR) con × que destilda el chip
+// v8.50 · Lista mixta con rutas + caminos agrupados por header
+// v8.50 · También incluye RPs activas del panel Mapa (selR) con × que destilda el chip
 function _renderSelListMixto(){
   let html = '';
   if (_selRutas && _selRutas.size > 0) {
     html += `<div style="font-weight:700;color:var(--pd);padding:4px 4px;background:#f0f8fa;border-radius:3px;margin-bottom:2px;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">🛣 Rutas Provinciales (${_selRutas.size})</div>`;
     html += _renderSelList('rutas');
   }
-  // v8.49 · Los chips del panel Mapa quedan aparte (no se listan como "seleccionados")
+  // v8.50 · Los chips del panel Mapa quedan aparte (no se listan como "seleccionados")
   if (_selCaminos && _selCaminos.size > 0) {
     html += `<div style="font-weight:700;color:#c25a2a;padding:4px 4px;background:#faf0eb;border-radius:3px;margin:6px 0 2px;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px">🚜 Red Secundaria (${_selCaminos.size})</div>`;
     html += _renderSelList('caminos');
@@ -7628,7 +7702,7 @@ function _renderSelListMixto(){
   return html;
 }
 
-// v8.49 · Destildar un chip de ruta del panel Mapa (togR hace el toggle)
+// v8.50 · Destildar un chip de ruta del panel Mapa (togR hace el toggle)
 function _quitarRutaDeChips(rid){
   if (typeof togR === 'function') togR(String(rid));
   _actualizarChipSelUnificado();

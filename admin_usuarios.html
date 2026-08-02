@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DVBA · Panel de Administración de Usuarios</title>
+<title>SIG Vial PBAᵝ · Panel de Administración de Usuarios</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;600;700;800&family=Roboto:wght@400;500;700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -121,7 +121,11 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 </div>
 
 <header>
-  <h1>🛡 DVBA · <span>Panel Admin</span> · Gestión de Usuarios <span class="hbadge">v8.49</span></h1>
+  <img id="logo-dvba" alt="DVBA" style="width:38px;height:38px;border-radius:50%;background:#fff;padding:2px;flex-shrink:0" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A//www.w3.org/2000/svg'%20viewBox%3D'0%200%2040%2040'%3E%3Ccircle%20cx%3D'20'%20cy%3D'20'%20r%3D'19'%20fill%3D'%2300aec3'/%3E%3Ctext%20x%3D'20'%20y%3D'26'%20text-anchor%3D'middle'%20font-family%3D'Arial'%20font-size%3D'12'%20font-weight%3D'800'%20fill%3D'%23fff'%3EDVBA%3C/text%3E%3C/svg%3E">
+  <div style="flex:1;min-width:0">
+    <h1 style="line-height:1.15">SIG Vial PBA<sup style="font-size:.65em;color:#ffd060;letter-spacing:0">β</sup> · <span>Panel Admin</span></h1>
+    <div style="font-size:9.5px;color:rgba(255,255,255,.8);margin-top:2px;font-family:'Encode Sans',sans-serif;letter-spacing:.3px">Gestión de Usuarios · Dirección de Vialidad de la Provincia de Buenos Aires</div>
+  </div>
   <div class="nav">
     <span id="hUser" style="font-size:11px;color:rgba(255,255,255,.9)"></span>
     <a href="index.html">← Portal</a>
@@ -243,7 +247,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
   </div>
 </div>
 
-<!-- Modal invitar -->
+<!-- Modal invitar · v8.50 flujo real desde Supabase Dashboard -->
 <div class="modal-ov" id="mInvitar">
   <div class="modal">
     <div class="m-h">
@@ -251,21 +255,29 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
       <button onclick="cerrarModal('mInvitar')">×</button>
     </div>
     <div class="m-b">
+      <div class="row" style="background:#e6f6ea;border-left:3px solid var(--vd);padding:10px;border-radius:4px;font-size:11.5px;line-height:1.6;color:#1a5c2e">
+        <b>✅ Método recomendado (con mail de bienvenida):</b>
+        <ol style="margin:6px 0 0 20px;padding:0">
+          <li>Abrí el <a href="https://supabase.com/dashboard/project/txjlfpffyzuhdqtfhlmc/auth/users" target="_blank" style="color:var(--pd);font-weight:700">Supabase Dashboard → Authentication → Users</a></li>
+          <li>Botón <b>"Add user" → "Send invitation"</b></li>
+          <li>Ingresá el email del nuevo user. Supabase manda mail con link mágico para setear contraseña.</li>
+          <li>Cuando el user entre por primera vez, se registra automáticamente en <code>auth.users</code>.</li>
+          <li>Volvés acá, refrescás la lista con <b>🔄 Refrescar</b>, y le asignás rol + zona con <b>✏ Editar</b>.</li>
+        </ol>
+      </div>
       <div class="row" style="background:#fef6e4;border-left:3px solid var(--am);padding:10px;border-radius:4px;font-size:11px;line-height:1.5;color:#7a4400">
-        <b>📋 Flujo de invitación:</b><br>
-        1. El usuario nuevo se registra por su cuenta desde <a href="index.html" target="_blank" style="color:var(--pd)">el portal</a> con su email y una contraseña.<br>
-        2. Volvés a esta pantalla, refrescás la lista y le asignás rol + zona con el botón <b>✏ Editar</b>.<br>
-        Es más simple y no requiere permisos especiales de Auth.
+        <b>⚠ Alternativa (sign-up manual):</b><br>
+        Si tenés habilitado <i>Enable Sign Ups</i> en Supabase (Authentication → Providers → Email), el usuario puede registrarse directo desde el portal. Pero por seguridad recomendamos tenerlo <b>desactivado</b> y usar el método de arriba.
       </div>
       <div class="row">
-        <label>Email a invitar (para copiar)</label>
+        <label>Email a invitar (para copiar al mail)</label>
         <input type="text" id="iEmail" placeholder="ejemplo@vialidad.gba.gov.ar">
-        <div class="hint">Usalo para armar un mail o WhatsApp con las instrucciones.</div>
+        <div class="hint">Escribí el email para armar un mensaje pre-formateado abajo.</div>
       </div>
       <div class="row">
-        <label>Mensaje sugerido</label>
-        <textarea id="iMsg" rows="6" readonly style="width:100%;padding:8px 10px;border:1px solid var(--light);border-radius:5px;font-size:11px;font-family:inherit;background:var(--bg);color:var(--txt);resize:vertical" onclick="this.select()"></textarea>
-        <div class="hint">Click en el texto para seleccionar todo y copiar.</div>
+        <label>Mensaje pre-armado para copiar</label>
+        <textarea id="iMsg" rows="7" readonly style="width:100%;padding:8px 10px;border:1px solid var(--light);border-radius:5px;font-size:11px;font-family:inherit;background:var(--bg);color:var(--txt);resize:vertical" onclick="this.select()"></textarea>
+        <div class="hint">Click en el texto para seleccionar y copiar.</div>
       </div>
     </div>
     <div class="m-f">
@@ -277,7 +289,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 <div id="toaster"></div>
 
 <footer>
-  DVBA Zona VI Saladillo · Panel Admin v8.49 · Desarrollado por Ing. Luciano Lamaita
+  SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · Panel Admin · v8.50 · Dirección de Vialidad de la Provincia de Buenos Aires
 </footer>
 
 <script>
@@ -304,7 +316,7 @@ function toast(msg, tipo){
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Guard · sólo admin
-// v8.49 · Tolerante a token expirado: intenta refresh, fallback a cache local
+// v8.50 · Tolerante a token expirado: intenta refresh, fallback a cache local
 // ═══════════════════════════════════════════════════════════════════════════════
 async function chequearAcceso(){
   const guardMsg = document.getElementById('guardMsg');
@@ -520,13 +532,15 @@ function abrirModalInvitar(){
 }
 function actualizarMsgInvitar(){
   const email = document.getElementById('iEmail').value || '<TU_EMAIL@EJEMPLO.COM>';
-  const msg = 'Hola,\n\nTe estoy invitando al Sistema SIG Vial PBA (DVBA).\n\n' +
-    'Pasos para registrarte:\n' +
-    '1. Entrá a: https://lemeit.github.io/DVBA/\n' +
-    '2. Registrate con tu email (' + email + ') y una contraseña.\n' +
-    '3. Confirmá el mail que Supabase te envíe.\n' +
-    '4. Avisame cuando esté hecho y te asigno el rol y la zona.\n\n' +
-    'Saludos,\nAdministrador DVBA';
+  const msg = 'Hola,\n\nTe invito al Sistema SIG Vial PBA (β) de la DVBA.\n\n' +
+    'En los próximos minutos vas a recibir un mail de Supabase con un enlace\n' +
+    'para configurar tu contraseña (revisá también la carpeta de spam).\n\n' +
+    'Una vez que hayas seteado la contraseña, accedé al sistema:\n' +
+    'https://lemeit.github.io/DVBA/\n\n' +
+    'Ingresá con tu email (' + email + ') y tu contraseña.\n' +
+    'Yo te voy a asignar el rol y la zona correspondiente.\n\n' +
+    'Cualquier duda, respondeme este mail.\n\n' +
+    'Saludos,\nIng. Luciano Lamaita\nAdministrador SIG Vial PBAᵝ · DVBA';
   document.getElementById('iMsg').value = msg;
 }
 
