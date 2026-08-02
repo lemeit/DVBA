@@ -329,7 +329,11 @@ function rpSetZona(cod){
 }
 function rpCambiarZona(cod){
   rpSetZona(cod);
-  console.log('[rep] zona cambiada a', cod, '— filtros de zona: pendiente (ver PLAN_ROLES_MULTIZONA.md)');
+  console.log('[rep] zona cambiada a', cod, '· refetch con .eq(zona,'+cod+')');
+  // v8.57 · Fix bug · re-generar reporte con la zona nueva.
+  // Antes solo cambiaba el label del header y quedaba mostrando la zona previa
+  // (admin ve todo por RLS, así que sin filtro explícito quedaban los datos viejos).
+  if (typeof rpGenerar === 'function') rpGenerar();
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -414,10 +418,16 @@ async function rpGenerar(){
   const via = document.getElementById('fVia').value;
   const rutaFiltro = document.getElementById('fRuta').value.trim();
   if (!desde || !hasta){ alert('Elegí un rango de fechas.'); return; }
+  // v8.57 · Filtrar SIEMPRE por la zona activa del picker.
+  // Para técnicos la RLS zonal (SQL_9) ya limita, pero el filtro explícito
+  // aclara la intención y evita que admin/gerencia vean data de otras zonas
+  // al cambiar el picker sin refetchear.
+  const zonaActiva = (localStorage.getItem('dvba_zona') || 'VI');
   let q = _supa.from('partes_diarios')
     .select(`id, fecha, tarea_id, tipo_via, ruta, partido, prog_ini, prog_fin, km_recorridos, observaciones,
              parte_maquinarias(vehiculos(tipo_maquinaria, identificador, numero)),
              parte_fotos(momento)`)
+    .eq('zona', zonaActiva)
     .gte('fecha', desde).lte('fecha', hasta)
     .order('fecha', {ascending:false}).order('id', {ascending:false})
     .limit(5000);
