@@ -12,17 +12,37 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 | URL | Archivo | Versión | Descripción |
 |---|---|---|---|
-| https://lemeit.github.io/DVBA/ | `index.html` | **v8.42** | Portal principal: mapa Leaflet + **sidebar drawer colapsable** (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. **Botón `🎯 Ubicar`** (flujo inverso ruta+km → posición). **Sistema de reportes mixto** (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. **Sello v4 overlay** semitransparente sobre la foto con QR + logo DVBA. **EXIF metadata** completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III). |
-| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v8.42** | App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo `sello_v4.js` con el portal. |
-| https://lemeit.github.io/DVBA/reportes.html | `reportes.html` | **v8.42** | Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia. |
-| https://lemeit.github.io/DVBA/app.html | `app.html` → router | **v9.89** | **App móvil PWA (URL canónica)** — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia. Instalado en el celu queda como `SIG Vial PBA` (un solo ícono). URL legacy `campo.html` sigue como redirect. |
-| ↳ `dvba_campo_lite.html` (interno) | Modo Básico | v9.89 | UI minimalista: foto + GPS + envío directo. Compresión 1200px/q=0.75 con `createImageBitmap` (low-memory). Inyección EXIF con GPS + fecha aunque la foto vaya cruda. Diseñado para operarios sin fluidez tecnológica. |
-| ↳ `dvba_campo.html` (interno) | Modo Avanzado | v9.89 | Wizard completo con selección de tipo/estado/subatributos, autocomplete de rutas y caminos, edición fina + sello v4 aplicado en móvil. |
+| https://lemeit.github.io/DVBA/ | `index.html` | **v8.52** | Portal principal: mapa Leaflet + **sidebar drawer colapsable** (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. **Botón `🎯 Ubicar`** (flujo inverso ruta+km → posición). **Sistema de reportes mixto** (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. **Sello v4 overlay** semitransparente sobre la foto con QR + logo DVBA. **EXIF metadata** completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III). |
+| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v8.52** | App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo `sello_v4.js` con el portal. |
+| https://lemeit.github.io/DVBA/reportes.html | `reportes.html` | **v8.52** | Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia. |
+| https://lemeit.github.io/DVBA/app.html | `app.html` → router | **v9.90** | **App móvil PWA (URL canónica)** — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia. Instalado en el celu queda como `SIG Vial PBA` (un solo ícono). URL legacy `campo.html` sigue como redirect. |
+| ↳ `dvba_campo_lite.html` (interno) | Modo Básico | v9.90 | UI minimalista: foto + GPS + envío directo. Compresión 1200px/q=0.75 con `createImageBitmap` (low-memory). Inyección EXIF con GPS + fecha aunque la foto vaya cruda. Diseñado para operarios sin fluidez tecnológica. |
+| ↳ `dvba_campo.html` (interno) | Modo Avanzado | v9.90 | Wizard completo con selección de tipo/estado/subatributos, autocomplete de rutas y caminos, edición fina + sello v4 aplicado en móvil. |
 | https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte (subruta legacy — el portal principal ya cubre este flujo) |
 | https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.5 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
 | https://lemeit.github.io/DVBA/docs/guia_sig_vial_pba.html | guía textual | v1.1 | Manual completo de las apps móviles |
 | https://lemeit.github.io/DVBA/docs/guia_visual_sig_vial_pba.html | guía visual | v1.1 | 10 láminas navegables (mockups smartphone) · imprimible como PDF |
 | https://lemeit.github.io/DVBA/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
+
+## Funcionalidades destacadas (v8.44-v8.52 · agosto 2026)
+
+### Panel de Administración de usuarios (`admin_usuarios.html`)
+Nuevo módulo web (solo admin) para gestionar todos los usuarios del sistema: listar con filtros por rol/zona/estado + editar rol/zona/nombre + activar/desactivar + reset password (mail vía Supabase) + invitar nuevos (link directo al Supabase Dashboard). Guard tolerante a token expirado con fallback a localStorage. Panel institucional con logo DVBA y footer con Acerca/Términos/Privacidad.
+
+### Trigger de zona por rol (SQL_10)
+Función server-side `forzar_zona_por_rol()` con trigger BEFORE INSERT/UPDATE en `relevamientos` y `partes_diarios` que **sobrescribe automáticamente** `NEW.zona = current_user_zona()` para técnicos. Un técnico IV nunca puede meter data en zona VI aunque el frontend mande valores mal. Admin y gerencia pueden reasignar zona manualmente. Defensa en profundidad sobre las policies RLS.
+
+### Título unificado "SIG Vial PBAᵝ" (beta superíndice)
+Nombre único del sistema en los 6 HTMLs (portal, reportes, partes_diarios, admin, dvba_campo, dvba_campo_lite) con letra beta griega como superíndice ámbar (estilo Eureka). Aclara estado de desarrollo sin ocupar espacio.
+
+### Módulo legal compartido (`datos/legales.js`)
+Contenido único de Acerca de + Términos + Privacidad + Permisos PWA para todos los sitios. Modal auto-inyectable con tabs. La sección Permisos explica claramente para qué usa cámara, ubicación, storage y conexión — tranquilidad para el usuario que instala la PWA.
+
+### Progresiva inversa para caminos (`progresivaAPuntoCamino`)
+La función `ubicarPorProgresiva` ahora funciona también para caminos secundarios (antes solo RPs). Algoritmo reusa `_offsetTramoCache` + `_haversineM` para calcular km→coord sobre la traza del camino, aprovechando la longitud oficial por tramo del CSV DVBA.
+
+### Plan de escalado multi-zona
+Documento `docs/PLAN_ESCALADO_MULTIZONA.md` con estructura de carpetas por zona, checklist paso a paso para habilitar nuevas zonas, presupuesto de esfuerzo estimado, prioridades y roadmap post-concurso 2026.
 
 ## Funcionalidades destacadas (v8.29-v8.42 · agosto 2026)
 

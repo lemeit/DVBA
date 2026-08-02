@@ -14,6 +14,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="datos/auth.js"></script>
 <script src="datos/perfil.js" defer></script>
+<script src="datos/legales.js" defer></script>
 <script src="dvba_tipos.js"></script>
 <script src="datos/dvba_estados.js"></script>
 <script src="datos/qrcode.min.js"></script>
@@ -435,7 +436,7 @@ body.modo-campo #campo-fab{display:flex}
         </select>
       </span>
     </h1>
-    <p><b>SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup></b> &nbsp;&middot;&nbsp; Dirección de Vialidad de la Provincia de Buenos Aires &nbsp;&middot;&nbsp; Sistema de Relevamiento y Gestión de la Red Vial</p>
+    <p><b>SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup></b> &nbsp;&middot;&nbsp; Sistema de Relevamiento y Gestión de la Red Vial</p>
   </div>
   <div class="hright">
     <!-- v7.12 — Badge cola de pendientes (visible solo logueado con registros estado_workflow=campo) -->
@@ -768,7 +769,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.51</span> · <a href="#" onclick="event.preventDefault();abrirAcercaDe()" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca de</a>
+        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.52</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
       </div>
     </div>
 

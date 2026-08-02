@@ -17,6 +17,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="datos/auth.js"></script>
 <script src="datos/perfil.js" defer></script>
+<script src="datos/legales.js" defer></script>
 <style>
 :root{
   --p:#00aec3;    --pd:#007e8c;   --pl:#74c9e3;
@@ -261,7 +262,7 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
     <span style="margin-left:8px;color:var(--mut)">Módulo de reportes · Uso interno institucional</span>
   </div>
   <div class="fr">
-    <span id="app-ver">v8.51</span> · <a href="#" onclick="event.preventDefault();alert('SIG Vial PBAβ · v8.51\\n\\nDesarrollado por Ing. Luciano Lamaita\\nDivisión Técnica · Departamento Zona VI Saladillo\\nDirección de Vialidad PBA\\n\\nVersión BETA · en desarrollo\\n\\nContacto:\\nlulamaita@vialidad.gba.gov.ar\\nlucianolamaita@gmail.com')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca de</a>
+    <span id="app-ver">v8.52</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
   </div>
 </footer>
 

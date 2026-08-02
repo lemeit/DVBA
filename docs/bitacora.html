@@ -99,7 +99,7 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <div class="sub">DVBA · Departamento Zona VI Saladillo</div>
   <div class="meta">
     <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">18 de julio de 2026</span></div>
-    <div><span class="lbl">Versión bitácora</span><span class="val">v4.8 — apps v9.89 / v8.42 · 31-jul-2026</span></div>
+    <div><span class="lbl">Versión bitácora</span><span class="val">v4.9 — apps v9.90 / v8.52 · 1-ago-2026</span></div>
     <div><span class="lbl">Responsable</span><span class="val">Ing. Luciano Lamaita</span></div>
     <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></span></div>
     <div><span class="lbl">Estado general</span><span class="val">🟢 En desarrollo activo</span></div>
@@ -816,10 +816,77 @@ git push origin main
     <table>
       <tr><th>Artefacto</th><th>Versión</th><th>Archivo(s)</th><th>Bumpear con</th></tr>
       <tr><td><strong>📱 App Campo (PWA unificada)</strong></td><td><span class="badge b-ok">v9.88</span></td><td><code>app.html</code> (router) + <code>dvba_campo_lite.html</code> (Modo Básico) + <code>dvba_campo.html</code> (Modo Avanzado) + <code>sw.js</code></td><td>Manual: <code>APP_VER</code> en HTMLs + <code>CACHE_NAME</code> en <code>sw.js</code></td></tr>
-      <tr><td><strong>🖥 Familia escritorio</strong></td><td><span class="badge b-ok">v8.42</span></td><td><code>index.html</code>, <code>partes_diarios.html</code>, <code>reportes.html</code> + módulos <code>datos/</code></td><td>Manual en <code>const APP_VERSION</code> + spans footer en los 3</td></tr>
+      <tr><td><strong>🖥 Familia escritorio</strong></td><td><span class="badge b-ok">v8.52</span></td><td><code>index.html</code>, <code>partes_diarios.html</code>, <code>reportes.html</code> + módulos <code>datos/</code></td><td>Manual en <code>const APP_VERSION</code> + spans footer en los 3</td></tr>
       <tr><td><strong>🎨 Módulo sello v4</strong></td><td><span class="badge b-ok">unificado</span></td><td><code>datos/sello_v4.js</code> + <code>datos/exif_writer.js</code> + <code>datos/piexif.min.js</code></td><td>Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear</td></tr>
       <tr><td><strong>🛣 Caminos Secundarios</strong></td><td><span class="badge b-ok">v1.1</span></td><td><code>caminos_secundarios.html</code></td><td>—</td></tr>
     </table>
+
+    <h3>v8.44 – v8.52 · 31 julio – 1 agosto 2026 — Fase 4 completa (Panel Admin) + escalado multi-zona listo + branding SIG Vial PBAᵝ</h3>
+    <p>Cierre de la infraestructura para escalar a las 12 zonas viales de la DVBA. Con esta ronda queda operativo: RLS zonal blindado con trigger server-side, panel administrativo completo para gestionar usuarios de todas las zonas, título institucional unificado con marca "beta" superíndice, y módulo legal compartido (Acerca + Términos + Privacidad + Permisos PWA) en los 6 HTMLs del ecosistema.</p>
+
+    <h4>🛡 Fase 4 · Panel de Administración (v8.45)</h4>
+    <ul>
+      <li>Nuevo <code>admin_usuarios.html</code> accesible solo con rol admin</li>
+      <li>Función SQL <code>admin_listar_usuarios()</code> SECURITY DEFINER con guard interno</li>
+      <li>Métricas: total users, admins, gerencia, técnicos, sin perfil, inactivos</li>
+      <li>Filtros por rol, zona, estado + buscador email/nombre</li>
+      <li>Editar rol/zona/nombre inline, activar/desactivar, reset password via <code>supabase.auth.resetPasswordForEmail</code></li>
+      <li>Invitar users vía Supabase Dashboard (link directo) con mensaje pre-armado para copiar</li>
+      <li>Guard tolerante a token expirado con fallback a localStorage (v8.49)</li>
+    </ul>
+
+    <h4>🔒 Trigger de zona por rol · SQL_10 (v8.44)</h4>
+    <ul>
+      <li>Función <code>forzar_zona_por_rol()</code> SECURITY DEFINER con BEFORE INSERT/UPDATE en <code>relevamientos</code> y <code>partes_diarios</code></li>
+      <li>Sobrescribe <code>NEW.zona = current_user_zona()</code> para técnicos automáticamente</li>
+      <li>Admin y gerencia respetan el valor enviado (para reasignar)</li>
+      <li>Defensa en profundidad sobre las policies RLS: aunque el frontend mande zona equivocada, la BD la corrige</li>
+      <li>SQL_9 con bloque defensivo <code>DO $$</code> que elimina policies legacy con nombres alternativos</li>
+    </ul>
+
+    <h4>🎨 Branding "SIG Vial PBAᵝ" (v8.50 – v8.52)</h4>
+    <ul>
+      <li>Título único con beta superíndice ámbar en 6 HTMLs (portal, reportes, partes_diarios, admin, dvba_campo, dvba_campo_lite)</li>
+      <li>Footer minimalista sin autor visible (movido a modal Acerca)</li>
+      <li>Módulo <code>datos/legales.js</code> compartido con contenido único de Acerca / Términos / Privacidad / Permisos PWA</li>
+      <li>Modal auto-inyectable con tabs, mismo look en todos los sitios</li>
+      <li>Sección Permisos PWA explica claramente cámara, ubicación, storage, conexión — tranquilidad para el usuario móvil</li>
+      <li>Contactos: <code>lulamaita@vialidad.gba.gov.ar</code> (institucional) + <code>lucianolamaita@gmail.com</code> (personal)</li>
+    </ul>
+
+    <h4>🗺 Progresiva inversa para caminos (v8.47)</h4>
+    <ul>
+      <li><code>progresivaAPuntoCamino(nomenclatura, kmTarget)</code> análoga a la de RPs</li>
+      <li>Reusa <code>_offsetTramoCache</code> + <code>_haversineM</code> con aplanado de coords</li>
+      <li>Se dispatchea desde <code>ubicarPorProgresiva()</code> según <code>tipoVia</code></li>
+      <li>Ahora funciona para RPs y caminos secundarios por igual</li>
+    </ul>
+
+    <h4>🔐 Logout robusto (v8.46)</h4>
+    <ul>
+      <li>Fix del <code>POST /auth/v1/logout 403 Forbidden</code> que dejaba sesión colgada</li>
+      <li><code>signOut({scope:'local'})</code> evita el POST problemático</li>
+      <li>Limpieza manual de <code>localStorage.sb-*</code> + <code>location.reload()</code> para estado limpio</li>
+      <li>Reload post-login que también evita race conditions de datos con token viejo (v8.49)</li>
+    </ul>
+
+    <h4>👤 Login general + user-info Rol+Zona (v8.48)</h4>
+    <ul>
+      <li>Modal login con texto general multi-zona (sin mencionar Zona VI)</li>
+      <li>Header muestra siempre <b>🛡 Admin</b> | <b>📊 Gerencia</b> | <b>👷 Técnico · Zona X</b></li>
+      <li>Nunca se muestra el mail (que puede ser largo). Nombre real va al tooltip.</li>
+    </ul>
+
+    <h4>🌎 Plan de escalado multi-zona</h4>
+    <p>Nuevo documento <code>docs/PLAN_ESCALADO_MULTIZONA.md</code> con:</p>
+    <ul>
+      <li>Estructura de carpetas por zona (<code>datos/zona_I/</code>, <code>zona_II/</code>, etc.)</li>
+      <li>Assets requeridos por zona (partidos, RPs, caminos, mojones, CARACT_VIALES)</li>
+      <li>Checklist paso a paso para habilitar zona nueva (4 etapas: preparación QGIS → calibración → subida → habilitación institucional)</li>
+      <li>Presupuesto estimado (~50 h por zona · ~550 h para las 11 restantes)</li>
+      <li>Prioridades: IV Junín + V 9 de Julio primero (limítrofes con VI, más fáciles)</li>
+      <li>Roadmap post-concurso 2026 por trimestres</li>
+    </ul>
 
     <h3>v8.29 – v8.42 · 29–31 julio 2026 — Sistema de reportes unificado Red Vial Provincial + paleta minimalista PBA</h3>
     <p>Refactor completo del tab Reportes del portal, integrando Rutas Provinciales (Red Vial Provincial Primaria) y Caminos Secundarios (Red Vial Provincial Secundaria) en un único flujo simétrico basado en selección manual por click en el mapa. PDF unificado con logo DVBA, SVG con partidos + ciudades + trazas + mojones + registros, y toda la nomenclatura oficial DVBA aplicada.</p>

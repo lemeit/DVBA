@@ -12,6 +12,7 @@
 <link rel="icon" href="datos/img/logo_dvba_clean.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="datos/auth.js"></script>
+<script src="datos/legales.js" defer></script>
 <script src="datos/red_vial.js" defer></script>
 <!-- v7.87 · bundles RP para interpolar progresiva → coords → partido -->
 <script src="datos/rutas_rp30.js" defer></script>
@@ -328,8 +329,9 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
   <div style="flex:1;min-width:260px">
     <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
     <span style="margin-left:8px">Uso interno institucional.</span>
-    <a href="#" onclick="pdMostrarLegal('terminos');return false" style="color:#8ac6ff;text-decoration:none;margin-left:12px">Términos</a>
-    <a href="#" onclick="pdMostrarLegal('privacidad');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Privacidad</a>
+    <a href="#" onclick="DVBA_LEGAL.abrir('acerca');return false" style="color:#8ac6ff;text-decoration:none;margin-left:12px">Acerca</a>
+    <a href="#" onclick="DVBA_LEGAL.abrir('terminos');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Términos</a>
+    <a href="#" onclick="DVBA_LEGAL.abrir('privacidad');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Privacidad</a>
     <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
