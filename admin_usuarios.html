@@ -121,7 +121,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 </div>
 
 <header>
-  <h1>🛡 DVBA · <span>Panel Admin</span> · Gestión de Usuarios <span class="hbadge">v8.45</span></h1>
+  <h1>🛡 DVBA · <span>Panel Admin</span> · Gestión de Usuarios <span class="hbadge">v8.49</span></h1>
   <div class="nav">
     <span id="hUser" style="font-size:11px;color:rgba(255,255,255,.9)"></span>
     <a href="index.html">← Portal</a>
@@ -277,7 +277,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 <div id="toaster"></div>
 
 <footer>
-  DVBA Zona VI Saladillo · Panel Admin v8.45 · Desarrollado por Ing. Luciano Lamaita
+  DVBA Zona VI Saladillo · Panel Admin v8.49 · Desarrollado por Ing. Luciano Lamaita
 </footer>
 
 <script>
@@ -304,22 +304,44 @@ function toast(msg, tipo){
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Guard · sólo admin
+// v8.49 · Tolerante a token expirado: intenta refresh, fallback a cache local
 // ═══════════════════════════════════════════════════════════════════════════════
 async function chequearAcceso(){
   const guardMsg = document.getElementById('guardMsg');
   const guardBtn = document.getElementById('guardBtn');
   try {
-    const { data: { session } } = await _supa.auth.getSession();
+    // 1) Chequear sesión
+    let { data: { session } } = await _supa.auth.getSession();
     if (!session) {
       guardMsg.innerHTML = '<b style="color:var(--ro)">Sesión no iniciada.</b><br>Iniciá sesión desde el portal principal.';
       guardBtn.style.display = 'inline-block';
       return false;
     }
     document.getElementById('hUser').textContent = session.user.email;
-    const { data: rol, error } = await _supa.rpc('current_user_rol');
-    if (error) throw error;
+
+    // 2) Intentar refresh de sesión si el token está por expirar / expirado
+    try {
+      const { data: r } = await _supa.auth.refreshSession();
+      if (r?.session) session = r.session;
+    } catch(e){ console.warn('[guard] no se pudo refrescar sesión:', e); }
+
+    // 3) Intentar RPC current_user_rol
+    let rol = null;
+    try {
+      const { data, error } = await _supa.rpc('current_user_rol');
+      if (error) throw error;
+      rol = data;
+    } catch(e){
+      console.warn('[guard] RPC falló, uso cache local:', e);
+      // 4) Fallback: leer del localStorage dvba_perfil (cache del portal)
+      try {
+        const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
+        if (cache.user_id === session.user.id && cache.rol) rol = cache.rol;
+      } catch(_){}
+    }
+
     if (rol !== 'admin') {
-      guardMsg.innerHTML = '<b style="color:var(--ro)">Acceso denegado.</b><br>Necesitás rol <b>admin</b> para acceder al Panel de Administración.<br><br>Tu rol actual: <code>' + (rol || 'sin perfil') + '</code>';
+      guardMsg.innerHTML = '<b style="color:var(--ro)">Acceso denegado.</b><br>Necesitás rol <b>admin</b> para acceder al Panel de Administración.<br><br>Tu rol actual: <code>' + (rol || 'sin perfil') + '</code><br><br>Si sabés que sos admin, cerrá sesión desde el portal y volvé a entrar (probable token expirado).';
       guardBtn.style.display = 'inline-block';
       return false;
     }
@@ -327,7 +349,7 @@ async function chequearAcceso(){
     return true;
   } catch (e) {
     console.error('[guard]', e);
-    guardMsg.innerHTML = '<b style="color:var(--ro)">Error al verificar acceso.</b><br>' + (e.message || e);
+    guardMsg.innerHTML = '<b style="color:var(--ro)">Error al verificar acceso.</b><br>' + (e.message || e) + '<br><br>Probá cerrar sesión desde el portal y volver a entrar.';
     guardBtn.style.display = 'inline-block';
     return false;
   }
