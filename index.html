@@ -411,6 +411,10 @@ body.modo-campo #campo-fab{display:flex}
    v8.51 · data-solo-admin sólo se revela a admin. */
 [data-solo-gerencia="1"].role-oculto{display:none !important}
 [data-solo-admin="1"].role-oculto{display:none !important}
+/* v8.56 · Portal público · items que requieren sesión arrancan ocultos por CSS.
+   aplicarModoSesion() los revela al haber usuario logueado. */
+[data-requiere-sesion="1"].role-oculto{display:none !important}
+[data-solo-publico="1"].role-oculto{display:none !important}
 </style>
 </head>
 <body>
@@ -439,11 +443,15 @@ body.modo-campo #campo-fab{display:flex}
     <p><b>SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup></b> &nbsp;&middot;&nbsp; Sistema de Relevamiento y Gestión de la Red Vial</p>
   </div>
   <div class="hright">
+    <!-- v8.56 · Botón Iniciar sesión (solo visible modo público) -->
+    <button class="nav-app role-oculto" data-solo-publico="1" onclick="abrirLogin()" title="Iniciar sesión para acceder al sistema completo" style="background:rgba(0,154,174,.85);border-color:rgba(255,255,255,.4)">
+      🔐 Iniciar sesión
+    </button>
     <!-- v7.12 — Badge cola de pendientes (visible solo logueado con registros estado_workflow=campo) -->
-    <button id="cola-badge" title="Registros pendientes de revisión" onclick="abrirColaPendientes()">
+    <button id="cola-badge" class="role-oculto" data-requiere-sesion="1" title="Registros pendientes de revisión" onclick="abrirColaPendientes()">
       🔔 <span id="cola-count">0</span> pendientes
     </button>
-    <a class="nav-app plan" href="partes_diarios.html" title="Plan de Seguridad en la Circulación · Cargar tareas">
+    <a class="nav-app plan role-oculto" data-requiere-sesion="1" href="partes_diarios.html" title="Plan de Seguridad en la Circulación · Cargar tareas">
       🛡️ Plan de Seguridad
     </a>
     <a class="nav-app rep role-oculto" data-solo-gerencia="1" href="reportes.html" title="Reportes de tareas ejecutadas · solo Gerencia y Admin">
@@ -452,7 +460,7 @@ body.modo-campo #campo-fab{display:flex}
     <a class="nav-app role-oculto" data-solo-admin="1" href="admin_usuarios.html" title="Panel de Administración · gestión de usuarios · solo Admin">
       🛡 Admin
     </a>
-    <div id="user-info" title="Usuario autenticado">
+    <div id="user-info" class="role-oculto" data-requiere-sesion="1" title="Usuario autenticado">
       <span id="user-email">—</span>
       <button onclick="hacerLogout()">salir</button>
     </div>
@@ -464,7 +472,7 @@ body.modo-campo #campo-fab{display:flex}
 <div id="login-ov">
   <div id="login-box">
     <h2>🔐 SIG Vial PBA<sup style="font-size:.65em;color:var(--am);letter-spacing:0">β</sup> · Acceso al sistema</h2>
-    <p class="sub">Ingresá con tu cuenta autorizada para cargar y gestionar registros. El sistema aplica automáticamente los permisos según tu rol (técnico, gerencia, admin) y tu zona.<br><span style="font-size:11px;color:var(--mut);font-style:italic">La consulta del mapa y datos oficiales sigue siendo pública, sin login.</span></p>
+    <p class="sub">Ingresá con tu cuenta autorizada para cargar y gestionar tareas. El sistema aplica automáticamente los permisos según tu rol (técnico, gerencia, admin) y tu zona.<br><span style="font-size:11px;color:var(--mut);font-style:italic">La consulta pública del mapa (red vial, partidos, localidades) no requiere login.</span></p>
     <form id="login-form" onsubmit="return false">
       <label>Email</label>
       <input type="email" id="login-email" autocomplete="username" required>
@@ -472,8 +480,9 @@ body.modo-campo #campo-fab{display:flex}
       <input type="password" id="login-pass" autocomplete="current-password" required>
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
+      <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.53</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.56</span></div>
   </div>
 </div>
 <div class="layout">
@@ -838,7 +847,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.53';
+const APP_VERSION = 'v8.56';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1394,26 +1403,41 @@ function initAuthGate(){
   if (dvbaAuth.estaLogueado()){
     sincronizarSupaConSesion();
     mostrarUsuario();
-  } else {
-    // Sin sesión: NO mostrar modal. Mostrar botón "Iniciar sesión" en lugar
-    // del badge user — vide mostrarBotonLogin().
-    mostrarBotonLogin();
   }
+  // v8.56 · Portal público · siempre aplicar modo sesión al arranque
+  aplicarModoSesion();
   const pass = document.getElementById('login-pass');
   if (pass) pass.addEventListener('keydown', e => { if (e.key === 'Enter') hacerLogin(); });
 }
 
-// Botón "Iniciar sesión" visible cuando no hay sesión (en lugar del badge user)
-function mostrarBotonLogin(){
-  const el = document.getElementById('user-info');
-  if (!el) return;
-  el.innerHTML = '<button onclick="abrirLogin()" style="border-color:rgba(255,215,0,.7);color:#ffd700">🔐 Iniciar sesión</button>';
-  el.classList.add('show');
-  el.title = 'Para crear, editar o borrar registros';
+// v8.56 · Portal público · toggle de items marcados data-requiere-sesion
+// (arrancan ocultos por CSS · .role-oculto) vs data-solo-publico (arrancan
+// ocultos también, se muestran solo si NO hay sesión).
+function aplicarModoSesion(){
+  const logueado = window.dvbaAuth && dvbaAuth.estaLogueado();
+  document.querySelectorAll('[data-requiere-sesion="1"]').forEach(el => {
+    el.classList.toggle('role-oculto', !logueado);
+  });
+  document.querySelectorAll('[data-solo-publico="1"]').forEach(el => {
+    el.classList.toggle('role-oculto', logueado);
+  });
+  // Título del header adaptativo: modo público muestra "Red Vial Provincial"
+  const hZona = document.getElementById('hZona');
+  if (hZona && !logueado){
+    // Modo público · mantenemos la etiqueta zonal (permite explorar cualquiera)
+    // pero el subtítulo lo dejamos como está.
+  }
 }
+
 function abrirLogin(){
   document.getElementById('login-ov').classList.add('show');
   setTimeout(() => document.getElementById('login-email').focus(), 100);
+}
+// v8.56 · Cerrar el modal login sin loguearse · vuelve al mapa público
+function cerrarLoginModal(){
+  document.getElementById('login-ov').classList.remove('show');
+  const err = document.getElementById('login-err');
+  if (err) err.classList.remove('show');
 }
 
 // Helper: chequea sesión antes de una operación de escritura.
@@ -1479,7 +1503,7 @@ async function hacerLogout(){
     Object.keys(localStorage).filter(k => k.startsWith('sb-') || k.startsWith('supabase.')).forEach(k => localStorage.removeItem(k));
   } catch(e){}
   aplicarVisibilidadRol();
-  mostrarBotonLogin();
+  aplicarModoSesion();
   // v8.46 · Forzar reload para que el estado quede limpio de verdad
   setTimeout(() => location.reload(), 300);
 }
@@ -1527,6 +1551,14 @@ function setModoIndicador(online) {
 
 // Cargar registros al iniciar
 async function cargarRegs() {
+  // v8.56 · Modo público (sin sesión) · no cargar tareas · info institucional interna
+  if (!window.dvbaAuth || !dvbaAuth.estaLogueado()) {
+    regs = [];
+    _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
+    setModoIndicador(true);
+    console.log('[Modo público] Portal sin sesión · no se cargan tareas (SQL_12 RLS)');
+    return;
+  }
   if (!_supa) {
     // Fallback localStorage
     try { regs = JSON.parse(localStorage.getItem('dvba_z6v6') || '[]'); } catch(e) { regs = []; }
@@ -7305,7 +7337,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
       <div style="margin-bottom:14px">
         <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
-        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.51</span> · Familia escritorio</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.56</span> · Familia escritorio</div>
         <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.89</b></div>
       </div>
 
