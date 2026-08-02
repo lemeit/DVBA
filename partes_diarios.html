@@ -57,12 +57,12 @@ header .user #email{font-weight:600}
 header .btn-hdr{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none}
 header .btn-hdr:hover{background:rgba(255,255,255,.25)}
 /* v7.87 · Nav consistente entre las 3 apps */
-.nav-app{color:#fff;border:1px solid rgba(255,255,255,.3);padding:5px 12px;border-radius:14px;font-size:10px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;cursor:pointer;letter-spacing:.3px;transition:all .15s;margin-left:4px;font-family:inherit}
-.nav-app:hover{box-shadow:0 2px 8px rgba(0,0,0,.25);filter:brightness(1.12)}
-.nav-app.plan  {background:rgba(26,138,74,.85)}
-.nav-app.rep   {background:rgba(196,122,0,.85)}
-.nav-app.portal{background:rgba(0,154,174,.85)}
-.nav-app.active{outline:2px solid rgba(255,255,255,.5);cursor:default}
+/* v8.55 · Nav-app UNIFICADO monocromático (estilo admin_usuarios) */
+.nav-app{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:4px;cursor:pointer;letter-spacing:.2px;transition:background .15s;margin-left:4px;font-family:inherit}
+.nav-app:hover{background:rgba(255,255,255,.28)}
+.nav-app.active{background:rgba(255,255,255,.28);outline:none;cursor:default}
+.nav-app[data-solo-admin="1"]{background:rgba(190,23,23,.85);border-color:rgba(255,255,255,.4)}
+.nav-app[data-solo-admin="1"]:hover{background:rgba(190,23,23,1)}
 header .hbadge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:9px;margin-left:5px;letter-spacing:.5px;vertical-align:middle}
 header .hversion{font-size:9px;color:rgba(255,255,255,.6);padding-right:10px;border-right:1px solid rgba(255,255,255,.2);margin-left:8px}
 /* v7.87 · Selector de zona: label queda visible, ícono ▾ al lado abre el select nativo */
@@ -251,7 +251,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <a class="nav-app portal" href="index.html" title="Portal principal · Mapa">🗺 Portal</a>
     <a class="nav-app plan active" href="#" title="Estás en Plan de Seguridad" onclick="return false">🛡️ Plan Seguridad</a>
     <a class="nav-app rep role-oculto" data-solo-gerencia="1" href="reportes.html" title="Reportes · solo Gerencia y Admin">📊 Reportes</a>
-    <a class="nav-app role-oculto" data-solo-admin="1" href="admin_usuarios.html" title="Panel Admin · solo admin" style="background:rgba(190,23,23,.85)">🛡 Admin</a>
+    <a class="nav-app role-oculto" data-solo-admin="1" href="admin_usuarios.html" title="Panel Admin · solo admin">🛡 Admin</a>
     <span id="email">—</span>
     <button onclick="pdLogout()" title="Cerrar sesión" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer">salir</button>
     <span style="font-size:9px;color:rgba(255,255,255,.7)">EN LINEA</span><div class="dot"></div>
