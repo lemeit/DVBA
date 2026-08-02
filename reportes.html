@@ -45,6 +45,8 @@ header .btn-hdr:hover{background:rgba(255,255,255,.25)}
 .nav-app:hover{box-shadow:0 2px 8px rgba(0,0,0,.25);filter:brightness(1.12)}
 .nav-app.plan  {background:rgba(26,138,74,.85)}
 .nav-app.rep   {background:rgba(196,122,0,.85)}
+/* v8.53 · Items data-solo-admin arrancan ocultos por CSS (evita FOUC) */
+[data-solo-admin="1"].role-oculto{display:none !important}
 .nav-app.portal{background:rgba(0,154,174,.85)}
 .nav-app.active{outline:2px solid rgba(255,255,255,.5);cursor:default}
 header .hbadge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:9px;margin-left:5px;letter-spacing:.5px;vertical-align:middle}
@@ -128,13 +130,14 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
         </select>
       </span>
     </h1>
-    <p>📊 Reportes de tareas ejecutadas · Plan de Seguridad en la Circulación</p>
+    <p><b>SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup></b> · Plan de Seguridad en la Circulación · Reportes de tareas ejecutadas</p>
   </div>
   <div class="user">
     <!-- v7.87 · Nav consistente entre las 3 apps -->
     <a class="nav-app portal" href="index.html" title="Portal principal · Mapa">🗺 Portal</a>
     <a class="nav-app plan" href="partes_diarios.html" title="Plan de Seguridad · Cargar tareas">🛡️ Plan Seguridad</a>
     <a class="nav-app rep active" href="#" title="Estás en Reportes" onclick="return false">📊 Reportes</a>
+    <a class="nav-app role-oculto" data-solo-admin="1" href="admin_usuarios.html" title="Panel Admin · solo admin" style="background:rgba(190,23,23,.85)">🛡 Admin</a>
     <span id="email">—</span>
     <button onclick="rpLogout()" title="Cerrar sesión" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer">salir</button>
     <span style="font-size:9px;color:rgba(255,255,255,.7)">EN LINEA</span><div class="dot"></div>
@@ -357,14 +360,23 @@ async function rpInit(){
   const perfil = (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.get() : null;
   const emailEl = document.getElementById('email');
   if (perfil){
-    const corto = ((perfil.nombre || user.email || '?') + '').split('@')[0];
-    const rolLbl = perfil.rol === 'admin' ? 'Admin'
-                 : perfil.rol === 'gerencia' ? 'Gerencia' : 'Técnico';
-    emailEl.textContent = corto;
-    emailEl.title = rolLbl + (perfil.zona ? ' · Zona ' + perfil.zona : ' · ve todas las zonas');
+    // v8.53 · Mostrar Rol+Zona (nunca mail) igual que el portal principal
+    const rolLbl = perfil.rol === 'admin'    ? '🛡 Admin'
+                 : perfil.rol === 'gerencia' ? '📊 Gerencia'
+                 : perfil.rol === 'tecnico'  ? '👷 Técnico'
+                 : '👤 Usuario';
+    const zonaLbl = perfil.zona ? ' · Zona ' + perfil.zona : '';
+    emailEl.textContent = rolLbl + zonaLbl;
+    emailEl.title = (perfil.nombre || user.email || '') + (perfil.zona ? ' · Zona ' + perfil.zona : ' · ve todas las zonas');
   } else {
-    emailEl.textContent = user.email;
+    emailEl.textContent = '👤 Usuario';
+    emailEl.title = user.email || '';
   }
+  // v8.53 · Revelar links data-solo-admin sólo si el rol es admin
+  const esAdmin = perfil && perfil.rol === 'admin';
+  document.querySelectorAll('[data-solo-admin="1"]').forEach(el => {
+    el.classList.toggle('role-oculto', !esAdmin);
+  });
   rpSetZona(localStorage.getItem('dvba_zona') || 'VI');
   document.getElementById('toolbar').style.display = 'flex';
   document.getElementById('footerInst').style.display = 'flex';

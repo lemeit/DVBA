@@ -214,8 +214,10 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 </style>
 <style>
 /* v7.99 · Fix FOUC · items marcados data-solo-gerencia arrancan ocultos
-   por CSS; aplicarVisibilidadRol() los revela solo a gerencia+admin. */
+   por CSS; aplicarVisibilidadRol() los revela solo a gerencia+admin.
+   v8.53 · data-solo-admin sólo se revela a admin. */
 [data-solo-gerencia="1"].role-oculto{display:none !important}
+[data-solo-admin="1"].role-oculto{display:none !important}
 </style>
 </head>
 <body>
@@ -242,13 +244,14 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
         </select>
       </span>
     </h1>
-    <p>Dirección de Vialidad de la Prov. de Buenos Aires &nbsp;&middot;&nbsp; Plan de Seguridad en la Circulación</p>
+    <p><b>SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup></b> · Plan de Seguridad en la Circulación</p>
   </div>
   <div class="user">
     <!-- v7.87 · Nav consistente entre las 3 apps -->
     <a class="nav-app portal" href="index.html" title="Portal principal · Mapa">🗺 Portal</a>
     <a class="nav-app plan active" href="#" title="Estás en Plan de Seguridad" onclick="return false">🛡️ Plan Seguridad</a>
     <a class="nav-app rep role-oculto" data-solo-gerencia="1" href="reportes.html" title="Reportes · solo Gerencia y Admin">📊 Reportes</a>
+    <a class="nav-app role-oculto" data-solo-admin="1" href="admin_usuarios.html" title="Panel Admin · solo admin" style="background:rgba(190,23,23,.85)">🛡 Admin</a>
     <span id="email">—</span>
     <button onclick="pdLogout()" title="Cerrar sesión" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer">salir</button>
     <span style="font-size:9px;color:rgba(255,255,255,.7)">EN LINEA</span><div class="dot"></div>
@@ -722,6 +725,11 @@ async function pdInit(){
       const esGerenciaOAdmin = perfil.rol === 'admin' || perfil.rol === 'gerencia';
       document.querySelectorAll('[data-solo-gerencia="1"]').forEach(el => {
         el.classList.toggle('role-oculto', !esGerenciaOAdmin);
+      });
+      // v8.53 · data-solo-admin (Panel Admin en header) sólo se revela a admin
+      const esAdmin = perfil.rol === 'admin';
+      document.querySelectorAll('[data-solo-admin="1"]').forEach(el => {
+        el.classList.toggle('role-oculto', !esAdmin);
       });
     } else {
       emailEl.textContent = user.email;
