@@ -251,7 +251,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
     <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
     <div class="brand">
       SIG Vial PBA<sup style="font-size:.65em;color:#c47a00;letter-spacing:0">β</sup> · Modo Básico
-      <span class="sub">Zona VI Saladillo</span>
+      <span class="sub" id="lHdrSub">Cargando sesión...</span>
     </div>
   </div>
   <button class="gps-badge pending" id="gpsBadge" onclick="lToqueGps()" type="button" title="Toque para verificar la ubicación">
@@ -365,7 +365,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.90';
+const APP_VER = 'v9.91';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 const BUCKET = 'relevamientos';
@@ -373,6 +373,25 @@ const PENDIENTES_KEY = 'dvba_campo_lite_pendientes';
 
 let _supa = null;
 let _user = null;
+
+// v8.53 · Actualiza el sub del header con Rol+Zona real del user
+// (antes decía hardcoded "Zona VI Saladillo"). Cualquier zona.
+function lActualizarSubHeader(){
+  const el = document.getElementById('lHdrSub');
+  if (!el) return;
+  try {
+    const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
+    if (cache.rol) {
+      const rolLbl = cache.rol === 'admin'    ? '🛡 Admin'
+                   : cache.rol === 'gerencia' ? '📊 Gerencia'
+                   : cache.rol === 'tecnico'  ? '👷 Técnico'
+                   : '👤 Usuario';
+      el.textContent = rolLbl + (cache.zona ? ' · Zona ' + cache.zona : '');
+      return;
+    }
+  } catch(_){}
+  el.textContent = 'Sin sesión';
+}
 let _gpsWatchId = null;
 let _gpsLat = null, _gpsLng = null, _gpsAcc = null, _gpsAlt = null;
 let _fotoActual = null;  // base64 de la última foto tomada
@@ -996,14 +1015,23 @@ function lVerInfo(){
   const email = _user ? (_user.email || '(usuario)') : '(sin sesión)';
   const pend  = contarPendientes();
   const online = navigator.onLine ? '🟢 Con internet' : '🔴 Sin internet';
+  // v8.53 · Rol+Zona del perfil (además del mail, para claridad multi-zona)
+  let rolZona = '';
+  try {
+    const c = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
+    if (c.rol) {
+      const rl = c.rol === 'admin' ? '🛡 Admin' : c.rol === 'gerencia' ? '📊 Gerencia' : c.rol === 'tecnico' ? '👷 Técnico' : '👤 Usuario';
+      rolZona = rl + (c.zona ? ' · Zona ' + c.zona : '');
+    }
+  } catch(_){}
   const html = '' +
     '<div style="text-align:left;line-height:1.7;font-size:13px;color:#333">' +
       '<b>SIG Vial PBA<sup style="font-size:.65em;color:#c47a00">β</sup> · Modo Básico</b><br>' +
       'Versión <b>' + APP_VER + '</b><br>' +
-      ''  +  // v9.73 · nombre del autor sacado — redundante con el user badge y el footer del portal
       '<hr style="border:0;border-top:1px solid #e0e0e0;margin:10px 0">' +
       '<b>Sesión</b><br>' +
-      '<span style="font-size:12px;color:#555;word-break:break-all">👤 ' + email + '</span><br>' +
+      (rolZona ? '<span style="font-size:12px;color:#333"><b>' + rolZona + '</b></span><br>' : '') +
+      '<span style="font-size:11px;color:#888;word-break:break-all">' + email + '</span><br>' +
       '<span style="font-size:12px;color:#555">' + online + '</span><br>' +
       '<span style="font-size:12px;color:#555">📤 Sin enviar: <b>' + pend + '</b></span>' +
     '</div>' +
@@ -1083,6 +1111,8 @@ async function inicializar(){
       try { if (typeof DVBA_PERFIL !== 'undefined') await DVBA_PERFIL.cargar(_supa); } catch(e){ console.warn('[auth perfil]', e); }
       } catch(e){ console.warn('[auth online refresh]', e); }
     }
+    // v8.53 · Actualizar sub del header con Rol+Zona real del user
+    lActualizarSubHeader();
   }
   // Paso 3 · si no hay sesión guardada:
   //   - Con red: mostrar login normal.
