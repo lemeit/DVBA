@@ -192,7 +192,7 @@ function _inyectarModal(){
   div.innerHTML = `
     <div class="lm-box">
       <div class="lm-h">
-        <h3id="lm-titulo">Acerca de</h3>
+        <h3 id="lm-titulo">Acerca de</h3>
         <button onclick="DVBA_LEGAL.cerrar()" title="Cerrar">×</button>
       </div>
       <div class="lm-tabs">
@@ -209,9 +209,6 @@ function _inyectarModal(){
     </div>
   `;
   document.body.appendChild(div);
-  // Fix del typo del h3 (el atributo se pegó sin espacio arriba)
-  const h3 = div.querySelector('h3');
-  if (h3) h3.id = 'lm-titulo';
   // Cerrar al hacer click fuera del box
   div.addEventListener('click', (e) => {
     if (e.target.id === 'dvba-legal-modal') cerrar();
