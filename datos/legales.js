@@ -19,7 +19,16 @@
 (function(global){
 'use strict';
 
-const VER_APP     = 'v8.52';
+// v8.60 · Versión dinámica: lee window.APP_VERSION (portal escritorio) o
+// window.APP_VER (móvil). Fallback a '?' si ninguno está definido para que
+// sea obvio que hay que revisar (nunca queda anclado a una versión vieja).
+function _leerVersionActual(){
+  if (typeof global !== 'undefined'){
+    if (typeof global.APP_VERSION === 'string' && global.APP_VERSION) return global.APP_VERSION;
+    if (typeof global.APP_VER === 'string' && global.APP_VER) return global.APP_VER;
+  }
+  return 'v?';
+}
 const MAIL_INST   = 'lulamaita@vialidad.gba.gov.ar';
 const MAIL_PERS   = 'lucianolamaita@gmail.com';
 
@@ -64,7 +73,7 @@ const CONTENIDOS = {
       <p style="margin-top:4px">Dirección de Vialidad de la Provincia de Buenos Aires (DVBA) · Departamento Zona VI Saladillo. Cobertura: 8 partidos (Saladillo, Gral. Alvear, Gral. Las Heras, Lobos, Roque Pérez, Las Flores, Navarro, 25 de Mayo).</p>
 
       <p style="margin-top:14px;font-size:11px;color:#666;text-align:center;font-style:italic;border-top:1px solid #e0e0e0;padding-top:8px">
-        Versión ${VER_APP} · La consulta del mapa y datos oficiales es pública.
+        Versión __VER__ · La consulta del mapa y datos oficiales es pública.
       </p>
     `
   },
@@ -219,7 +228,8 @@ function abrir(cual){
   _inyectarModal();
   const c = CONTENIDOS[cual] || CONTENIDOS.acerca;
   document.getElementById('lm-titulo').innerHTML = c.tit;
-  document.getElementById('lm-body').innerHTML = c.body;
+  // v8.60 · Sustitución dinámica del placeholder __VER__ (lee APP_VERSION/APP_VER en runtime)
+  document.getElementById('lm-body').innerHTML = c.body.replace(/__VER__/g, _leerVersionActual());
   // Marcar tab activo
   document.querySelectorAll('#dvba-legal-modal .lm-tab').forEach(t => {
     t.classList.toggle('on', t.dataset.tab === cual);
