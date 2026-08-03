@@ -411,7 +411,7 @@ body.modo-campo #campo-fab{display:flex}
    v8.51 · data-solo-admin sólo se revela a admin. */
 [data-solo-gerencia="1"].role-oculto{display:none !important}
 [data-solo-admin="1"].role-oculto{display:none !important}
-/* v8.56 · Portal público · items que requieren sesión arrancan ocultos por CSS.
+/* v8.58 · Portal público · items que requieren sesión arrancan ocultos por CSS.
    aplicarModoSesion() los revela al haber usuario logueado. */
 [data-requiere-sesion="1"].role-oculto{display:none !important}
 [data-solo-publico="1"].role-oculto{display:none !important}
@@ -443,9 +443,13 @@ body.modo-campo #campo-fab{display:flex}
     <p><b>SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup></b> &nbsp;&middot;&nbsp; Sistema de Relevamiento y Gestión de la Red Vial</p>
   </div>
   <div class="hright">
-    <!-- v8.56 · Botón Iniciar sesión (solo visible modo público) -->
+    <!-- v8.58 · Botón Iniciar sesión (solo visible modo público) -->
     <button class="nav-app role-oculto" data-solo-publico="1" onclick="abrirLogin()" title="Iniciar sesión para acceder al sistema completo" style="background:rgba(0,154,174,.85);border-color:rgba(255,255,255,.4)">
       🔐 Iniciar sesión
+    </button>
+    <!-- v8.58 · Botón ℹ Alcance · reabre el aviso de modo público -->
+    <button class="nav-app role-oculto" data-solo-publico="1" onclick="mostrarAvisoPublico(true)" title="¿Qué puedo hacer en modo público?">
+      ℹ Alcance
     </button>
     <!-- v7.12 — Badge cola de pendientes (visible solo logueado con registros estado_workflow=campo) -->
     <button id="cola-badge" class="role-oculto" data-requiere-sesion="1" title="Registros pendientes de revisión" onclick="abrirColaPendientes()">
@@ -482,7 +486,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.56</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.58</span></div>
   </div>
 </div>
 <div class="layout">
@@ -778,7 +782,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.56</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
+        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.58</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
       </div>
     </div>
 
@@ -847,7 +851,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.56';
+const APP_VERSION = 'v8.58';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1404,13 +1408,13 @@ function initAuthGate(){
     sincronizarSupaConSesion();
     mostrarUsuario();
   }
-  // v8.56 · Portal público · siempre aplicar modo sesión al arranque
+  // v8.58 · Portal público · siempre aplicar modo sesión al arranque
   aplicarModoSesion();
   const pass = document.getElementById('login-pass');
   if (pass) pass.addEventListener('keydown', e => { if (e.key === 'Enter') hacerLogin(); });
 }
 
-// v8.56 · Portal público · toggle de items marcados data-requiere-sesion
+// v8.58 · Portal público · toggle de items marcados data-requiere-sesion
 // (arrancan ocultos por CSS · .role-oculto) vs data-solo-publico (arrancan
 // ocultos también, se muestran solo si NO hay sesión).
 function aplicarModoSesion(){
@@ -1433,7 +1437,7 @@ function abrirLogin(){
   document.getElementById('login-ov').classList.add('show');
   setTimeout(() => document.getElementById('login-email').focus(), 100);
 }
-// v8.56 · Cerrar el modal login sin loguearse · vuelve al mapa público
+// v8.58 · Cerrar el modal login sin loguearse · vuelve al mapa público
 function cerrarLoginModal(){
   document.getElementById('login-ov').classList.remove('show');
   const err = document.getElementById('login-err');
@@ -1551,7 +1555,7 @@ function setModoIndicador(online) {
 
 // Cargar registros al iniciar
 async function cargarRegs() {
-  // v8.56 · Modo público (sin sesión) · no cargar tareas · info institucional interna
+  // v8.58 · Modo público (sin sesión) · no cargar tareas · info institucional interna
   if (!window.dvbaAuth || !dvbaAuth.estaLogueado()) {
     regs = [];
     _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
@@ -7337,7 +7341,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
       <div style="margin-bottom:14px">
         <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
-        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.56</span> · Familia escritorio</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.58</span> · Familia escritorio</div>
         <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.91</b></div>
       </div>
 
@@ -7984,5 +7988,45 @@ function editarCaractCamino(){
 
 
 
+<!-- v8.58 · Banner dismissible modo público (estilo cookies) -->
+<div id="avisoPublico" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9500;background:rgba(31,39,50,.96);color:#fff;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));border-top:2px solid #ffd060;box-shadow:0 -4px 12px rgba(0,0,0,.35);font-family:'Encode Sans',sans-serif">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <div style="font-size:22px;flex-shrink:0">ℹ️</div>
+    <div style="flex:1;min-width:240px;font-size:12.5px;line-height:1.5">
+      <b style="color:#ffd060">Modo público</b> · Estás viendo la <b>Red Vial Provincial</b> de la zona seleccionada: rutas provinciales, caminos secundarios, límites de partidos y localidades. La información operativa (tareas ejecutadas, plan de seguridad, gestión) requiere iniciar sesión con usuario autorizado.
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0">
+      <button onclick="abrirLogin()" style="background:rgba(0,154,174,.85);color:#fff;border:1px solid rgba(255,255,255,.4);padding:8px 14px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">🔐 Iniciar sesión</button>
+      <button onclick="cerrarAvisoPublico()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);padding:8px 14px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap" title="No mostrar más este aviso">Entendido ✕</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// v8.58 · Aviso modo público (banner dismissible + botón ℹ Alcance en header)
+// Aparece la primera vez que un usuario sin sesión entra al portal. Al cerrar
+// setea flag en localStorage y no vuelve a molestar. El botón ℹ Alcance del
+// header lo reabre bajo demanda ignorando el flag.
+function mostrarAvisoPublico(forzar){
+  const el = document.getElementById('avisoPublico');
+  if (!el) return;
+  const logueado = window.dvbaAuth && dvbaAuth.estaLogueado();
+  if (logueado) { el.style.display = 'none'; return; }
+  const yaVisto = localStorage.getItem('dvba_aviso_publico_visto') === '1';
+  if (yaVisto && !forzar) return;
+  el.style.display = 'block';
+}
+function cerrarAvisoPublico(){
+  const el = document.getElementById('avisoPublico');
+  if (el) el.style.display = 'none';
+  try { localStorage.setItem('dvba_aviso_publico_visto', '1'); } catch(_){}
+}
+// Auto-mostrar al cargar la página si corresponde
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => setTimeout(() => mostrarAvisoPublico(false), 600));
+} else {
+  setTimeout(() => mostrarAvisoPublico(false), 600);
+}
+</script>
 </body>
 </html>
