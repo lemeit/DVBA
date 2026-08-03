@@ -121,7 +121,10 @@ const ARMONIZADOR = (() => {
   async function init() {
     if (_partidosGeoJSON) return _partidosGeoJSON;
     if (_initPromise) return _initPromise;
-    _initPromise = fetch('datos/zonas/zona_VI/partidos_zonaVI.geojson')
+    // v8.62 · Path dinámico según zona activa. Fallback a VI si loader_zona no cargó.
+    const _pathPartidos = (window.ZONA_META && window.ZONA_META.assets_zona && window.ZONA_META.assets_zona.partidos)
+        || 'datos/zonas/zona_VI/partidos_zonaVI.geojson';
+    _initPromise = fetch(_pathPartidos)
       .then(r => {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
