@@ -103,7 +103,7 @@ table.rep td.center{text-align:center}
 /* FOOTER */
 footer{background:var(--bg);color:var(--mut);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--light);position:fixed;bottom:0;left:0;right:0;z-index:80} /* v8.26 · footer claro minimalista PBA */
 footer .fl{flex:1;min-width:260px}
-footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
+footer .fr{font-size:9.5px;color:var(--mut)}  /* v8.60 fix: era blanco translúcido, invisible sobre fondo claro */
 </style>
 </head>
 <body>
@@ -265,7 +265,7 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
     <span style="margin-left:8px;color:var(--mut)">Módulo de reportes · Uso interno institucional</span>
   </div>
   <div class="fr">
-    <span id="app-ver">v8.56</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
+    <span id="app-ver">v8.60</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
   </div>
 </footer>
 
@@ -277,7 +277,7 @@ footer .fr{font-size:9.5px;color:rgba(255,255,255,.5)}
 // Charts con Chart.js CDN · Export CSV vanilla
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v8.56';
+const APP_VERSION = 'v8.60';
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 let _supa = null;
