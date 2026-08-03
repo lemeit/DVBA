@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@500;600;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SIG Vial PBAᵝ · Plan de Seguridad en la Circulación</title>
+<title>SIG Vial PBA · Plan de Seguridad en la Circulación</title>
 <link rel="icon" href="datos/img/logo_dvba_clean.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="datos/auth.js"></script>
@@ -341,7 +341,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.63d</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.63e</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -1416,8 +1416,8 @@ function pdQuitarFoto(momento, i){
 // insertamos un relevamiento y vinculamos vía parte_fotos como "previa"
 // o "posterior" — así aparece en el mapa Y queda ligada al parte.
 // ═══════════════════════════════════════════════════════════════════
-const APP_VER = 'v8.63d';
-window.APP_VER = APP_VER;  // v8.63d · expone a window para legales.js
+const APP_VER = 'v8.63e';
+window.APP_VER = APP_VER;  // v8.63e · expone a window para legales.js
 const _subEstado = { momento:'previa', file:null, base64:null, gps:null };
 
 function pdSubirFoto(momento){
