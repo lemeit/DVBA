@@ -103,7 +103,7 @@ table.rep td.center{text-align:center}
 .auth-guard{padding:40px 20px;text-align:center;color:var(--mut);font-size:14px}
 .auth-guard button{margin-top:14px;padding:10px 22px;background:var(--vd);color:#fff;border:0;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer}
 
-/* FOOTER · v8.64.2 unificado con partes_diarios/admin (estilo inline en el <footer>) */
+/* FOOTER · v8.64.3 unificado con partes_diarios/admin (estilo inline en el <footer>) */
 </style>
 </head>
 <body>
@@ -259,14 +259,14 @@ table.rep td.center{text-align:center}
   <div class="empty" id="empty" style="display:none">Sin resultados con estos filtros. Probá ampliar el rango de fechas.</div>
 </div>
 
-<!-- v8.64.2 · Footer institucional unificado (mismo estilo que partes_diarios y admin_usuarios) -->
+<!-- v8.64.3 · Footer institucional unificado (mismo estilo que partes_diarios y admin_usuarios) -->
 <footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--pd);position:fixed;bottom:0;left:0;right:0;z-index:80">
   <div style="flex:1;min-width:260px">
     <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
     <span style="margin-left:8px">Módulo de reportes · Uso interno institucional.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.64.2</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.64.3</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -278,8 +278,8 @@ table.rep td.center{text-align:center}
 // Charts con Chart.js CDN · Export CSV vanilla
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v8.64.2';
-window.APP_VERSION = APP_VERSION;  // v8.64.2 · expone a window para legales.js
+const APP_VERSION = 'v8.64.3';
+window.APP_VERSION = APP_VERSION;  // v8.64.3 · expone a window para legales.js
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 let _supa = null;
