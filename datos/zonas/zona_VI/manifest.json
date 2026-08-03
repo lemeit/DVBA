@@ -1,0 +1,51 @@
+{
+  "codigo": "VI",
+  "numeroRomano": "VI",
+  "numeroArabigo": 6,
+  "nombre": "Saladillo",
+  "cabecera": "Saladillo",
+  "estado": "produccion",
+  "notas": "Zona piloto del sistema SIG Vial PBAᵝ (v8.59). Todos los assets calibrados y validados en producción.",
+  "partidos": [
+    {"nombre": "General Alvear",       "esCabecera": false},
+    {"nombre": "General Las Heras",    "esCabecera": false},
+    {"nombre": "Las Flores",           "esCabecera": false},
+    {"nombre": "Lobos",                "esCabecera": false},
+    {"nombre": "Navarro",              "esCabecera": false},
+    {"nombre": "Roque Pérez",          "esCabecera": false},
+    {"nombre": "Saladillo",            "esCabecera": true},
+    {"nombre": "Veinticinco de Mayo",  "esCabecera": false}
+  ],
+  "rps": [
+    {"num": "6",  "calibrado": false, "bundle": null,                                "notas": "Pendiente calibración"},
+    {"num": "20", "calibrado": false, "bundle": null,                                "notas": "Pendiente calibración"},
+    {"num": "24", "calibrado": false, "bundle": null,                                "notas": "Pendiente calibración"},
+    {"num": "30", "calibrado": true,  "bundle": "datos/rutas/rutas_rp30.js"},
+    {"num": "40", "calibrado": true,  "bundle": "datos/rutas/rutas_rp40.js"},
+    {"num": "41", "calibrado": true,  "bundle": "datos/rutas/rutas_rp41.js"},
+    {"num": "42", "calibrado": false, "bundle": null,                                "notas": "Pendiente calibración"},
+    {"num": "43", "calibrado": false, "bundle": null,                                "notas": "Pendiente calibración"},
+    {"num": "44", "calibrado": false, "bundle": null,                                "notas": "Pendiente calibración"},
+    {"num": "46", "calibrado": true,  "bundle": "datos/rutas/rutas_rp46.js"},
+    {"num": "47", "calibrado": true,  "bundle": "datos/rutas/rutas_rp47.js"},
+    {"num": "48", "calibrado": false, "bundle": null,                                "notas": "Pendiente calibración"},
+    {"num": "51", "calibrado": true,  "bundle": "datos/rutas/rutas_rp51.js"},
+    {"num": "61", "calibrado": true,  "bundle": "datos/rutas/rutas_rp61.js"},
+    {"num": "91", "calibrado": true,  "bundle": "datos/rutas/rutas_rp91.js"}
+  ],
+  "assets": {
+    "partidos_geojson":       "datos/zonas/zona_VI/partidos_zonaVI.geojson",
+    "red_secundaria_geojson": "datos/zonas/zona_VI/red_secundaria_zonaVI_final.geojson",
+    "caract_viales_csv":      "datos/zonas/zona_VI/CARACT_VIALES_zonaVI.csv",
+    "caract_viales_js":       "datos/zonas/zona_VI/caracteristicas_viales_zonaVI.js",
+    "red_vial_js":            "datos/zonas/zona_VI/red_vial_zonaVI.js"
+  },
+  "stats": {
+    "rps_total": 15,
+    "rps_calibradas": 8,
+    "caminos_secundarios": 100,
+    "tramos_caminos": 129,
+    "mojones": 198,
+    "partes_historicos": 632
+  }
+}

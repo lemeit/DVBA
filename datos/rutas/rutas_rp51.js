@@ -1,5 +1,5 @@
 // =================================================================
-// datos/rutas_rp51.js  -  RP51 DVBA Zona VI
+// datos/rutas/rutas_rp51.js  -  RP51 DVBA Zona VI
 // Generado por gen_ruta_bundle.py v2.11 (orden=fid)
 // 326 pts | 132.961 km | progIni:348.2 | progFin:215.23  [v7.60: sentido corregido]
 // Gaps reales (es_gap=1): 0 [GAPS_RP51]

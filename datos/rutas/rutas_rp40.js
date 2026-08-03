@@ -1,5 +1,5 @@
 // =================================================================
-// datos/rutas_rp40.js  -  RP40 DVBA Zona VI
+// datos/rutas/rutas_rp40.js  -  RP40 DVBA Zona VI
 // Generado por gen_ruta_bundle.py v2.11 (orden=fid)
 // 442 pts | 184.17 km | progIni:29.4 | progFin:213.6
 // Gaps reales (es_gap=1): 2 [GAPS_RP40]

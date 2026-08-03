@@ -26,17 +26,17 @@
 <!-- v8.13 · Módulo único de sello v4 (portal delega en él tras refactor v8.11 · antes tenía copia embebida). -->
 <script src="datos/sello_v4.js"></script>
 <script src="datos/armonizador.js" defer></script>
-<script src="datos/red_vial.js" defer></script>
+<script src="datos/zonas/zona_VI/red_vial_zonaVI.js" defer></script>
 <!-- v7.19 — Bundles RP (carga sincrónica, antes de RUTAS_DATA) -->
-<script src="datos/rutas_rp30.js?v=7.29"></script>
-<script src="datos/rutas_rp40.js?v=7.29"></script>
-<script src="datos/rutas_rp41.js?v=7.29"></script>
-<script src="datos/rutas_rp46.js?v=7.29"></script>
-<script src="datos/rutas_rp47.js?v=7.29"></script>
-<script src="datos/rutas_rp51.js?v=7.29"></script>
-<script src="datos/rutas_rp61.js?v=7.29"></script>
-<script src="datos/rutas_rp91.js?v=7.29"></script>
-<script src="datos/caracteristicas_viales.js?v=7.55"></script>
+<script src="datos/rutas/rutas_rp30.js?v=8.59"></script>
+<script src="datos/rutas/rutas_rp40.js?v=8.59"></script>
+<script src="datos/rutas/rutas_rp41.js?v=8.59"></script>
+<script src="datos/rutas/rutas_rp46.js?v=8.59"></script>
+<script src="datos/rutas/rutas_rp47.js?v=8.59"></script>
+<script src="datos/rutas/rutas_rp51.js?v=8.59"></script>
+<script src="datos/rutas/rutas_rp61.js?v=8.59"></script>
+<script src="datos/rutas/rutas_rp91.js?v=8.59"></script>
+<script src="datos/zonas/zona_VI/caracteristicas_viales_zonaVI.js?v=8.59"></script>
 <style>
 :root{
   /* v8.23 · Paleta oficial PBA (Anexo III del manual de marca "Buenos Aires") ═════
@@ -411,7 +411,7 @@ body.modo-campo #campo-fab{display:flex}
    v8.51 · data-solo-admin sólo se revela a admin. */
 [data-solo-gerencia="1"].role-oculto{display:none !important}
 [data-solo-admin="1"].role-oculto{display:none !important}
-/* v8.58 · Portal público · items que requieren sesión arrancan ocultos por CSS.
+/* v8.59 · Portal público · items que requieren sesión arrancan ocultos por CSS.
    aplicarModoSesion() los revela al haber usuario logueado. */
 [data-requiere-sesion="1"].role-oculto{display:none !important}
 [data-solo-publico="1"].role-oculto{display:none !important}
@@ -443,11 +443,11 @@ body.modo-campo #campo-fab{display:flex}
     <p><b>SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup></b> &nbsp;&middot;&nbsp; Sistema de Relevamiento y Gestión de la Red Vial</p>
   </div>
   <div class="hright">
-    <!-- v8.58 · Botón Iniciar sesión (solo visible modo público) -->
+    <!-- v8.59 · Botón Iniciar sesión (solo visible modo público) -->
     <button class="nav-app role-oculto" data-solo-publico="1" onclick="abrirLogin()" title="Iniciar sesión para acceder al sistema completo" style="background:rgba(0,154,174,.85);border-color:rgba(255,255,255,.4)">
       🔐 Iniciar sesión
     </button>
-    <!-- v8.58 · Botón ℹ Alcance · reabre el aviso de modo público -->
+    <!-- v8.59 · Botón ℹ Alcance · reabre el aviso de modo público -->
     <button class="nav-app role-oculto" data-solo-publico="1" onclick="mostrarAvisoPublico(true)" title="¿Qué puedo hacer en modo público?">
       ℹ Alcance
     </button>
@@ -486,7 +486,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.58</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.59</span></div>
   </div>
 </div>
 <div class="layout">
@@ -782,7 +782,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.58</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
+        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.59</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
       </div>
     </div>
 
@@ -851,7 +851,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.58';
+const APP_VERSION = 'v8.59';
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1131,7 +1131,7 @@ const _MOJONES_DATA_HARDCODED=[{"ruta":"20","km":200,"etiqueta":"200 km","sentid
 
 // v7.19 — Construir RUTAS_DATA y MOJONES_DATA desde bundles regenerados
 // Las 8 RPs procesadas (RP30/40/41/46/47/51/61/91) vienen de los archivos
-// datos/rutas_rpXX.js (cargados como <script> en el head). Las 7 RPs sin
+// datos/rutas/rutas_rpXX.js (cargados como <script> en el head). Las 7 RPs sin
 // bundle (RP6/20/24/42/43/44/48) se mantienen desde _RUTAS_DATA_HARDCODED.
 const _RP_BUNDLES = {
   '30': typeof CHAIN_RP30 !== 'undefined' ? CHAIN_RP30 : null,
@@ -1408,13 +1408,13 @@ function initAuthGate(){
     sincronizarSupaConSesion();
     mostrarUsuario();
   }
-  // v8.58 · Portal público · siempre aplicar modo sesión al arranque
+  // v8.59 · Portal público · siempre aplicar modo sesión al arranque
   aplicarModoSesion();
   const pass = document.getElementById('login-pass');
   if (pass) pass.addEventListener('keydown', e => { if (e.key === 'Enter') hacerLogin(); });
 }
 
-// v8.58 · Portal público · toggle de items marcados data-requiere-sesion
+// v8.59 · Portal público · toggle de items marcados data-requiere-sesion
 // (arrancan ocultos por CSS · .role-oculto) vs data-solo-publico (arrancan
 // ocultos también, se muestran solo si NO hay sesión).
 function aplicarModoSesion(){
@@ -1437,7 +1437,7 @@ function abrirLogin(){
   document.getElementById('login-ov').classList.add('show');
   setTimeout(() => document.getElementById('login-email').focus(), 100);
 }
-// v8.58 · Cerrar el modal login sin loguearse · vuelve al mapa público
+// v8.59 · Cerrar el modal login sin loguearse · vuelve al mapa público
 function cerrarLoginModal(){
   document.getElementById('login-ov').classList.remove('show');
   const err = document.getElementById('login-err');
@@ -1555,7 +1555,7 @@ function setModoIndicador(online) {
 
 // Cargar registros al iniciar
 async function cargarRegs() {
-  // v8.58 · Modo público (sin sesión) · no cargar tareas · info institucional interna
+  // v8.59 · Modo público (sin sesión) · no cargar tareas · info institucional interna
   if (!window.dvbaAuth || !dvbaAuth.estaLogueado()) {
     regs = [];
     _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
@@ -6245,9 +6245,18 @@ const CS_ESTILO_SEL_HALO = ({color:'#ffb800', weight:12, opacity:.75, lineCap:'r
 // Construir o refrescar la capa de Leaflet filtrada
 function csRefrescarLayer(){
   if (!_caminosGeoJSON_cache) {
-    fetch('datos/zona_vi/red_secundaria_zonaVI_final.geojson')
-      .then(r => r.json())
-      .then(geo => { _caminosGeoJSON_cache = geo; csRefrescarLayer(); });
+    // v8.60 · Cache-bust para evitar que el SW v9.90 sirva el path viejo.
+    // Post-refactor v8.59 la ruta cambió a datos/zonas/zona_VI/.
+    fetch('datos/zonas/zona_VI/red_secundaria_zonaVI_final.geojson?v=8.60', {cache:'no-cache'})
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status + ' cargando caminos secundarios');
+        return r.json();
+      })
+      .then(geo => { _caminosGeoJSON_cache = geo; csRefrescarLayer(); })
+      .catch(err => {
+        console.error('[Caminos Secundarios] Error cargando geojson:', err.message);
+        alert('No se pudieron cargar los Caminos Secundarios.\nError: ' + err.message + '\n\nSolución: recargá con Ctrl+Shift+R (hard refresh) para actualizar el Service Worker.');
+      });
     return;
   }
   // Eliminar capas anteriores (halo + base + sel_halo)
@@ -6648,8 +6657,11 @@ async function togglePartesLayer(){
     return;
   }
   // Requiere sesión para cargar (RLS)
-  const raw = localStorage.getItem('dvba_session');
-  if (!raw){
+  // v8.60 · Usar dvbaAuth.estaLogueado() en vez de leer localStorage directo.
+  // El chequeo anterior a localStorage.getItem('dvba_session') fallaba para
+  // usuarios que se loguearon vía dvbaAuth.login() cuando la sesión quedaba
+  // en formato distinto al esperado (ej. token expirado con refresh válido).
+  if (!(window.dvbaAuth && dvbaAuth.estaLogueado())){
     alert('Iniciá sesión para ver las tareas en el mapa.');
     return;
   }
@@ -7341,7 +7353,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
       <div style="margin-bottom:14px">
         <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
-        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.58</span> · Familia escritorio</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.59</span> · Familia escritorio</div>
         <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.91</b></div>
       </div>
 
@@ -7988,7 +8000,7 @@ function editarCaractCamino(){
 
 
 
-<!-- v8.58 · Banner dismissible modo público (estilo cookies) -->
+<!-- v8.59 · Banner dismissible modo público (estilo cookies) -->
 <div id="avisoPublico" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9500;background:rgba(31,39,50,.96);color:#fff;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));border-top:2px solid #ffd060;box-shadow:0 -4px 12px rgba(0,0,0,.35);font-family:'Encode Sans',sans-serif">
   <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
     <div style="font-size:22px;flex-shrink:0">ℹ️</div>
@@ -8003,7 +8015,7 @@ function editarCaractCamino(){
 </div>
 
 <script>
-// v8.58 · Aviso modo público (banner dismissible + botón ℹ Alcance en header)
+// v8.59 · Aviso modo público (banner dismissible + botón ℹ Alcance en header)
 // Aparece la primera vez que un usuario sin sesión entra al portal. Al cerrar
 // setea flag en localStorage y no vuelve a molestar. El botón ℹ Alcance del
 // header lo reabre bajo demanda ignorando el flag.

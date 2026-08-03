@@ -1,4 +1,4 @@
-// datos/caracteristicas_viales.js — v7.55 (bugfix partidos)
+// datos/zonas/zona_VI/caracteristicas_viales_zonaVI.js — v7.55 (bugfix partidos)
 // Generado desde SALADILLO_RED.csv con mapping correcto de códigos DVBA.
 // Total RPs: 15. Tramos totales: 96.
 

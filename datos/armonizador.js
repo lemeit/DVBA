@@ -121,7 +121,7 @@ const ARMONIZADOR = (() => {
   async function init() {
     if (_partidosGeoJSON) return _partidosGeoJSON;
     if (_initPromise) return _initPromise;
-    _initPromise = fetch('datos/partidos_zona_vi.geojson')
+    _initPromise = fetch('datos/zonas/zona_VI/partidos_zonaVI.geojson')
       .then(r => {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();

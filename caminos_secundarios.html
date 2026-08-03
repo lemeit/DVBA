@@ -228,7 +228,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'
 
 // Cargar polígonos de partidos (capa siempre visible para contexto)
 let LY_PARTIDOS = null;
-fetch('datos/partidos_zona_vi.geojson', {cache:'no-cache'})
+fetch('datos/zonas/zona_VI/partidos_zonaVI.geojson', {cache:'no-cache'})
   .then(r => r.ok ? r.json() : null)
   .then(gj => {
     if (!gj) return;
@@ -305,7 +305,7 @@ async function cargarDatos(){
   }
   if (pendientes.length){
     try{
-      const r = await fetch('datos/zona_vi/red_secundaria_zonaVI_final.geojson', {cache:'no-cache'});
+      const r = await fetch('datos/zonas/zona_VI/red_secundaria_zonaVI_final.geojson', {cache:'no-cache'});
       if (r.ok){
         const gj = await r.json();
         const set = new Set(pendientes);

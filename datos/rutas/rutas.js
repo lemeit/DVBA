@@ -1,4 +1,4 @@
-// datos/rutas.js
+// datos/rutas/rutas.js (dispatcher agnóstico multi-zona, movido en v8.59 desde datos/rutas.js)
 // Inicializa las estructuras globales que usa index.html (app de escritorio)
 // Cargar DESPUÉS de todos los rutas_rpXX.js
 

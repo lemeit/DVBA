@@ -1,5 +1,5 @@
 // =================================================================
-// datos/rutas_rp61.js  -  RP61 DVBA Zona VI
+// datos/rutas/rutas_rp61.js  -  RP61 DVBA Zona VI
 // Generado por gen_ruta_bundle.py v2.11 (orden=fid)
 // 407 pts | 225.986 km | progIni:15.64 | progFin:241.6
 // Gaps reales (es_gap=1): 2 [GAPS_RP61]

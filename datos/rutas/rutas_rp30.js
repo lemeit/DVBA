@@ -1,5 +1,5 @@
 // =================================================================
-// datos/rutas_rp30.js  -  RP30 DVBA Zona VI
+// datos/rutas/rutas_rp30.js  -  RP30 DVBA Zona VI
 // Regenerado 2026-07-20 (recalibración con mojones oficiales corregidos)
 // Reetiquetado aplicado: mojón "300"→100, "100"→250, "250"→300
 // 38 mojones (3 oficiales + 35 sintéticos)

@@ -1,5 +1,5 @@
 // =================================================================
-// datos/rutas_rp46.js  -  RP46 DVBA Zona VI
+// datos/rutas/rutas_rp46.js  -  RP46 DVBA Zona VI
 // Generado por gen_ruta_bundle.py v2.7 (orden=mojones)
 // 128 pts | 33.861 km | progIni:0.0 | progFin:33.9
 // Gaps reales (es_gap=1): 0 [GAPS_RP46]

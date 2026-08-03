@@ -1,10 +1,10 @@
 /**
- * datos/red_vial.js — Módulo unificado de la red vial DVBA Zona VI
+ * datos/zonas/zona_VI/red_vial_zonaVI.js — Módulo unificado de la red vial DVBA Zona VI
  * v1.0 (2026-06-30)
  *
  * Provee acceso unificado a:
  *   - RUTAS PROVINCIALES (RPs): 15 rutas con bundles rutas_rpXX.js (cadenas, mojones, anchors)
- *   - CAMINOS SECUNDARIOS: ~128 caminos en datos/zona_vi/red_secundaria_zonaVI_final.geojson
+ *   - CAMINOS SECUNDARIOS: ~128 caminos en datos/zonas/zona_VI/red_secundaria_zonaVI_final.geojson
  *
  * USO:
  *   await RED_VIAL.init();
@@ -33,7 +33,7 @@ const RED_VIAL = (() => {
   async function init() {
     if (_caminosGeoJSON) return _caminosGeoJSON;
     if (_initPromise) return _initPromise;
-    _initPromise = fetch('datos/zona_vi/red_secundaria_zonaVI_final.geojson')
+    _initPromise = fetch('datos/zonas/zona_VI/red_secundaria_zonaVI_final.geojson')
       .then(r => {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();

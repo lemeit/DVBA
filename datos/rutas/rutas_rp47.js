@@ -1,5 +1,5 @@
 // =================================================================
-// datos/rutas_rp47.js  -  RP47 DVBA Zona VI
+// datos/rutas/rutas_rp47.js  -  RP47 DVBA Zona VI
 // Generado por gen_ruta_bundle.py v2.11 (orden=fid)
 // 54 pts | 25.213 km | progIni:0.0 | progFin:25.2
 // Gaps reales (es_gap=1): 0 [GAPS_RP47]

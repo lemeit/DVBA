@@ -13,16 +13,16 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="datos/auth.js"></script>
 <script src="datos/legales.js" defer></script>
-<script src="datos/red_vial.js" defer></script>
+<script src="datos/zonas/zona_VI/red_vial_zonaVI.js" defer></script>
 <!-- v7.87 · bundles RP para interpolar progresiva → coords → partido -->
-<script src="datos/rutas_rp30.js" defer></script>
-<script src="datos/rutas_rp40.js" defer></script>
-<script src="datos/rutas_rp41.js" defer></script>
-<script src="datos/rutas_rp46.js" defer></script>
-<script src="datos/rutas_rp47.js" defer></script>
-<script src="datos/rutas_rp51.js" defer></script>
-<script src="datos/rutas_rp61.js" defer></script>
-<script src="datos/rutas_rp91.js" defer></script>
+<script src="datos/rutas/rutas_rp30.js" defer></script>
+<script src="datos/rutas/rutas_rp40.js" defer></script>
+<script src="datos/rutas/rutas_rp41.js" defer></script>
+<script src="datos/rutas/rutas_rp46.js" defer></script>
+<script src="datos/rutas/rutas_rp47.js" defer></script>
+<script src="datos/rutas/rutas_rp51.js" defer></script>
+<script src="datos/rutas/rutas_rp61.js" defer></script>
+<script src="datos/rutas/rutas_rp91.js" defer></script>
 <!-- v7.89 · dependencias para subida directa foto con sello -->
 <script src="datos/qrcode.min.js" defer></script>
 <!-- v9.80 · piexifjs para inyectar EXIF -->
@@ -1084,14 +1084,14 @@ function pdCalcKm(){
 // Los caminos secundarios tienen código único NNN-NN por partido → trivial.
 // Las RPs atraviesan varios partidos → interpolamos el punto medio del tramo
 // sobre CHAIN_RPxx (usando ANCHORS_RPxx con km↔acc) y hacemos point-in-polygon
-// contra datos/partidos_zona_vi.geojson.
+// contra datos/zonas/zona_VI/partidos_zonaVI.geojson.
 
 let _partidosGeoJSON = null;
 
 async function pdCargarPartidos(){
   if (_partidosGeoJSON) return _partidosGeoJSON;
   try {
-    const r = await fetch('datos/partidos_zona_vi.geojson');
+    const r = await fetch('datos/zonas/zona_VI/partidos_zonaVI.geojson');
     _partidosGeoJSON = await r.json();
   } catch(e) { console.warn('[pd partidos] no se pudo cargar geojson', e); }
   return _partidosGeoJSON;
@@ -1182,7 +1182,7 @@ let _cachRedSec = null;
 async function _pdCargarRedSecundaria(){
   if (_cachRedSec) return _cachRedSec;
   try {
-    const r = await fetch('datos/zona_vi/red_secundaria_zonaVI_final.geojson');
+    const r = await fetch('datos/zonas/zona_VI/red_secundaria_zonaVI_final.geojson');
     if (!r.ok) throw new Error('geojson caminos: ' + r.status);
     _cachRedSec = await r.json();
     console.log('[caminos] geojson cargado ·', (_cachRedSec.features||[]).length, 'tramos');
