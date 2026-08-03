@@ -41,7 +41,7 @@ const CONTENIDOS = {
     body: `
       <div style="background:#fef6e4;border-left:3px solid #c47a00;padding:10px 12px;border-radius:4px;margin-bottom:14px;font-size:12px;line-height:1.55;color:#7a4400">
         <b>Versión BETA · en desarrollo activo.</b><br>
-        Sistema piloto desarrollado para el Departamento Zona VI Saladillo (Dirección de Vialidad de la Provincia de Buenos Aires). Aún no es una versión oficial de la DVBA; se presenta al <b>XLI Concurso Vial DVBA 2026</b> como propuesta técnica.
+        Propuesta técnica para la Dirección de Vialidad de la Provincia de Buenos Aires (DVBA), pensada para escalar a las 12 zonas viales del organismo. Actualmente en piloto de producción en el Departamento Zona VI Saladillo. Aún no es una versión oficial de la DVBA; se presenta al <b>XLI Concurso Vial DVBA 2026</b>.
       </div>
 
       <p><b>¿Qué es este sistema?</b></p>
@@ -70,10 +70,10 @@ const CONTENIDOS = {
       </p>
 
       <p><b>Institución</b></p>
-      <p style="margin-top:4px">Dirección de Vialidad de la Provincia de Buenos Aires (DVBA) · Departamento Zona VI Saladillo. Cobertura: 8 partidos (Saladillo, Gral. Alvear, Gral. Las Heras, Lobos, Roque Pérez, Las Flores, Navarro, 25 de Mayo).</p>
+      <p style="margin-top:4px">Dirección de Vialidad de la Provincia de Buenos Aires (DVBA). Cobertura prevista: 12 zonas viales · 135 partidos · toda la Red Vial Provincial (Primaria + Secundaria).</p>
 
       <p style="margin-top:14px;font-size:11px;color:#666;text-align:center;font-style:italic;border-top:1px solid #e0e0e0;padding-top:8px">
-        Versión __VER__ · La consulta del mapa y datos oficiales es pública.
+        Versión __VER__ · La consulta pública del mapa (red vial, partidos, localidades) no requiere sesión. La información operativa (tareas ejecutadas, plan de seguridad) es interna del organismo.
       </p>
     `
   },
