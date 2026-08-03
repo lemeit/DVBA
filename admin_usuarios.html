@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SIG Vial PBAᵝ · Panel de Administración de Usuarios</title>
+<link rel="icon" href="datos/img/favicon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;600;700;800&family=Roboto:wght@400;500;700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="datos/legales.js" defer></script>
@@ -347,11 +348,19 @@ async function chequearAcceso(){
     }
     document.getElementById('hUser').textContent = session.user.email;
 
-    // 2) Intentar refresh de sesión si el token está por expirar / expirado
+    // 2) v8.60 · Solo refrescar si el token está próximo a expirar (evita el 400 innecesario).
+    // Antes se llamaba a refreshSession() siempre — cuando el refresh_token estaba
+    // revocado/vencido daba 400 en la consola aunque no fuera fatal.
     try {
-      const { data: r } = await _supa.auth.refreshSession();
-      if (r?.session) session = r.session;
-    } catch(e){ console.warn('[guard] no se pudo refrescar sesión:', e); }
+      const exp = session.expires_at; // segundos epoch
+      const now = Math.floor(Date.now() / 1000);
+      const margen = 5 * 60; // refrescar si faltan menos de 5 min
+      if (exp && (exp - now) < margen) {
+        const { data: r, error } = await _supa.auth.refreshSession();
+        if (r?.session) session = r.session;
+        else if (error) console.warn('[guard] refresh no aplicable:', error.message);
+      }
+    } catch(e){ /* silencioso · el fallback a localStorage cubre el caso */ }
 
     // 3) Intentar RPC current_user_rol
     let rol = null;
