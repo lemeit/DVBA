@@ -193,8 +193,11 @@
     listar: function () { return Object.keys(MANIFESTS); }
   };
 
-  // Aviso visual si la zona es piloto (incompleta)
-  if (!window.DVBA_ZONA.esCompleta()) {
-    console.log(`⚠ [DVBA_ZONA] Zona ${zonaCod} · ${manifest.nombre} está en modo piloto (assets básicos, sin calibración completa)`);
+  // Aviso visual según el estado de la zona
+  // v8.63c · Diferenciar 'panoramica' (PBA) de 'piloto' (IV/V) — antes ambos decían "piloto".
+  if (manifest.estado === 'panoramica') {
+    console.log(`🌐 [DVBA_ZONA] Vista panorámica PBA · agregado de las 12 zonas (135 partidos, ${(manifest.rps_calibradas||[]).length} RPs calibradas de VI)`);
+  } else if (manifest.estado === 'piloto') {
+    console.log(`⚠ [DVBA_ZONA] Zona ${zonaCod} · ${manifest.nombre} en piloto (assets básicos, sin calibración completa)`);
   }
 })();
