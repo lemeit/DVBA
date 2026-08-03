@@ -26,8 +26,7 @@
     {"num": "66",  "calibrado": false, "bundle": null},
     {"num": "68",  "calibrado": false, "bundle": null},
     {"num": "69",  "calibrado": false, "bundle": null},
-    {"num": "70",  "calibrado": false, "bundle": null},
-    {"num": "10s", "calibrado": false, "bundle": null, "notas": "Ramal RP10 sur (nomenclatura no estándar, revisar con DVBA)"}
+    {"num": "70",  "calibrado": false, "bundle": null}
   ],
   "assets": {
     "partidos_geojson": "datos/zonas/zona_IV/partidos_zonaIV.geojson",

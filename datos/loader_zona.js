@@ -38,6 +38,18 @@
   // Los mismos datos viven en datos/zonas/zona_XX/manifest.json — mantener sync.
   // ═══════════════════════════════════════════════════════════════════════════
   const MANIFESTS = {
+    PBA: {
+      codigo: 'PBA', nombre: 'PBA · Todas las zonas', cabecera: '—',
+      estado: 'panoramica',
+      // PBA reutiliza los 8 bundles calibrados de VI (para que las RPs de VI mantengan
+      // sus progresivas + mojones). El resto de las RPs de otras zonas se muestran como
+      // trazas grises punteadas desde rutas_pba.geojson.
+      rps_calibradas: ['30', '40', '41', '46', '47', '51', '61', '91'],
+      assets_zona: {
+        partidos:  'datos/referencias/partidos_pba.geojson',
+        rutas_geo: 'datos/referencias/rutas_pba.geojson'
+      }
+    },
     VI: {
       codigo: 'VI', nombre: 'Saladillo', cabecera: 'Saladillo',
       estado: 'produccion',
@@ -56,13 +68,12 @@
       assets_zona: {
         partidos:    'datos/zonas/zona_IV/partidos_zonaIV.geojson',
         rutas_geo:   'datos/zonas/zona_IV/rutas_zonaIV.geojson'
-        // red_vial + caract aún no generados para IV
       }
     },
     V: {
       codigo: 'V', nombre: 'Chivilcoy', cabecera: 'Chivilcoy',
       estado: 'piloto',
-      rps_calibradas: ['30', '46', '51', '61'],  // compartidas con VI
+      rps_calibradas: ['30', '40', '46', '51', '61'],  // v8.63 + RP40 (fix ARBA CSV)
       assets_zona: {
         partidos:    'datos/zonas/zona_V/partidos_zonaV.geojson',
         rutas_geo:   'datos/zonas/zona_V/rutas_zonaV.geojson'
@@ -95,8 +106,10 @@
       }
     } catch (_) {}
 
-    // 1.c Default piloto
-    return { zona: 'VI', origen: 'default' };
+    // 1.c Default: vista panorámica PBA para público (v8.63)
+    // Antes era VI (piloto), ahora es PBA para que el público vea todas las zonas.
+    // Los técnicos siguen entrando a su zona por el paso 1.b.
+    return { zona: 'PBA', origen: 'default-publico' };
   }
 
   const deteccion = detectarZona();

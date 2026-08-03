@@ -17,6 +17,7 @@
   "rps_previstas": [
     {"num": "30",  "calibrado": true,  "bundle": "datos/rutas/rutas_rp30.js", "notas": "Compartida con Zona VI · ya calibrada"},
     {"num": "32",  "calibrado": false, "bundle": null},
+    {"num": "40",  "calibrado": true,  "bundle": "datos/rutas/rutas_rp40.js", "notas": "Compartida con Zona VI · ya calibrada"},
     {"num": "42",  "calibrado": false, "bundle": null},
     {"num": "43",  "calibrado": false, "bundle": null},
     {"num": "44",  "calibrado": false, "bundle": null},

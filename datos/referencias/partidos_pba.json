@@ -1,552 +1,1221 @@
 {
-  "_fuente": "ARBA - Agencia de Recaudación Provincia de Buenos Aires (+ 3 partidos añadidos en v8.60)",
+  "_fuente": "ARBA + D.A.D.P. 194/2013 · Catálogo consolidado con 12 zonas viales DVBA + rutas por partido (fuente Luciano)",
   "_url": "https://www.arba.gov.ar",
-  "_nota": "Catálogo de 135 partidos PBA (ortografía oficial Wikipedia/INDEC) + mapeo canónico a las 12 zonas viales DVBA. Aportado por Ing. Luciano Lamaita 2026-08-03. Cabecera de cada zona en cabecera_numero. Los partidos con nombre alternativo tienen \"nombre_corto\" (ej. Coronel Rosales). Ver también datos/zonas/CABECERAS.md.",
+  "_nota": "Catálogo canónico de 135 partidos PBA + mapeo a las 12 zonas viales DVBA + rutas provinciales por partido. v2.2 (2026-08-03): fixes ARBA (Ituzaingó #112→#136 · Zona IX partido #48→#40) + integrado rutas por partido desde rutas_partidos.csv aportado por Luciano.",
   "partidos": [
     {
       "numero": 1,
-      "nombre": "Adolfo Alsina"
+      "nombre": "Adolfo Alsina",
+      "rutas": [
+        "60",
+        "65",
+        "67",
+        "76"
+      ]
     },
     {
       "numero": 51,
-      "nombre": "Adolfo Gonzales Chaves"
+      "nombre": "Adolfo Gonzales Chaves",
+      "rutas": [
+        "75"
+      ]
     },
     {
       "numero": 2,
-      "nombre": "Alberti"
+      "nombre": "Alberti",
+      "rutas": [
+        "51"
+      ]
     },
     {
       "numero": 3,
-      "nombre": "Almirante Brown"
+      "nombre": "Almirante Brown",
+      "rutas": [
+        "4",
+        "16",
+        "210"
+      ]
     },
     {
       "numero": 10,
-      "nombre": "Arrecifes"
+      "nombre": "Arrecifes",
+      "rutas": [
+        "51",
+        "191"
+      ]
     },
     {
       "numero": 4,
-      "nombre": "Avellaneda"
+      "nombre": "Avellaneda",
+      "rutas": [
+        "14",
+        "36"
+      ]
     },
     {
       "numero": 5,
-      "nombre": "Ayacucho"
+      "nombre": "Ayacucho",
+      "rutas": [
+        "2",
+        "29",
+        "30",
+        "50",
+        "60",
+        "74"
+      ]
     },
     {
       "numero": 6,
-      "nombre": "Azul"
+      "nombre": "Azul",
+      "rutas": [
+        "50",
+        "51",
+        "60",
+        "80"
+      ]
     },
     {
       "numero": 7,
-      "nombre": "Bahía Blanca"
+      "nombre": "Bahía Blanca",
+      "rutas": [
+        "51",
+        "252"
+      ]
     },
     {
       "numero": 8,
-      "nombre": "Balcarce"
+      "nombre": "Balcarce",
+      "rutas": [
+        "29",
+        "50",
+        "55",
+        "77",
+        "227"
+      ]
     },
     {
       "numero": 9,
-      "nombre": "Baradero"
+      "nombre": "Baradero",
+      "rutas": [
+        "38",
+        "41"
+      ]
     },
     {
       "numero": 53,
-      "nombre": "Benito Juárez"
+      "nombre": "Benito Juárez",
+      "rutas": [
+        "74",
+        "80",
+        "86"
+      ]
     },
     {
       "numero": 120,
-      "nombre": "Berazategui"
+      "nombre": "Berazategui",
+      "rutas": [
+        "1",
+        "2",
+        "14",
+        "18",
+        "36"
+      ]
     },
     {
       "numero": 114,
-      "nombre": "Berisso"
+      "nombre": "Berisso",
+      "rutas": [
+        "11",
+        "15"
+      ]
     },
     {
       "numero": 11,
-      "nombre": "Bolívar"
+      "nombre": "Bolívar",
+      "rutas": [
+        "65",
+        "86"
+      ]
     },
     {
       "numero": 12,
-      "nombre": "Bragado"
+      "nombre": "Bragado",
+      "rutas": [
+        "42",
+        "46",
+        "64",
+        "70"
+      ]
     },
     {
       "numero": 13,
-      "nombre": "Brandsen"
+      "nombre": "Brandsen",
+      "rutas": [
+        "2",
+        "6",
+        "29",
+        "53",
+        "58",
+        "210",
+        "215"
+      ]
     },
     {
       "numero": 14,
-      "nombre": "Campana"
+      "nombre": "Campana",
+      "rutas": [
+        "6"
+      ]
     },
     {
       "numero": 121,
-      "nombre": "Capitán Sarmiento"
+      "nombre": "Capitán Sarmiento",
+      "rutas": [
+        "38",
+        "51"
+      ]
     },
     {
       "numero": 16,
-      "nombre": "Carlos Casares"
+      "nombre": "Carlos Casares",
+      "rutas": [
+        "50"
+      ]
     },
     {
       "numero": 17,
-      "nombre": "Carlos Tejedor"
+      "nombre": "Carlos Tejedor",
+      "rutas": [
+        "66",
+        "68",
+        "70"
+      ]
     },
     {
       "numero": 18,
-      "nombre": "Carmen de Areco"
+      "nombre": "Carmen de Areco",
+      "rutas": [
+        "31",
+        "38",
+        "42",
+        "43",
+        "51"
+      ]
     },
     {
       "numero": 20,
-      "nombre": "Castelli"
+      "nombre": "Castelli",
+      "rutas": [
+        "2",
+        "11",
+        "41"
+      ]
     },
     {
       "numero": 15,
-      "nombre": "Cañuelas"
+      "nombre": "Cañuelas",
+      "rutas": [
+        "6",
+        "16",
+        "205",
+        "215"
+      ]
     },
     {
       "numero": 26,
-      "nombre": "Chacabuco"
+      "nombre": "Chacabuco",
+      "rutas": [
+        "30",
+        "32",
+        "42",
+        "51",
+        "191"
+      ]
     },
     {
       "numero": 27,
-      "nombre": "Chascomús"
+      "nombre": "Chascomús",
+      "rutas": [
+        "2",
+        "11",
+        "20",
+        "58",
+        "59"
+      ]
     },
     {
       "numero": 28,
-      "nombre": "Chivilcoy"
+      "nombre": "Chivilcoy",
+      "rutas": [
+        "30",
+        "32",
+        "44",
+        "51"
+      ]
     },
     {
       "numero": 21,
-      "nombre": "Colón"
+      "nombre": "Colón",
+      "rutas": [
+        "31",
+        "50"
+      ]
     },
     {
       "numero": 22,
-      "nombre": "Coronel Dorrego"
+      "nombre": "Coronel Dorrego",
+      "rutas": [
+        "72",
+        "78"
+      ]
     },
     {
       "numero": 23,
-      "nombre": "Coronel Pringles"
+      "nombre": "Coronel Pringles",
+      "rutas": [
+        "51",
+        "72",
+        "85"
+      ]
     },
     {
       "numero": 24,
-      "nombre": "Coronel Suárez"
+      "nombre": "Coronel Suárez",
+      "rutas": [
+        "60",
+        "67",
+        "76",
+        "85"
+      ]
     },
     {
       "numero": 113,
       "nombre": "Coronel de Marina Leonardo Rosales",
-      "nombre_corto": "Coronel Rosales"
+      "nombre_corto": "Coronel Rosales",
+      "rutas": [
+        "252"
+      ]
     },
     {
       "numero": 19,
-      "nombre": "Daireaux"
+      "nombre": "Daireaux",
+      "rutas": [
+        "65",
+        "66",
+        "86"
+      ]
     },
     {
       "numero": 29,
-      "nombre": "Dolores"
+      "nombre": "Dolores",
+      "rutas": [
+        "2",
+        "11",
+        "60",
+        "62",
+        "63"
+      ]
     },
     {
       "numero": 115,
-      "nombre": "Ensenada"
+      "nombre": "Ensenada",
+      "rutas": [
+        "11",
+        "13",
+        "15",
+        "215"
+      ]
     },
     {
       "numero": 118,
-      "nombre": "Escobar"
+      "nombre": "Escobar",
+      "rutas": [
+        "9",
+        "25",
+        "26"
+      ]
     },
     {
       "numero": 30,
-      "nombre": "Esteban Echeverría"
+      "nombre": "Esteban Echeverría",
+      "rutas": [
+        "4",
+        "16",
+        "58",
+        "205"
+      ]
     },
     {
       "numero": 31,
-      "nombre": "Exaltación de la Cruz"
+      "nombre": "Exaltación de la Cruz",
+      "rutas": [
+        "6",
+        "39",
+        "47"
+      ]
     },
     {
       "numero": 130,
-      "nombre": "Ezeiza"
+      "nombre": "Ezeiza",
+      "rutas": [
+        "58",
+        "205"
+      ]
     },
     {
       "numero": 32,
-      "nombre": "Florencio Varela"
+      "nombre": "Florencio Varela",
+      "rutas": [
+        "1",
+        "4",
+        "14",
+        "36",
+        "53"
+      ]
     },
     {
       "numero": 128,
-      "nombre": "Florentino Ameghino"
+      "nombre": "Florentino Ameghino",
+      "rutas": [
+        "66"
+      ]
     },
     {
       "numero": 33,
-      "nombre": "General Alvarado"
+      "nombre": "General Alvarado",
+      "rutas": [
+        "11",
+        "77",
+        "88"
+      ]
     },
     {
       "numero": 34,
-      "nombre": "General Alvear"
+      "nombre": "General Alvear",
+      "rutas": [
+        "50",
+        "51",
+        "61"
+      ]
     },
     {
       "numero": 35,
-      "nombre": "General Arenales"
+      "nombre": "General Arenales",
+      "rutas": [
+        "45",
+        "50",
+        "65"
+      ]
     },
     {
       "numero": 36,
-      "nombre": "General Belgrano"
+      "nombre": "General Belgrano",
+      "rutas": [
+        "29",
+        "41",
+        "61"
+      ]
     },
     {
       "numero": 37,
-      "nombre": "General Guido"
+      "nombre": "General Guido",
+      "rutas": [
+        "2",
+        "60",
+        "62"
+      ]
     },
     {
       "numero": 39,
       "nombre": "General Juan Madariaga",
-      "nombre_corto": "General Madariaga"
+      "nombre_corto": "General Madariaga",
+      "rutas": [
+        "11",
+        "56",
+        "62",
+        "74"
+      ]
     },
     {
       "numero": 40,
       "nombre": "General La Madrid",
-      "nombre_corto": "General Lamadrid"
+      "nombre_corto": "General Lamadrid",
+      "rutas": [
+        "51",
+        "60",
+        "76",
+        "85",
+        "86"
+      ]
     },
     {
       "numero": 41,
-      "nombre": "General Las Heras"
+      "nombre": "General Las Heras",
+      "rutas": [
+        "6",
+        "24",
+        "40",
+        "42",
+        "47",
+        "48"
+      ]
     },
     {
       "numero": 42,
-      "nombre": "General Lavalle"
+      "nombre": "General Lavalle",
+      "rutas": [
+        "11",
+        "56"
+      ]
     },
     {
       "numero": 43,
-      "nombre": "General Paz"
+      "nombre": "General Paz",
+      "rutas": [
+        "20",
+        "29",
+        "58",
+        "215"
+      ]
     },
     {
       "numero": 44,
-      "nombre": "General Pinto"
+      "nombre": "General Pinto",
+      "rutas": []
     },
     {
       "numero": 45,
-      "nombre": "General Pueyrredón"
+      "nombre": "General Pueyrredón",
+      "rutas": [
+        "2",
+        "11",
+        "88"
+      ]
     },
     {
       "numero": 46,
-      "nombre": "General Rodríguez"
+      "nombre": "General Rodríguez",
+      "rutas": [
+        "6",
+        "7",
+        "24",
+        "28",
+        "47"
+      ]
     },
     {
       "numero": 47,
-      "nombre": "General San Martín"
+      "nombre": "General San Martín",
+      "rutas": [
+        "4",
+        "8"
+      ]
     },
     {
       "numero": 49,
-      "nombre": "General Viamonte"
+      "nombre": "General Viamonte",
+      "rutas": [
+        "46",
+        "64",
+        "65",
+        "70"
+      ]
     },
     {
       "numero": 50,
-      "nombre": "General Villegas"
+      "nombre": "General Villegas",
+      "rutas": [
+        "66"
+      ]
     },
     {
       "numero": 52,
-      "nombre": "Guaminí"
+      "nombre": "Guaminí",
+      "rutas": [
+        "60",
+        "65",
+        "85"
+      ]
     },
     {
       "numero": 119,
-      "nombre": "Hipólito Yrigoyen"
+      "nombre": "Hipólito Yrigoyen",
+      "rutas": [
+        "86"
+      ]
     },
     {
       "numero": 135,
-      "nombre": "Hurlingham"
+      "nombre": "Hurlingham",
+      "rutas": [
+        "4",
+        "201"
+      ]
     },
     {
-      "numero": 112,
+      "numero": 136,
       "nombre": "Ituzaingó",
-      "_nota": "Añadido en v8.60 · faltaba en catálogo ARBA v1.0"
+      "_nota": "Añadido en v8.60 · corregido a #136 según ARBA D.A.D.P. 194/2013 en v2.2 (antes tenía #112 que corresponde a Islas)",
+      "rutas": [
+        "7",
+        "21"
+      ]
     },
     {
       "numero": 132,
       "nombre": "José C. Paz",
-      "_nota": "Añadido en v8.60 · faltaba en catálogo ARBA v1.0"
+      "_nota": "Añadido en v8.60 · faltaba en catálogo ARBA v1.0",
+      "rutas": [
+        "8",
+        "24"
+      ]
     },
     {
       "numero": 54,
-      "nombre": "Junín"
+      "nombre": "Junín",
+      "rutas": [
+        "46",
+        "65"
+      ]
     },
     {
       "numero": 123,
-      "nombre": "La Costa"
+      "nombre": "La Costa",
+      "rutas": [
+        "11"
+      ]
     },
     {
       "numero": 70,
-      "nombre": "La Matanza"
+      "nombre": "La Matanza",
+      "rutas": [
+        "3",
+        "4",
+        "7",
+        "17",
+        "21"
+      ]
     },
     {
       "numero": 55,
-      "nombre": "La Plata"
+      "nombre": "La Plata",
+      "rutas": [
+        "1",
+        "2",
+        "6",
+        "11",
+        "13",
+        "14",
+        "36",
+        "53",
+        "215"
+      ]
     },
     {
       "numero": 25,
-      "nombre": "Lanús"
+      "nombre": "Lanús",
+      "rutas": [
+        "14"
+      ]
     },
     {
       "numero": 56,
-      "nombre": "Laprida"
+      "nombre": "Laprida",
+      "rutas": [
+        "51",
+        "75",
+        "86"
+      ]
     },
     {
       "numero": 58,
-      "nombre": "Las Flores"
+      "nombre": "Las Flores",
+      "rutas": [
+        "30",
+        "61",
+        "91"
+      ]
     },
     {
       "numero": 59,
-      "nombre": "Leandro N. Alem"
+      "nombre": "Leandro N. Alem",
+      "rutas": [
+        "50"
+      ]
     },
     {
       "numero": 137,
-      "nombre": "Lezama"
+      "nombre": "Lezama",
+      "rutas": [
+        "2",
+        "57"
+      ]
     },
     {
       "numero": 60,
-      "nombre": "Lincoln"
+      "nombre": "Lincoln",
+      "rutas": [
+        "50",
+        "64",
+        "68",
+        "69",
+        "70"
+      ]
     },
     {
       "numero": 61,
-      "nombre": "Lobería"
+      "nombre": "Lobería",
+      "rutas": [
+        "30",
+        "55",
+        "88",
+        "227"
+      ]
     },
     {
       "numero": 62,
-      "nombre": "Lobos"
+      "nombre": "Lobos",
+      "rutas": [
+        "41",
+        "48"
+      ]
     },
     {
       "numero": 63,
-      "nombre": "Lomas de Zamora"
+      "nombre": "Lomas de Zamora",
+      "rutas": [
+        "4",
+        "49",
+        "205",
+        "210"
+      ]
     },
     {
       "numero": 64,
-      "nombre": "Luján"
+      "nombre": "Luján",
+      "rutas": [
+        "6",
+        "7",
+        "34",
+        "42",
+        "47"
+      ]
     },
     {
       "numero": 65,
-      "nombre": "Magdalena"
+      "nombre": "Magdalena",
+      "rutas": [
+        "11",
+        "20",
+        "36",
+        "59"
+      ]
     },
     {
       "numero": 66,
-      "nombre": "Maipú"
+      "nombre": "Maipú",
+      "rutas": [
+        "2",
+        "56",
+        "62",
+        "74"
+      ]
     },
     {
       "numero": 133,
-      "nombre": "Malvinas Argentinas"
+      "nombre": "Malvinas Argentinas",
+      "rutas": [
+        "8",
+        "23",
+        "24"
+      ]
     },
     {
       "numero": 69,
-      "nombre": "Mar Chiquita"
+      "nombre": "Mar Chiquita",
+      "rutas": [
+        "2",
+        "11",
+        "50",
+        "55"
+      ]
     },
     {
       "numero": 68,
-      "nombre": "Marcos Paz"
+      "nombre": "Marcos Paz",
+      "rutas": [
+        "6",
+        "40"
+      ]
     },
     {
       "numero": 71,
-      "nombre": "Mercedes"
+      "nombre": "Mercedes",
+      "rutas": [
+        "41",
+        "42",
+        "47"
+      ]
     },
     {
       "numero": 72,
-      "nombre": "Merlo"
+      "nombre": "Merlo",
+      "rutas": [
+        "7",
+        "21",
+        "40"
+      ]
     },
     {
       "numero": 73,
-      "nombre": "Monte"
+      "nombre": "Monte",
+      "rutas": [
+        "20",
+        "41",
+        "215"
+      ]
     },
     {
       "numero": 126,
-      "nombre": "Monte Hermoso"
+      "nombre": "Monte Hermoso",
+      "rutas": [
+        "78"
+      ]
     },
     {
       "numero": 74,
-      "nombre": "Moreno"
+      "nombre": "Moreno",
+      "rutas": [
+        "7",
+        "23",
+        "24",
+        "25"
+      ]
     },
     {
       "numero": 101,
-      "nombre": "Morón"
+      "nombre": "Morón",
+      "rutas": [
+        "4",
+        "7",
+        "17",
+        "21",
+        "201"
+      ]
     },
     {
       "numero": 75,
-      "nombre": "Navarro"
+      "nombre": "Navarro",
+      "rutas": [
+        "30",
+        "40",
+        "41",
+        "43",
+        "44",
+        "47"
+      ]
     },
     {
       "numero": 76,
-      "nombre": "Necochea"
+      "nombre": "Necochea",
+      "rutas": [
+        "30",
+        "72",
+        "80",
+        "85",
+        "86",
+        "88",
+        "227"
+      ]
     },
     {
       "numero": 77,
-      "nombre": "Nueve de Julio"
+      "nombre": "Nueve de Julio",
+      "rutas": [
+        "40",
+        "50",
+        "61",
+        "65",
+        "70"
+      ]
     },
     {
       "numero": 78,
-      "nombre": "Olavarría"
+      "nombre": "Olavarría",
+      "rutas": [
+        "51",
+        "60"
+      ]
     },
     {
       "numero": 79,
-      "nombre": "Patagones"
+      "nombre": "Patagones",
+      "rutas": []
     },
     {
       "numero": 80,
-      "nombre": "Pehuajó"
+      "nombre": "Pehuajó",
+      "rutas": [
+        "69",
+        "86"
+      ]
     },
     {
       "numero": 81,
-      "nombre": "Pellegrini"
+      "nombre": "Pellegrini",
+      "rutas": [
+        "85"
+      ]
     },
     {
       "numero": 82,
-      "nombre": "Pergamino"
+      "nombre": "Pergamino",
+      "rutas": [
+        "32",
+        "51"
+      ]
     },
     {
       "numero": 83,
-      "nombre": "Pila"
+      "nombre": "Pila",
+      "rutas": [
+        "29",
+        "41",
+        "57",
+        "60"
+      ]
     },
     {
       "numero": 84,
-      "nombre": "Pilar"
+      "nombre": "Pilar",
+      "rutas": [
+        "6",
+        "8",
+        "25",
+        "26",
+        "28",
+        "34"
+      ]
     },
     {
       "numero": 124,
-      "nombre": "Pinamar"
+      "nombre": "Pinamar",
+      "rutas": [
+        "11",
+        "74"
+      ]
     },
     {
       "numero": 129,
-      "nombre": "Presidente Perón"
+      "nombre": "Presidente Perón",
+      "rutas": [
+        "16",
+        "58",
+        "210"
+      ]
     },
     {
       "numero": 85,
-      "nombre": "Puan"
+      "nombre": "Puan",
+      "rutas": [
+        "67",
+        "76"
+      ]
     },
     {
       "numero": 134,
-      "nombre": "Punta Indio"
+      "nombre": "Punta Indio",
+      "rutas": [
+        "11",
+        "20",
+        "36"
+      ]
     },
     {
       "numero": 86,
-      "nombre": "Quilmes"
+      "nombre": "Quilmes",
+      "rutas": [
+        "4",
+        "14",
+        "18",
+        "36",
+        "49",
+        "53"
+      ]
     },
     {
       "numero": 87,
-      "nombre": "Ramallo"
+      "nombre": "Ramallo",
+      "rutas": [
+        "51"
+      ]
     },
     {
       "numero": 88,
-      "nombre": "Rauch"
+      "nombre": "Rauch",
+      "rutas": [
+        "29",
+        "30",
+        "50",
+        "60"
+      ]
     },
     {
       "numero": 89,
-      "nombre": "Rivadavia"
+      "nombre": "Rivadavia",
+      "rutas": [
+        "66",
+        "70"
+      ]
     },
     {
       "numero": 90,
-      "nombre": "Rojas"
+      "nombre": "Rojas",
+      "rutas": [
+        "30",
+        "31",
+        "45"
+      ]
     },
     {
       "numero": 91,
-      "nombre": "Roque Pérez"
+      "nombre": "Roque Pérez",
+      "rutas": [
+        "20",
+        "30"
+      ]
     },
     {
       "numero": 92,
-      "nombre": "Saavedra"
+      "nombre": "Saavedra",
+      "rutas": [
+        "67"
+      ]
     },
     {
       "numero": 93,
-      "nombre": "Saladillo"
+      "nombre": "Saladillo",
+      "rutas": [
+        "51",
+        "91"
+      ]
     },
     {
       "numero": 122,
-      "nombre": "Salliqueló"
+      "nombre": "Salliqueló",
+      "rutas": [
+        "85"
+      ]
     },
     {
       "numero": 67,
-      "nombre": "Salto"
+      "nombre": "Salto",
+      "rutas": [
+        "31",
+        "32",
+        "191"
+      ]
     },
     {
       "numero": 94,
-      "nombre": "San Andrés de Giles"
+      "nombre": "San Andrés de Giles",
+      "rutas": [
+        "41",
+        "42"
+      ]
     },
     {
       "numero": 95,
-      "nombre": "San Antonio de Areco"
+      "nombre": "San Antonio de Areco",
+      "rutas": [
+        "31",
+        "38",
+        "41"
+      ]
     },
     {
       "numero": 116,
-      "nombre": "San Cayetano"
+      "nombre": "San Cayetano",
+      "rutas": [
+        "72",
+        "75",
+        "85"
+      ]
     },
     {
       "numero": 96,
-      "nombre": "San Fernando"
+      "nombre": "San Fernando",
+      "rutas": [
+        "23",
+        "24",
+        "27"
+      ]
     },
     {
       "numero": 97,
-      "nombre": "San Isidro"
+      "nombre": "San Isidro",
+      "rutas": [
+        "4",
+        "27"
+      ]
     },
     {
       "numero": 131,
-      "nombre": "San Miguel"
+      "nombre": "San Miguel",
+      "rutas": [
+        "8",
+        "23",
+        "201"
+      ]
     },
     {
       "numero": 98,
-      "nombre": "San Nicolás"
+      "nombre": "San Nicolás",
+      "rutas": []
     },
     {
       "numero": 99,
-      "nombre": "San Pedro"
+      "nombre": "San Pedro",
+      "rutas": [
+        "191"
+      ]
     },
     {
       "numero": 100,
-      "nombre": "San Vicente"
+      "nombre": "San Vicente",
+      "rutas": [
+        "6",
+        "16",
+        "58",
+        "210"
+      ]
     },
     {
       "numero": 102,
-      "nombre": "Suipacha"
+      "nombre": "Suipacha",
+      "rutas": [
+        "42",
+        "43"
+      ]
     },
     {
       "numero": 103,
-      "nombre": "Tandil"
+      "nombre": "Tandil",
+      "rutas": [
+        "30",
+        "74",
+        "80"
+      ]
     },
     {
       "numero": 104,
-      "nombre": "Tapalqué"
+      "nombre": "Tapalqué",
+      "rutas": [
+        "50",
+        "51",
+        "61"
+      ]
     },
     {
       "numero": 57,
-      "nombre": "Tigre"
+      "nombre": "Tigre",
+      "rutas": [
+        "9",
+        "23",
+        "24",
+        "26",
+        "27"
+      ]
     },
     {
       "numero": 105,
-      "nombre": "Tordillo"
+      "nombre": "Tordillo",
+      "rutas": [
+        "11",
+        "56",
+        "63"
+      ]
     },
     {
       "numero": 106,
-      "nombre": "Tornquist"
+      "nombre": "Tornquist",
+      "rutas": [
+        "72",
+        "76"
+      ]
     },
     {
       "numero": 107,
-      "nombre": "Trenque Lauquen"
+      "nombre": "Trenque Lauquen",
+      "rutas": [
+        "66"
+      ]
     },
     {
       "numero": 108,
-      "nombre": "Tres Arroyos"
+      "nombre": "Tres Arroyos",
+      "rutas": [
+        "72",
+        "73",
+        "75",
+        "85"
+      ]
     },
     {
       "numero": 127,
-      "nombre": "Tres Lomas"
+      "nombre": "Tres Lomas",
+      "rutas": [
+        "85"
+      ]
     },
     {
       "numero": 117,
-      "nombre": "Tres de Febrero"
+      "nombre": "Tres de Febrero",
+      "rutas": [
+        "4",
+        "7",
+        "8",
+        "201",
+        "AU6"
+      ]
     },
     {
       "numero": 109,
-      "nombre": "Veinticinco de Mayo"
+      "nombre": "Veinticinco de Mayo",
+      "rutas": [
+        "30",
+        "40",
+        "46",
+        "51",
+        "61"
+      ]
     },
     {
       "numero": 110,
-      "nombre": "Vicente López"
+      "nombre": "Vicente López",
+      "rutas": [
+        "27"
+      ]
     },
     {
       "numero": 125,
-      "nombre": "Villa Gesell"
+      "nombre": "Villa Gesell",
+      "rutas": [
+        "11"
+      ]
     },
     {
       "numero": 111,
-      "nombre": "Villarino"
+      "nombre": "Villarino",
+      "rutas": []
     },
     {
       "numero": 38,
-      "nombre": "Zárate"
+      "nombre": "Zárate",
+      "rutas": [
+        "6",
+        "31"
+      ]
     }
   ],
   "zonas_dvba": {
@@ -585,11 +1254,11 @@
         74,
         84,
         101,
-        112,
         118,
         132,
         133,
-        135
+        135,
+        136
       ]
     },
     "III": {
@@ -718,7 +1387,7 @@
       "cabecera_numero": 6,
       "partidos": [
         6,
-        48,
+        40,
         56,
         78,
         88,
@@ -771,5 +1440,5 @@
     }
   },
   "_actualizado": "2026-08-03",
-  "_version": "2.1"
+  "_version": "2.2"
 }
