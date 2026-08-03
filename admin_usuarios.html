@@ -133,9 +133,9 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
   </div>
   <div class="nav">
     <span id="hUser" style="font-size:11px;color:rgba(255,255,255,.9)"></span>
-    <a href="index.html">← Portal</a>
-    <a href="partes_diarios.html">🛡️ Plan</a>
-    <a href="reportes.html">📊 Reportes</a>
+    <a href="index.html?v=8.60">← Portal</a>
+    <a href="partes_diarios.html?v=8.60">🛡️ Plan</a>
+    <a href="reportes.html?v=8.60">📊 Reportes</a>
     <button onclick="cerrarSesion()">Salir</button>
   </div>
 </header>
@@ -313,6 +313,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 <script>
 // v8.60 · Constante de versión unificada (familia escritorio v8.X)
 const APP_VERSION = 'v8.60';
+window.APP_VERSION = APP_VERSION;  // v8.60 · expone a window para legales.js
 // ═══════════════════════════════════════════════════════════════════════════════
 // Setup Supabase
 // ═══════════════════════════════════════════════════════════════════════════════

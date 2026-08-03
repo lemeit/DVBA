@@ -458,13 +458,13 @@ body.modo-campo #campo-fab{display:flex}
     <button id="cola-badge" class="role-oculto" data-requiere-sesion="1" title="Registros pendientes de revisión" onclick="abrirColaPendientes()">
       🔔 <span id="cola-count">0</span> pendientes
     </button>
-    <a class="nav-app plan role-oculto" data-requiere-sesion="1" href="partes_diarios.html" title="Plan de Seguridad en la Circulación · Cargar tareas">
+    <a class="nav-app plan role-oculto" data-requiere-sesion="1" href="partes_diarios.html?v=8.60" title="Plan de Seguridad en la Circulación · Cargar tareas">
       🛡️ Plan de Seguridad
     </a>
-    <a class="nav-app rep role-oculto" data-solo-gerencia="1" href="reportes.html" title="Reportes de tareas ejecutadas · solo Gerencia y Admin">
+    <a class="nav-app rep role-oculto" data-solo-gerencia="1" href="reportes.html?v=8.60" title="Reportes de tareas ejecutadas · solo Gerencia y Admin">
       📊 Reportes
     </a>
-    <a class="nav-app role-oculto" data-solo-admin="1" href="admin_usuarios.html" title="Panel de Administración · gestión de usuarios · solo Admin">
+    <a class="nav-app role-oculto" data-solo-admin="1" href="admin_usuarios.html?v=8.60" title="Panel de Administración · gestión de usuarios · solo Admin">
       🛡 Admin
     </a>
     <div id="user-info" class="role-oculto" data-requiere-sesion="1" title="Usuario autenticado">
@@ -855,6 +855,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 <script>
 const APP_VERSION = 'v8.60';
+window.APP_VERSION = APP_VERSION;  // v8.60 · expone a window para legales.js
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a

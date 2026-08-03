@@ -1,0 +1,42 @@
+{
+  "codigo": "IV",
+  "numeroRomano": "IV",
+  "numeroArabigo": 4,
+  "nombre": "Junín",
+  "cabecera": "Junín",
+  "estado": "piloto",
+  "notas": "Segunda zona en el escalado (post VI). Assets generados por script generar_zona_desde_master.py desde partidos_pba.geojson y rutas_pba.geojson en v8.61. Sin RPs propias calibradas todavía · comparte RP46 con Zona VI que ya está calibrada.",
+  "partidos": [
+    {"nombre": "Carlos Tejedor",       "esCabecera": false},
+    {"nombre": "Florentino Ameghino",  "esCabecera": false},
+    {"nombre": "General Arenales",     "esCabecera": false},
+    {"nombre": "General Pinto",        "esCabecera": false},
+    {"nombre": "General Viamonte",     "esCabecera": false},
+    {"nombre": "General Villegas",     "esCabecera": false},
+    {"nombre": "Junín",                "esCabecera": true},
+    {"nombre": "Leandro N. Alem",      "esCabecera": false},
+    {"nombre": "Lincoln",              "esCabecera": false}
+  ],
+  "rps_previstas": [
+    {"num": "45",  "calibrado": false, "bundle": null, "notas": "Traza sin calibrar (viene del master rutas_pba)"},
+    {"num": "46",  "calibrado": true,  "bundle": "datos/rutas/rutas_rp46.js", "notas": "Compartida con Zona VI · ya calibrada"},
+    {"num": "50",  "calibrado": false, "bundle": null},
+    {"num": "64",  "calibrado": false, "bundle": null},
+    {"num": "65",  "calibrado": false, "bundle": null},
+    {"num": "66",  "calibrado": false, "bundle": null},
+    {"num": "68",  "calibrado": false, "bundle": null},
+    {"num": "69",  "calibrado": false, "bundle": null},
+    {"num": "70",  "calibrado": false, "bundle": null},
+    {"num": "10s", "calibrado": false, "bundle": null, "notas": "Ramal RP10 sur (nomenclatura no estándar, revisar con DVBA)"}
+  ],
+  "assets": {
+    "partidos_geojson": "datos/zonas/zona_IV/partidos_zonaIV.geojson",
+    "rutas_geojson":    "datos/zonas/zona_IV/rutas_zonaIV.geojson"
+  },
+  "stats": {
+    "partidos": 9,
+    "rps_previstas": 10,
+    "rps_calibradas_desde_VI": 1,
+    "tramos_rp_master": 67
+  }
+}

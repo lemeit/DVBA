@@ -251,10 +251,10 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
   </div>
   <div class="user">
     <!-- v7.87 · Nav consistente entre las 3 apps -->
-    <a class="nav-app portal" href="index.html" title="Portal principal · Mapa">🗺 Portal</a>
+    <a class="nav-app portal" href="index.html?v=8.60" title="Portal principal · Mapa">🗺 Portal</a>
     <a class="nav-app plan active" href="#" title="Estás en Plan de Seguridad" onclick="return false">🛡️ Plan Seguridad</a>
-    <a class="nav-app rep role-oculto" data-solo-gerencia="1" href="reportes.html" title="Reportes · solo Gerencia y Admin">📊 Reportes</a>
-    <a class="nav-app role-oculto" data-solo-admin="1" href="admin_usuarios.html" title="Panel Admin · solo admin">🛡 Admin</a>
+    <a class="nav-app rep role-oculto" data-solo-gerencia="1" href="reportes.html?v=8.60" title="Reportes · solo Gerencia y Admin">📊 Reportes</a>
+    <a class="nav-app role-oculto" data-solo-admin="1" href="admin_usuarios.html?v=8.60" title="Panel Admin · solo admin">🛡 Admin</a>
     <span id="email">—</span>
     <button onclick="pdLogout()" title="Cerrar sesión" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer">salir</button>
     <span style="font-size:9px;color:rgba(255,255,255,.7)">EN LINEA</span><div class="dot"></div>
@@ -1417,6 +1417,7 @@ function pdQuitarFoto(momento, i){
 // o "posterior" — así aparece en el mapa Y queda ligada al parte.
 // ═══════════════════════════════════════════════════════════════════
 const APP_VER = 'v8.60';
+window.APP_VER = APP_VER;  // v8.60 · expone a window para legales.js
 const _subEstado = { momento:'previa', file:null, base64:null, gps:null };
 
 function pdSubirFoto(momento){

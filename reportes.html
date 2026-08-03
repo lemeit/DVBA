@@ -137,10 +137,10 @@ footer .fr{font-size:9.5px;color:var(--mut)}  /* v8.60 fix: era blanco translúc
   </div>
   <div class="user">
     <!-- v7.87 · Nav consistente entre las 3 apps -->
-    <a class="nav-app portal" href="index.html" title="Portal principal · Mapa">🗺 Portal</a>
-    <a class="nav-app plan" href="partes_diarios.html" title="Plan de Seguridad · Cargar tareas">🛡️ Plan Seguridad</a>
+    <a class="nav-app portal" href="index.html?v=8.60" title="Portal principal · Mapa">🗺 Portal</a>
+    <a class="nav-app plan" href="partes_diarios.html?v=8.60" title="Plan de Seguridad · Cargar tareas">🛡️ Plan Seguridad</a>
     <a class="nav-app rep active" href="#" title="Estás en Reportes" onclick="return false">📊 Reportes</a>
-    <a class="nav-app role-oculto" data-solo-admin="1" href="admin_usuarios.html" title="Panel Admin · solo admin">🛡 Admin</a>
+    <a class="nav-app role-oculto" data-solo-admin="1" href="admin_usuarios.html?v=8.60" title="Panel Admin · solo admin">🛡 Admin</a>
     <span id="email">—</span>
     <button onclick="rpLogout()" title="Cerrar sesión" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer">salir</button>
     <span style="font-size:9px;color:rgba(255,255,255,.7)">EN LINEA</span><div class="dot"></div>
@@ -281,6 +281,7 @@ footer .fr{font-size:9.5px;color:var(--mut)}  /* v8.60 fix: era blanco translúc
 // ═══════════════════════════════════════════════════════════════════
 
 const APP_VERSION = 'v8.60';
+window.APP_VERSION = APP_VERSION;  // v8.60 · expone a window para legales.js
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 let _supa = null;

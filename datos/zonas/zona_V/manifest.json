@@ -1,0 +1,42 @@
+{
+  "codigo": "V",
+  "numeroRomano": "V",
+  "numeroArabigo": 5,
+  "nombre": "Chivilcoy",
+  "cabecera": "Chivilcoy",
+  "estado": "piloto",
+  "notas": "Tercera zona en el escalado (post VI). Comparte 4 RPs calibradas con Zona VI (RP30, RP46, RP51, RP61) que funcionan al día 1 sin trabajo adicional.",
+  "partidos": [
+    {"nombre": "9 de Julio", "esCabecera": false, "notas": "En catálogo ARBA figura como 'Nueve de Julio'"},
+    {"nombre": "Alberti",    "esCabecera": false},
+    {"nombre": "Bragado",    "esCabecera": false},
+    {"nombre": "Chacabuco",  "esCabecera": false},
+    {"nombre": "Chivilcoy",  "esCabecera": true},
+    {"nombre": "Suipacha",   "esCabecera": false}
+  ],
+  "rps_previstas": [
+    {"num": "30",  "calibrado": true,  "bundle": "datos/rutas/rutas_rp30.js", "notas": "Compartida con Zona VI · ya calibrada"},
+    {"num": "32",  "calibrado": false, "bundle": null},
+    {"num": "42",  "calibrado": false, "bundle": null},
+    {"num": "43",  "calibrado": false, "bundle": null},
+    {"num": "44",  "calibrado": false, "bundle": null},
+    {"num": "46",  "calibrado": true,  "bundle": "datos/rutas/rutas_rp46.js", "notas": "Compartida con Zona VI · ya calibrada"},
+    {"num": "50",  "calibrado": false, "bundle": null},
+    {"num": "51",  "calibrado": true,  "bundle": "datos/rutas/rutas_rp51.js", "notas": "Compartida con Zona VI · ya calibrada"},
+    {"num": "61",  "calibrado": true,  "bundle": "datos/rutas/rutas_rp61.js", "notas": "Compartida con Zona VI · ya calibrada"},
+    {"num": "64",  "calibrado": false, "bundle": null},
+    {"num": "65",  "calibrado": false, "bundle": null},
+    {"num": "70",  "calibrado": false, "bundle": null},
+    {"num": "191", "calibrado": false, "bundle": null, "notas": "RP191 · nomenclatura de 3 dígitos, revisar"}
+  ],
+  "assets": {
+    "partidos_geojson": "datos/zonas/zona_V/partidos_zonaV.geojson",
+    "rutas_geojson":    "datos/zonas/zona_V/rutas_zonaV.geojson"
+  },
+  "stats": {
+    "partidos": 6,
+    "rps_previstas": 13,
+    "rps_calibradas_desde_VI": 4,
+    "tramos_rp_master": 87
+  }
+}

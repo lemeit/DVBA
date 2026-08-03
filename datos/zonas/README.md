@@ -26,8 +26,8 @@ datos/zonas/zona_XX/
 | I      | Arrecifes            | Arrecifes            | 🕐 Pendiente | 11         | -               |
 | II     | Morón                | Morón                | 🕐 Pendiente | 17         | -               |
 | III    | Ensenada             | Ensenada             | 🕐 Pendiente | 31         | -               |
-| IV     | Junín                | Junín                | 🕐 Piloto siguiente | 9   | -               |
-| V      | Chivilcoy            | Chivilcoy            | 🕐 Piloto siguiente | 6   | -               |
+| **IV** | **Junín**            | **Junín**            | 🟡 Piloto v8.61 | **9** | 9 partidos + 67 tramos RP (10 RPs, 1 calibrada RP46 compartida con VI) |
+| **V**  | **Chivilcoy**        | **Chivilcoy**        | 🟡 Piloto v8.61 | **6** | 6 partidos + 77 tramos RP (10 RPs, 4 calibradas RP30/46/51/61 compartidas con VI) |
 | **VI** | **Saladillo**        | **Saladillo**        | ✅ **Producción** | **8** | **8 partidos + 100 caminos + 15 RPs (8 calibradas) + 632 partes históricos** |
 | VII    | Dolores              | Dolores              | 🕐 Pendiente | 11         | -               |
 | VIII   | Pehuajó              | Pehuajó              | 🕐 Pendiente | 12         | -               |
