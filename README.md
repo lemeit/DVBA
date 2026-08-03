@@ -12,9 +12,9 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 | URL | Archivo | Versión | Descripción |
 |---|---|---|---|
-| https://lemeit.github.io/DVBA/ | `index.html` | **v8.58** | Portal principal: mapa Leaflet + **sidebar drawer colapsable** (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. **Botón `🎯 Ubicar`** (flujo inverso ruta+km → posición). **Sistema de reportes mixto** (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. **Sello v4 overlay** semitransparente sobre la foto con QR + logo DVBA. **EXIF metadata** completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III). |
-| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v8.58** | App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo `sello_v4.js` con el portal. |
-| https://lemeit.github.io/DVBA/reportes.html | `reportes.html` | **v8.58** | Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia. |
+| https://lemeit.github.io/DVBA/ | `index.html` | **v8.64** | Portal principal: mapa Leaflet + **sidebar drawer colapsable** (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. **Botón `🎯 Ubicar`** (flujo inverso ruta+km → posición). **Sistema de reportes mixto** (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. **Sello v4 overlay** semitransparente sobre la foto con QR + logo DVBA. **EXIF metadata** completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III). |
+| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v8.64** | App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo `sello_v4.js` con el portal. |
+| https://lemeit.github.io/DVBA/reportes.html | `reportes.html` | **v8.64** | Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia. |
 | https://lemeit.github.io/DVBA/app.html | `app.html` → router | **v9.91** | **App móvil PWA (URL canónica)** — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia. Instalado en el celu queda como `SIG Vial PBA` (un solo ícono). URL legacy `campo.html` sigue como redirect. |
 | ↳ `dvba_campo_lite.html` (interno) | Modo Básico | v9.91 | UI minimalista: foto + GPS + envío directo. Compresión 1200px/q=0.75 con `createImageBitmap` (low-memory). Inyección EXIF con GPS + fecha aunque la foto vaya cruda. Diseñado para operarios sin fluidez tecnológica. |
 | ↳ `dvba_campo.html` (interno) | Modo Avanzado | v9.91 | Wizard completo con selección de tipo/estado/subatributos, autocomplete de rutas y caminos, edición fina + sello v4 aplicado en móvil. |
@@ -23,6 +23,25 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 | https://lemeit.github.io/DVBA/docs/guia_sig_vial_pba.html | guía textual | v1.1 | Manual completo de las apps móviles |
 | https://lemeit.github.io/DVBA/docs/guia_visual_sig_vial_pba.html | guía visual | v1.1 | 10 láminas navegables (mockups smartphone) · imprimible como PDF |
 | https://lemeit.github.io/DVBA/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
+
+## Funcionalidades destacadas (v8.59-v8.64 · v9.91 · agosto 2026)
+
+**Portal multi-zona real (v8.59-v8.64)** — El sistema pasó de piloto Zona VI a herramienta panorámica PBA con las 12 zonas viales de la Dirección de Vialidad.
+
+- **Reorganización `datos/`** (v8.59): estructura `zonas/zona_XX/` (per-zona) + `rutas/` (bundles RP compartidos) + `referencias/` (masters PBA). Script `generar_zona_desde_master.py` filtra masters por zona.
+- **Loader dinámico multi-zona** (v8.62): `datos/loader_zona.js` detecta zona por URL (`?zona=X`) > perfil técnico > default público PBA. Carga bundles RP + assets zonales vía `document.write` sincrónico. API `window.DVBA_ZONA` para consulta/cambio de zona.
+- **Portal público panorámico** (v8.63): al abrir sin login se muestra toda la PBA (135 partidos, 12 zonas). Sidebar adaptativo — chips en zona específica, dropdown multi-select en PBA. Contadores dinámicos (partidos, rutas, caminos) por zona activa.
+- **Paleta institucional 12 zonas + marca de agua** (v8.64 · Frente D): función `_colorZona(cod)` con 12 tonos armónicos (gama neutra-azulada, sin saturaciones tipo circo). En vista PBA cada partido se pinta con el color de su zona vial DVBA. Marca de agua "PBA · 12 Zonas Departamentales" en la parte inferior del mapa.
+- **Auto-redirect técnico → `?zona=X`** (v8.62): un técnico logueado sin `?zona` explícito se redirige a su zona automáticamente. Admin/gerencia mantienen el picker manual.
+- **RLS zonal completa** (SQL_9-12): filtro por zona en `caminos`, `partes_diarios`, `usuarios_perfil`. Trigger `SQL_10` fuerza `zona` según rol del user. Admin functions `SQL_11`. Modo público anónimo `SQL_12`.
+
+**Bugfixes ciclo v8.63a→h** (portal multi-zona)
+
+- `_reemplazarPartidos`: `.flat()` faltante en cleanup de `capasP` (arrays de layers, no layers) → sombreado VI persistía al cambiar de zona.
+- `partesCargar`: `select('lat, lng')` (era `latitud, longitud` inexistentes → 400 Bad Request) + filtro `.eq('zona', zonaAct)`.
+- Nombres partidos normalizados UPPERCASE → Title Case con `_titleCase()` (shp master tenía "ADOLFO ALSINA").
+- `selR` inicial = todas activas en cualquier zona (incluida PBA).
+- Rutas de VI dejaban de dibujarse en IV/V (`drawRutas`/`drawMojones` con guard por zona).
 
 ## Funcionalidades destacadas (v8.53-v8.58 · v9.91 · 2 agosto 2026)
 
