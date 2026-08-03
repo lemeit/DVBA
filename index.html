@@ -3547,6 +3547,7 @@ function _reemplazarPartidos(nuevoGeo){
   drawPartidos();
   try { map.fitBounds(L.geoJSON(PARTIDOS_GEO).getBounds().pad(0.03)); } catch(e){}
   _actualizarResumenZona();  // v8.63g · actualizar contadores del sidebar
+  if (typeof buildLeyenda === 'function') buildLeyenda();  // v8.63g · refresca sección Partidos de la leyenda
   console.log(`[v8.63g] Partidos reemplazados: ${PARTIDOS_LIST.length} de zona ${window.ZONA_ACTUAL} · muestra: ${PARTIDOS_LIST.slice(0,3).join(', ')}...`);
 }
 
@@ -3629,6 +3630,7 @@ function dibujarRutasZonaNoCalibradas(){
       // v8.63g · Primer dibujo con todas las rutas seleccionadas
       _repintarRutasZonales();
       if (typeof _actualizarResumenZona === 'function') _actualizarResumenZona();  // v8.63g · refresca contadores del sidebar
+      if (typeof buildLeyenda === 'function') buildLeyenda();  // v8.63g · refresca sección Rutas de la leyenda con RUTAS_LIST nuevo
       console.log(`[v8.63g] Zona ${window.ZONA_ACTUAL}: cacheados ${feats.length} tramos (${calibradas.size} RPs calibradas)`);
     })
     .catch(err => {
