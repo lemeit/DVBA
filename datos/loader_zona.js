@@ -42,12 +42,14 @@
       codigo: 'PBA', nombre: 'PBA · Todas las zonas', cabecera: '—',
       estado: 'panoramica',
       // PBA reutiliza los 8 bundles calibrados de VI (para que las RPs de VI mantengan
-      // sus progresivas + mojones). El resto de las RPs de otras zonas se muestran como
-      // trazas grises punteadas desde rutas_pba.geojson.
+      // sus progresivas + mojones + info oficial CARACT_VIALES). El resto de las RPs de
+      // otras zonas se muestran como trazas grises punteadas desde rutas_pba.geojson.
       rps_calibradas: ['30', '40', '41', '46', '47', '51', '61', '91'],
       assets_zona: {
         partidos:  'datos/referencias/partidos_pba.geojson',
-        rutas_geo: 'datos/referencias/rutas_pba.geojson'
+        rutas_geo: 'datos/referencias/rutas_pba.geojson',
+        // v8.63b · Cargar CARACT_VIALES de VI también en PBA (única zona con esta info hoy)
+        caract:    'datos/zonas/zona_VI/caracteristicas_viales_zonaVI.js'
       }
     },
     VI: {

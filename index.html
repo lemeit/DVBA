@@ -1300,7 +1300,8 @@ const EXTREMOS_DATA={"6":{"ptIni":[-58.798765,-34.983548],"ptFin":[-58.926612,-3
 const PARTIDOS_TABLA={"001":"Adolfo Alsina","051":"Adolfo Gonzales Chaves","002":"Alberti","003":"Almirante Brown","010":"Arrecifes","004":"Avellaneda","005":"Ayacucho","006":"Azul","007":"Bahía Blanca","008":"Balcarce","009":"Baradero","053":"Benito Juárez","120":"Berazategui","114":"Berisso","011":"Bolívar","012":"Bragado","013":"Brandsen","014":"Campana","015":"Cañuelas","121":"Capitán Sarmiento","016":"Carlos Casares","017":"Carlos Tejedor","018":"Carmen de Areco","020":"Castelli","026":"Chacabuco","027":"Chascomús","028":"Chivilcoy","021":"Colón","022":"Coronel Dorrego","023":"Coronel Pringles","113":"Coronel Rosales","024":"Coronel Suárez","019":"Daireaux","029":"Dolores","115":"Ensenada","118":"Escobar","030":"Esteban Echeverría","031":"Exaltación de la Cruz","130":"Ezeiza","032":"Florencio Varela","128":"Florentino Ameghino","033":"General Alvarado","034":"General Alvear","035":"General Arenales","036":"General Belgrano","037":"General Guido","040":"General La Madrid","041":"General Las Heras","042":"General Lavalle","039":"General Madariaga","043":"General Paz","044":"General Pinto","045":"General Pueyrredón","046":"General Rodríguez","047":"General San Martín","049":"General Viamonte","050":"General Villegas","052":"Guaminí","119":"Hipólito Yrigoyen","135":"Hurlingham","054":"Junín","123":"La Costa","070":"La Matanza","055":"La Plata","025":"Lanús","056":"Laprida","058":"Las Flores","059":"Leandro N. Alem","137":"Lezama","060":"Lincoln","061":"Lobería","062":"Lobos","063":"Lomas de Zamora","064":"Luján","065":"Magdalena","066":"Maipú","133":"Malvinas Argentinas","069":"Mar Chiquita","068":"Marcos Paz","071":"Mercedes","072":"Merlo","073":"Monte","126":"Monte Hermoso","074":"Moreno","101":"Morón","075":"Navarro","076":"Necochea","077":"Nueve de Julio","078":"Olavarría","079":"Patagones","080":"Pehuajó","081":"Pellegrini","082":"Pergamino","083":"Pila","084":"Pilar","124":"Pinamar","129":"Presidente Perón","085":"Puan","134":"Punta Indio","086":"Quilmes","087":"Ramallo","088":"Rauch","089":"Rivadavia","090":"Rojas","091":"Roque Pérez","092":"Saavedra","093":"Saladillo","122":"Salliqueló","067":"Salto","094":"San Andrés de Giles","095":"San Antonio de Areco","116":"San Cayetano","096":"San Fernando","097":"San Isidro","131":"San Miguel","098":"San Nicolás","099":"San Pedro","100":"San Vicente","102":"Suipacha","103":"Tandil","104":"Tapalqué","057":"Tigre","105":"Tordillo","106":"Tornquist","107":"Trenque Lauquen","108":"Tres Arroyos","117":"Tres de Febrero","127":"Tres Lomas","109":"Veinticinco de Mayo","110":"Vicente López","125":"Villa Gesell","111":"Villarino","038":"Zárate","132":"José C. Paz"};
 
 const SUPERFICIE_DATA={"6":{"pav":15.657,"tie":0.0,"con":0.0,"tot":15.657},"20":{"pav":0.0,"tie":33.865,"con":0.0,"tot":33.865},"24":{"pav":0.0,"tie":8.642,"con":0.0,"tot":8.642},"30":{"pav":77.928,"tie":0.0,"con":86.891,"tot":164.819},"40":{"pav":58.309,"tie":104.718,"con":0.0,"tot":163.027},"41":{"pav":68.325,"tie":0.0,"con":0.0,"tot":68.325},"42":{"pav":2.249,"tie":21.79,"con":0.0,"tot":24.039},"43":{"pav":0.0,"tie":15.657,"con":0.0,"tot":15.657},"44":{"pav":0.0,"tie":34.488,"con":0.0,"tot":34.488},"46":{"pav":33.845,"tie":0.0,"con":0.0,"tot":33.845},"47":{"pav":24.345,"tie":0.0,"con":0.0,"tot":24.345},"48":{"pav":0.0,"tie":35.07,"con":0.0,"tot":35.07},"51":{"pav":132.739,"tie":0.0,"con":0.0,"tot":132.739},"61":{"pav":65.774,"tie":129.815,"con":0.0,"tot":195.589},"91":{"pav":51.666,"tie":0.0,"con":0.0,"tot":51.666}};
-const RUTAS_LIST=["6","20","24","30","40","41","42","43","44","46","47","48","51","61","91"];
+// v8.63b · RUTAS_LIST reasignable — arranca con VI (15 RPs) y se reemplaza al cargar zona no-VI
+let RUTAS_LIST=["6","20","24","30","40","41","42","43","44","46","47","48","51","61","91"];
 // v8.63a · Multi-zona: PARTIDOS_LIST arranca con los 8 de VI (default hardcoded) pero
 // se REEMPLAZA en runtime cuando la zona activa es distinta (fetch al partidos_zonaXX.geojson).
 let PARTIDOS_LIST=["General Alvear","General Las Heras","Las Flores","Lobos","Navarro","Roque Pérez","Saladillo","Veinticinco de Mayo"];
@@ -2225,37 +2226,208 @@ function showTab(t,el){
 }
 
 // UI
+// v8.63b · Sidebar adaptativo: chips en cualquier zona específica (I..XII, incluso las
+// grandes tipo III con 31 partidos), dropdown solo en vista panorámica PBA (135 partidos).
+// El criterio es SI es PBA o no — no cantidad de items.
+function _modoSidebarDropdown(){
+  return window.ZONA_ACTUAL === 'PBA';
+}
+
+function _actualizarContadorPartidos(){
+  const badge = document.getElementById('p-count-badge');
+  if (badge) badge.textContent = selP.size + ' / ' + PARTIDOS_LIST.length;
+}
+function _actualizarContadorRutas(){
+  const badge = document.getElementById('r-count-badge');
+  if (badge) badge.textContent = selR.size + ' / ' + RUTAS_LIST.length;
+}
+
 function buildPartidosUI(){
-  const c=document.getElementById('pbadges'),s=document.getElementById('fpartido');
-  c.innerHTML=''; s.innerHTML='<option value="">-- Partido --</option>';
-  PARTIDOS_LIST.forEach(n=>{
-    const col=PARTIDO_COLORS[n]||'#888';
-    const el=document.createElement('span'); el.className='pbadge on'; el.id='pb-'+n; el.textContent=n;
-    el.style.borderLeftColor=col; el.onclick=()=>togP(n); c.appendChild(el);
-    const o=document.createElement('option'); o.value=n; o.textContent=n; s.appendChild(o);
+  const c = document.getElementById('pbadges'), s = document.getElementById('fpartido');
+  c.innerHTML = ''; s.innerHTML = '<option value="">-- Partido --</option>';
+  const modoDropdown = _modoSidebarDropdown();
+
+  if (modoDropdown) {
+    // ── Dropdown compacto con búsqueda + checkboxes ──
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'width:100%;font-size:11px';
+    wrap.innerHTML = `
+      <details style="border:1px solid var(--light);border-radius:6px;background:#fff" open>
+        <summary style="padding:8px 10px;cursor:pointer;font-weight:600;color:var(--pd);list-style:none;display:flex;align-items:center;justify-content:space-between">
+          <span>📍 Partidos activos <span id="p-count-badge" style="color:var(--mut);font-weight:400">${selP.size} / ${PARTIDOS_LIST.length}</span></span>
+          <span style="font-size:10px;color:var(--mut)">▾</span>
+        </summary>
+        <div style="border-top:1px solid var(--light);padding:8px 10px">
+          <div style="display:flex;gap:6px;margin-bottom:6px">
+            <input type="text" id="p-filtro" placeholder="Buscar partido..." style="flex:1;padding:4px 8px;border:1px solid var(--light);border-radius:4px;font-size:11px;font-family:inherit">
+            <button onclick="allP()" style="padding:3px 8px;font-size:10px;border:1px solid var(--light);background:#fff;border-radius:4px;cursor:pointer;font-family:inherit">Todos</button>
+            <button onclick="noneP()" style="padding:3px 8px;font-size:10px;border:1px solid var(--light);background:#fff;border-radius:4px;cursor:pointer;font-family:inherit">Ninguno</button>
+          </div>
+          <div id="p-checklist" style="max-height:200px;overflow-y:auto;border:1px solid var(--light);border-radius:4px;background:#fafafa;padding:4px"></div>
+        </div>
+      </details>`;
+    c.appendChild(wrap);
+    // Poblar checklist
+    const cl = wrap.querySelector('#p-checklist');
+    PARTIDOS_LIST.forEach(n => {
+      const l = document.createElement('label');
+      l.style.cssText = 'display:flex;align-items:center;gap:5px;padding:2px 5px;font-size:10.5px;cursor:pointer;border-radius:3px';
+      l.id = 'pl-' + n;
+      l.onmouseenter = () => l.style.background = '#eef';
+      l.onmouseleave = () => l.style.background = '';
+      l.innerHTML = `<input type="checkbox" id="pb-${n}" ${selP.has(n)?'checked':''} onchange="togP('${n.replace(/'/g,"\\'")}')" style="cursor:pointer"><span>${n}</span>`;
+      cl.appendChild(l);
+    });
+    // Filtro de búsqueda
+    wrap.querySelector('#p-filtro').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase().trim();
+      Array.from(cl.children).forEach(lab => {
+        const nom = lab.textContent.toLowerCase();
+        lab.style.display = (!q || nom.includes(q)) ? '' : 'none';
+      });
+    });
+  } else {
+    // ── Chips clásicos (comportamiento actual) ──
+    PARTIDOS_LIST.forEach(n => {
+      const col = PARTIDO_COLORS[n] || '#888';
+      const el = document.createElement('span');
+      el.className = 'pbadge' + (selP.has(n) ? ' on' : '');
+      el.id = 'pb-' + n;
+      el.textContent = n;
+      el.style.borderLeftColor = col;
+      el.onclick = () => togP(n);
+      c.appendChild(el);
+    });
+  }
+  // El select del filtro se llena SIEMPRE (para búsqueda tipo autocomplete)
+  PARTIDOS_LIST.forEach(n => {
+    const o = document.createElement('option');
+    o.value = n; o.textContent = n; s.appendChild(o);
   });
 }
-function togP(n){selP.has(n)?selP.delete(n):selP.add(n);document.getElementById('pb-'+n)?.classList.toggle('on');drawPartidos();if(typeof csBuildTagList==='function'){csBuildTagList();if(_caminosSecVisible)csRefrescarLayer();}}
-function allP(){PARTIDOS_LIST.forEach(n=>{selP.add(n);document.getElementById('pb-'+n)?.classList.add('on');});drawPartidos();if(typeof csBuildTagList==='function'){csBuildTagList();if(_caminosSecVisible)csRefrescarLayer();}}
-function noneP(){PARTIDOS_LIST.forEach(n=>{selP.delete(n);document.getElementById('pb-'+n)?.classList.remove('on');});drawPartidos();if(typeof csBuildTagList==='function'){csBuildTagList();if(_caminosSecVisible)csRefrescarLayer();}}
+function togP(n){
+  if (selP.has(n)) selP.delete(n); else selP.add(n);
+  const el = document.getElementById('pb-'+n);
+  if (el) {
+    if (el.tagName === 'INPUT') el.checked = selP.has(n);
+    else el.classList.toggle('on');
+  }
+  _actualizarContadorPartidos();
+  drawPartidos();
+  if(typeof csBuildTagList==='function'){csBuildTagList();if(_caminosSecVisible)csRefrescarLayer();}
+}
+function allP(){
+  PARTIDOS_LIST.forEach(n => {
+    selP.add(n);
+    const el = document.getElementById('pb-'+n);
+    if (el) { if (el.tagName === 'INPUT') el.checked = true; else el.classList.add('on'); }
+  });
+  _actualizarContadorPartidos();
+  drawPartidos();
+  if(typeof csBuildTagList==='function'){csBuildTagList();if(_caminosSecVisible)csRefrescarLayer();}
+}
+function noneP(){
+  PARTIDOS_LIST.forEach(n => {
+    selP.delete(n);
+    const el = document.getElementById('pb-'+n);
+    if (el) { if (el.tagName === 'INPUT') el.checked = false; else el.classList.remove('on'); }
+  });
+  _actualizarContadorPartidos();
+  drawPartidos();
+  if(typeof csBuildTagList==='function'){csBuildTagList();if(_caminosSecVisible)csRefrescarLayer();}
+}
 
 function buildRutasUI(){
-  const c=document.getElementById('rtags'),s=document.getElementById('fruta');
-  c.innerHTML=''; s.innerHTML='<option value="">-- Ruta --</option>';
-  RUTAS_LIST.forEach(rid=>{
-    const m=RUTA_META[rid]||{color:'#888',label:'RP '+rid};
-    const el=document.createElement('span'); el.className='rtag on'; el.id='rt-'+rid; el.textContent=m.label;
-    el.style.background=m.color+'25'; el.style.color=m.color; el.style.borderColor=m.color;
-    el.onclick=()=>togR(rid); c.appendChild(el);
-    const o=document.createElement('option'); o.value=rid; o.textContent=m.label; s.appendChild(o);
+  const c = document.getElementById('rtags'), s = document.getElementById('fruta');
+  c.innerHTML = ''; s.innerHTML = '<option value="">-- Ruta --</option>';
+  const modoDropdown = _modoSidebarDropdown();
+
+  if (modoDropdown) {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'width:100%;font-size:11px';
+    wrap.innerHTML = `
+      <details style="border:1px solid var(--light);border-radius:6px;background:#fff" open>
+        <summary style="padding:8px 10px;cursor:pointer;font-weight:600;color:var(--pd);list-style:none;display:flex;align-items:center;justify-content:space-between">
+          <span>🛣 Rutas activas <span id="r-count-badge" style="color:var(--mut);font-weight:400">${selR.size} / ${RUTAS_LIST.length}</span></span>
+          <span style="font-size:10px;color:var(--mut)">▾</span>
+        </summary>
+        <div style="border-top:1px solid var(--light);padding:8px 10px">
+          <div style="display:flex;gap:6px;margin-bottom:6px">
+            <input type="text" id="r-filtro" placeholder="Buscar RP..." style="flex:1;padding:4px 8px;border:1px solid var(--light);border-radius:4px;font-size:11px;font-family:inherit">
+            <button onclick="allR()" style="padding:3px 8px;font-size:10px;border:1px solid var(--light);background:#fff;border-radius:4px;cursor:pointer;font-family:inherit">Todas</button>
+            <button onclick="noneR()" style="padding:3px 8px;font-size:10px;border:1px solid var(--light);background:#fff;border-radius:4px;cursor:pointer;font-family:inherit">Ninguna</button>
+          </div>
+          <div id="r-checklist" style="max-height:200px;overflow-y:auto;border:1px solid var(--light);border-radius:4px;background:#fafafa;padding:4px"></div>
+        </div>
+      </details>`;
+    c.appendChild(wrap);
+    const cl = wrap.querySelector('#r-checklist');
+    RUTAS_LIST.forEach(rid => {
+      const m = RUTA_META[rid] || {color:'#888', label:'RP ' + rid};
+      const l = document.createElement('label');
+      l.style.cssText = 'display:flex;align-items:center;gap:5px;padding:2px 5px;font-size:10.5px;cursor:pointer;border-radius:3px';
+      l.id = 'rl-' + rid;
+      l.onmouseenter = () => l.style.background = '#eef';
+      l.onmouseleave = () => l.style.background = '';
+      l.innerHTML = `<input type="checkbox" id="rt-${rid}" ${selR.has(rid)?'checked':''} onchange="togR('${rid}')" style="cursor:pointer"><span style="color:${m.color};font-weight:600">${m.label}</span>`;
+      cl.appendChild(l);
+    });
+    wrap.querySelector('#r-filtro').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase().trim();
+      Array.from(cl.children).forEach(lab => {
+        const nom = lab.textContent.toLowerCase();
+        lab.style.display = (!q || nom.includes(q)) ? '' : 'none';
+      });
+    });
+  } else {
+    RUTAS_LIST.forEach(rid => {
+      const m = RUTA_META[rid] || {color:'#888', label:'RP ' + rid};
+      const el = document.createElement('span');
+      el.className = 'rtag' + (selR.has(rid) ? ' on' : '');
+      el.id = 'rt-' + rid;
+      el.textContent = m.label;
+      el.style.background = m.color + '25';
+      el.style.color = m.color;
+      el.style.borderColor = m.color;
+      el.onclick = () => togR(rid);
+      c.appendChild(el);
+    });
+  }
+  RUTAS_LIST.forEach(rid => {
+    const m = RUTA_META[rid] || {color:'#888', label:'RP ' + rid};
+    const o = document.createElement('option'); o.value = rid; o.textContent = m.label; s.appendChild(o);
   });
 }
-function togR(rid){selR.has(rid)?selR.delete(rid):selR.add(rid);document.getElementById('rt-'+rid)?.classList.toggle('on');drawRutas();drawMojones();
+function togR(rid){
+  if (selR.has(rid)) selR.delete(rid); else selR.add(rid);
+  const el = document.getElementById('rt-'+rid);
+  if (el) {
+    if (el.tagName === 'INPUT') el.checked = selR.has(rid);
+    else el.classList.toggle('on');
+  }
+  _actualizarContadorRutas();
+  drawRutas(); drawMojones();
   // Pre-calcular OSRM para nueva ruta activada
   precalcularOSRM([...selR], (n,total)=>{ if(n===total&&document.getElementById('osrm-status')) document.getElementById('osrm-status').textContent=_osrmFallback?'⚠ Refs aprox.':'✓ Referencias OK'; });
 }
-function allR(){RUTAS_LIST.forEach(r=>{selR.add(r);document.getElementById('rt-'+r)?.classList.add('on');});drawRutas();drawMojones();}
-function noneR(){RUTAS_LIST.forEach(r=>{selR.delete(r);document.getElementById('rt-'+r)?.classList.remove('on');});drawRutas();drawMojones();}
+function allR(){
+  RUTAS_LIST.forEach(r => {
+    selR.add(r);
+    const el = document.getElementById('rt-'+r);
+    if (el) { if (el.tagName === 'INPUT') el.checked = true; else el.classList.add('on'); }
+  });
+  _actualizarContadorRutas();
+  drawRutas(); drawMojones();
+}
+function noneR(){
+  RUTAS_LIST.forEach(r => {
+    selR.delete(r);
+    const el = document.getElementById('rt-'+r);
+    if (el) { if (el.tagName === 'INPUT') el.checked = false; else el.classList.remove('on'); }
+  });
+  _actualizarContadorRutas();
+  drawRutas(); drawMojones();
+}
 
 function buildLeyenda(){
   // v7.80 · Leyenda rediseñada para paleta institucional (blanco/turquesa),
@@ -3278,13 +3450,32 @@ cargarRegs();
 // El PARTIDOS_GEO hardcoded es de VI (8 partidos). Para otras zonas (IV/V/PBA)
 // hacemos fetch al geojson correspondiente y reemplazamos + redibujamos.
 // ═══════════════════════════════════════════════════════════════════
+// v8.63b · Normaliza "ADOLFO ALSINA" → "Adolfo Alsina" (Title Case con tildes preservadas)
+function _titleCase(s){
+  if (!s) return s;
+  // Palabras que quedan en minúscula (preposiciones/artículos)
+  const minus = new Set(['de','del','la','las','los','y','e','en']);
+  return String(s).toLowerCase().split(/(\s+)/).map((w, i) => {
+    if (!w.trim()) return w;
+    if (i > 0 && minus.has(w)) return w;
+    // Capitalizar primera letra respetando tildes/ñ
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join('');
+}
+
 function _reemplazarPartidos(nuevoGeo){
-  // Normalizar propiedad: shp master usa PARTIDO uppercase, hardcoded VI usa 'partido' minúsc.
-  // Agregamos ambas para compat con todo el código.
+  if (!nuevoGeo || !nuevoGeo.features) {
+    console.warn('[v8.63b] geo inválido en _reemplazarPartidos');
+    return;
+  }
+  // Normalizar propiedad: shp master usa PARTIDO uppercase, hardcoded VI usa 'partido' Title Case.
+  // Unificamos a Title Case para consistencia con la BD y la UI.
   nuevoGeo.features.forEach(f => {
     const p = f.properties;
-    if (p.PARTIDO && !p.partido) p.partido = p.PARTIDO;
-    if (p.partido && !p.PARTIDO) p.PARTIDO = p.partido;
+    const raw = p.partido || p.PARTIDO || p.NAM || '';
+    const canon = _titleCase(raw);
+    p.partido = canon;
+    p.PARTIDO = canon; // ambas keys por compat
   });
   PARTIDOS_GEO = nuevoGeo;
   // Recomputar lista de partidos activos
@@ -3300,7 +3491,7 @@ function _reemplazarPartidos(nuevoGeo){
   buildPartidosUI();
   drawPartidos();
   try { map.fitBounds(L.geoJSON(PARTIDOS_GEO).getBounds().pad(0.03)); } catch(e){}
-  console.log(`[v8.63a] Partidos reemplazados: ${PARTIDOS_LIST.length} de zona ${window.ZONA_ACTUAL}`);
+  console.log(`[v8.63b] Partidos reemplazados: ${PARTIDOS_LIST.length} de zona ${window.ZONA_ACTUAL} · muestra: ${PARTIDOS_LIST.slice(0,3).join(', ')}...`);
 }
 
 // Si la zona activa NO es VI, cargar sus partidos dinámicamente
@@ -3309,7 +3500,7 @@ function _reemplazarPartidos(nuevoGeo){
   if (!zona || zona === 'VI') return; // VI usa el hardcoded
   const pathPartidos = window.ZONA_META && window.ZONA_META.assets_zona && window.ZONA_META.assets_zona.partidos;
   if (!pathPartidos) return;
-  fetch(pathPartidos + '?v=8.63', {cache:'no-cache'})
+  fetch(pathPartidos + '?v=8.63b', {cache:'no-cache'})
     .then(r => {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
@@ -3348,7 +3539,7 @@ function dibujarRutasZonaNoCalibradas(){
   if (window.ZONA_ACTUAL === 'VI') return; // VI usa bundles exclusivamente
   const calibradas = new Set(meta.rps_calibradas || []);
 
-  fetch(rutasGeojson + '?v=8.63', {cache:'no-cache'})
+  fetch(rutasGeojson + '?v=8.63b', {cache:'no-cache'})
     .then(r => {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
@@ -3357,6 +3548,25 @@ function dibujarRutasZonaNoCalibradas(){
       const feats = geo.features || [];
       const noCal = feats.filter(f => !calibradas.has(String(f.properties.rtn || '')));
       const cal   = feats.filter(f =>  calibradas.has(String(f.properties.rtn || '')));
+
+      // v8.63b · Actualizar RUTAS_LIST con TODAS las RPs de la zona (calibradas + no)
+      // + agregar entradas a RUTA_META con color naranja _colorRP para las que faltan.
+      const rpsUnicas = [...new Set(feats.map(f => String(f.properties.rtn || '')).filter(Boolean))];
+      rpsUnicas.forEach(rp => {
+        if (!RUTA_META[rp]) {
+          RUTA_META[rp] = { color: _colorRP(rp), w: calibradas.has(rp) ? 4 : 2.5, label: 'RP ' + rp };
+        }
+      });
+      // Reemplazar RUTAS_LIST y selección (todas activas por default)
+      const rpsSort = rpsUnicas.slice().sort((a,b) => {
+        const ai = parseInt(a,10), bi = parseInt(b,10);
+        if (!isNaN(ai) && !isNaN(bi)) return ai - bi;
+        return String(a).localeCompare(String(b));
+      });
+      RUTAS_LIST = rpsSort;
+      selR = new Set(RUTAS_LIST);
+      // Rebuild UI del sidebar (chips o dropdown según cantidad)
+      if (typeof buildRutasUI === 'function') buildRutasUI();
 
       // ── NO calibradas: color naranja según RP, punteado (sin datos precisos) ──
       if (noCal.length) {
