@@ -98,8 +98,8 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <h1>📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial</h1>
   <div class="sub">DVBA · Departamento Zona VI Saladillo</div>
   <div class="meta">
-    <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">18 de julio de 2026</span></div>
-    <div><span class="lbl">Versión bitácora</span><span class="val">v4.9 — apps v9.90 / v8.52 · 1-ago-2026</span></div>
+    <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">3 de agosto de 2026</span></div>
+    <div><span class="lbl">Versión bitácora</span><span class="val">v5.0 — apps v9.91 / v8.64.2 · 3-ago-2026</span></div>
     <div><span class="lbl">Responsable</span><span class="val">Ing. Luciano Lamaita</span></div>
     <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></span></div>
     <div><span class="lbl">Estado general</span><span class="val">🟢 En desarrollo activo</span></div>
@@ -437,6 +437,58 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
           </ul>
         </li>
         <li><strong>Nomenclatura "tarea" (v7.87):</strong> pase completo <em>parte → tarea</em> en toda la UI visible de las 3 apps escritorio + docs (tabla y funciones internas mantienen <code>partes_diarios</code>/<code>pd*</code> por compatibilidad de código).</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">24 junio 2026 · v9.18a · Fixes modelo Tipo↔Estado</div>
+      <div class="tl-titulo">normStr Unicode + modalidad/superficie implícitas</div>
+      <ul>
+        <li><strong>Normalizador Unicode:</strong> <code>normStr()</code> ahora aplica <code>NFD → strip combining marks</code> para que "Riego" == "riego" == "riegò". Fix bugs de match en autocomplete y en armonizador.</li>
+        <li><strong>Sub-atributos implícitos:</strong> cuando el nombre del tipo ya incluye modalidad ("Desmalezado mecánico") o superficie ("Mejoramiento con dolomita"), la UI oculta el selector correspondiente pero guarda el valor implícito automáticamente. Regex documentado en la sección 4.1 de <code>MODELO_TIPOS_ESTADOS.md</code>.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">agosto 2026 · v8.53 – v8.58 / v9.91 · Convergencia UI + público</div>
+      <div class="tl-titulo">Header/footer unificados, portal público, aviso híbrido</div>
+      <ul>
+        <li><strong>Header/footer unificados</strong> en los 4 portales escritorio con logo real de DVBA en Admin y subtítulo "SIG Vial PBAᵝ" en todos. Módulo <code>datos/legales.js</code> con 4 tabs (Acerca / Términos / Privacidad / Permisos PWA) auto-inyectado en 6 HTMLs.</li>
+        <li><strong>Portal público sin login (v8.56 · SQL_12):</strong> función <code>anon_ver_publico()</code> devuelve KPIs mínimos sin exponer datos personales. Portal abre en modo público por default con banner dismissible + botón <code>ℹ Alcance</code> en header.</li>
+        <li><strong>Móvil sin "Zona VI" hardcoded (v9.91/v8.54):</strong> el header muestra rol + zona real desde el perfil del user. Footer avanzado unificado con modal <code>DVBA_LEGAL</code>. Fix reportes.html: cambio de picker de zona ahora refetchea correctamente.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">agosto 2026 · v8.59 – v8.62 · Fase A + B multi-zona</div>
+      <div class="tl-titulo">Reorganización datos/ + loader dinámico multi-zona</div>
+      <ul>
+        <li><strong>Reorganización <code>datos/</code>:</strong> estructura <code>zonas/zona_XX/</code> (per-zona) + <code>rutas/</code> (bundles RP compartidos) + <code>referencias/</code> (masters PBA). Script <code>generar_zona_desde_master.py</code> filtra masters por zona.</li>
+        <li><strong>Loader dinámico multi-zona (<code>datos/loader_zona.js</code>):</strong> detecta zona por URL (<code>?zona=X</code>) → perfil técnico → default público PBA. Carga bundles RP + assets zonales vía <code>document.write</code> sincrónico. API <code>window.DVBA_ZONA</code> para consulta/cambio. Auto-redirect técnico → <code>?zona=X</code>.</li>
+        <li><strong>Manifests IV Junín + V Chivilcoy:</strong> pilotos con rps calibradas compartidas con VI (RP46, RP40, RP30, RP51, RP61). Corregidos según CSV oficial <code>rutas_partidos.csv</code>.</li>
+        <li><strong>Catálogo <code>partidos_pba.json v2.2</code>:</strong> 135 partidos oficiales (fixes ARBA: Ituzaingó #112→#136, Zona IX partido #48→#40) + campo <code>rutas[]</code> por partido + <code>zonas_dvba{}</code> con las 12 zonas y sus partidos.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">agosto 2026 · v8.63a-h · Portal multi-zona real (bugfix cascada)</div>
+      <div class="tl-titulo">PARTIDOS_GEO dinámico + sidebar adaptativo + fixes</div>
+      <ul>
+        <li><strong>Frente A:</strong> <code>PARTIDOS_GEO</code> reasignable, PBA default público, fitBounds automático por zona.</li>
+        <li><strong>Frente B:</strong> sidebar adaptativo — chips para zona específica, dropdown multi-select para PBA con 135 partidos. Fix normalización UPPERCASE → Title Case (shp master tenía "ADOLFO ALSINA").</li>
+        <li><strong>Fixes cascada:</strong> rutas zonales respetan <code>selR</code>; capas VI se limpian al cambiar zona; <code>cargarRegs</code> filtra por zona activa; <code>selR</code> arranca con TODAS las rutas activas en cualquier zona; <code>partesCargar</code> filtra <code>.eq('zona', X)</code> + fix <code>select('lat, lng')</code> (era latitud/longitud inexistentes → 400 Bad Request); labels partidos ocultos en PBA.</li>
+        <li><strong>Bug crítico v8.63h:</strong> <code>_reemplazarPartidos</code> limpiaba <code>capasP</code> sin <code>.flat()</code> — Leaflet ignoraba los <code>removeLayer(array)</code> y los polígonos viejos de VI quedaban en el DOM al cambiar de zona. Sombreado persistente resuelto.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">agosto 2026 · v8.64 – v8.64.2 · Frente D · Paleta 12 zonas + clipping</div>
+      <div class="tl-titulo">Sombreado por zona, labels romanos, recorte cliente-side</div>
+      <ul>
+        <li><strong>Paleta institucional 12 zonas:</strong> función <code>_colorZona(cod)</code> con 12 tonos armónicos gama neutra-azulada (sin saturaciones tipo circo). <code>_partidoAZona{}</code> cargado async desde <code>partidos_pba.json</code>. En vista PBA cada partido pintado con el color de su zona vial DVBA.</li>
+        <li><strong>Labels romanos por zona:</strong> función <code>_dibujarLabelsZonasPBA()</code> calcula el centroide de cada agrupación de partidos y pone el nº romano (I..XII) grande con opacidad 42% coloreado con el tono de la zona. Reemplazó la watermark inferior anterior.</li>
+        <li><strong>Filtro tareas por partido→zona (v8.64.1):</strong> defensa cliente-side en <code>partesDibujar</code>. Aunque el <code>.eq('zona', X)</code> SQL falle (datos legacy con zona=NULL), se descarta cualquier tarea cuyo partido pertenezca a otra zona.</li>
+        <li><strong>Clipping cliente-side (v8.64.2):</strong> las trazas de RP30/46/51 sobrepasaban la zona activa porque el shp master asigna un partido único por LineString pero la geometría se extiende a vecinos. Fix con ray-casting: <code>_recortarFeatureRuta()</code> parte cada polilínea en sub-tramos donde puntos consecutivos caen dentro de algún polígono de <code>PARTIDOS_GEO</code>. Rendimiento: ~9M ops = milésimas de segundo en desktop.</li>
       </ul>
     </div>
 

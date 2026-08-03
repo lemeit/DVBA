@@ -62,7 +62,7 @@
 /* ═══ RESET & BASE ═══════════════════════════════════════════ */
 *{box-sizing:border-box;margin:0;padding:0}
 /* v8.23 · Tipografía oficial PBA: Encode Sans (Anexo III p.7) para titulares/UI + Roboto para body */
-body{font-family:'Roboto','Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--txt);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-weight:400}
+body{font-family:'Encode Sans','Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--txt);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-weight:400}
 h1,h2,h3,h4,h5,h6,.sec-title,button.btn-save,header h1{font-family:'Encode Sans','Segoe UI',Arial,sans-serif;font-weight:600}
 h1,h2{font-weight:800}
 
@@ -1857,7 +1857,7 @@ function updateLbls(){
       if(area>bestArea){bestArea=area;bestCx=cx;bestCy=cy;}
     }
     const ico=L.divIcon({className:'',
-      html:`<span style="font-size:10px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;pointer-events:none;font-family:'Segoe UI',Arial,sans-serif;-webkit-text-stroke:3px #0d1420;paint-order:stroke fill">${n}</span>`,
+      html:`<span style="font-size:10px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;pointer-events:none;font-family:'Encode Sans','Segoe UI',Arial,sans-serif;-webkit-text-stroke:3px #0d1420;paint-order:stroke fill">${n}</span>`,
       iconAnchor:[40,8]});
     partidoLbls[n]=L.marker(L.latLng(bestCy,bestCx),{icon:ico,interactive:false,zIndexOffset:-300}).addTo(map);
   });
@@ -4629,7 +4629,7 @@ function toast(msg, tipo){
   const c = colores[tipo] || {bg:'#eef2f5', bd:'#838383', txt:'#333'};
   const el = document.createElement('div');
   el.textContent = msg;
-  el.style.cssText = 'position:fixed;top:70px;right:20px;z-index:99999;padding:10px 16px;background:'+c.bg+';border:1px solid '+c.bd+';color:'+c.txt+';border-radius:6px;font-family:Roboto,sans-serif;font-size:12px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.15);max-width:340px;line-height:1.4;opacity:0;transition:opacity .18s';
+  el.style.cssText = 'position:fixed;top:70px;right:20px;z-index:99999;padding:10px 16px;background:'+c.bg+';border:1px solid '+c.bd+';color:'+c.txt+';border-radius:6px;font-family:'Encode Sans',Roboto,sans-serif;font-size:12px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.15);max-width:340px;line-height:1.4;opacity:0;transition:opacity .18s';
   document.body.appendChild(el);
   requestAnimationFrame(() => el.style.opacity = '1');
   setTimeout(() => {
@@ -8040,7 +8040,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
       </div>
       <button onclick="cerrarAcercaDe()" style="background:transparent;border:0;color:#fff;font-size:22px;cursor:pointer;padding:0 8px" title="Cerrar">×</button>
     </div>
-    <div class="ms-b" style="max-height:70vh;overflow-y:auto;padding:16px 20px;color:var(--txt);background:#fff;font-family:Roboto,sans-serif">
+    <div class="ms-b" style="max-height:70vh;overflow-y:auto;padding:16px 20px;color:var(--txt);background:#fff;font-family:'Encode Sans',Roboto,sans-serif">
 
       <div style="background:#fef6e4;border-left:3px solid var(--am);padding:10px 12px;border-radius:4px;margin-bottom:14px;font-size:11.5px;line-height:1.55;color:#7a4400">
         <b>Versión BETA · en desarrollo activo.</b><br>
