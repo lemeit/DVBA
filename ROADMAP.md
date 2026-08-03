@@ -1,6 +1,16 @@
 # DVBA Zona VI · Roadmap consolidado
 
-**Estado al 16 de julio de 2026** · Portal desktop en **v7.83**, `partes_diarios.html` en **v7.83**, app móvil PWA en **v9.58**, SW en `dvba-campo-v9.58`.
+**Estado al 2 de agosto de 2026** · Familia escritorio en **v8.58** (index, plan_seguridad, reportes, admin_usuarios), familia móvil PWA en **v9.91** (avanzado + básico), SW `dvba-campo-v9.91`. Snapshot anterior: v7.83 / v9.58 (16 julio 2026).
+
+## ⏭ Próximas prioridades (mañana en adelante)
+
+1. **Escalado multi-zona · empezar por 2 zonas piloto** (IV Junín, V 9 de Julio). Ver `docs/PLAN_ESCALADO_MULTIZONA.md`. Los assets QGIS (rutas, polígonos de partidos, mojones) ya están; falta el pipeline de carga estandarizado y calibración de bundles.
+2. **Informe para XLI Concurso Vial DVBA 2026** (deadline 16 septiembre). Empezar a redactar `docs/CONCURSO_VIAL_2026.md` con capturas actuales del portal, capturas del móvil en campo, screenshots de reportes, comparativa antes/después.
+3. **Capturas y evidencia visual** del proyecto: sacar screenshots de cada portal, del flujo de campo, del panel admin, del sello v4 sobre foto, del reporte PDF, etc. Guardar en `docs/capturas/` para el informe.
+4. **Evaluación de infraestructura futura** (posterior al concurso):
+   - **Supabase**: monitorear consumo real cuando lleguen las zonas nuevas (storage fotos, egress, requests). Umbrales Free/Pro/Team documentados en `docs/PLAN_STORAGE.md`. Evaluar si el plan Pro alcanza o hay que migrar.
+   - **Alternativas para escalar**: self-hosted PostgREST + PostGIS + MinIO en VPS, Firebase/Firestore, AWS Amplify, Cloudflare D1/R2. Comparar costo/complejidad frente a Supabase Pro.
+   - **Dominio propio**: hoy `lemeit.github.io/DVBA/`. Evaluar registrar `sigvial.gba.gob.ar` o `sigvial.dvba.gob.ar` cuando la app deje de ser piloto y pase a oficial. Requiere gestión institucional y certificados.
 
 Este documento es la referencia única de qué está listo, qué queda pendiente, y en qué orden abordarlo. Complementa a:
 - [`docs/PLAN_ROLES_MULTIZONA.md`](docs/PLAN_ROLES_MULTIZONA.md) — visión de 4 niveles + roadmap de 5 fases.
