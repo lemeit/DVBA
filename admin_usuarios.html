@@ -201,14 +201,14 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
   </div>
 </main>
 
-<!-- v8.65.5 · Footer institucional unificado (mismo estilo que reportes.html) -->
+<!-- v8.65.6 · Footer institucional unificado (mismo estilo que reportes.html) -->
 <footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid #444;position:fixed;bottom:0;left:0;right:0;z-index:80">
   <div style="flex:1;min-width:260px">
     <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
     <span style="margin-left:8px">Módulo de administración · Uso interno institucional.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.65.5</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.65.6</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -306,12 +306,12 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 
 <div id="toaster"></div>
 
-<!-- v8.65.5 · Footer viejo eliminado, el footerInst institucional está arriba (L200) -->
+<!-- v8.65.6 · Footer viejo eliminado, el footerInst institucional está arriba (L200) -->
 
 <script>
-// v8.65.5 · Constante de versión unificada (familia escritorio v8.X)
-const APP_VERSION = 'v8.65.5';
-window.APP_VERSION = APP_VERSION;  // v8.65.5 · expone a window para legales.js
+// v8.65.6 · Constante de versión unificada (familia escritorio v8.X)
+const APP_VERSION = 'v8.65.6';
+window.APP_VERSION = APP_VERSION;  // v8.65.6 · expone a window para legales.js
 // ═══════════════════════════════════════════════════════════════════════════════
 // Setup Supabase
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -350,7 +350,7 @@ async function chequearAcceso(){
     }
     document.getElementById('hUser').textContent = session.user.email;
 
-    // 2) v8.65.5 · Solo refrescar si el token está próximo a expirar (evita el 400 innecesario).
+    // 2) v8.65.6 · Solo refrescar si el token está próximo a expirar (evita el 400 innecesario).
     // Antes se llamaba a refreshSession() siempre — cuando el refresh_token estaba
     // revocado/vencido daba 400 en la consola aunque no fuera fatal.
     try {
