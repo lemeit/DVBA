@@ -103,7 +103,7 @@ table.rep td.center{text-align:center}
 .auth-guard{padding:40px 20px;text-align:center;color:var(--mut);font-size:14px}
 .auth-guard button{margin-top:14px;padding:10px 22px;background:var(--vd);color:#fff;border:0;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer}
 
-/* FOOTER · v8.65.1 unificado con partes_diarios/admin (estilo inline en el <footer>) */
+/* FOOTER · v8.65.2 unificado con partes_diarios/admin (estilo inline en el <footer>) */
 </style>
 </head>
 <body>
@@ -260,14 +260,14 @@ table.rep td.center{text-align:center}
   <div class="empty" id="empty" style="display:none">Sin resultados con estos filtros. Probá ampliar el rango de fechas.</div>
 </div>
 
-<!-- v8.65.1 · Footer institucional unificado (mismo estilo que partes_diarios y admin_usuarios) -->
+<!-- v8.65.2 · Footer institucional unificado (mismo estilo que partes_diarios y admin_usuarios) -->
 <footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--pd);position:fixed;bottom:0;left:0;right:0;z-index:80">
   <div style="flex:1;min-width:260px">
     <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
     <span style="margin-left:8px">Módulo de reportes · Uso interno institucional.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.65.1</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.65.2</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -279,8 +279,8 @@ table.rep td.center{text-align:center}
 // Charts con Chart.js CDN · Export CSV vanilla
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v8.65.1';
-window.APP_VERSION = APP_VERSION;  // v8.65.1 · expone a window para legales.js
+const APP_VERSION = 'v8.65.2';
+window.APP_VERSION = APP_VERSION;  // v8.65.2 · expone a window para legales.js
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 let _supa = null;
@@ -938,14 +938,14 @@ function _pdfHeader(doc, W, margin, P, subtitulo){
   doc.text(subtitulo, margin, 20);
 }
 // ═══════════════════════════════════════════════════════════════════
-// v8.65.1 · PDF INFORME MENSUAL GERENCIA · Layout oficial DVBA
+// v8.65.2 · PDF INFORME MENSUAL GERENCIA · Layout oficial DVBA
 // Basado en docs/ANALISIS_INFORME_GERENCIAL_DVBA.md
 // Estructura:
 //   Página 1: Portada institucional
 //   Página 2: Resumen provincial · Km por zona + Km por tarea (8 categorías)
 //   Página 3+: Hoja administrativa por zona activa (rutas + resumen por tarea)
 //   Página final: Luminarias LED (si hay materiales cargados)
-// v1: sin mapa GIS ni charts (se agregan en v8.65.1.1+)
+// v1: sin mapa GIS ni charts (se agregan en v8.65.2.1+)
 // ═══════════════════════════════════════════════════════════════════
 
 // Paleta oficial DVBA por categoría de tarea
@@ -994,7 +994,7 @@ async function rpExportPDFGerencia(){
     const zonaLabel = `Zona ${zonaAct} · ${zonaNombre}`;
     const desde = document.getElementById('fDesde').value;
     const hasta = document.getElementById('fHasta').value;
-    // v8.65.1.1 · Tomar el mes del rango seleccionado (usa la fecha 'hasta'), no el actual
+    // v8.65.2.1 · Tomar el mes del rango seleccionado (usa la fecha 'hasta'), no el actual
     const fechaRango = hasta ? new Date(hasta + 'T12:00') : new Date();
     const mesActual = fechaRango.toLocaleDateString('es-AR', {month:'long', year:'numeric'}).toUpperCase();
     const fechaGen = new Date().toLocaleDateString('es-AR')+' '+new Date().toTimeString().slice(0,5);
@@ -1089,10 +1089,11 @@ async function rpExportPDFGerencia(){
       styles: { fontSize: 10, cellPadding: 3, font: 'helvetica' },
       headStyles: { fillColor: [TURQ.r, TURQ.g, TURQ.b], textColor: 255, fontStyle: 'bold' },
       columnStyles: {
-        0: { cellWidth: 12 },     // swatch color
-        1: { cellWidth: 100 },    // nombre
-        2: { cellWidth: 30, halign: 'right' },  // km
-        3: { cellWidth: 30, halign: 'right' }   // cantidad
+        // v8.65.2 · Total 180mm = W(210) - margen*2(30). Antes 172 pero autoTable agregaba padding
+        0: { cellWidth: 10 },     // swatch color
+        1: { cellWidth: 92 },     // nombre
+        2: { cellWidth: 34, halign: 'right' },  // km
+        3: { cellWidth: 34, halign: 'right' }   // cantidad
       },
       didDrawCell: (data) => {
         // Dibujar el swatch de color en la primera columna
@@ -1152,7 +1153,7 @@ async function rpExportPDFGerencia(){
     doc.setFont('helvetica','normal'); doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b);
     doc.text([...caminosInt].sort().join(' | ') || '(sin datos)', margin, y, {maxWidth: W-margin*2}); y += 12;
 
-    // v8.65.1.1 · Equipos utilizados agrupados por categoría oficial
+    // v8.65.2.1 · Equipos utilizados agrupados por categoría oficial
     doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b);
     doc.text('Equipos utilizados por categoría de tarea', margin, y); y += 7;
 
@@ -1180,8 +1181,9 @@ async function rpExportPDFGerencia(){
         styles: { fontSize: 9, cellPadding: 3, font: 'helvetica' },
         headStyles: { fillColor: [TURQ.r, TURQ.g, TURQ.b], textColor: 255, fontStyle: 'bold' },
         columnStyles: {
-          0: { cellWidth: 55, fontStyle: 'bold', textColor: [TURQ_D.r, TURQ_D.g, TURQ_D.b] },
-          1: { cellWidth: 125 }
+          // v8.65.2 · Total 180mm exacto (evita warning "units width could not fit")
+          0: { cellWidth: 50, fontStyle: 'bold', textColor: [TURQ_D.r, TURQ_D.g, TURQ_D.b] },
+          1: { cellWidth: 128 }
         }
       });
       y = doc.lastAutoTable.finalY + 8;
@@ -1191,22 +1193,21 @@ async function rpExportPDFGerencia(){
     }
 
     // ═════════════ PÁGINA 4 · GRID DE FOTOS DEL PERÍODO ═════════════
-    // v8.65.1.1 · Fetch de hasta 8 fotos representativas del período
+    // v8.65.2 · Fetch DIRECTO a relevamientos (antes dependía de parte_fotos que solo trae
+    // fotos linkeadas a un parte_diario específico → muy pocas). Muchas fotos existen en
+    // relevamientos sin estar linkeadas, y son igualmente representativas del período.
     let fotosCargadas = [];
     try {
-      const parteIds = _partesCache.filter(p => (p.parte_fotos||[]).length > 0).slice(0, 12).map(p => p.id);
-      if (parteIds.length && _supa) {
-        const { data: pfotos } = await _supa.from('parte_fotos')
-          .select('parte_id, relevamiento_id')
-          .in('parte_id', parteIds)
+      if (_supa) {
+        const { data: relevs } = await _supa.from('relevamientos')
+          .select('id, foto_url, fecha, tipo, ruta, partido')
+          .not('foto_url', 'is', null)
+          .eq('zona', zonaAct)
+          .gte('fecha', desde).lte('fecha', hasta)
+          .order('fecha', {ascending: false})
           .limit(12);
-        const relIds = (pfotos||[]).map(f => f.relevamiento_id).filter(Boolean);
-        if (relIds.length) {
-          const { data: relevs } = await _supa.from('relevamientos')
-            .select('id, foto_url, fecha, tipo, ruta, partido')
-            .in('id', relIds).limit(12);
-          fotosCargadas = (relevs||[]).filter(r => r.foto_url).slice(0, 8);
-        }
+        fotosCargadas = (relevs||[]).filter(r => r.foto_url).slice(0, 8);
+        console.log(`[Gerencia] fotos período ${desde}→${hasta} zona ${zonaAct}: ${fotosCargadas.length}`);
       }
     } catch(e) { console.warn('[Gerencia] fotos:', e.message); }
 
@@ -1217,7 +1218,7 @@ async function rpExportPDFGerencia(){
       doc.setTextColor(255,255,255); doc.setFontSize(12); doc.setFont('helvetica','bold');
       doc.text('DVBA · '+zonaLabel, margin, 12);
       doc.setFontSize(9); doc.setFont('helvetica','normal');
-      doc.text('Fotos del período · '+fotosCargadas.length+' de '+_partesCache.filter(p => (p.parte_fotos||[]).length > 0).length, W-margin, 12, {align:'right'});
+      doc.text('Registro fotográfico · '+fotosCargadas.length+' fotos', W-margin, 12, {align:'right'});
 
       let yF = 32;
       doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b); doc.setFontSize(15); doc.setFont('helvetica','bold');
