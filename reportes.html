@@ -103,7 +103,7 @@ table.rep td.center{text-align:center}
 .auth-guard{padding:40px 20px;text-align:center;color:var(--mut);font-size:14px}
 .auth-guard button{margin-top:14px;padding:10px 22px;background:var(--vd);color:#fff;border:0;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer}
 
-/* FOOTER · v8.64.8 unificado con partes_diarios/admin (estilo inline en el <footer>) */
+/* FOOTER · v8.65 unificado con partes_diarios/admin (estilo inline en el <footer>) */
 </style>
 </head>
 <body>
@@ -176,6 +176,7 @@ table.rep td.center{text-align:center}
   <span class="sep"></span>
   <button class="btn-ghost" onclick="rpExportCSV()" title="Exportar CSV de la vista actual">↓ CSV</button>
   <button class="btn-primary" onclick="rpExportPDF()" title="Reporte PDF institucional DVBA" style="background:var(--acc)">📄 PDF</button>
+  <button class="btn-primary" onclick="rpExportPDFGerencia()" title="Informe Mensual Gerencia (layout oficial DVBA · 8 tareas · paleta institucional)" style="background:#003366">📄 Gerencia</button>
 </div>
 
 <!-- Resumen (KPIs) · v7.87 con Red Primaria / Secundaria separadas -->
@@ -259,14 +260,14 @@ table.rep td.center{text-align:center}
   <div class="empty" id="empty" style="display:none">Sin resultados con estos filtros. Probá ampliar el rango de fechas.</div>
 </div>
 
-<!-- v8.64.8 · Footer institucional unificado (mismo estilo que partes_diarios y admin_usuarios) -->
+<!-- v8.65 · Footer institucional unificado (mismo estilo que partes_diarios y admin_usuarios) -->
 <footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--pd);position:fixed;bottom:0;left:0;right:0;z-index:80">
   <div style="flex:1;min-width:260px">
     <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
     <span style="margin-left:8px">Módulo de reportes · Uso interno institucional.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.64.8</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.65</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -278,8 +279,8 @@ table.rep td.center{text-align:center}
 // Charts con Chart.js CDN · Export CSV vanilla
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v8.64.8';
-window.APP_VERSION = APP_VERSION;  // v8.64.8 · expone a window para legales.js
+const APP_VERSION = 'v8.65';
+window.APP_VERSION = APP_VERSION;  // v8.65 · expone a window para legales.js
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 let _supa = null;
@@ -936,6 +937,252 @@ function _pdfHeader(doc, W, margin, P, subtitulo){
   doc.setFontSize(9); doc.setFont('helvetica','normal');
   doc.text(subtitulo, margin, 20);
 }
+// ═══════════════════════════════════════════════════════════════════
+// v8.65 · PDF INFORME MENSUAL GERENCIA · Layout oficial DVBA
+// Basado en docs/ANALISIS_INFORME_GERENCIAL_DVBA.md
+// Estructura:
+//   Página 1: Portada institucional
+//   Página 2: Resumen provincial · Km por zona + Km por tarea (8 categorías)
+//   Página 3+: Hoja administrativa por zona activa (rutas + resumen por tarea)
+//   Página final: Luminarias LED (si hay materiales cargados)
+// v1: sin mapa GIS ni charts (se agregan en v8.65.1+)
+// ═══════════════════════════════════════════════════════════════════
+
+// Paleta oficial DVBA por categoría de tarea
+const COLORES_TAREAS_GERENCIA = {
+  'Alumbrado':                        {r:241, g:196, b:15,  hex:'#F1C40F'},  // Amarillo
+  'Calzado de banquinas':             {r:142, g:29,  b:47,  hex:'#8E1D2F'},  // Rojo bordó
+  'Caminos rurales':                  {r:179, g:157, b:219, hex:'#B39DDB'},  // Violeta claro
+  'Corte de pasto':                   {r:46,  g:204, b:113, hex:'#2ECC71'},  // Verde
+  'Mantenimiento de pavimento':       {r:176, g:190, b:197, hex:'#B0BEC5'},  // Gris claro
+  'Reemplazo de barandas Flex Beam':  {r:244, g:143, b:177, hex:'#F48FB1'},  // Rosa
+  'Reparación de alcantarillas':      {r:230, g:126, b:34,  hex:'#E67E22'},  // Naranja
+  'Señalización y demarcación':       {r:31,  g:58,  b:147, hex:'#1F3A93'}   // Azul oscuro
+};
+
+// Normalización de nombres de tarea de la BD a las 8 categorías oficiales
+function _normalizarCategoriaGerencia(nombre){
+  const n = String(nombre || '').toLowerCase();
+  if (n.includes('alumbrado') || n.includes('luminaria') || n.includes('led')) return 'Alumbrado';
+  if (n.includes('banquina')) return 'Calzado de banquinas';
+  if (n.includes('rural') || n.includes('camino')) return 'Caminos rurales';
+  if (n.includes('pasto') || n.includes('desmalez') || n.includes('corte')) return 'Corte de pasto';
+  if (n.includes('pavimento') || n.includes('bache') || n.includes('carpeta')) return 'Mantenimiento de pavimento';
+  if (n.includes('flex') || n.includes('baranda')) return 'Reemplazo de barandas Flex Beam';
+  if (n.includes('alcantar')) return 'Reparación de alcantarillas';
+  if (n.includes('señaliz') || n.includes('demarca') || n.includes('cartel')) return 'Señalización y demarcación';
+  return 'Corte de pasto';  // fallback default (la más común)
+}
+
+async function rpExportPDFGerencia(){
+  if (!_partesCache.length){ alert('No hay datos para el informe. Ampliá el rango de fechas.'); return; }
+  if (typeof window.jspdf === 'undefined'){ alert('Librería PDF no cargada. Refrescá la página.'); return; }
+
+  const btn = event ? event.currentTarget : null;
+  if (btn){ btn.disabled = true; btn.textContent = '⏳ Generando informe...'; }
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const W = doc.internal.pageSize.getWidth();   // 210
+    const H = doc.internal.pageSize.getHeight();  // 297
+    const margin = 15;
+
+    // Datos base
+    const zonaAct = window.ZONA_ACTUAL || 'VI';
+    const zonaNombre = (window.ZONA_META && window.ZONA_META.nombre) || 'Saladillo';
+    const zonaLabel = `Zona ${zonaAct} · ${zonaNombre}`;
+    const desde = document.getElementById('fDesde').value;
+    const hasta = document.getElementById('fHasta').value;
+    const mesActual = new Date().toLocaleDateString('es-AR', {month:'long', year:'numeric'}).toUpperCase();
+    const fechaGen = new Date().toLocaleDateString('es-AR')+' '+new Date().toTimeString().slice(0,5);
+    const tareasMap = Object.fromEntries(_tareas.map(t => [t.id, t.nombre]));
+
+    // Paleta institucional
+    const TURQ = {r:0, g:154, b:174};
+    const TURQ_D = {r:0, g:125, b:144};
+    const NEGRO = {r:20, g:20, b:20};
+
+    // Clasificar partes por categoría oficial + agregar km
+    const porCategoria = {};  // categoria → {km, count, partes[]}
+    Object.keys(COLORES_TAREAS_GERENCIA).forEach(c => { porCategoria[c] = {km:0, count:0, partes:[]}; });
+    _partesCache.forEach(p => {
+      const nomTarea = tareasMap[p.tarea_id] || p.tarea || '';
+      const cat = _normalizarCategoriaGerencia(nomTarea);
+      const km = (p.prog_ini != null && p.prog_fin != null)
+        ? Math.abs(Number(p.prog_fin) - Number(p.prog_ini)) : 0;
+      porCategoria[cat].km += km;
+      porCategoria[cat].count++;
+      porCategoria[cat].partes.push(p);
+    });
+    const kmTotal = Object.values(porCategoria).reduce((a,c) => a + c.km, 0);
+
+    // ═════════════ PÁGINA 1 · PORTADA INSTITUCIONAL ═════════════
+    doc.setFillColor(TURQ.r, TURQ.g, TURQ.b);
+    doc.rect(0, 0, W, H*0.35, 'F');
+    // Logo
+    try {
+      const logo = await _cargarImgComoBase64('datos/img/logo_dvba_clean.png');
+      if (logo) doc.addImage(logo, 'PNG', W/2 - 20, 25, 40, 40);
+    } catch(e){}
+    // Títulos institucionales
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(22); doc.setFont('helvetica','bold');
+    doc.text('INFORME MENSUAL', W/2, 85, {align:'center'});
+    doc.text('GERENCIA EJECUTIVA', W/2, 95, {align:'center'});
+    doc.setFontSize(14); doc.setFont('helvetica','normal');
+    doc.text('Dirección de Vialidad de la Provincia de Buenos Aires', W/2, 108, {align:'center'});
+
+    // Franja inferior con zona + período
+    doc.setFillColor(TURQ_D.r, TURQ_D.g, TURQ_D.b);
+    doc.rect(0, H*0.35, W, 25, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(16); doc.setFont('helvetica','bold');
+    doc.text(zonaLabel, W/2, H*0.35 + 10, {align:'center'});
+    doc.setFontSize(11); doc.setFont('helvetica','normal');
+    doc.text('Período: '+desde+' a '+hasta, W/2, H*0.35 + 18, {align:'center'});
+
+    // Resumen ejecutivo en portada
+    doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b);
+    doc.setFontSize(48); doc.setFont('helvetica','bold');
+    doc.text(kmTotal.toFixed(2), W/2, H*0.60, {align:'center'});
+    doc.setFontSize(14); doc.setFont('helvetica','normal');
+    doc.text('km intervenidos en el período', W/2, H*0.60 + 8, {align:'center'});
+    doc.setFontSize(11);
+    doc.text(_partesCache.length + ' tareas ejecutadas', W/2, H*0.60 + 18, {align:'center'});
+
+    // Pie de portada
+    doc.setTextColor(120,120,120); doc.setFontSize(9);
+    doc.text('Ministerio de Infraestructura y Servicios Públicos', W/2, H-25, {align:'center'});
+    doc.text('Gobierno de la Provincia de Buenos Aires', W/2, H-20, {align:'center'});
+    doc.setFontSize(7);
+    doc.text('Generado ' + fechaGen + ' · ' + APP_VERSION, W/2, H-8, {align:'center'});
+
+    // ═════════════ PÁGINA 2 · RESUMEN POR CATEGORÍA ═════════════
+    doc.addPage();
+    // Header
+    doc.setFillColor(TURQ.r, TURQ.g, TURQ.b);
+    doc.rect(0, 0, W, 20, 'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(12); doc.setFont('helvetica','bold');
+    doc.text('DVBA · '+zonaLabel, margin, 12);
+    doc.setFontSize(9); doc.setFont('helvetica','normal');
+    doc.text('Km por categoría de tarea', W-margin, 12, {align:'right'});
+
+    let y = 32;
+    doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b);
+    doc.setFontSize(15); doc.setFont('helvetica','bold');
+    doc.text('Km intervenidos por tipo de tarea', margin, y); y += 4;
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(120,120,120);
+    doc.text('Clasificación según las 8 categorías oficiales DVBA', margin, y+3); y += 12;
+
+    // Tabla con paleta oficial - un chip de color + nombre + km + cantidad
+    const filasCategoria = Object.entries(porCategoria)
+      .filter(([_, v]) => v.count > 0 || v.km > 0)  // solo mostrar categorías con datos
+      .sort((a,b) => b[1].km - a[1].km);  // orden desc por km
+
+    doc.autoTable({
+      startY: y,
+      head: [['', 'Categoría', 'Km', 'Tareas']],
+      body: filasCategoria.map(([cat, v]) => ['', cat, v.km.toFixed(2), v.count]),
+      styles: { fontSize: 10, cellPadding: 3, font: 'helvetica' },
+      headStyles: { fillColor: [TURQ.r, TURQ.g, TURQ.b], textColor: 255, fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 12 },     // swatch color
+        1: { cellWidth: 100 },    // nombre
+        2: { cellWidth: 30, halign: 'right' },  // km
+        3: { cellWidth: 30, halign: 'right' }   // cantidad
+      },
+      didDrawCell: (data) => {
+        // Dibujar el swatch de color en la primera columna
+        if (data.column.index === 0 && data.row.section === 'body') {
+          const cat = filasCategoria[data.row.index][0];
+          const col = COLORES_TAREAS_GERENCIA[cat];
+          if (col) {
+            doc.setFillColor(col.r, col.g, col.b);
+            doc.rect(data.cell.x+2, data.cell.y+2, 8, data.cell.height-4, 'F');
+          }
+        }
+      }
+    });
+
+    // Total al final
+    let yFinal = doc.lastAutoTable.finalY + 8;
+    doc.setFontSize(11); doc.setFont('helvetica','bold');
+    doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b);
+    doc.text('TOTAL:', margin+112, yFinal, {align:'right'});
+    doc.setTextColor(TURQ.r, TURQ.g, TURQ.b);
+    doc.text(kmTotal.toFixed(2) + ' km', margin+142, yFinal, {align:'right'});
+    doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b);
+    doc.text(String(_partesCache.length), margin+172, yFinal, {align:'right'});
+
+    // ═════════════ PÁGINA 3 · HOJA ADMINISTRATIVA ZONA ═════════════
+    doc.addPage();
+    doc.setFillColor(TURQ.r, TURQ.g, TURQ.b);
+    doc.rect(0, 0, W, 20, 'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(12); doc.setFont('helvetica','bold');
+    doc.text('DVBA · '+zonaLabel, margin, 12);
+    doc.setFontSize(9); doc.setFont('helvetica','normal');
+    doc.text('Hoja administrativa', W-margin, 12, {align:'right'});
+
+    y = 32;
+    doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b);
+    doc.setFontSize(15); doc.setFont('helvetica','bold');
+    doc.text('Rutas intervenidas', margin, y); y += 8;
+
+    // Recopilar RPs y caminos únicos del período
+    const rpsInt = new Set(), caminosInt = new Set();
+    _partesCache.forEach(p => {
+      const r = String(p.ruta || '').trim();
+      if (!r) return;
+      const tipo = String(p.tipo_via || '').toLowerCase();
+      if (tipo === 'rp' || /^\d+$/.test(r.replace(/^RP\s*/i,''))) {
+        rpsInt.add('RP ' + r.replace(/^RP\s*/i,'').padStart(3,'0'));
+      } else {
+        caminosInt.add(r);
+      }
+    });
+    doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(TURQ_D.r, TURQ_D.g, TURQ_D.b);
+    doc.text('Red Provincial Primaria:', margin, y); y += 5;
+    doc.setFont('helvetica','normal'); doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b);
+    doc.text([...rpsInt].sort().join(' | ') || '(sin datos)', margin, y, {maxWidth: W-margin*2}); y += 10;
+    doc.setFont('helvetica','bold'); doc.setTextColor(TURQ_D.r, TURQ_D.g, TURQ_D.b);
+    doc.text('Red Provincial Secundaria:', margin, y); y += 5;
+    doc.setFont('helvetica','normal'); doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b);
+    doc.text([...caminosInt].sort().join(' | ') || '(sin datos)', margin, y, {maxWidth: W-margin*2}); y += 12;
+
+    // Placeholder para futuros: Equipos utilizados + Fotos + Mapa GIS
+    doc.setFillColor(240, 247, 249);
+    doc.roundedRect(margin, y, W-margin*2, 40, 3, 3, 'F');
+    doc.setTextColor(TURQ_D.r, TURQ_D.g, TURQ_D.b); doc.setFontSize(10); doc.setFont('helvetica','italic');
+    doc.text('En próximas versiones (v8.65.1+):', margin+5, y+8);
+    doc.setFont('helvetica','normal');
+    doc.text('· Grilla de equipos utilizados por categoría de tarea (extraída de parte_maquinarias)', margin+5, y+16);
+    doc.text('· Grid de 6-8 fotos representativas del mes', margin+5, y+22);
+    doc.text('· Mapa GIS del partido con marcas por tipo de tarea (colores paleta oficial)', margin+5, y+28);
+    doc.text('· Página de luminarias LED (tabla ubicación + cantidad si hay categoría Alumbrado)', margin+5, y+34);
+
+    // Footer en todas las páginas (excepto portada)
+    const totalPag = doc.internal.getNumberOfPages();
+    for (let i = 2; i <= totalPag; i++){
+      doc.setPage(i);
+      doc.setTextColor(150,150,150); doc.setFontSize(7);
+      doc.text('Informe Mensual DVBA · '+zonaLabel+'  ·  Generado ' + fechaGen + ' · ' + APP_VERSION, W/2, H-6, {align:'center'});
+      doc.text('Pág. '+i+' / '+totalPag, W-margin, H-6, {align:'right'});
+    }
+
+    // Descargar
+    const zonaSlug = zonaAct.replace(/\W/g,'');
+    const mesSlug = mesActual.replace(/\W+/g,'_').toLowerCase();
+    doc.save(`Informe_Gerencia_Zona_${zonaSlug}_${mesSlug}.pdf`);
+
+  } catch(err){
+    console.error('[rpExportPDFGerencia]', err);
+    alert('Error generando el informe: '+err.message);
+  } finally {
+    if (btn){ btn.disabled = false; btn.textContent = '📄 Gerencia'; }
+  }
+}
+
 function _pdfFooter(doc, W, H, fechaGen){
   doc.setTextColor(150,150,150); doc.setFontSize(7);
   doc.text(fechaGen+'  ·  '+APP_VERSION, W/2, H-6, { align:'center' });
