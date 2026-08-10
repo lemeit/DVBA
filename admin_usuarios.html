@@ -199,16 +199,43 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
       <tbody id="tbody"><tr><td colspan="7" style="padding:20px;text-align:center;color:var(--mut)">Cargando...</td></tr></tbody>
     </table>
   </div>
+
+  <!-- v8.66e · Cola de solicitudes pendientes (mover_zona / eliminar) desde gerencia y técnicos -->
+  <div style="margin-top:24px;padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <h2 style="margin:0;font-size:14px;color:#003366;letter-spacing:.3px">
+        🗂 Solicitudes pendientes
+        <span id="solicCount" style="background:#c47a00;color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;font-weight:700">0</span>
+      </h2>
+      <div>
+        <button onclick="cargarSolicitudes()" style="padding:5px 10px;background:#009aae;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer">🔄 Refrescar</button>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead>
+        <tr style="background:#f5f7fa;border-bottom:2px solid #003366">
+          <th style="padding:8px;text-align:left">Fecha</th>
+          <th style="padding:8px;text-align:left">Autor</th>
+          <th style="padding:8px;text-align:left">Tipo</th>
+          <th style="padding:8px;text-align:left">Registro</th>
+          <th style="padding:8px;text-align:left">Destino</th>
+          <th style="padding:8px;text-align:left">Mensaje</th>
+          <th style="padding:8px;text-align:right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbodySolic"><tr><td colspan="7" style="padding:16px;text-align:center;color:var(--mut)">Cargando...</td></tr></tbody>
+    </table>
+  </div>
 </main>
 
-<!-- v8.66d.1 · Footer institucional unificado (mismo estilo que reportes.html) -->
+<!-- v8.66e · Footer institucional unificado (mismo estilo que reportes.html) -->
 <footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid #444;position:fixed;bottom:0;left:0;right:0;z-index:80">
   <div style="flex:1;min-width:260px">
     <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
     <span style="margin-left:8px">Módulo de administración · Uso interno institucional.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.66d.1</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.66e</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -306,12 +333,12 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 
 <div id="toaster"></div>
 
-<!-- v8.66d.1 · Footer viejo eliminado, el footerInst institucional está arriba (L200) -->
+<!-- v8.66e · Footer viejo eliminado, el footerInst institucional está arriba (L200) -->
 
 <script>
-// v8.66d.1 · Constante de versión unificada (familia escritorio v8.X)
-const APP_VERSION = 'v8.66d.1';
-window.APP_VERSION = APP_VERSION;  // v8.66d.1 · expone a window para legales.js
+// v8.66e · Constante de versión unificada (familia escritorio v8.X)
+const APP_VERSION = 'v8.66e';
+window.APP_VERSION = APP_VERSION;  // v8.66e · expone a window para legales.js
 // ═══════════════════════════════════════════════════════════════════════════════
 // Setup Supabase
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -350,7 +377,7 @@ async function chequearAcceso(){
     }
     document.getElementById('hUser').textContent = session.user.email;
 
-    // 2) v8.66d.1 · Solo refrescar si el token está próximo a expirar (evita el 400 innecesario).
+    // 2) v8.66e · Solo refrescar si el token está próximo a expirar (evita el 400 innecesario).
     // Antes se llamaba a refreshSession() siempre — cuando el refresh_token estaba
     // revocado/vencido daba 400 en la consola aunque no fuera fatal.
     try {
@@ -581,11 +608,116 @@ async function cerrarSesion(){
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// v8.66e · Cola de solicitudes pendientes (mover_zona / eliminar)
+// Fuente: view v_solicitudes_admin (definida en SQL_13)
+// ═══════════════════════════════════════════════════════════════════════════════
+let _solicCache = [];
+
+async function cargarSolicitudes(){
+  const tbody = document.getElementById('tbodySolic');
+  const count = document.getElementById('solicCount');
+  if (!tbody || !_supa) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="padding:16px;text-align:center;color:var(--mut)">Cargando...</td></tr>';
+  try {
+    const { data, error } = await _supa.from('v_solicitudes_admin')
+      .select('*').order('creado_en', {ascending: true});
+    if (error) throw error;
+    _solicCache = data || [];
+    if (count) count.textContent = _solicCache.length;
+    renderSolicitudes(_solicCache);
+  } catch (e){
+    console.error('[solicitudes]', e);
+    tbody.innerHTML = '<tr><td colspan="7" style="padding:16px;text-align:center;color:#c00">Error: ' + e.message + '</td></tr>';
+  }
+}
+
+function renderSolicitudes(rows){
+  const tbody = document.getElementById('tbodySolic');
+  if (!tbody) return;
+  if (!rows.length){
+    tbody.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--mut)">✓ Sin solicitudes pendientes</td></tr>';
+    return;
+  }
+  const tipoColor = { 'mover_zona':'#c47a00', 'eliminar':'#c62828' };
+  const tipoLabel = { 'mover_zona':'🚚 Mover zona', 'eliminar':'🗑 Eliminar' };
+  const rolIcon = { 'gerencia':'📊', 'tecnico':'👷', 'admin':'🛡' };
+  tbody.innerHTML = rows.map(r => {
+    const fecha = new Date(r.creado_en).toLocaleDateString('es-AR') + ' ' + new Date(r.creado_en).toTimeString().slice(0,5);
+    const autor = (rolIcon[r.autor_rol]||'') + ' ' + (r.autor_nombre || r.autor_email || '?') +
+                  (r.autor_zona ? ' (' + r.autor_zona + ')' : '');
+    const target = `<code style="font-size:10px;background:#f0f0f0;padding:1px 5px;border-radius:3px">${r.target_tabla} #${r.target_id}</code>` +
+                   (r.target_zona ? ' · Zona ' + r.target_zona : '');
+    const destino = r.tipo === 'mover_zona' ? `<b style="color:#009aae">→ Zona ${r.zona_destino}</b>` :
+                    r.tipo === 'eliminar' ? '<b style="color:#c62828">borrar</b>' : '-';
+    const tipoChip = `<span style="background:${tipoColor[r.tipo]||'#666'};color:#fff;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">${tipoLabel[r.tipo]||r.tipo}</span>`;
+    return `<tr style="border-bottom:1px solid #eee">
+      <td style="padding:6px;font-size:10px;color:#666;white-space:nowrap">${fecha}</td>
+      <td style="padding:6px">${autor}</td>
+      <td style="padding:6px">${tipoChip}</td>
+      <td style="padding:6px">${target}</td>
+      <td style="padding:6px">${destino}</td>
+      <td style="padding:6px;font-size:11px;max-width:280px">${(r.mensaje||'').replace(/</g,'&lt;')}</td>
+      <td style="padding:6px;text-align:right;white-space:nowrap">
+        <button onclick="ejecutarSolicitud(${r.id})" style="padding:4px 10px;background:#22a954;color:#fff;border:none;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer;margin-right:4px" title="Ejecutar el cambio">✓ Ejecutar</button>
+        <button onclick="descartarSolicitud(${r.id})" style="padding:4px 10px;background:#c62828;color:#fff;border:none;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer" title="Descartar sin aplicar cambio">✕ Descartar</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function ejecutarSolicitud(id){
+  const s = _solicCache.find(r => r.id === id);
+  if (!s) { alert('Solicitud no encontrada'); return; }
+  const confirmMsg = s.tipo === 'mover_zona'
+    ? `¿Mover ${s.target_tabla} #${s.target_id} de zona ${s.target_zona||'?'} → ${s.zona_destino}?`
+    : `¿ELIMINAR ${s.target_tabla} #${s.target_id}? Esta acción es irreversible.`;
+  if (!confirm(confirmMsg)) return;
+  try {
+    if (s.tipo === 'mover_zona'){
+      const { error } = await _supa.from(s.target_tabla)
+        .update({ zona: s.zona_destino }).eq('id', s.target_id);
+      if (error) throw error;
+    } else if (s.tipo === 'eliminar'){
+      const { error } = await _supa.from(s.target_tabla).delete().eq('id', s.target_id);
+      if (error) throw error;
+    }
+    // Marcar solicitud como resuelta
+    const { error: e2 } = await _supa.from('comentarios_zona')
+      .update({ estado: 'resuelto', respuesta: 'Ejecutado por admin', respondido_en: new Date().toISOString() })
+      .eq('id', id);
+    if (e2) throw e2;
+    toast('Solicitud ejecutada', 'ok');
+    cargarSolicitudes();
+  } catch (e){
+    console.error('[ejecutar]', e);
+    alert('Error: ' + e.message);
+  }
+}
+
+async function descartarSolicitud(id){
+  const motivo = prompt('Motivo del descarte (opcional):', '') || 'Descartado sin motivo especificado';
+  try {
+    const { error } = await _supa.from('comentarios_zona')
+      .update({ estado: 'descartado', respuesta: motivo, respondido_en: new Date().toISOString() })
+      .eq('id', id);
+    if (error) throw error;
+    toast('Solicitud descartada', 'ok');
+    cargarSolicitudes();
+  } catch (e){
+    console.error('[descartar]', e);
+    alert('Error: ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // Init
 // ═══════════════════════════════════════════════════════════════════════════════
 (async () => {
   const ok = await chequearAcceso();
-  if (ok) await cargarUsuarios();
+  if (ok) {
+    await cargarUsuarios();
+    await cargarSolicitudes();  // v8.66e
+  }
 })();
 </script>
 

@@ -103,7 +103,7 @@ table.rep td.center{text-align:center}
 .auth-guard{padding:40px 20px;text-align:center;color:var(--mut);font-size:14px}
 .auth-guard button{margin-top:14px;padding:10px 22px;background:var(--vd);color:#fff;border:0;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer}
 
-/* FOOTER · v8.66d.1 unificado con partes_diarios/admin (estilo inline en el <footer>) */
+/* FOOTER · v8.66e unificado con partes_diarios/admin (estilo inline en el <footer>) */
 </style>
 </head>
 <body>
@@ -175,7 +175,7 @@ table.rep td.center{text-align:center}
   <input type="text" id="fRuta" placeholder="Ej: RP 51 o 093-08" style="width:140px" oninput="rpAutoRefresh(400)">
   <button class="btn-ghost" onclick="rpReset()">↻ Reset</button>
   <span class="sep"></span>
-  <!-- v8.66d.1 · Toggle para incluir relevamientos huérfanos (pins del mapa sin parte_diario) -->
+  <!-- v8.66e · Toggle para incluir relevamientos huérfanos (pins del mapa sin parte_diario) -->
   <label style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#555;cursor:pointer;padding:0 4px" title="Los partes del Plan de Seguridad son la fuente oficial. Los relevamientos huérfanos son pins cargados directamente en el mapa sin un formulario de plan asociado.">
     <input type="checkbox" id="fIncluirHuerfanos" onchange="rpGenerar()" style="accent-color:#009aae;cursor:pointer">
     <span>Incluir registros del mapa</span>
@@ -267,14 +267,14 @@ table.rep td.center{text-align:center}
   <div class="empty" id="empty" style="display:none">Sin resultados con estos filtros. Probá ampliar el rango de fechas.</div>
 </div>
 
-<!-- v8.66d.1 · Footer institucional unificado (mismo estilo que partes_diarios y admin_usuarios) -->
+<!-- v8.66e · Footer institucional unificado (mismo estilo que partes_diarios y admin_usuarios) -->
 <footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--pd);position:fixed;bottom:0;left:0;right:0;z-index:80">
   <div style="flex:1;min-width:260px">
     <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
     <span style="margin-left:8px">Módulo de reportes · Uso interno institucional.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.66d.1</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.66e</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -286,8 +286,8 @@ table.rep td.center{text-align:center}
 // Charts con Chart.js CDN · Export CSV vanilla
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v8.66d.1';
-window.APP_VERSION = APP_VERSION;  // v8.66d.1 · expone a window para legales.js
+const APP_VERSION = 'v8.66e';
+window.APP_VERSION = APP_VERSION;  // v8.66e · expone a window para legales.js
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 let _supa = null;
@@ -329,7 +329,7 @@ const ZONAS_DVBA = {
   'VII':{n:'ZONA VII',p:'Dolores'},      'VIII':{n:'ZONA VIII',p:'Pehuajó'},
   'IX':{n:'ZONA IX',p:'Azul'},           'X':{n:'ZONA X',p:'Mar del Plata'},
   'XI':{n:'ZONA XI',p:'Bahía Blanca'},   'XII':{n:'ZONA XII',p:'Necochea'},
-  // v8.66d.1 · PBA como opción panorámica (todas las zonas sin filtrar) para gerencia/admin
+  // v8.66e · PBA como opción panorámica (todas las zonas sin filtrar) para gerencia/admin
   'PBA':{n:'PBA', p:'Todas las zonas'}
 };
 function rpSetZona(cod){
@@ -430,7 +430,7 @@ async function rpGenerar(){
   const via = document.getElementById('fVia').value;
   const rutaFiltro = document.getElementById('fRuta').value.trim();
   if (!desde || !hasta){ alert('Elegí un rango de fechas.'); return; }
-  // v8.66d.1 · Zona activa: priorizar rol del perfil sobre localStorage.
+  // v8.66e · Zona activa: priorizar rol del perfil sobre localStorage.
   // Gerencia/admin sin zona explícita → PBA (ven todo). Técnico → su zona.
   const _perfil = (function(){ try { return JSON.parse(localStorage.getItem('dvba_perfil')||'{}'); } catch(_){ return {}; } })();
   const _rolPerfil = _perfil.rol || '';
@@ -446,7 +446,7 @@ async function rpGenerar(){
     .gte('fecha', desde).lte('fecha', hasta)
     .order('fecha', {ascending:false}).order('id', {ascending:false})
     .limit(5000);
-  // v8.66d.1 · Solo filtrar por zona cuando NO es PBA (que significa "todas las zonas").
+  // v8.66e · Solo filtrar por zona cuando NO es PBA (que significa "todas las zonas").
   // En PBA gerencia/admin ven todos los partes gracias a RLS SQL_9 que ya permite.
   if (zonaActiva && zonaActiva !== 'PBA') q = q.eq('zona', zonaActiva);
   console.log('[rep] zona activa:', zonaActiva, '· rol:', _rolPerfil || '(sin perfil)', '· filtro SQL:', zonaActiva === 'PBA' ? 'sin filtro (todas)' : 'zona='+zonaActiva);
@@ -463,7 +463,7 @@ async function rpGenerar(){
   if (error){ alert('Error: '+error.message); return; }
   const partesReales = data || [];
 
-  // v8.66d.1 · OPCIONAL: ampliar Reportes con RELEVAMIENTOS HUÉRFANOS (pins del mapa sin parte).
+  // v8.66e · OPCIONAL: ampliar Reportes con RELEVAMIENTOS HUÉRFANOS (pins del mapa sin parte).
   // Los partes_diarios (Plan de Seguridad) son la fuente OFICIAL para gerencia — se muestran
   // siempre. Los huérfanos se agregan solo si el usuario activa el checkbox #fIncluirHuerfanos.
   let pseudoPartes = [];
@@ -998,14 +998,14 @@ function _pdfHeader(doc, W, margin, P, subtitulo){
   doc.text(subtitulo, margin, 20);
 }
 // ═══════════════════════════════════════════════════════════════════
-// v8.66d.1 · PDF INFORME MENSUAL GERENCIA · Layout oficial DVBA
+// v8.66e · PDF INFORME MENSUAL GERENCIA · Layout oficial DVBA
 // Basado en docs/ANALISIS_INFORME_GERENCIAL_DVBA.md
 // Estructura:
 //   Página 1: Portada institucional
 //   Página 2: Resumen provincial · Km por zona + Km por tarea (8 categorías)
 //   Página 3+: Hoja administrativa por zona activa (rutas + resumen por tarea)
 //   Página final: Luminarias LED (si hay materiales cargados)
-// v1: sin mapa GIS ni charts (se agregan en v8.66d.1.1+)
+// v1: sin mapa GIS ni charts (se agregan en v8.66e.1+)
 // ═══════════════════════════════════════════════════════════════════
 
 // Paleta oficial DVBA por categoría de tarea
@@ -1049,16 +1049,16 @@ async function rpExportPDFGerencia(){
     const margin = 15;
 
     // Datos base
-    // v8.66d.1 · Zona del PDF = la que muestra el picker (localStorage), NO window.ZONA_ACTUAL
+    // v8.66e · Zona del PDF = la que muestra el picker (localStorage), NO window.ZONA_ACTUAL
     // (reportes.html no tiene loader_zona.js, entonces window.ZONA_ACTUAL siempre era undefined
     // y caía a 'VI' → PDF Gerencia se generaba siempre como VI aunque el picker dijera PBA/IV/V).
     const zonaAct = (localStorage.getItem('dvba_zona') || 'PBA').toUpperCase();
-    // v8.66d.1 · Nombre desde ZONAS_DVBA local (mismo mapping que el header/picker)
+    // v8.66e · Nombre desde ZONAS_DVBA local (mismo mapping que el header/picker)
     const _zonaMeta = (typeof ZONAS_DVBA !== 'undefined' && ZONAS_DVBA[zonaAct]) || {n:'Zona '+zonaAct, p:''};
     const zonaLabel = (zonaAct === 'PBA') ? 'PBA · Todas las zonas' : `${_zonaMeta.n} · ${_zonaMeta.p}`;
     const desde = document.getElementById('fDesde').value;
     const hasta = document.getElementById('fHasta').value;
-    // v8.66d.1 · Etiqueta de rango: si cubre un solo mes usar "mayo_2026",
+    // v8.66e · Etiqueta de rango: si cubre un solo mes usar "mayo_2026",
     // si múltiples meses usar "mar-ago_2026". Se usa en nombre archivo Y pie del PDF.
     const fD = desde ? new Date(desde + 'T12:00') : new Date();
     const fH = hasta ? new Date(hasta + 'T12:00') : new Date();
@@ -1129,7 +1129,7 @@ async function rpExportPDFGerencia(){
     doc.setFontSize(11);
     doc.text(_partesCache.length + ' tareas ejecutadas', W/2, H*0.60 + 18, {align:'center'});
 
-    // v8.66d.1 · Aviso institucional en portada · fondo rojo tenue (sin emoji, jsPDF Helvetica
+    // v8.66e · Aviso institucional en portada · fondo rojo tenue (sin emoji, jsPDF Helvetica
     // no renderiza Unicode extendido → salían como '&' o cuadraditos)
     doc.setFillColor(252, 240, 240);
     doc.roundedRect(margin, H*0.72, W - margin*2, 22, 2, 2, 'F');
@@ -1175,7 +1175,7 @@ async function rpExportPDFGerencia(){
       styles: { fontSize: 10, cellPadding: 3, font: 'helvetica' },
       headStyles: { fillColor: [TURQ.r, TURQ.g, TURQ.b], textColor: 255, fontStyle: 'bold' },
       columnStyles: {
-        // v8.66d.1 · Total 180mm = W(210) - margen*2(30). Antes 172 pero autoTable agregaba padding
+        // v8.66e · Total 180mm = W(210) - margen*2(30). Antes 172 pero autoTable agregaba padding
         0: { cellWidth: 10 },     // swatch color
         1: { cellWidth: 92 },     // nombre
         2: { cellWidth: 34, halign: 'right' },  // km
@@ -1239,7 +1239,7 @@ async function rpExportPDFGerencia(){
     doc.setFont('helvetica','normal'); doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b);
     doc.text([...caminosInt].sort().join(' | ') || '(sin datos)', margin, y, {maxWidth: W-margin*2}); y += 12;
 
-    // v8.66d.1.1 · Equipos utilizados agrupados por categoría oficial
+    // v8.66e.1 · Equipos utilizados agrupados por categoría oficial
     doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b);
     doc.text('Equipos utilizados por categoría de tarea', margin, y); y += 7;
 
@@ -1267,7 +1267,7 @@ async function rpExportPDFGerencia(){
         styles: { fontSize: 9, cellPadding: 3, font: 'helvetica' },
         headStyles: { fillColor: [TURQ.r, TURQ.g, TURQ.b], textColor: 255, fontStyle: 'bold' },
         columnStyles: {
-          // v8.66d.1 · Total 180mm exacto (evita warning "units width could not fit")
+          // v8.66e · Total 180mm exacto (evita warning "units width could not fit")
           0: { cellWidth: 50, fontStyle: 'bold', textColor: [TURQ_D.r, TURQ_D.g, TURQ_D.b] },
           1: { cellWidth: 128 }
         }
@@ -1279,13 +1279,13 @@ async function rpExportPDFGerencia(){
     }
 
     // ═════════════ PÁGINA 4 · GRID DE FOTOS DEL PERÍODO ═════════════
-    // v8.66d.1 · Selección PRIORIZANDO DIVERSIDAD DE ACTIVIDADES:
+    // v8.66e · Selección PRIORIZANDO DIVERSIDAD DE ACTIVIDADES:
     //   1. Primera foto de cada categoría distinta (garantiza cobertura del abanico)
     //   2. Rellenar hasta 9 con extras de categorías con más registros
     let fotosCargadas = [];
     try {
       if (_supa) {
-        // v8.66d.1 · En PBA no filtrar por zona (traer de todas)
+        // v8.66e · En PBA no filtrar por zona (traer de todas)
         let qRel = _supa.from('relevamientos')
           .select('id, foto_url, fecha, tipo, ruta, partido, zona')
           .not('foto_url', 'is', null)
@@ -1334,7 +1334,7 @@ async function rpExportPDFGerencia(){
       doc.setTextColor(NEGRO.r, NEGRO.g, NEGRO.b); doc.setFontSize(15); doc.setFont('helvetica','bold');
       doc.text('Registro fotográfico', margin, yF); yF += 8;
 
-      // v8.66d.1 · Grid 3×3 estilo informe oficial DVBA (Pehuajó / MdP):
+      // v8.66e · Grid 3×3 estilo informe oficial DVBA (Pehuajó / MdP):
       // Cada foto conserva su proporción REAL, centrada en un cellBox uniforme con fondo gris.
       // Sellos completos, verticales y horizontales quedan bien encuadradas. Sin caption
       // debajo (menos ruido), la info va en la cabecera de la página.
@@ -1372,7 +1372,7 @@ async function rpExportPDFGerencia(){
       }
     }
 
-    // v8.66d.1 · Watermark diagonal BORRADOR en TODAS las páginas + footer en no-portada
+    // v8.66e · Watermark diagonal BORRADOR en TODAS las páginas + footer en no-portada
     const totalPag = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPag; i++){
       doc.setPage(i);
@@ -1424,7 +1424,7 @@ function _cargarImgComoBase64(url){
   });
 }
 
-// v8.66d.1 · Carga imagen y devuelve dataUrl + dimensiones naturales.
+// v8.66e · Carga imagen y devuelve dataUrl + dimensiones naturales.
 // Usado para modo CONTAIN (fondo gris del cellBox + foto centrada respetando proporción).
 function _cargarImgConDims(url){
   return new Promise((res) => {
@@ -1443,9 +1443,9 @@ function _cargarImgConDims(url){
   });
 }
 
-// v8.66d.1 · Carga imagen y hace CENTER-CROP con bias hacia el bottom (donde está el sello DVBA)
+// v8.66e · Carga imagen y hace CENTER-CROP con bias hacia el bottom (donde está el sello DVBA)
 // al ratio target dado (ej. 4:3 = 1.333). Devuelve dataUrl JPEG uniforme para grid parejo.
-// v8.66d.1 · Ya no se usa por default (contain > cover para preservar sellos), queda por compat.
+// v8.66e · Ya no se usa por default (contain > cover para preservar sellos), queda por compat.
 function _cargarImgCropCover(url, targetRatio){
   return new Promise((res) => {
     const img = new Image();
@@ -1455,7 +1455,7 @@ function _cargarImgCropCover(url, targetRatio){
         const iw = img.naturalWidth, ih = img.naturalHeight;
         const srcRatio = iw / ih;
         let sx, sy, sw, sh;
-        // v8.66d.1.1 · Center-crop clásico. Todas fotos uniformes.
+        // v8.66e.1 · Center-crop clásico. Todas fotos uniformes.
         // El sello puede recortarse si no encaja — el caption debajo da la referencia igual.
         if (srcRatio > targetRatio) {
           sh = ih; sw = ih * targetRatio;
@@ -1480,7 +1480,7 @@ function _cargarImgCropCover(url, targetRatio){
   });
 }
 
-// v8.66d.1 · Watermark diagonal semi-transparente en el centro de la página actual.
+// v8.66e · Watermark diagonal semi-transparente en el centro de la página actual.
 // Se llama después de agregar todo el contenido de cada página.
 function _pdfWatermarkBorrador(doc, W, H){
   const g = new doc.GState({opacity: 0.13});
