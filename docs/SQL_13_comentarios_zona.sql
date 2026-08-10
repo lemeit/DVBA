@@ -221,10 +221,11 @@ SELECT
   c.zona_destino, c.mensaje, c.estado,
   c.creado_en, c.actualizado_en,
   c.autor_id, c.autor_rol, c.autor_zona,
-  up.email  AS autor_email,
+  au.email  AS autor_email,
   up.nombre AS autor_nombre
 FROM public.comentarios_zona c
-LEFT JOIN public.usuarios_perfil up ON up.id = c.autor_id
+LEFT JOIN public.usuarios_perfil up ON up.user_id = c.autor_id
+LEFT JOIN auth.users            au ON au.id      = c.autor_id
 WHERE c.tipo IN ('mover_zona', 'eliminar')
   AND c.estado = 'abierto'
 ORDER BY c.creado_en ASC;
