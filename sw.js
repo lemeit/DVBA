@@ -26,7 +26,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.92';
+const CACHE_NAME = 'dvba-campo-v9.92a';  // v9.92a · +supabase-js local (fix modo básico offline)
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -48,6 +48,7 @@ const CACHE_URLS = [
   './datos/auth.js',
   './datos/perfil.js',
   './datos/qrcode.min.js',
+  './datos/supabase-js.min.js',   // v9.92a · Supabase JS local (fix modo básico offline)
   './datos/exif_writer.js',       // v9.80 · wrapper de piexif con datos DVBA
   './datos/piexif.min.js',        // v9.80 · librería EXIF (fallback CDN unpkg si no está)
   './datos/dvba_estados.js',

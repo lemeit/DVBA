@@ -12,7 +12,9 @@
 <title>SIG Vial PBAᵝ · Modo Básico</title>
 <link rel="icon" href="datos/img/favicon.png">
 <link rel="manifest" href="manifest.json">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- v9.92 · Supabase JS local para funcionar OFFLINE (antes CDN → sin internet la app rompía).
+     onerror fallback a CDN por si el archivo local aún no está desplegado (transición). -->
+<script src="datos/supabase-js.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.async=false;document.head.appendChild(s);"></script>
 <script src="datos/auth.js"></script>
 <script src="datos/perfil.js" defer></script>
 <script src="datos/legales.js" defer></script>
