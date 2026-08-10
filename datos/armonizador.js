@@ -174,18 +174,66 @@ const ARMONIZADOR = (() => {
   }
 
   // ── 2. Ruta más cercana ──────────────────────────────────────────
-  // Recorre todas las CHAINS_DATA y devuelve la que tenga la mínima dist
+  // Recorre todas las CHAINS_DATA + trazas zonales (v9.93) y devuelve la más cercana
   function rutaMasCercana(lat, lng, radioMaxM = 500) {
-    if (typeof CHAINS_DATA === 'undefined') return null;
     let mejor = { ruta: null, distM: Infinity, progKm: null };
-    for (const rutaKey of Object.keys(CHAINS_DATA)) {
-      const r = progresivaEnRuta(lat, lng, rutaKey);
-      if (r && r.distM < mejor.distM) {
-        mejor = { ruta: rutaKey, distM: r.distM, progKm: r.progKm, projLat: r.projLat, projLng: r.projLng };
+    // Round 1: bundles calibrados (VI · 8 RPs con anchors → progresiva real)
+    if (typeof CHAINS_DATA !== 'undefined') {
+      for (const rutaKey of Object.keys(CHAINS_DATA)) {
+        const r = progresivaEnRuta(lat, lng, rutaKey);
+        if (r && r.distM < mejor.distM) {
+          mejor = { ruta: rutaKey, distM: r.distM, progKm: r.progKm,
+                    projLat: r.projLat, projLng: r.projLng, calibrada: true };
+        }
+      }
+    }
+    // Round 2 · v9.93 · trazas zonales del geojson (RP32 en V, etc). Sin progresiva calibrada.
+    // Solo se considera si están MÁS CERCA que el mejor bundle encontrado (o si bundle no matcheó).
+    if (_rutasZonalesFeatures && _rutasZonalesFeatures.length) {
+      for (const feat of _rutasZonalesFeatures) {
+        const rp = String(feat.properties && (feat.properties.rtn || feat.properties.RTN) || '');
+        if (!rp) continue;
+        // Skip si ya tenemos la RP como calibrada (mejor precisión)
+        if (typeof CHAINS_DATA !== 'undefined' && CHAINS_DATA[rp]) continue;
+        const g = feat.geometry; if (!g) continue;
+        const lines = g.type === 'LineString' ? [g.coordinates]
+                    : g.type === 'MultiLineString' ? g.coordinates : [];
+        let mejorLocal = { distM: Infinity, acc: 0 };
+        for (const coords of lines) {
+          let accAcum = 0;
+          for (let i = 0; i < coords.length - 1; i++){
+            const lng1=coords[i][0], lat1=coords[i][1];
+            const lng2=coords[i+1][0], lat2=coords[i+1][1];
+            const proj = distPuntoASegmento(lat, lng, lat1, lng1, lat2, lng2);
+            const segLen = haversineM(lat1, lng1, lat2, lng2);
+            if (proj.distM < mejorLocal.distM) {
+              mejorLocal = { distM: proj.distM, acc: (accAcum + proj.t * segLen)/1000,
+                             projLat: proj.projLat, projLng: proj.projLng };
+            }
+            accAcum += segLen;
+          }
+        }
+        if (mejorLocal.distM < mejor.distM) {
+          mejor = { ruta: rp, distM: mejorLocal.distM,
+                    progKm: mejorLocal.acc,  // aproximado, SIN calibración
+                    projLat: mejorLocal.projLat, projLng: mejorLocal.projLng,
+                    calibrada: false };
+        }
       }
     }
     if (mejor.ruta && mejor.distM <= radioMaxM) return mejor;
     return null;
+  }
+
+  // v9.93 · Feature collection del geojson zonal (rutas_zonaX.geojson) cargado desde
+  // dvba_campo.html al arrancar. Complementa CHAINS_DATA (bundles VI) para técnicos de
+  // otras zonas cuya RP no está calibrada.
+  let _rutasZonalesFeatures = null;
+  function setGeojsonZonal(features){
+    if (!Array.isArray(features)) { _rutasZonalesFeatures = null; return 0; }
+    _rutasZonalesFeatures = features;
+    console.log('[armonizador] geojson zonal cargado:', features.length, 'features');
+    return features.length;
   }
 
   // ── 3. Progresiva sobre una ruta específica ──────────────────────
@@ -462,7 +510,8 @@ const ARMONIZADOR = (() => {
     haversineM,
     umbralRuta,
     umbralProgresiva,
-    umbralPartidoLim
+    umbralPartidoLim,
+    setGeojsonZonal    // v9.93 · registra features de rutas_zonaX.geojson para técnicos no-VI
   };
 })();
 
