@@ -417,8 +417,6 @@ body.modo-campo #campo-fab{display:flex}
 <body>
 <header>
   <img src="datos/img/logo_dvba_clean.png" style="height:38px;width:38px;object-fit:contain;flex-shrink:0" alt="DVBA">
-  <!-- v8.66c · Mini-logo PBA institucional al lado del DVBA, visible solo cuando zona activa === PBA -->
-  <img id="logoPBA" src="datos/img/logo_pba.svg" onerror="this.src='datos/img/logo_pba.png'" style="height:38px;width:38px;object-fit:contain;flex-shrink:0;display:none;filter:brightness(0) invert(1);opacity:.9" alt="PBA" title="Provincia de Buenos Aires">
   <div>
     <h1>DVBA &mdash; <span id="hZona">ZONA VI</span><span class="hbadge" id="hPartido">Saladillo</span>
       <span class="zona-picker" title="Cambiar zona">
@@ -6889,8 +6887,6 @@ function aplicarZonaPortal(cod){
   const e1 = document.getElementById('hZona');    if (e1) e1.textContent = z.n;
   const e2 = document.getElementById('hPartido'); if (e2) e2.textContent = z.p;
   const s  = document.getElementById('hSelZona'); if (s)  s.value = cod;
-  // v8.66c · Mini-logo institucional PBA visible solo cuando la zona activa es PBA
-  const lp = document.getElementById('logoPBA'); if (lp) lp.style.display = (cod === 'PBA' ? 'block' : 'none');
   // v7.74/v8.66c · título del panel-footer refleja la zona; PBA sin sufijo "Resumen"
   const pt = document.getElementById('pfZonaTitle');
   if (pt) pt.textContent = (cod === 'PBA' ? 'Provincia de Buenos Aires' : z.n + ' · Resumen');
