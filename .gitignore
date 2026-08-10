@@ -68,3 +68,7 @@ osm/
 # Notas locales del usuario (no compartir)
 NOTAS_LOCALES.md
 TODO_PERSONAL.md
+
+
+# Obsidian — vault de documentación local (no se sube a GitHub por ahora)
+wiki/
