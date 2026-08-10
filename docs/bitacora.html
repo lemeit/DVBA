@@ -98,8 +98,8 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
   <h1>📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial</h1>
   <div class="sub">DVBA · Departamento Zona VI Saladillo</div>
   <div class="meta">
-    <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">3 de agosto de 2026</span></div>
-    <div><span class="lbl">Versión bitácora</span><span class="val">v5.0 — apps v9.91 / v8.64.2 · 3-ago-2026</span></div>
+    <div><span class="lbl">Última actualización</span><span class="val" id="fecha-actu">11 de agosto de 2026</span></div>
+    <div><span class="lbl">Versión bitácora</span><span class="val">v5.1 — apps v9.93.1 / v8.66e · 11-ago-2026</span></div>
     <div><span class="lbl">Responsable</span><span class="val">Ing. Luciano Lamaita</span></div>
     <div><span class="lbl">Repositorio</span><span class="val"><a href="https://github.com/lemeit/DVBA" target="_blank">github.com/lemeit/DVBA</a></span></div>
     <div><span class="lbl">Estado general</span><span class="val">🟢 En desarrollo activo</span></div>
@@ -478,6 +478,36 @@ footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:40px;pad
         <li><strong>Frente B:</strong> sidebar adaptativo — chips para zona específica, dropdown multi-select para PBA con 135 partidos. Fix normalización UPPERCASE → Title Case (shp master tenía "ADOLFO ALSINA").</li>
         <li><strong>Fixes cascada:</strong> rutas zonales respetan <code>selR</code>; capas VI se limpian al cambiar zona; <code>cargarRegs</code> filtra por zona activa; <code>selR</code> arranca con TODAS las rutas activas en cualquier zona; <code>partesCargar</code> filtra <code>.eq('zona', X)</code> + fix <code>select('lat, lng')</code> (era latitud/longitud inexistentes → 400 Bad Request); labels partidos ocultos en PBA.</li>
         <li><strong>Bug crítico v8.63h:</strong> <code>_reemplazarPartidos</code> limpiaba <code>capasP</code> sin <code>.flat()</code> — Leaflet ignoraba los <code>removeLayer(array)</code> y los polígonos viejos de VI quedaban en el DOM al cambiar de zona. Sombreado persistente resuelto.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">agosto 2026 · v8.65 – v8.65.9 · PDF Reporte Gerencial layout oficial DVBA</div>
+      <div class="tl-titulo">Nuevo botón "📄 Gerencia" en reportes.html</div>
+      <ul>
+        <li><strong>Layout oficial DVBA</strong> según <code>docs/ANALISIS_INFORME_GERENCIAL_DVBA.md</code>: portada institucional, resumen por 8 categorías oficiales con paleta institucional (<code>COLORES_TAREAS_GERENCIA</code>), hoja administrativa con rutas + equipos, grid 3×3 de fotos.</li>
+        <li><strong>Iteraciones v8.65.1-.9:</strong> fix mes del rango (nombre archivo multi-mes tipo <code>mar-ago_2026</code>), fetch fotos directo a <code>relevamientos</code> por zona+rango+foto_url, watermark diagonal "BORRADOR · SIN VALIDEZ OFICIAL" en cada hoja, aviso en portada con caja rojo tenue, contain fotos con marco gris estilo Pehuajó/MdP, selección por diversidad (1 foto por categoría oficial + rellena con extras), gerencia/admin default PBA sin filtro zona, Reportes contempla relevamientos huérfanos con toggle opcional "Incluir registros del mapa".</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">agosto 2026 · v8.66a – v8.66e · Modelo comentarios cross-zona (SQL_13)</div>
+      <div class="tl-titulo">Gerencia comenta / técnico solicita / admin ejecuta</div>
+      <ul>
+        <li><strong>SQL_13 · tabla <code>comentarios_zona</code>:</strong> tipo (comentario/mover_zona/eliminar), estado (abierto/resuelto/descartado), autor + rol + zona, target genérico (tabla + id). Policies RLS: técnico ve solo su zona · gerencia ve todo + puede comentar/pedir mover · admin ejecuta cualquier tipo. RPC <code>comentarios_contadores()</code> y vista <code>v_solicitudes_admin</code>.</li>
+        <li><strong>Fix RP61 duplicada en vista PBA (v8.66b-c):</strong> las trazas calibradas VI (bundle) se superponían con las del geojson maestro dentro de zona VI. Fix con clipping inverso (<code>_recortarFeatureRutaFueraVI</code>) que deja solo tramos FUERA de VI. Bug secundario con nombres cardinales resuelto agregando aliases numéricos (<code>Veinticinco de Mayo ↔ 25 de Mayo</code>, <code>Nueve de Julio ↔ 9 de Julio</code>) al mapping <code>_partidoAZona</code>.</li>
+        <li><strong>UI Comentarios (v8.66d):</strong> modal global en <code>index.html</code> con select tipo + zona destino + textarea. Botón "💬 Comentar" (gerencia/admin) y "🚚 Mover" (técnico) en popup del pin de relevamientos. Helpers <code>_rolActual</code>/<code>_perfilActual</code>. Toast success al INSERT.</li>
+        <li><strong>Panel admin (v8.66e):</strong> nueva sección en <code>admin_usuarios.html</code> con tabla de solicitudes pendientes desde <code>v_solicitudes_admin</code>. Botón Ejecutar hace UPDATE zona o DELETE según tipo + marca comentario resuelto. Botón Descartar con motivo opcional. Contador visible con badge naranja.</li>
+      </ul>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-fecha">agosto 2026 · v9.92a – v9.93.1 · Fixes críticos app móvil</div>
+      <div class="tl-titulo">Modo Básico offline + BUG HISTÓRICO bundles RP nunca cargados</div>
+      <ul>
+        <li><strong>v9.92a · Modo Básico offline:</strong> <code>dvba_campo_lite.html</code> cargaba supabase-js desde cdn.jsdelivr → sin internet <code>window.supabase</code> era undefined → <code>createClient</code> fallaba → auth se colgaba → app inservible en campo. Fix: descargado a <code>datos/supabase-js.min.js</code>, cambiado el <code>&lt;script src&gt;</code> a local con fallback CDN, agregado al <code>CACHE_URLS</code> del SW.</li>
+        <li><strong>v9.93 · ARMONIZADOR multi-zona:</strong> extendido <code>datos/armonizador.js</code> con <code>setGeojsonZonal(features)</code>. En <code>dvba_campo.html</code> nuevo script que fetchea <code>datos/zonas/zona_X/rutas_zonaX.geojson</code> según perfil del user y lo pasa al armonizador. Técnicos zonas no-VI ahora ven auto-detección de RP.</li>
+        <li><strong>v9.93.1 · BUG HISTÓRICO oculto:</strong> <code>dvba_campo.html</code> NUNCA importó los bundles <code>rutas_rpXX.js</code> con <code>&lt;script src&gt;</code>. Por eso <code>CHAINS_DATA</code> quedaba undefined y <code>ARMONIZADOR.rutaMasCercana</code> siempre devolvía null → toast "cargá RP manual" aparecía SIEMPRE aunque el user estuviera parado ENCIMA de la traza calibrada. Fix: agregados los 9 <code>&lt;script src&gt;</code> (rp30/40/41/46/47/51/61/91 + rutas.js dispatcher).</li>
       </ul>
     </div>
 

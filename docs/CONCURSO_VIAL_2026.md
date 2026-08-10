@@ -15,7 +15,7 @@
 > **Deadline:** 16 de septiembre de 2026 · **Entrega:** División Publicaciones y Biblioteca (1 original + 2 copias impresas + PDF).
 > **Seudónimo tentativo:** `lemeit` (a confirmar antes de la entrega).
 > **Autor real (sobre cerrado aparte):** Ing. Luciano Lamaita · División Técnica DVBA · Zona VI Saladillo.
-> **Estado del sistema al armar el documento:** apps de escritorio en **v8.64**, familia móvil en **v9.91**, sello institucional en **v4** (con overlay semitransparente + EXIF metadata + QR con logo DVBA), base multi-zona activa (Fase 1 + 2 implementadas), refactor de sello unificado en un módulo compartido (elimina duplicación entre portal/partes/móvil).
+> **Estado del sistema al armar el documento:** apps de escritorio en **v8.66e**, familia móvil en **v9.93.1**, sello institucional en **v4** (con overlay semitransparente + EXIF metadata + QR con logo DVBA), base multi-zona activa (Fase 1 + 2 implementadas), refactor de sello unificado en un módulo compartido (elimina duplicación entre portal/partes/móvil).
 > **Fecha de esta versión del informe:** 28 de julio de 2026.
 
 ---
@@ -63,7 +63,7 @@ El sistema se desarrolló íntegramente en el Departamento Zona VI Saladillo com
 11. **Sello v4 overlay semitransparente** (agosto 2026): el banner del sello NO se agrega debajo de la foto (que le cambiaría el ratio y la haría verse achatada) sino que se dibuja ENCIMA de los últimos 180-270px con fondo gradient `rgba(0,0,0,0.55→0.75)`. La foto conserva 100% su ratio original. QR con logo DVBA al centro (error correction H permite tapar 30% sin romper escaneo).
 12. **Metadatos EXIF completos** en cada foto (v8.12+): GPS (lat/lng/altitud/timestamp), Make=`DVBA`, Model=`SIG Vial PBA · Modo Básico/Avanzado`, Software con versión y sello, ImageDescription con ruta+km+tipo, UserComment con JSON completo del registro. Google Photos / Windows Fotos / iPhone muestran la ubicación en mini-mapa. Trazabilidad forense: cualquiera con exiftool ve todo el registro adentro del archivo.
 13. **Arquitectura de sello unificado** (v8.11+): un solo módulo `datos/sello_v4.js` como fuente de verdad — importado por portal, partes_diarios y móvil. Antes había 3 copias embebidas que se desincronizaban con cada fix. Cambio arquitectónico crítico para mantenibilidad.
-14. **4 flujos coordinados de creación/edición de registros** (v8.64): (a) desde móvil con GPS auto-ubicado + auto-completado con armonizador, (b) desde el mapa con `📍 Nuevo Pin` + arrastre, (c) por progresiva con `🎯 Ubicar` (inverso RP+km → lat/lng con CHAIN+ANCHORS), (d) edición fluida arrastrando pins que recalcula todo al vuelo.
+14. **4 flujos coordinados de creación/edición de registros** (v8.66e): (a) desde móvil con GPS auto-ubicado + auto-completado con armonizador, (b) desde el mapa con `📍 Nuevo Pin` + arrastre, (c) por progresiva con `🎯 Ubicar` (inverso RP+km → lat/lng con CHAIN+ANCHORS), (d) edición fluida arrastrando pins que recalcula todo al vuelo.
 15. **Sidebar drawer colapsable** (Ctrl+B) que libera 100% del mapa para navegación GIS sin renunciar al form de edición.
 16. **Sistema de reportes unificado Red Vial Provincial** (v8.29-v8.42 · agosto 2026): un único panel genera reportes homogéneos de Red Vial Provincial Primaria (RPs) y Secundaria (Caminos), con selección manual por click en el mapa (halo dorado #ffb800), chip contador mixto `🛣 N rutas · 🚜 M tramos`, lista expandible para deseleccionar item por item, y PDF combinado con 2 secciones consecutivas cuando hay ambos tipos. Header institucional con logo DVBA + banner sello "📋 Datos oficiales · Fuente: DVBA - PBA". Tabla homogénea entre tipos (Partido / Nomencl / Tramo / Denominación / Clase-chip / Sentido / Km GIS / Km Oficial) aprovechando `CARACT_VIALES.tramos[]` del CSV oficial SALADILLO_RED (96 tramos, 15 RPs).
 17. **Mapa SVG generado en el browser** para incluir en el PDF: dibuja contornos de partidos (con nombres itálica), ciudades de referencia, trazas coloreadas por CLASE, mojones (opcional) y registros (opcional) dentro del bbox del reporte — sin necesidad de tiles OSM. Alternativa "Captura real" con `leaflet-image` para incluir el basemap OSM completo. Ambos opcionales según checkbox.
@@ -94,8 +94,8 @@ Al instalarse en el celular, la app se identifica como **SIG Vial PBA** (nombre 
 
 SIG Vial PBA está en **producción efectiva** para el uso diario de la División Técnica Zona VI. La versión de código al armar este informe es:
 
-- Familia escritorio (portal, módulo Plan de Seguridad, módulo Reportes) → **v8.64**
-- Familia móvil (PWA `app.html` — Modo Básico + Modo Avanzado + service worker) → **v9.91**
+- Familia escritorio (portal, módulo Plan de Seguridad, módulo Reportes) → **v8.66e**
+- Familia móvil (PWA `app.html` — Modo Básico + Modo Avanzado + service worker) → **v9.93.1**
 
 Documentación técnica de referencia (en el repo):
 
@@ -121,11 +121,11 @@ PWA instalable con wizard completo de captura: elegir categoría → tipo → es
 
 App minimalista de captura rápida. UI reducida a lo esencial: botón central grande "Sacar foto", banner GPS al pie del header, footer con contador de pendientes / cerrar sesión / info. Todos los demás datos (tarea, ruta, tipo) los completa alguien en oficina. Es el `start_url` del `manifest.json`, es decir, la app que abre por default al instalar la PWA — pensada para operarios de campo sin fluidez con formularios largos. Guarda cola offline igual que la completa. Auth offline via JWT parseado desde `localStorage` (sin llamar a `getUser()` que requiere red).
 
-### 4.3 Portal escritorio (`index.html` v8.64)
+### 4.3 Portal escritorio (`index.html` v8.66e)
 
 Mapa Leaflet con 8 partidos, 15 RPs y 100 caminos secundarios. Sidebar con pills agrupadas de rutas y caminos, panel de capas toggleable (RP / Camino / Tareas), modal SIG Vial estilo DNV, cursor flotante con progresiva al hover, layer 📋 **Tareas** que dibuja cada parte sobre la traza real con color por antigüedad (rojo últimos 7 días, dorado 30, violeta 90, gris histórico). Cola de pendientes con sellado + rotación en oficina. Picker de zona en el header preparado para el escalado multi-zona. Panel-footer institucional fijo con resumen de la zona activa.
 
-### 4.4 Plan de Seguridad en la Circulación (`partes_diarios.html` v8.64)
+### 4.4 Plan de Seguridad en la Circulación (`partes_diarios.html` v8.66e)
 
 Módulo de carga de tareas diarias alineado al Google Form oficial de Gerencia Ejecutiva DVBA. Cambia el nombre del formulario oficial ("Parte") a la jerga local ("Tarea") en toda la UI visible. Detección automática de partido, autocomplete custom de caminos con recorrido encadenado, dropdown único primaria+secundaria con typeahead nativo (`<datalist>`), progresivas con coma decimal en formato oficial DVBA, filtros de partido en toolbar, columna indicadora de fotos por tarea, flujo ±5 días hábiles para asociar relevamientos.
 
@@ -139,7 +139,7 @@ Módulo de carga de tareas diarias alineado al Google Form oficial de Gerencia E
 
 Como resultado, cualquier operativo puede completar un parte 100% desde la oficina si viene con fotos crudas del campo — no depende de que se hayan cargado antes desde la app móvil.
 
-### 4.5 Módulo Reportes (`reportes.html` v8.64)
+### 4.5 Módulo Reportes (`reportes.html` v8.66e)
 
 Reportes institucionales con:
 
@@ -338,5 +338,5 @@ Integración de un chat prompt con **modelo de lenguaje grande** (GPT-4o-mini, C
 
 ---
 
-_Última actualización: 28 de julio de 2026 · SIG Vial PBA en v8.64 (escritorio) / v9.91 (móvil)._
+_Última actualización: 28 de julio de 2026 · SIG Vial PBA en v8.66e (escritorio) / v9.93.1 (móvil)._
 _Seudónimo tentativo: `lemeit` — a confirmar antes de la entrega._
