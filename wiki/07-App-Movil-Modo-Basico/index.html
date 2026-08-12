@@ -57,6 +57,8 @@
     
       <link rel="stylesheet" href="../stylesheets/mockups.css">
     
+      <link rel="stylesheet" href="../stylesheets/theme-dvba.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -947,19 +949,16 @@
 <p><strong>Abrir desde el ícono</strong> — El ícono aparece como cualquier otra app en el launcher. Al abrir arranca directo en Modo Básico.</p>
 </li>
 </ol>
-<p>📷</p>
-<p>Screenshot sugerido:</p>
+<div class="admonition note">
+<p class="admonition-title">📷 Screenshot sugerido:</p>
 <p>diálogo de instalación de la PWA en Android mostrando "SIG Vial PBA".</p>
+</div>
 <h3 id="primer-uso-ingresar">Primer uso: ingresar<a class="headerlink" href="#primer-uso-ingresar" title="Permanent link">¶</a></h3>
 <p>La primera vez la app pide credenciales:</p>
-<p>📷</p>
-<p>Screenshot:</p>
-<p>Modal de login de la lite con "Ingresar" y link "O usá la Modo Avanzado"</p>
-<p>. (Ver captura tuya del 20/7.)</p>
-<p>Nota</p>
-<p>· Una vez que el usuario ingresó por primera vez con internet, la app queda logueada indefinidamente y puede usarse offline. La sesión se guarda en</p>
-<p>localStorage</p>
-<p>con el token JWT de Supabase.</p>
+<div class="admonition note">
+<p class="admonition-title">📷 Screenshot:</p>
+<p>Modal de login de la lite con "Ingresar" y link "O usá la Modo Avanzado". (Ver captura tuya del 20/7.) Nota · Una vez que el usuario ingresó por primera vez con internet, la app queda logueada indefinidamente y puede usarse offline. La sesión se guarda en localStorage con el token JWT de Supabase.</p>
+</div>
 <h3 id="uso-diario">Uso diario<a class="headerlink" href="#uso-diario" title="Permanent link">¶</a></h3>
 <ol>
 <li>
@@ -987,19 +986,10 @@
 <p><strong>ℹ Info</strong> · modal con versión, estado de conexión y botón <em>Cerrar sesión</em>.</p>
 </li>
 </ul>
-<p>📷</p>
-<p>Screenshot:</p>
-<p>Modal Info de la lite con datos de sesión y botón "Cerrar sesión"</p>
-<p>. (Ver captura tuya del 20/7.)</p>
-<p>⚠ Importante</p>
-<p>· La lite</p>
-<p>no clasifica</p>
-<p>ni asigna tipo de tarea. Solo captura foto + GPS. Los demás datos los completa</p>
-<p>alguien en oficina</p>
-<p>desde el portal escritorio, en la cola de aprobación.</p>
-<blockquote>
-<p>Complemento visual (capturas/paso a paso simplificado): <a href="../Guia-Visual-Complementaria/#uso-del-modo-basico">ver acá</a></p>
-</blockquote>
+<div class="admonition note">
+<p class="admonition-title">📷 Screenshot:</p>
+<p>Modal Info de la lite con datos de sesión y botón "Cerrar sesión". (Ver captura tuya del 20/7.) ⚠ Importante · La lite no clasifica ni asigna tipo de tarea. Solo captura foto + GPS. Los demás datos los completa alguien en oficina desde el portal escritorio, en la cola de aprobación. &gt; Complemento visual (capturas/paso a paso simplificado): <a href="../Guia-Visual-Complementaria/#uso-del-modo-basico">ver acá</a></p>
+</div>
 
 
 
@@ -1032,14 +1022,18 @@
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
-  
-    <div class="md-copyright__highlight">
-      © 2026 Dirección de Vialidad de la Provincia de Buenos Aires · Ministerio de Infraestructura y Servicios Públicos
-
-    </div>
-  
-  
+      
+<div class="md-copyright dvba-footer">
+  <div class="dvba-footer__left">
+    <span class="dvba-footer__copy">© 2026 DVBA</span>
+    <span class="dvba-footer__label">Guía de usuario · Uso interno institucional.</span>
+  </div>
+  <div class="dvba-footer__right">
+    SIG Vial PBA<sup class="dvba-footer__beta">β</sup>
+    · <span class="dvba-footer__ver">v8.68</span>
+    · <a href="https://lemeit.github.io/DVBA/" target="_blank" rel="noopener">Portal</a>
+    · <a href="https://github.com/lemeit/DVBA" target="_blank" rel="noopener">Código</a>
+  </div>
 </div>
       
         

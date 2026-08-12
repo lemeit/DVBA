@@ -57,6 +57,8 @@
     
       <link rel="stylesheet" href="../stylesheets/mockups.css">
     
+      <link rel="stylesheet" href="../stylesheets/theme-dvba.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -913,9 +915,10 @@
 </blockquote>
 <h1 id="plan-de-seguridad-en-la-circulacion">Plan de Seguridad en la Circulación<a class="headerlink" href="#plan-de-seguridad-en-la-circulacion" title="Permanent link">¶</a></h1>
 <p>Módulo escritorio (<code>partes_diarios.html</code>) para cargar las <strong>tareas diarias ejecutadas</strong>. Está alineado al Google Form oficial de Gerencia Ejecutiva DVBA. Reemplaza el workflow anterior "por email".</p>
-<p>📷</p>
-<p>Screenshot:</p>
+<div class="admonition note">
+<p class="admonition-title">📷 Screenshot:</p>
 <p>Modal "Nueva tarea" con detección automática de partido y autocomplete de caminos activo.</p>
+</div>
 <h3 id="cargar-una-tarea-nueva">Cargar una tarea nueva<a class="headerlink" href="#cargar-una-tarea-nueva" title="Permanent link">¶</a></h3>
 <ol>
 <li>
@@ -938,9 +941,10 @@
 </li>
 </ol>
 <p><strong>b) Subir foto directa</strong>: elegís foto del disco → lee GPS del EXIF → si no hay EXIF, tipeás progresiva y se interpola → aplica sello v4 → sube a Storage → crea el relevamiento.</p>
-<p>📷</p>
-<p>Screenshot:</p>
+<div class="admonition note">
+<p class="admonition-title">📷 Screenshot:</p>
 <p>Modal "Subir foto" con foto cargada + banner verde "Ubicación detectada en la foto".</p>
+</div>
 <h3 id="cambio-de-nombre-parte-tarea">Cambio de nombre "parte" → "tarea"<a class="headerlink" href="#cambio-de-nombre-parte-tarea" title="Permanent link">¶</a></h3>
 <p>El formulario oficial se llama <em>"Parte diario"</em> pero en la jerga interna se dice <em>"tarea"</em>. Toda la UI visible dice <strong>tarea/tareas</strong> — sólo los nombres técnicos internos (tabla <code>partes_diarios</code>, funciones <code>pd*</code>) mantienen "parte" por compatibilidad de código.</p>
 
@@ -975,14 +979,18 @@
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
-  
-    <div class="md-copyright__highlight">
-      © 2026 Dirección de Vialidad de la Provincia de Buenos Aires · Ministerio de Infraestructura y Servicios Públicos
-
-    </div>
-  
-  
+      
+<div class="md-copyright dvba-footer">
+  <div class="dvba-footer__left">
+    <span class="dvba-footer__copy">© 2026 DVBA</span>
+    <span class="dvba-footer__label">Guía de usuario · Uso interno institucional.</span>
+  </div>
+  <div class="dvba-footer__right">
+    SIG Vial PBA<sup class="dvba-footer__beta">β</sup>
+    · <span class="dvba-footer__ver">v8.68</span>
+    · <a href="https://lemeit.github.io/DVBA/" target="_blank" rel="noopener">Portal</a>
+    · <a href="https://github.com/lemeit/DVBA" target="_blank" rel="noopener">Código</a>
+  </div>
 </div>
       
         

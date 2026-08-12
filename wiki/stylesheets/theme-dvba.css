@@ -1,0 +1,103 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   wiki-src/docs/stylesheets/theme-dvba.css · v8.68
+   Overrides de Material for MkDocs para usar la paleta institucional DVBA.
+
+   Paleta oficial:
+     --p    #00aec3   Turquesa institucional (primary)
+     --pd   #007e8c   Turquesa oscuro
+     --pl   #74c9e3   Turquesa claro (gradiente)
+     --am   #c47a00   Ámbar (secundario/beta)
+     --azul #1f3464   Azul complementario PBA
+     --vd   #22a954   Verde OK
+     --ro   #BE1717   Rojo seguridad
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══ Modo claro (default) ═══ */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color:        #00aec3;   /* header + accent principal */
+  --md-primary-fg-color--light:  #74c9e3;
+  --md-primary-fg-color--dark:   #007e8c;
+  --md-primary-bg-color:         #ffffff;
+  --md-primary-bg-color--light:  rgba(255,255,255,.7);
+
+  --md-accent-fg-color:          #c47a00;  /* links accent, hover */
+  --md-accent-fg-color--transparent: rgba(196,122,0,.1);
+  --md-accent-bg-color:          #ffffff;
+  --md-accent-bg-color--light:   rgba(255,255,255,.7);
+
+  --md-typeset-a-color:          #007e8c;  /* links del cuerpo */
+}
+
+/* ═══ Modo oscuro ═══ */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:         #007e8c;
+  --md-primary-fg-color--light:  #00aec3;
+  --md-primary-fg-color--dark:   #005966;
+  --md-accent-fg-color:          #c47a00;
+  --md-typeset-a-color:          #74c9e3;
+}
+
+/* ═══ Footer institucional (reemplaza el default de Material) ═══
+   Estilo idéntico al footer de los portales (index/admin/reportes/partes) */
+.md-footer-meta {
+  background: #1f2732 !important;
+  color: rgba(255,255,255,.7);
+}
+
+.dvba-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 16px;
+  font-size: 10px;
+  line-height: 1.4;
+  border-top: 1px solid #444;
+  color: rgba(255,255,255,.7);
+}
+.dvba-footer__left { flex: 1; min-width: 260px; }
+.dvba-footer__copy {
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+}
+.dvba-footer__label { margin-left: 8px; }
+.dvba-footer__right {
+  font-size: 9.5px;
+  color: rgba(255,255,255,.5);
+}
+.dvba-footer__beta {
+  font-size: .7em;
+  color: #ffd060;
+  letter-spacing: 0;
+}
+.dvba-footer__ver { color: rgba(255,255,255,.7); }
+.dvba-footer a {
+  color: #8ac6ff !important;
+  text-decoration: none;
+  font-weight: 600;
+  margin: 0 6px;
+}
+.dvba-footer a:hover { color: #c8dfff !important; }
+
+/* Ocultar el "Made with Material for MkDocs" que agrega el theme por default */
+.md-footer-meta .md-copyright__highlight { display: none; }
+
+/* ═══ Header y navegación · toques finos DVBA ═══ */
+.md-header {
+  background-color: #00aec3;
+}
+.md-tabs {
+  background-color: #007e8c;  /* barra de tabs más oscura para contraste */
+}
+
+/* Admonitions con acento DVBA */
+.md-typeset .admonition.info > .admonition-title::before,
+.md-typeset details.info > summary::before {
+  background-color: #00aec3;
+}
+.md-typeset .admonition.warning > .admonition-title::before,
+.md-typeset details.warning > summary::before {
+  background-color: #c47a00;
+}
