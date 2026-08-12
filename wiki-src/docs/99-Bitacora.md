@@ -16,11 +16,7 @@ Estado general: 🟢 En desarrollo activo
 
 ═══════ TABS ═══════
 
-═══════════════════════════════════════════════════════════════════
-
 TAB 1 · RESUMEN
-
-═══════════════════════════════════════════════════════════════════
 
 ## Descripción del Proyecto
 
@@ -43,68 +39,40 @@ Toma de registros de campo con GPS, foto sellada y sincronización con Supabase.
 ## Contexto Institucional
 
 | Atributo | Detalle |
-
 |---|---|
-
 | Organismo | DVBA — Dirección de Vialidad de la Provincia de Buenos Aires |
-
 | Zona | Departamento Zona VI — sede Saladillo |
-
 | Partidos cubiertos | Saladillo, Gral. Alvear, Gral. Las Heras, Lobos, Roque Pérez, Las Flores, Navarro, 25 de Mayo |
-
 | Red vial | 15 rutas provinciales pavimentadas + red de caminos secundarios |
-
 | Nomenclatura oficial | Manual de Señalamiento Vertical MSV 2017 (DNV/AAC) — fuente primaria para tipos de registro |
-
 | Denominación oficial | **"Departamento Zona VI Saladillo"** o "Zona VI Saladillo". Nunca "Delegación Saladillo". |
 
 ## Stack Técnico
 
 | Herramienta | Versión | Rol |
-
 |---|---|---|
-
 | QGIS | 3.42.0 Münster | Edición, limpieza y análisis espacial de capas vectoriales |
-
 | Leaflet.js | 1.9.4 | Mapa interactivo (escritorio + tests) |
-
 | Python | 3.12 | Scripts de reconstrucción de cadenas y generación de bundles JS |
-
 | Supabase | Free tier | Backend de registros de campo: PostgreSQL + Storage + REST. Keepalive vía GitHub Action. |
-
 | GitHub Pages | — | Hosting estático del sistema (HTTPS gratuito) |
-
 | Service Worker + IndexedDB | — | Cola offline + sync automático en la app de campo |
-
 | Overpass Turbo / OSM | — | Descarga auxiliar de trazas para verificación |
-
 | QuickMapServices | plugin QGIS | Fondo Google Hybrid para digitalización de gaps |
 
 ## Estado por Ruta
 
 | Ruta | Cadena GeoJSON | Mojones | Bundle JS | Notas |
-
 |---|---|---|---|---|
-
 | **RP 40** | ✓ | 5 físicos + 37 sintéticos | rutas_rp40.js | Gaps Salado (×2) + 25 de Mayo (×2). Bundle más completo del sistema. |
-
 | RP 30 | ✓ | ✓ | rutas_rp30.js | — |
-
 | RP 41 | ✓ | ✓ | rutas_rp41.js | — |
-
 | RP 46 | ✓ | ✓ | rutas_rp46.js | — |
-
 | RP 51 | ✓ | ✓ | rutas_rp51.js | — |
-
 | RP 91 | ✓ | ✓ | rutas_rp91.js | — |
-
 | RP 6, 20, 24, 42, 43, 44, 48 | pendiente | pendiente | pendiente | 7 rutas restantes para completar las 15 de Zona VI (RP 47 y 61 completadas) |
 
-═══════════════════════════════════════════════════════════════════
-
 TAB 2 · RUTAS Y QGIS
-
-═══════════════════════════════════════════════════════════════════
 
 ## Línea de Tiempo · Trabajo sobre RP 40
 
@@ -473,56 +441,22 @@ Proceso estándar para incorporar cada nueva ruta:
 ## Sistema de Progresivas
 
 | Parámetro | Valor / Decisión |
-
 |---|---|
-
 | Método de cálculo | Haversine 2D — terreno llano, error <0.1% |
-
 | Convención | DVBA/DNVB — progresiva acumulada sobre traza oficial |
-
 | Mojón 0 RP40 | Intersección RP40/RP7, calles Moreno y Libertad, partido de Merlo (FFCC) |
-
 | Inicio Zona VI RP40 | ~29.4 km real — intersección con RP6, partido de General Las Heras |
-
 | Gaps | Progresiva acumula por recorrido real del tramo (no por línea recta) |
-
 | Mojones físicos | Datos internos DVBA — posición GPS desde escritorio, *no medidos con odómetro*. Requieren verificación de campo. |
-
 | Mojones sintéticos | Generados cada 5 km por interpolación sobre la cadena. Flag `en_gap:true` = posición aproximada. |
 
 ## Notas Técnicas Importantes
 
-⚠ Precaución al editar
+!!! warning "⚠ Precaución al editar"
+    dvba_campo.html El archivo contiene ~133 KB de JavaScript. Hacer regex replacements cerca del bloque LOGO_SELLO (base64) puede truncar silenciosamente el código. Siempre partir del backup conocido-bueno: archivo/versiones/dvba_campo_BKFUNCIONAL.html.
 
-dvba_campo.html
-
-El archivo contiene ~133 KB de JavaScript. Hacer regex replacements cerca del bloque
-
-LOGO_SELLO
-
-(base64) puede truncar silenciosamente el código. Siempre partir del backup conocido-bueno:
-
-archivo/versiones/dvba_campo_BKFUNCIONAL.html
-
-.
-
-⚠ Error sistemático en verificación de mojones
-
-El error de ~-27 km en todos los mojones es correcto y esperado. La cadena RP40 inicia en la progresiva real 29.4 km. La función
-
-calcProg()
-
-interpola correctamente entre pares
-
-(km_real, acc_local)
-
-y devuelve la progresiva oficial.
-
-═══════════════════════════════════════════════════════════════════
-
-TAB 3 · APPS WEB
-
-═══════════════════════════════════════════════════════════════════
+!!! warning "⚠ Error sistemático en verificación de mojones"
+    El error de ~-27 km en todos los mojones es correcto y esperado. La cadena RP40 inicia en la progresiva real 29.4 km. La función calcProg() interpola correctamente entre pares (km_real, acc_local) y devuelve la progresiva oficial. TAB 3 · APPS WEB
 
 ## App Escritorio · `index.html`
 
@@ -562,17 +496,8 @@ TAB 3 · APPS WEB
 
 `watchPosition` con botón ↓ Usar para fijar la posición actual al registro.
 
-📷 Cámara sin crash
-
-`getUserMedia` directo a canvas, evita el crash RAM de `<input type="file" capture>`.
-
-🏷 Sello v2 editable (GPS Map Camera style)
-
-Modal pre-poblado con form + GPS + Plus Code + fecha/hora antes de estampar. Layout 2 columnas (texto izq + logo der). Editable campo por campo. Implementado en ambas apps (v9.15 / v7.7).
-
-📡 Cola offline + sync
-
-Registros pendientes en `IndexedDB.cola`. Service Worker dispara `BackgroundSync` al recuperar red.
+!!! note "📷 Cámara sin crash"
+    `getUserMedia`directo a canvas, evita el crash RAM de `<input type="file" capture>`. 🏷 Sello v2 editable (GPS Map Camera style) Modal pre-poblado con form + GPS + Plus Code + fecha/hora antes de estampar. Layout 2 columnas (texto izq + logo der). Editable campo por campo. Implementado en ambas apps (v9.15 / v7.7). 📡 Cola offline + sync Registros pendientes en `IndexedDB.cola`. Service Worker dispara `BackgroundSync`al recuperar red.
 
 ### Sello v2 — diseño detallado (24 jun 2026)
 
@@ -626,35 +551,8 @@ Las apps usan **Supabase free tier** como persistencia en la nube:
 
 - **Keepalive:** GitHub Action `.github/workflows/supabase_keepalive.yml` hace ping periódico para evitar el sleep automático del free tier por inactividad.
 
-⚠ Seguridad:
-
-la
-
-anon key
-
-está embebida en
-
-sw.js
-
-y
-
-dvba_campo.html
-
-. Es la clave pública anónima de Supabase (no la
-
-service_role
-
-) — está pensada para ser pública en clientes, pero
-
-las políticas RLS de Supabase deben estar bien configuradas
-
-para que solo permitan INSERT y no SELECT/UPDATE/DELETE de otros registros.
-
-═══════════════════════════════════════════════════════════════════
-
-TAB 4 · INFRAESTRUCTURA
-
-═══════════════════════════════════════════════════════════════════
+!!! warning "⚠ Seguridad:"
+    la anon key está embebida en sw.js y dvba_campo.html. Es la clave pública anónima de Supabase (no la service_role) — está pensada para ser pública en clientes, pero las políticas RLS de Supabase deben estar bien configuradas para que solo permitan INSERT y no SELECT/UPDATE/DELETE de otros registros. TAB 4 · INFRAESTRUCTURA
 
 ## Estructura del Repositorio
 
@@ -720,23 +618,14 @@ C:\DVBA_fuentes\                       ← Fuentes pesadas, no versionadas
 ## URLs de Acceso
 
 | Recurso | URL |
-
 |---|---|
-
 | App Escritorio (home) | [lemeit.github.io/DVBA/](https://lemeit.github.io/DVBA/) |
-
 | App Móvil PWA | [lemeit.github.io/DVBA/dvba_campo.html](https://lemeit.github.io/DVBA/dvba_campo.html) |
-
 | Bitácora (esta) | [lemeit.github.io/DVBA/docs/bitacora.html](https://lemeit.github.io/DVBA/docs/bitacora.html) |
-
 | Guía app de campo (textual) | [lemeit.github.io/DVBA/docs/guia_dvba_campo.html](https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html) |
-
 | Guía visual (mockups) | [lemeit.github.io/DVBA/docs/guia_visual_dvba_campo.html](https://lemeit.github.io/DVBA/docs/guia_visual_dvba_campo.html) |
-
 | Guía app de campo (PDF) | [lemeit.github.io/DVBA/docs/guia_dvba_campo.pdf](https://lemeit.github.io/DVBA/docs/guia_dvba_campo.pdf) |
-
 | Tests por ruta | […/tests/test_rp40.html](https://lemeit.github.io/DVBA/tests/test_rp40.html) (rp30, rp41, rp46, rp51, rp91 idem) |
-
 | Repositorio | [github.com/lemeit/DVBA](https://github.com/lemeit/DVBA) |
 
 ## Flujo de Releases
@@ -768,11 +657,7 @@ Originalmente las apps corrían sobre **ngrok** (servidor local en la PC de la o
 
 En abril 2026 se migró a **GitHub Pages** para tener disponibilidad 24/7 con HTTPS gratuito y sin dependencia de hardware local. Los archivos legacy (`servidor_http.py`, `servidor.bat`, `ngrok.exe`, `ngrok-dvba.yml`) están conservados en `archivo/` por trazabilidad.
 
-═══════════════════════════════════════════════════════════════════
-
 TAB 5 · DECISIONES
-
-═══════════════════════════════════════════════════════════════════
 
 ## Decisiones Técnicas Clave
 
@@ -816,31 +701,10 @@ La estrategia original del SW era *cache-first*, que servía contenido viejo aú
 
 Cada artefacto del proyecto (app campo, app escritorio, guía, bitácora) tiene su propia versión y su propio ciclo de vida. La consistencia entre versiones **no se fuerza**. El script `scripts/bump_version.py` permite bumpear cada artefacto por separado: `python scripts/bump_version.py campo v9.3`. Para casos puntuales hay `todos vX.Y` que sincroniza todo.
 
-═══════════════════════════════════════════════════════════════════
-
 TAB 6 · PENDIENTES
 
-═══════════════════════════════════════════════════════════════════
-
-✅ Actualizado a v7.75 · 13 julio 2026.
-
-El grueso de los pendientes históricos ya está resuelto (sello v3, caminos integrados, mudanza C:\DVBA, RLS Supabase). Los nuevos ejes son
-
-reportes PDF oficiales
-
-,
-
-capa de partes en el mapa
-
-,
-
-escalado multi-zona
-
-, y
-
-completar las RPs faltantes en QGIS
-
-.
+!!! note "✅ Actualizado a v7.75 · 13 julio 2026."
+    El grueso de los pendientes históricos ya está resuelto (sello v3, caminos integrados, mudanza C:\DVBA, RLS Supabase). Los nuevos ejes son reportes PDF oficiales, capa de partes en el mapa, escalado multi-zona, y completar las RPs faltantes en QGIS.
 
 ## 🔴 Alta Prioridad
 
@@ -915,15 +779,10 @@ completar las RPs faltantes en QGIS
 ## 📋 Changelog · Apps
 
 | Artefacto | Versión | Archivo(s) | Bumpear con |
-
 |---|---|---|---|
-
 | **📱 App Campo (PWA unificada)** | v9.88 | `app.html` (router) + `dvba_campo_lite.html` (Modo Básico) + `dvba_campo.html` (Modo Avanzado) + `sw.js` | Manual: `APP_VER` en HTMLs + `CACHE_NAME` en `sw.js` |
-
 | **🖥 Familia escritorio** | v8.52 | `index.html`, `partes_diarios.html`, `reportes.html` + módulos `datos/` | Manual en `const APP_VERSION` + spans footer en los 3 |
-
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
-
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
 
 ### v8.67 / v9.94 · 12 agosto 2026 — Presets tamaño sello + fix doble sello + versión reubicada
