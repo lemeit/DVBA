@@ -92,6 +92,17 @@
   background-color: #007e8c;  /* barra de tabs más oscura para contraste */
 }
 
+/* Logo DVBA más grande en el header (default Material es ~24px) */
+.md-header__button.md-logo {
+  margin: .2rem .4rem;
+  padding: 0;
+}
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  width: 44px;    /* subilo/bajalo · default era 24px */
+  height: 44px;
+}
+
 /* Admonitions con acento DVBA */
 .md-typeset .admonition.info > .admonition-title::before,
 .md-typeset details.info > summary::before {
