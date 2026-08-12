@@ -29,7 +29,7 @@
 <!-- v8.13 · Módulo único de sello v4 (portal delega en él tras refactor v8.11 · antes tenía copia embebida). -->
 <script src="datos/sello_v4.js"></script>
 <script src="datos/armonizador.js" defer></script>
-<!-- v8.66f · Loader dinámico multi-zona. Detecta zona (URL/perfil/default) y hace
+<!-- v8.66f.1 · Loader dinámico multi-zona. Detecta zona (URL/perfil/default) y hace
      document.write de los <script> correctos: bundles RP calibrados, red_vial y
      caracteristicas_viales de la zona activa. Reemplaza los 10 <script> hardcoded
      a VI que había antes. MUST BE SYNCHRONOUS (sin defer/async). -->
@@ -408,7 +408,7 @@ body.modo-campo #campo-fab{display:flex}
    v8.51 · data-solo-admin sólo se revela a admin. */
 [data-solo-gerencia="1"].role-oculto{display:none !important}
 [data-solo-admin="1"].role-oculto{display:none !important}
-/* v8.66f · Portal público · items que requieren sesión arrancan ocultos por CSS.
+/* v8.66f.1 · Portal público · items que requieren sesión arrancan ocultos por CSS.
    aplicarModoSesion() los revela al haber usuario logueado. */
 [data-requiere-sesion="1"].role-oculto{display:none !important}
 [data-solo-publico="1"].role-oculto{display:none !important}
@@ -441,11 +441,11 @@ body.modo-campo #campo-fab{display:flex}
     <p><b>SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup></b> &nbsp;&middot;&nbsp; Sistema de Relevamiento y Gestión de la Red Vial</p>
   </div>
   <div class="hright">
-    <!-- v8.66f · Botón Iniciar sesión (solo visible modo público) -->
+    <!-- v8.66f.1 · Botón Iniciar sesión (solo visible modo público) -->
     <button class="nav-app role-oculto" data-solo-publico="1" onclick="abrirLogin()" title="Iniciar sesión para acceder al sistema completo" style="background:rgba(0,154,174,.85);border-color:rgba(255,255,255,.4)">
       🔐 Iniciar sesión
     </button>
-    <!-- v8.66f · Botón ℹ Alcance · reabre el aviso de modo público -->
+    <!-- v8.66f.1 · Botón ℹ Alcance · reabre el aviso de modo público -->
     <button class="nav-app role-oculto" data-solo-publico="1" onclick="mostrarAvisoPublico(true)" title="¿Qué puedo hacer en modo público?">
       ℹ Alcance
     </button>
@@ -484,7 +484,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.66f</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.66f.1</span></div>
   </div>
 </div>
 <div class="layout">
@@ -616,7 +616,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="button" id="btn-reinject-exif" onclick="reinyectarExifExistente()" title="Bajar la foto, re-inyectar metadatos EXIF y re-subirla (sin re-sellar visual)" style="padding:6px 10px;border:1px solid var(--light);background:var(--w);color:var(--am);border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">🔧 EXIF+</button>
       <button type="button" id="btn-borrar-backup" onclick="borrarBackupOriginal()" title="Eliminar el archivo original SOLO de este registro — libera espacio pero no podrá re-sellarse limpio después" style="display:none;padding:6px 8px;border:1px solid var(--light);background:var(--w);color:var(--ro);border-radius:4px;cursor:pointer;font-size:11px">🗑 Backup de esta foto</button>
       <span id="rot-lbl" style="font-size:10px;color:var(--mut);width:100%">Rotá la foto si se ve de costado, luego "Re-sellar"</span>
-      <!-- v8.66f · Slider de altura del sello (50-100%) para casos puntuales donde tapa algo importante -->
+      <!-- v8.66f.1 · Slider de altura del sello (50-100%) para casos puntuales donde tapa algo importante -->
       <div style="width:100%;display:flex;align-items:center;gap:8px;padding:6px 4px;border-top:1px dashed var(--light);margin-top:2px" title="Achica el sello solo para esta foto si tapa un puente/cordón/detalle importante. NO afecta al resto del sistema.">
         <label for="selloEscala" style="font-size:10px;color:var(--mut);white-space:nowrap">📏 Altura sello</label>
         <input type="range" id="selloEscala" min="50" max="100" step="5" value="100" oninput="document.getElementById('selloEscalaVal').textContent = this.value + '%'" style="flex:1;accent-color:var(--vd)">
@@ -733,7 +733,7 @@ body.modo-campo #campo-fab{display:flex}
         <button onclick="exportReportePDF()" class="btn-side side-neutral">↓ PDF</button>
       </div>
 
-      <!-- Banner "Info pública" al pie del panel · v8.66f dinámico según zona activa -->
+      <!-- Banner "Info pública" al pie del panel · v8.66f.1 dinámico según zona activa -->
       <div style="font-size:9px;color:var(--mut);background:var(--p-xl);border-left:3px solid var(--p);padding:6px 8px;border-radius:4px;margin-bottom:8px;line-height:1.45">
         <b style="color:var(--pd)">📋 Datos oficiales</b> de la Red Vial Provincial (Primaria + Secundaria) · Fuente: Dirección de Vialidad de la Provincia de Buenos Aires.
       </div>
@@ -786,7 +786,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.66f</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
+        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.66f.1</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
       </div>
     </div>
 
@@ -855,8 +855,8 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.66f';
-window.APP_VERSION = APP_VERSION;  // v8.66f · expone a window para legales.js
+const APP_VERSION = 'v8.66f.1';
+window.APP_VERSION = APP_VERSION;  // v8.66f.1 · expone a window para legales.js
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -1301,7 +1301,7 @@ for (const rid in RUTA_META) {
 // Los partidos son "fondo administrativo", el color lo aportan RPs y caminos.
 const _PARTIDO_COLOR_NEUTRO = '#3a5a7a';
 
-// v8.66f · Paleta institucional de las 12 zonas DVBA (Frente D).
+// v8.66f.1 · Paleta institucional de las 12 zonas DVBA (Frente D).
 // Tonos armónicos en gama neutra-azulada (evita saturaciones tipo circo).
 // Cada zona tiene su hue propio, misma S/L → distinguibles pero coherentes.
 // Se usa en drawPartidos cuando ZONA_ACTUAL === 'PBA'.
@@ -1321,7 +1321,7 @@ const _COLOR_ZONA = {
 };
 function _colorZona(cod){ return _COLOR_ZONA[cod] || _PARTIDO_COLOR_NEUTRO; }
 
-// v8.66f · Mapping nombre_partido → codigo_zona (I..XII).
+// v8.66f.1 · Mapping nombre_partido → codigo_zona (I..XII).
 // Se rellena async al cargar partidos_pba.json (ver más abajo, después del INIT).
 let _partidoAZona = {};  // { "Saladillo": "VI", "Junín": "IV", ... }
 const PARTIDO_COLORS={"General Alvear":_PARTIDO_COLOR_NEUTRO,"General Las Heras":_PARTIDO_COLOR_NEUTRO,"Las Flores":_PARTIDO_COLOR_NEUTRO,"Lobos":_PARTIDO_COLOR_NEUTRO,"Navarro":_PARTIDO_COLOR_NEUTRO,"Roque Pérez":_PARTIDO_COLOR_NEUTRO,"Saladillo":_PARTIDO_COLOR_NEUTRO,"Veinticinco de Mayo":_PARTIDO_COLOR_NEUTRO};
@@ -1330,17 +1330,17 @@ const EXTREMOS_DATA={"6":{"ptIni":[-58.798765,-34.983548],"ptFin":[-58.926612,-3
 const PARTIDOS_TABLA={"001":"Adolfo Alsina","051":"Adolfo Gonzales Chaves","002":"Alberti","003":"Almirante Brown","010":"Arrecifes","004":"Avellaneda","005":"Ayacucho","006":"Azul","007":"Bahía Blanca","008":"Balcarce","009":"Baradero","053":"Benito Juárez","120":"Berazategui","114":"Berisso","011":"Bolívar","012":"Bragado","013":"Brandsen","014":"Campana","015":"Cañuelas","121":"Capitán Sarmiento","016":"Carlos Casares","017":"Carlos Tejedor","018":"Carmen de Areco","020":"Castelli","026":"Chacabuco","027":"Chascomús","028":"Chivilcoy","021":"Colón","022":"Coronel Dorrego","023":"Coronel Pringles","113":"Coronel Rosales","024":"Coronel Suárez","019":"Daireaux","029":"Dolores","115":"Ensenada","118":"Escobar","030":"Esteban Echeverría","031":"Exaltación de la Cruz","130":"Ezeiza","032":"Florencio Varela","128":"Florentino Ameghino","033":"General Alvarado","034":"General Alvear","035":"General Arenales","036":"General Belgrano","037":"General Guido","040":"General La Madrid","041":"General Las Heras","042":"General Lavalle","039":"General Madariaga","043":"General Paz","044":"General Pinto","045":"General Pueyrredón","046":"General Rodríguez","047":"General San Martín","049":"General Viamonte","050":"General Villegas","052":"Guaminí","119":"Hipólito Yrigoyen","135":"Hurlingham","054":"Junín","123":"La Costa","070":"La Matanza","055":"La Plata","025":"Lanús","056":"Laprida","058":"Las Flores","059":"Leandro N. Alem","137":"Lezama","060":"Lincoln","061":"Lobería","062":"Lobos","063":"Lomas de Zamora","064":"Luján","065":"Magdalena","066":"Maipú","133":"Malvinas Argentinas","069":"Mar Chiquita","068":"Marcos Paz","071":"Mercedes","072":"Merlo","073":"Monte","126":"Monte Hermoso","074":"Moreno","101":"Morón","075":"Navarro","076":"Necochea","077":"Nueve de Julio","078":"Olavarría","079":"Patagones","080":"Pehuajó","081":"Pellegrini","082":"Pergamino","083":"Pila","084":"Pilar","124":"Pinamar","129":"Presidente Perón","085":"Puan","134":"Punta Indio","086":"Quilmes","087":"Ramallo","088":"Rauch","089":"Rivadavia","090":"Rojas","091":"Roque Pérez","092":"Saavedra","093":"Saladillo","122":"Salliqueló","067":"Salto","094":"San Andrés de Giles","095":"San Antonio de Areco","116":"San Cayetano","096":"San Fernando","097":"San Isidro","131":"San Miguel","098":"San Nicolás","099":"San Pedro","100":"San Vicente","102":"Suipacha","103":"Tandil","104":"Tapalqué","057":"Tigre","105":"Tordillo","106":"Tornquist","107":"Trenque Lauquen","108":"Tres Arroyos","117":"Tres de Febrero","127":"Tres Lomas","109":"Veinticinco de Mayo","110":"Vicente López","125":"Villa Gesell","111":"Villarino","038":"Zárate","132":"José C. Paz"};
 
 const SUPERFICIE_DATA={"6":{"pav":15.657,"tie":0.0,"con":0.0,"tot":15.657},"20":{"pav":0.0,"tie":33.865,"con":0.0,"tot":33.865},"24":{"pav":0.0,"tie":8.642,"con":0.0,"tot":8.642},"30":{"pav":77.928,"tie":0.0,"con":86.891,"tot":164.819},"40":{"pav":58.309,"tie":104.718,"con":0.0,"tot":163.027},"41":{"pav":68.325,"tie":0.0,"con":0.0,"tot":68.325},"42":{"pav":2.249,"tie":21.79,"con":0.0,"tot":24.039},"43":{"pav":0.0,"tie":15.657,"con":0.0,"tot":15.657},"44":{"pav":0.0,"tie":34.488,"con":0.0,"tot":34.488},"46":{"pav":33.845,"tie":0.0,"con":0.0,"tot":33.845},"47":{"pav":24.345,"tie":0.0,"con":0.0,"tot":24.345},"48":{"pav":0.0,"tie":35.07,"con":0.0,"tot":35.07},"51":{"pav":132.739,"tie":0.0,"con":0.0,"tot":132.739},"61":{"pav":65.774,"tie":129.815,"con":0.0,"tot":195.589},"91":{"pav":51.666,"tie":0.0,"con":0.0,"tot":51.666}};
-// v8.66f · RUTAS_LIST reasignable — arranca con VI (15 RPs) y se reemplaza al cargar zona no-VI
+// v8.66f.1 · RUTAS_LIST reasignable — arranca con VI (15 RPs) y se reemplaza al cargar zona no-VI
 let RUTAS_LIST=["6","20","24","30","40","41","42","43","44","46","47","48","51","61","91"];
-// v8.66f · Multi-zona: PARTIDOS_LIST arranca con los 8 de VI (default hardcoded) pero
+// v8.66f.1 · Multi-zona: PARTIDOS_LIST arranca con los 8 de VI (default hardcoded) pero
 // se REEMPLAZA en runtime cuando la zona activa es distinta (fetch al partidos_zonaXX.geojson).
 let PARTIDOS_LIST=["General Alvear","General Las Heras","Las Flores","Lobos","Navarro","Roque Pérez","Saladillo","Veinticinco de Mayo"];
 
-// v8.66f · Partidos activos por default (para que se vean los polígonos coloreados).
+// v8.66f.1 · Partidos activos por default (para que se vean los polígonos coloreados).
 // Rutas ARRANCAN VACÍAS: sin selección, el mapa solo muestra las de OSM base — al tocar
 // una RP en el sidebar se dibuja. Antes arrancaba con TODAS activas → confuso porque
 // las trazas se veían aunque no hubieras hecho nada.
-// v8.66f · selR arranca con TODAS las rutas activas en cualquier zona (incluida PBA).
+// v8.66f.1 · selR arranca con TODAS las rutas activas en cualquier zona (incluida PBA).
 // El geojson zonal se carga async y RUTAS_LIST se rearma en dibujarRutasZonaNoCalibradas
 // → ahí también seteamos selR completo. Este seed inicial cubre las 8 RPs calibradas de VI.
 let selP=new Set(PARTIDOS_LIST), selR = new Set(RUTAS_LIST);
@@ -1400,7 +1400,7 @@ function aplicarVisibilidadRol(){
   const panel = document.getElementById('vis-panel');
   if (chip)  chip.style.display  = esAdmin ? '' : 'none';
   if (panel) panel.style.display = esAdmin ? '' : 'none';
-  // v8.66f.1 · Picker de zona visible SIEMPRE (incluso técnicos).
+  // v8.66f.1.1 · Picker de zona visible SIEMPRE (incluso técnicos).
   // Cualquier usuario puede NAVEGAR el mapa de cualquier zona (rutas + caminos + partidos)
   // porque son datos institucionales públicos. La operativa (cargar/editar tareas)
   // sigue restringida por RLS zonal a la zona del user técnico.
@@ -1447,13 +1447,13 @@ function initAuthGate(){
     sincronizarSupaConSesion();
     mostrarUsuario();
   }
-  // v8.66f · Portal público · siempre aplicar modo sesión al arranque
+  // v8.66f.1 · Portal público · siempre aplicar modo sesión al arranque
   aplicarModoSesion();
   const pass = document.getElementById('login-pass');
   if (pass) pass.addEventListener('keydown', e => { if (e.key === 'Enter') hacerLogin(); });
 }
 
-// v8.66f · Portal público · toggle de items marcados data-requiere-sesion
+// v8.66f.1 · Portal público · toggle de items marcados data-requiere-sesion
 // (arrancan ocultos por CSS · .role-oculto) vs data-solo-publico (arrancan
 // ocultos también, se muestran solo si NO hay sesión).
 function aplicarModoSesion(){
@@ -1476,7 +1476,7 @@ function abrirLogin(){
   document.getElementById('login-ov').classList.add('show');
   setTimeout(() => document.getElementById('login-email').focus(), 100);
 }
-// v8.66f · Cerrar el modal login sin loguearse · vuelve al mapa público
+// v8.66f.1 · Cerrar el modal login sin loguearse · vuelve al mapa público
 function cerrarLoginModal(){
   document.getElementById('login-ov').classList.remove('show');
   const err = document.getElementById('login-err');
@@ -1594,7 +1594,7 @@ function setModoIndicador(online) {
 
 // Cargar registros al iniciar
 async function cargarRegs() {
-  // v8.66f · Modo público (sin sesión) · no cargar tareas · info institucional interna
+  // v8.66f.1 · Modo público (sin sesión) · no cargar tareas · info institucional interna
   if (!window.dvbaAuth || !dvbaAuth.estaLogueado()) {
     regs = [];
     _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
@@ -1627,7 +1627,7 @@ async function cargarRegs() {
     return;
   }
   try {
-    // v8.66f · Filtrar por zona activa (picker) para admin/gerencia. Para técnico,
+    // v8.66f.1 · Filtrar por zona activa (picker) para admin/gerencia. Para técnico,
     // la RLS zonal ya limita al server-side, pero el filtro explícito es idempotente
     // y garantiza que si el admin está viendo 'V' o 'IV' se vean SOLO tareas de esa zona
     // (antes veía las de VI porque son las únicas cargadas hoy, generaba confusión).
@@ -1774,7 +1774,7 @@ function proj(chain,accs,lng,lat,rid){
 function calcProg(rid,ll){
   const chain=CHAINS_DATA[rid];
   if(!chain||!chain.length) return {prog:'---',km:'---'};
-  // v8.66f · Si la zona activa NO tiene calibración para esta RP (bundle solo aplica
+  // v8.66f.1 · Si la zona activa NO tiene calibración para esta RP (bundle solo aplica
   // a VI), NO devolver progresiva — daría valores absurdos (ej. 215km sobre RP51 en V
   // porque el CHAIN de RP51 va de Merlo a Saladillo). Zonas con bundle propio: solo VI.
   // PBA usa bundles de VI pero está OK porque el user espera "punto en la traza calibrada".
@@ -1839,7 +1839,7 @@ function updateLbls(){
   Object.values(partidoLbls).forEach(l=>map.removeLayer(l)); partidoLbls={};
 
   // --- ETIQUETAS DE RUTA (siguen al centro del viewport) ---
-  // v8.66f · En zonas ≠ VI y ≠ PBA no dibujar labels desde CHAINS_DATA (bundles VI).
+  // v8.66f.1 · En zonas ≠ VI y ≠ PBA no dibujar labels desde CHAINS_DATA (bundles VI).
   // El guard en drawRutas ya evita las trazas, pero updateLbls dibujaba solo los labels
   // que quedaban colgados (típicamente RP46 porque cruza el viewport de V).
   const zonaLbl = window.ZONA_ACTUAL || 'VI';
@@ -1858,7 +1858,7 @@ function updateLbls(){
   }
 
   // --- ETIQUETAS DE PARTIDO (centroide fijo del polígono más grande, siempre visible) ---
-  // v8.66f · En vista PBA con 135 partidos, NO dibujar etiquetas propias — usar las
+  // v8.66f.1 · En vista PBA con 135 partidos, NO dibujar etiquetas propias — usar las
   // que trae el mapa base OSM. Solo mostrar labels en zonas específicas donde son pocos.
   if (window.ZONA_ACTUAL === 'PBA') return;
   PARTIDOS_GEO.features.forEach(f=>{
@@ -1888,7 +1888,7 @@ map.on('moveend zoomend',updateLbls);
 // PARTIDOS
 function drawPartidos(){
   Object.values(capasP).flat().forEach(l=>map.removeLayer(l)); capasP={};
-  // v8.66f · En PBA cada partido se pinta con el color de SU zona (12 tonos armónicos)
+  // v8.66f.1 · En PBA cada partido se pinta con el color de SU zona (12 tonos armónicos)
   // para que se distingan las divisiones territoriales de la Dirección de Vialidad.
   // En zona específica todos los partidos usan el color de la zona activa.
   const enPBA = (window.ZONA_ACTUAL === 'PBA');
@@ -1914,7 +1914,7 @@ function drawPartidos(){
 function drawMojones(){
   capasM.forEach(l=>map.removeLayer(l)); capasM=[];
   let cnt=0;
-  // v8.66f · En zonas específicas distintas de VI/PBA no dibujar mojones (son de bundles VI).
+  // v8.66f.1 · En zonas específicas distintas de VI/PBA no dibujar mojones (son de bundles VI).
   // Los mojones de otras zonas se calibran cuando se procesan sus bundles propios.
   const zonaAct = window.ZONA_ACTUAL || 'VI';
   if (zonaAct !== 'VI' && zonaAct !== 'PBA') { (document.getElementById('smoj')||{}).textContent=0; return; }
@@ -2215,7 +2215,7 @@ function toggleVisPanel(){
 // RUTAS
 function drawRutas(){
   Object.values(capasR).flat().forEach(l=>map.removeLayer(l)); capasR={};
-  // v8.66f-fix · En zonas específicas distintas de VI y PBA, NO dibujar los bundles
+  // v8.66f.1-fix · En zonas específicas distintas de VI y PBA, NO dibujar los bundles
   // calibrados (RP30, RP40, RP46, RP51, RP61 de VI) porque tienen la traza COMPLETA
   // y se salen de la zona activa. En esas zonas usamos solo las trazas del geojson
   // filtrado (dibujarRutasZonaNoCalibradas), que ya vienen recortadas por partido.
@@ -2303,7 +2303,7 @@ function showTab(t,el){
 }
 
 // UI
-// v8.66f · Sidebar adaptativo: chips en cualquier zona específica (I..XII, incluso las
+// v8.66f.1 · Sidebar adaptativo: chips en cualquier zona específica (I..XII, incluso las
 // grandes tipo III con 31 partidos), dropdown solo en vista panorámica PBA (135 partidos).
 // El criterio es SI es PBA o no — no cantidad de items.
 function _modoSidebarDropdown(){
@@ -2484,7 +2484,7 @@ function togR(rid){
   }
   _actualizarContadorRutas();
   drawRutas(); drawMojones();
-  // v8.66f · En zonas no-VI, repintar también las trazas del geojson zonal
+  // v8.66f.1 · En zonas no-VI, repintar también las trazas del geojson zonal
   if (window.ZONA_ACTUAL !== 'VI' && typeof _repintarRutasZonales === 'function') _repintarRutasZonales();
   // Pre-calcular OSRM para nueva ruta activada
   precalcularOSRM([...selR], (n,total)=>{ if(n===total&&document.getElementById('osrm-status')) document.getElementById('osrm-status').textContent=_osrmFallback?'⚠ Refs aprox.':'✓ Referencias OK'; });
@@ -2575,7 +2575,7 @@ function buildLeyenda(){
      </div>`
   );
 
-  // 4. Partidos — v8.66f · En PBA muestra las 12 zonas con su color; en zona específica lista partidos con color de zona.
+  // 4. Partidos — v8.66f.1 · En PBA muestra las 12 zonas con su color; en zona específica lista partidos con color de zona.
   addH('Partidos');
   const enPBA_leyenda = (window.ZONA_ACTUAL === 'PBA');
   if (enPBA_leyenda) {
@@ -3105,7 +3105,7 @@ function drawRegMarkers(){
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// v8.66f · Comentarios y solicitudes cross-zona (usa tabla comentarios_zona · SQL_13)
+// v8.66f.1 · Comentarios y solicitudes cross-zona (usa tabla comentarios_zona · SQL_13)
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Perfil actual desde localStorage (poblado por dvbaAuth al login)
@@ -3672,11 +3672,11 @@ map.fitBounds(L.geoJSON(PARTIDOS_GEO).getBounds().pad(0.03));
 cargarRegs();
 
 // ═══════════════════════════════════════════════════════════════════
-// v8.66f · Reemplazar partidos dinámicamente en zonas no-VI
+// v8.66f.1 · Reemplazar partidos dinámicamente en zonas no-VI
 // El PARTIDOS_GEO hardcoded es de VI (8 partidos). Para otras zonas (IV/V/PBA)
 // hacemos fetch al geojson correspondiente y reemplazamos + redibujamos.
 // ═══════════════════════════════════════════════════════════════════
-// v8.66f · Actualiza contadores del panel-footer del sidebar según la zona activa.
+// v8.66f.1 · Actualiza contadores del panel-footer del sidebar según la zona activa.
 // Datos: PARTIDOS_LIST y RUTAS_LIST ya están en runtime cuando se llama.
 // Llamado desde: INIT, _reemplazarPartidos, dibujarRutasZonaNoCalibradas.
 function _actualizarResumenZona(){
@@ -3695,7 +3695,7 @@ function _actualizarResumenZona(){
   }
 }
 
-// v8.66f · Normaliza "ADOLFO ALSINA" → "Adolfo Alsina" (Title Case con tildes preservadas)
+// v8.66f.1 · Normaliza "ADOLFO ALSINA" → "Adolfo Alsina" (Title Case con tildes preservadas)
 function _titleCase(s){
   if (!s) return s;
   // Palabras que quedan en minúscula (preposiciones/artículos)
@@ -3710,7 +3710,7 @@ function _titleCase(s){
 
 function _reemplazarPartidos(nuevoGeo){
   if (!nuevoGeo || !nuevoGeo.features) {
-    console.warn('[v8.66f] geo inválido en _reemplazarPartidos');
+    console.warn('[v8.66f.1] geo inválido en _reemplazarPartidos');
     return;
   }
   // Normalizar propiedad: shp master usa PARTIDO uppercase, hardcoded VI usa 'partido' Title Case.
@@ -3727,7 +3727,7 @@ function _reemplazarPartidos(nuevoGeo){
   PARTIDOS_LIST = nuevoGeo.features.map(f => f.properties.partido).filter(Boolean).sort();
   // Reset selección (todos activos)
   selP = new Set(PARTIDOS_LIST);
-  // v8.66f · FIX bug persistencia sombreado VI: capasP guarda ARRAYS de layers
+  // v8.66f.1 · FIX bug persistencia sombreado VI: capasP guarda ARRAYS de layers
   // ({partido:[layer]}). Sin .flat() se pasaban arrays a map.removeLayer() y Leaflet
   // los ignoraba silenciosamente → los polígonos viejos de VI quedaban en el DOM al
   // cambiar de zona, dibujándose encima de los nuevos con el color azul-gris viejo.
@@ -3739,17 +3739,17 @@ function _reemplazarPartidos(nuevoGeo){
   buildPartidosUI();
   drawPartidos();
   try { map.fitBounds(L.geoJSON(PARTIDOS_GEO).getBounds().pad(0.03)); } catch(e){}
-  _actualizarResumenZona();  // v8.66f · actualizar contadores del sidebar
-  if (typeof buildLeyenda === 'function') buildLeyenda();  // v8.66f · refresca sección Partidos de la leyenda
-  // v8.66f · Repintar rutas zonales para aplicar clipping ahora que tenemos PARTIDOS_GEO nuevo
+  _actualizarResumenZona();  // v8.66f.1 · actualizar contadores del sidebar
+  if (typeof buildLeyenda === 'function') buildLeyenda();  // v8.66f.1 · refresca sección Partidos de la leyenda
+  // v8.66f.1 · Repintar rutas zonales para aplicar clipping ahora que tenemos PARTIDOS_GEO nuevo
   if (typeof _repintarRutasZonales === 'function' && _rutasZonalesGeoCache) _repintarRutasZonales();
-  // v8.66f · Fix labels romanos: al reemplazar PARTIDOS_GEO en PBA hay que recalcular los
+  // v8.66f.1 · Fix labels romanos: al reemplazar PARTIDOS_GEO en PBA hay que recalcular los
   // centroides de cada agrupación de partidos por zona. Antes solo se dibujaba 1 label
   // (la de VI) porque _dibujarLabelsZonasPBA corría con PARTIDOS_GEO viejo (8 partidos VI).
   if (window.ZONA_ACTUAL === 'PBA' && typeof _dibujarLabelsZonasPBA === 'function') {
     _dibujarLabelsZonasPBA();
   }
-  console.log(`[v8.66f] Partidos reemplazados: ${PARTIDOS_LIST.length} de zona ${window.ZONA_ACTUAL} · muestra: ${PARTIDOS_LIST.slice(0,3).join(', ')}...`);
+  console.log(`[v8.66f.1] Partidos reemplazados: ${PARTIDOS_LIST.length} de zona ${window.ZONA_ACTUAL} · muestra: ${PARTIDOS_LIST.slice(0,3).join(', ')}...`);
 }
 
 // Si la zona activa NO es VI, cargar sus partidos dinámicamente
@@ -3764,11 +3764,11 @@ function _reemplazarPartidos(nuevoGeo){
       return r.json();
     })
     .then(geo => _reemplazarPartidos(geo))
-    .catch(err => console.warn('[v8.66f] Error cargando partidos de zona ' + zona + ':', err.message));
+    .catch(err => console.warn('[v8.66f.1] Error cargando partidos de zona ' + zona + ':', err.message));
 })();
 
 // ═══════════════════════════════════════════════════════════════════
-// v8.66f.3 · Trazas RP no calibradas (zonas no-VI)
+// v8.66f.1.3 · Trazas RP no calibradas (zonas no-VI)
 // Cuando la zona activa tiene rutas_geojson en el manifest (IV, V, ...),
 // carga las trazas de RPs que NO están calibradas con bundle JS y las
 // dibuja como polilíneas grises punteadas + popup informativo.
@@ -3776,10 +3776,10 @@ function _reemplazarPartidos(nuevoGeo){
 // ═══════════════════════════════════════════════════════════════════
 let _rutasNoCalibradasLayer = null;
 let _rutasCalibradasZonaLayer = null;
-let _rutasZonalesGeoCache = null;   // v8.66f · cache del geojson zonal para refiltrar sin re-fetch
-let _rutasZonalesCalibradasSet = new Set(); // v8.66f · qué RPs son calibradas en la zona activa
+let _rutasZonalesGeoCache = null;   // v8.66f.1 · cache del geojson zonal para refiltrar sin re-fetch
+let _rutasZonalesCalibradasSet = new Set(); // v8.66f.1 · qué RPs son calibradas en la zona activa
 
-// v8.66f-fix · Paleta NARANJA por RP: mismo hue, distinta lightness/saturación
+// v8.66f.1-fix · Paleta NARANJA por RP: mismo hue, distinta lightness/saturación
 // según el número de RP (estable = misma RP siempre mismo tono). Rango: h≈25-45,
 // s≈55-80, l≈40-55 → naranjas cálidos armónicos.
 function _colorRP(numStr){
@@ -3806,7 +3806,7 @@ function dibujarRutasZonaNoCalibradas(){
     })
     .then(geo => {
       const feats = geo.features || [];
-      // v8.66f · Cachear el geojson y set de calibradas para poder refiltrar sin re-fetch
+      // v8.66f.1 · Cachear el geojson y set de calibradas para poder refiltrar sin re-fetch
       _rutasZonalesGeoCache = geo;
       _rutasZonalesCalibradasSet = calibradas;
 
@@ -3823,24 +3823,24 @@ function dibujarRutasZonaNoCalibradas(){
         return String(a).localeCompare(String(b));
       });
       RUTAS_LIST = rpsSort;
-      // v8.66f · TODAS las rutas activas por default en cualquier zona (incluida PBA).
+      // v8.66f.1 · TODAS las rutas activas por default en cualquier zona (incluida PBA).
       // El usuario destilda las que no quiere ver, no al revés.
       selR = new Set(RUTAS_LIST);
       if (typeof buildRutasUI === 'function') buildRutasUI();
 
-      // v8.66f · Primer dibujo con todas las rutas seleccionadas
+      // v8.66f.1 · Primer dibujo con todas las rutas seleccionadas
       _repintarRutasZonales();
-      if (typeof _actualizarResumenZona === 'function') _actualizarResumenZona();  // v8.66f · refresca contadores del sidebar
-      if (typeof buildLeyenda === 'function') buildLeyenda();  // v8.66f · refresca sección Rutas de la leyenda con RUTAS_LIST nuevo
-      console.log(`[v8.66f] Zona ${window.ZONA_ACTUAL}: cacheados ${feats.length} tramos (${calibradas.size} RPs calibradas)`);
+      if (typeof _actualizarResumenZona === 'function') _actualizarResumenZona();  // v8.66f.1 · refresca contadores del sidebar
+      if (typeof buildLeyenda === 'function') buildLeyenda();  // v8.66f.1 · refresca sección Rutas de la leyenda con RUTAS_LIST nuevo
+      console.log(`[v8.66f.1] Zona ${window.ZONA_ACTUAL}: cacheados ${feats.length} tramos (${calibradas.size} RPs calibradas)`);
     })
     .catch(err => {
-      console.warn('[v8.66f] No se pudo cargar rutas_zonaXX.geojson:', err.message);
+      console.warn('[v8.66f.1] No se pudo cargar rutas_zonaXX.geojson:', err.message);
     });
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// v8.66f · Clipping cliente-side de LineStrings de rutas a los polígonos
+// v8.66f.1 · Clipping cliente-side de LineStrings de rutas a los polígonos
 // de PARTIDOS_GEO de la zona activa. Ray-casting simple; corta las trazas
 // que sobrepasan la zona (ej. RP46 en V que llega de Bragado en VII).
 // ═══════════════════════════════════════════════════════════════════
@@ -3903,7 +3903,7 @@ function _recortarFeatureRuta(feat){
   };
 }
 
-// v8.66f · CLIPPING INVERSO contra los 8 partidos de VI (usado solo en PBA).
+// v8.66f.1 · CLIPPING INVERSO contra los 8 partidos de VI (usado solo en PBA).
 // Para RPs calibradas en VI, el bundle CHAIN cubre bien los tramos dentro de VI.
 // El geojson maestro también trae esos mismos tramos → si dibujamos ambos, se
 // superponen (bug RP61 duplicada reportado por el user). Con este clipping
@@ -3953,7 +3953,7 @@ function _recortarFeatureRutaFueraVI(feat){
   };
 }
 
-// v8.66f · Refiltrar y redibujar las capas zonales según selR actual.
+// v8.66f.1 · Refiltrar y redibujar las capas zonales según selR actual.
 // Se llama desde togR() cuando la zona activa no es VI, o desde allR/noneR.
 function _repintarRutasZonales(){
   // Limpiar capas anteriores
@@ -3968,17 +3968,17 @@ function _repintarRutasZonales(){
     return rp && selR.has(rp);
   });
   if (!featsSel.length) return;
-  // v8.66f · Recortar geometrías a los polígonos de los partidos de la zona activa.
+  // v8.66f.1 · Recortar geometrías a los polígonos de los partidos de la zona activa.
   // El shp master asigna un solo partido por LineString pero la geometría puede
   // extenderse a partidos vecinos → clipping cliente-side con ray-casting.
-  // v8.66f · HOTFIX crítico: en PBA NO hacer clipping (PBA = TODO). Antes: 135 partidos
+  // v8.66f.1 · HOTFIX crítico: en PBA NO hacer clipping (PBA = TODO). Antes: 135 partidos
   // × 2424 tramos × ~200 puntos × ~100 vértices = ~6.5 mil MILLONES de operaciones →
   // colgaba el navegador (F12 no abría, "Página no responde"). En PBA el geojson ya
   // contiene todos los tramos válidos, no hay nada que recortar.
   const enPBA_clip = (window.ZONA_ACTUAL === 'PBA');
   let recortadas;
   if (enPBA_clip) {
-    // v8.66f · En PBA para las RPs CALIBRADAS DE VI (30/40/41/46/47/51/61/91), aplicar
+    // v8.66f.1 · En PBA para las RPs CALIBRADAS DE VI (30/40/41/46/47/51/61/91), aplicar
     // clipping INVERSO contra los 8 partidos de VI: mantener solo los sub-tramos que
     // caen FUERA de VI. Los tramos dentro de VI ya los dibuja el bundle calibrado
     // (drawRutas) → antes se veían DOS trazas superpuestas (bug reportado con RP61).
@@ -3992,11 +3992,11 @@ function _repintarRutasZonales(){
       return f;  // no calibrada → pasar tal cual
     }).filter(Boolean);
     const cortadas = featsSel.length - recortadas.length;
-    if (cortadas > 0) console.log(`[v8.66f] PBA clipping inverso VI: ${cortadas} features de RPs calibradas quedaron completamente dentro de VI (ya dibujadas por bundle)`);
+    if (cortadas > 0) console.log(`[v8.66f.1] PBA clipping inverso VI: ${cortadas} features de RPs calibradas quedaron completamente dentro de VI (ya dibujadas por bundle)`);
   } else {
     recortadas = featsSel.map(_recortarFeatureRuta).filter(Boolean);
     const cortadas = featsSel.length - recortadas.length;
-    if (cortadas > 0) console.log(`[v8.66f] Clipping rutas: ${cortadas} features quedaron fuera de la zona activa; ${recortadas.length} recortadas al polígono`);
+    if (cortadas > 0) console.log(`[v8.66f.1] Clipping rutas: ${cortadas} features quedaron fuera de la zona activa; ${recortadas.length} recortadas al polígono`);
   }
   const noCal = recortadas.filter(f => !cal.has(String(f.properties.rtn)));
   const calF  = recortadas.filter(f =>  cal.has(String(f.properties.rtn)));
@@ -4065,11 +4065,11 @@ function _repintarRutasZonales(){
 }
 // Ejecutar después del render inicial del mapa
 setTimeout(dibujarRutasZonaNoCalibradas, 800);
-// v8.66f · Refresco inicial de contadores del sidebar (partidos, rutas, caminos) para la zona activa
+// v8.66f.1 · Refresco inicial de contadores del sidebar (partidos, rutas, caminos) para la zona activa
 setTimeout(() => { if (typeof _actualizarResumenZona === 'function') _actualizarResumenZona(); }, 1200);
 
 // ═══════════════════════════════════════════════════════════════════
-// v8.66f · Frente D · Cargar mapping nombre_partido → codigo_zona y repintar en PBA
+// v8.66f.1 · Frente D · Cargar mapping nombre_partido → codigo_zona y repintar en PBA
 // ═══════════════════════════════════════════════════════════════════
 // partidos_pba.json trae zonas_dvba = {I..XII: {partidos:[numeros]}} y partidos = [{numero, nombre}].
 // Cruzamos ambos para construir _partidoAZona = {"Saladillo": "VI", ...} y repintamos.
@@ -4085,7 +4085,7 @@ fetch('datos/referencias/partidos_pba.json?v=8.64', {cache:'no-cache'})
       const z = numAZona[p.numero];
       if (z) map_nombre_a_zona[p.nombre] = z;
     });
-    // v8.66f · Aliases numéricos: el JSON usa cardinales ("Veinticinco de Mayo",
+    // v8.66f.1 · Aliases numéricos: el JSON usa cardinales ("Veinticinco de Mayo",
     // "Nueve de Julio") pero PARTIDOS_GEO trae los nombres del shp master en versión
     // numérica ("25 de Mayo", "9 de Julio"). Sin este alias, _partidoAZona["25 de
     // Mayo"] era undefined y el clipping inverso NO cortaba la traza al entrar a esos
@@ -4099,14 +4099,14 @@ fetch('datos/referencias/partidos_pba.json?v=8.64', {cache:'no-cache'})
       if (z) aliases.forEach(a => { map_nombre_a_zona[a] = z; });
     });
     _partidoAZona = map_nombre_a_zona;
-    console.log(`[v8.66f] Mapping partido→zona cargado: ${Object.keys(_partidoAZona).length} entradas (incluye aliases numéricos)`);
+    console.log(`[v8.66f.1] Mapping partido→zona cargado: ${Object.keys(_partidoAZona).length} entradas (incluye aliases numéricos)`);
     // Si estamos en PBA, repintar con los colores correctos ahora que tenemos el mapping
     if (window.ZONA_ACTUAL === 'PBA' && typeof drawPartidos === 'function') drawPartidos();
     if (window.ZONA_ACTUAL === 'PBA' && typeof _dibujarLabelsZonasPBA === 'function') _dibujarLabelsZonasPBA();
   })
-  .catch(err => console.warn('[v8.66f] No se pudo cargar mapping partido→zona:', err));
+  .catch(err => console.warn('[v8.66f.1] No se pudo cargar mapping partido→zona:', err));
 
-// v8.66f.1 · Labels de zona centrados en cada agrupación de partidos (solo vista PBA).
+// v8.66f.1.1 · Labels de zona centrados en cada agrupación de partidos (solo vista PBA).
 // Reemplaza la watermark inferior que puse antes. Ahora se ve el nº romano de cada zona
 // como marca de agua grande y semi-transparente dentro del cluster de partidos que la componen.
 let _zonaLabels = [];  // capas Leaflet para poder limpiar al cambiar de zona
@@ -4144,7 +4144,7 @@ function _dibujarLabelsZonasPBA(){
     }).addTo(map);
     _zonaLabels.push(lbl);
   });
-  console.log(`[v8.66f.1] Dibujadas ${_zonaLabels.length} labels de zonas en vista PBA`);
+  console.log(`[v8.66f.1.1] Dibujadas ${_zonaLabels.length} labels de zonas en vista PBA`);
 }
 // Dibujar al arrancar (después de que carguen partidos + mapping)
 setTimeout(_dibujarLabelsZonasPBA, 1400);
@@ -4934,13 +4934,13 @@ function autoDetectarCampos(lat, lng, opts) {
   });
   // Ruta (RP) más cercana
   let rutaMasCercana = null, distRuta = Infinity;
-  // v8.66f · En zona ≠ VI/PBA, medir contra las trazas del geojson zonal
+  // v8.66f.1 · En zona ≠ VI/PBA, medir contra las trazas del geojson zonal
   // (rutas REALES de la zona), no contra los CHAIN de bundles VI que se
   // extienden desde Merlo hasta Saladillo y confunden la detección en Chivilcoy.
-  // Se elimina la histéresis de v8.66f que se activaba siempre porque los CHAIN
+  // Se elimina la histéresis de v8.66f.1 que se activaba siempre porque los CHAIN
   // VI son gigantes y siempre medían "cerca" para cualquier pin en PBA.
   const zonaDetect = window.ZONA_ACTUAL || 'VI';
-  // v8.66f · Incluir PBA también (antes solo se aplicaba a zonas específicas).
+  // v8.66f.1 · Incluir PBA también (antes solo se aplicaba a zonas específicas).
   // En PBA los bundles VI no cubren RPs fuera de VI (ej. RP44 en La Rica daba d=8695m).
   // Con rutas_pba.geojson tenemos las trazas COMPLETAS → detección correcta en toda PBA.
   const usarZonalGeo = (zonaDetect !== 'VI'
@@ -4985,7 +4985,7 @@ function autoDetectarCampos(lat, lng, opts) {
   if (_caminosSecVisible && _caminosGeoJSON_cache) {
     _caminosGeoJSON_cache.features.forEach(f => {
       const p = f.properties;
-      // v8.66f.1 · Guarda: si csSelKeys/csSelClases son null, no filtrar (mostrar todo)
+      // v8.66f.1.1 · Guarda: si csSelKeys/csSelClases son null, no filtrar (mostrar todo)
       if (csSelKeys && !csSelKeys.has(p.NOMEMCLATURA)) return;
       if (csSelClases && !csSelClases.has(p.CLASE)) return;
       const geo = f.geometry;
@@ -6589,7 +6589,7 @@ async function reSellarFotoEditada(){
     const lngN    = parseFloat(document.getElementById('flng').value);
     const reg     = _regEditandoFoto;
     const fechaISO = reg.fechaISO || new Date().toISOString();
-    // v8.66f · Escala del sello (slider en el sidebar, 50-100%) para casos
+    // v8.66f.1 · Escala del sello (slider en el sidebar, 50-100%) para casos
     // donde el sello tapa algo importante. Default 100% = sin cambio.
     const _escSlider = document.getElementById('selloEscala');
     const _escVal = _escSlider ? Math.max(50, Math.min(100, Number(_escSlider.value) || 100)) : 100;
@@ -6602,7 +6602,7 @@ async function reSellarFotoEditada(){
       lng: isFinite(lngN) ? lngN.toFixed(6) : '',
       fecha: new Date(fechaISO).toISOString().slice(0, 10),
       hora:  new Date(fechaISO).toTimeString().slice(0, 8),
-      escalaSello: _escVal / 100  // v8.66f · 0.50-1.00 (aplica solo a ESTA foto)
+      escalaSello: _escVal / 100  // v8.66f.1 · 0.50-1.00 (aplica solo a ESTA foto)
     };
     // v7.81 · Preferimos el original si existe. Si no (partes nuevos que
     // suben directo la sellada, registros legacy, backups purgados), caemos
@@ -7011,7 +7011,7 @@ if (footVer) footVer.textContent = APP_VERSION;
 
 // v7.73 · Picker de zona en el header (mismo patrón que partes_diarios.html)
 const ZONAS_DVBA_PORTAL = {
-  'PBA':{n:'PBA', p:'Todas las zonas'},   // v8.66f · vista panorámica sin login
+  'PBA':{n:'PBA', p:'Todas las zonas'},   // v8.66f.1 · vista panorámica sin login
   'I':{n:'ZONA I',   p:'Arrecifes'},      'II':{n:'ZONA II',   p:'Morón'},
   'III':{n:'ZONA III',p:'Ensenada'},      'IV':{n:'ZONA IV',   p:'Junín'},
   'V':{n:'ZONA V',   p:'Chivilcoy'},      'VI':{n:'ZONA VI',   p:'Saladillo'},
@@ -7024,13 +7024,13 @@ function aplicarZonaPortal(cod){
   const e1 = document.getElementById('hZona');    if (e1) e1.textContent = z.n;
   const e2 = document.getElementById('hPartido'); if (e2) e2.textContent = z.p;
   const s  = document.getElementById('hSelZona'); if (s)  s.value = cod;
-  // v7.74/v8.66f · título del panel-footer refleja la zona; PBA sin sufijo "Resumen"
+  // v7.74/v8.66f.1 · título del panel-footer refleja la zona; PBA sin sufijo "Resumen"
   const pt = document.getElementById('pfZonaTitle');
   if (pt) pt.textContent = (cod === 'PBA' ? 'Provincia de Buenos Aires' : z.n + ' · Resumen');
   try { localStorage.setItem('dvba_zona', cod); } catch(e){}
 }
 function cambiarZonaPortal(cod){
-  // v8.66f · Delegar en el loader dinámico si está presente (recarga con ?zona=X).
+  // v8.66f.1 · Delegar en el loader dinámico si está presente (recarga con ?zona=X).
   // Si no hay loader (fallback), solo actualiza el label del header y el localStorage.
   if (window.DVBA_ZONA && typeof DVBA_ZONA.cambiar === 'function') {
     localStorage.setItem('dvba_zona', cod);
@@ -7041,7 +7041,7 @@ function cambiarZonaPortal(cod){
   console.log('[portal] zona cambiada a', cod, '(loader_zona no disponible, cambio sólo cosmético)');
 }
 // Aplicar zona guardada al arranque
-// v8.66f · Priorizar la zona detectada por el loader (URL/perfil/default) sobre localStorage
+// v8.66f.1 · Priorizar la zona detectada por el loader (URL/perfil/default) sobre localStorage
 aplicarZonaPortal(window.ZONA_ACTUAL || localStorage.getItem('dvba_zona') || 'VI');
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -7176,17 +7176,17 @@ const CS_ESTILO_SEL_HALO = ({color:'#ffb800', weight:12, opacity:.75, lineCap:'r
 
 // Construir o refrescar la capa de Leaflet filtrada
 function csRefrescarLayer(){
-  // v8.66f.1 · Guarda: si csSelKeys es null (RED_VIAL no cargó, ej. zona no-VI), inicializamos vacío
+  // v8.66f.1.1 · Guarda: si csSelKeys es null (RED_VIAL no cargó, ej. zona no-VI), inicializamos vacío
   // para evitar crash "Cannot read properties of null (reading 'has')".
   if (!csSelKeys)   csSelKeys   = new Set();
   if (!csSelClases) csSelClases = new Set(CS_CLASES);
-  // v8.66f.1 · Zonas sin red_secundaria calibrada (IV/V hoy): no cargar, avisar en consola
+  // v8.66f.1.1 · Zonas sin red_secundaria calibrada (IV/V hoy): no cargar, avisar en consola
   if (window.ZONA_META && window.ZONA_META.assets_zona && !window.ZONA_META.assets_zona.red_secund) {
     console.warn('[Caminos Sec] Zona', window.ZONA_ACTUAL, 'no tiene red_secundaria calibrada aún');
     return;
   }
   if (!_caminosGeoJSON_cache) {
-    // v8.66f · Path dinámico según zona activa. Solo VI tiene red_secundaria calibrada hoy.
+    // v8.66f.1 · Path dinámico según zona activa. Solo VI tiene red_secundaria calibrada hoy.
     const _pathCaminos = (window.ZONA_META && window.ZONA_META.assets_zona && window.ZONA_META.assets_zona.red_secund)
         || 'datos/zonas/zona_VI/red_secundaria_zonaVI_final.geojson';
     fetch(_pathCaminos + '?v=8.62', {cache:'no-cache'})
@@ -7291,7 +7291,7 @@ function _csUpdateBtnEstado(on){
 // Auto-init después del DOM
 document.addEventListener('DOMContentLoaded', () => setTimeout(() => {
   csInit();
-  // v8.66f.1 · Auto-mostrar los caminos secundarios en zonas con red_secundaria calibrada
+  // v8.66f.1.1 · Auto-mostrar los caminos secundarios en zonas con red_secundaria calibrada
   // (VI hoy). Antes el usuario tenía que apretar el toggle manualmente.
   setTimeout(() => {
     if (window.ZONA_META && window.ZONA_META.assets_zona && window.ZONA_META.assets_zona.red_secund) {
@@ -7499,7 +7499,7 @@ function _partesColorPorEdad(fechaStr){
 
 async function partesCargar(){
   if (!_supa) return { ok:false, msg:'Supabase no disponible' };
-  // v8.66f-fix · Filtrar por zona activa del picker (fix: admin en zona V veía tareas de VI)
+  // v8.66f.1-fix · Filtrar por zona activa del picker (fix: admin en zona V veía tareas de VI)
   const zonaAct = window.ZONA_ACTUAL || null;
   let q = _supa.from('partes_diarios')
     .select(`id, fecha, tipo_via, ruta, partido, prog_ini, prog_fin, observaciones,
@@ -7512,7 +7512,7 @@ async function partesCargar(){
   const { data: partes, error } = await q;
   if (error){ return { ok:false, msg: error.message }; }
   // Para los que tienen fotos, resolver lat/lng del relevamiento asociado.
-  // v8.66f-fix · Antes decía "latitud, longitud" (columnas que NO existen) → 400 Bad Request.
+  // v8.66f.1-fix · Antes decía "latitud, longitud" (columnas que NO existen) → 400 Bad Request.
   // La tabla relevamientos tiene lat/lng (nomenclatura corta).
   const relIds = [];
   (partes||[]).forEach(p => (p.parte_fotos||[]).forEach(f => relIds.push(f.relevamiento_id)));
@@ -7527,7 +7527,7 @@ async function partesCargar(){
 function partesDibujar(partes, relMap){
   if (!_partesLayer) _partesLayer = L.layerGroup();
   _partesLayer.clearLayers();
-  // v8.66f.1 · Filtro defensivo por zona en el cliente. Si la BD tiene tareas viejas con
+  // v8.66f.1.1 · Filtro defensivo por zona en el cliente. Si la BD tiene tareas viejas con
   // zona=NULL o mal seteada, el .eq() SQL no las excluye. Acá cortamos por partido→zona.
   const zonaAct = window.ZONA_ACTUAL || null;
   const filtrar = (zonaAct && zonaAct !== 'PBA' && Object.keys(_partidoAZona).length > 0);
@@ -7542,7 +7542,7 @@ function partesDibujar(partes, relMap){
       if (!ok) excluidas++;
       return ok;
     });
-    if (excluidas > 0) console.log(`[v8.66f.1] partesDibujar: ${excluidas} tareas filtradas (no son de zona ${zonaAct})`);
+    if (excluidas > 0) console.log(`[v8.66f.1.1] partesDibujar: ${excluidas} tareas filtradas (no son de zona ${zonaAct})`);
   }
   let conFoto = 0, sinFoto = 0, sinTraza = 0;
   const conteoPorEdad = { 'Última semana':0, 'Último mes':0, 'Últimos 3 meses':0, 'Histórico':0 };
@@ -7631,7 +7631,7 @@ async function togglePartesLayer(){
     return;
   }
   // Requiere sesión para cargar (RLS)
-  // v8.66f · Usar dvbaAuth.estaLogueado() en vez de leer localStorage directo.
+  // v8.66f.1 · Usar dvbaAuth.estaLogueado() en vez de leer localStorage directo.
   // El chequeo anterior a localStorage.getItem('dvba_session') fallaba para
   // usuarios que se loguearon vía dvbaAuth.login() cuando la sesión quedaba
   // en formato distinto al esperado (ej. token expirado con refresh válido).
@@ -8327,7 +8327,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
       <div style="margin-bottom:14px">
         <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
-        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.66f</span> · Familia escritorio</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.66f.1</span> · Familia escritorio</div>
         <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.91</b></div>
       </div>
 
@@ -8974,7 +8974,7 @@ function editarCaractCamino(){
 
 
 
-<!-- v8.66f · Banner dismissible modo público (estilo cookies) -->
+<!-- v8.66f.1 · Banner dismissible modo público (estilo cookies) -->
 <div id="avisoPublico" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9500;background:rgba(31,39,50,.96);color:#fff;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));border-top:2px solid #ffd060;box-shadow:0 -4px 12px rgba(0,0,0,.35);font-family:'Encode Sans',sans-serif">
   <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
     <div style="font-size:22px;flex-shrink:0">ℹ️</div>
@@ -8989,7 +8989,7 @@ function editarCaractCamino(){
 </div>
 
 <script>
-// v8.66f · Aviso modo público (banner dismissible + botón ℹ Alcance en header)
+// v8.66f.1 · Aviso modo público (banner dismissible + botón ℹ Alcance en header)
 // Aparece la primera vez que un usuario sin sesión entra al portal. Al cerrar
 // setea flag en localStorage y no vuelve a molestar. El botón ℹ Alcance del
 // header lo reabre bajo demanda ignorando el flag.
@@ -9015,7 +9015,7 @@ if (document.readyState === 'loading') {
 }
 </script>
 
-<!-- v8.66f · Modal Comentarios y solicitudes cross-zona · usa tabla comentarios_zona (SQL_13) -->
+<!-- v8.66f.1 · Modal Comentarios y solicitudes cross-zona · usa tabla comentarios_zona (SQL_13) -->
 <div id="modalComentario" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99998;align-items:center;justify-content:center;font-family:'Encode Sans',Arial,sans-serif">
   <div style="background:#fff;width:min(460px,92vw);max-height:90vh;overflow:auto;border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,.35)">
     <div style="background:linear-gradient(90deg,#009aae,#007d90);color:#fff;padding:12px 18px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:center">

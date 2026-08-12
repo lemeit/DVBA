@@ -114,13 +114,51 @@ function aplicar(base64, datos, opts){
               // Línea dorada: 50%+ de la fila es dorado → borde del banner
               if (dorados / total > 0.50) { bordeBanner = y; break; }
             }
+            // v8.66f.1 · Segundo intento: si NO se detectó línea dorada, buscar
+            // la franja OSCURA HOMOGÉNEA del banner semi-transparente v4. El sello
+            // aplica un rectángulo negro con alpha ~0.55 al pie de la foto, que se
+            // ve como una franja notablemente más oscura que la foto natural (cielo,
+            // camino, campo). Escaneamos luma promedio por fila: la primera fila
+            // significativamente más oscura que las de arriba marca el borde del banner.
+            if (bordeBanner < 0) {
+              try {
+                const lumaFila = [];
+                for (let y = scanFrom - 20; y < scanTo; y++){
+                  if (y < 0) { lumaFila.push(255); continue; }
+                  const row = pctx.getImageData(0, y, W, 1).data;
+                  let suma = 0, cnt = 0;
+                  for (let x = 0; x < W; x += step){
+                    const i = x * 4;
+                    suma += 0.299*row[i] + 0.587*row[i+1] + 0.114*row[i+2];
+                    cnt++;
+                  }
+                  lumaFila.push(suma / cnt);
+                }
+                // Buscar cambio brusco: promedio 20 filas anteriores vs actual.
+                // El banner es notablemente más oscuro (luma < 120 típicamente).
+                for (let i = 20; i < lumaFila.length; i++){
+                  const promAnt = lumaFila.slice(i-20, i).reduce((a,b)=>a+b,0) / 20;
+                  const actual = lumaFila[i];
+                  // Umbral: caída > 60 unidades de luma, sostenida (próximas 10 filas
+                  // también oscuras) → borde del banner
+                  if (promAnt - actual > 60 && actual < 130){
+                    const sostenido = lumaFila.slice(i, i+10).every(l => l < 140);
+                    if (sostenido){
+                      bordeBanner = scanFrom - 20 + i;
+                      console.log('[sello_v4 resello] banner oscuro detectado a y=' + bordeBanner + ' (Δluma=' + (promAnt-actual).toFixed(0) + ')');
+                      break;
+                    }
+                  }
+                }
+              } catch(e2){ console.warn('[sello_v4 resello] fallback luma falló:', e2); }
+            }
             if (bordeBanner > 0) {
               H = bordeBanner;
-              console.log('[sello_v4 resello] línea dorada detectada a y=' + bordeBanner + ' (banner ' + (img.height-bordeBanner) + 'px)');
+              console.log('[sello_v4 resello] recorte banner viejo a y=' + bordeBanner + ' (banner ' + (img.height-bordeBanner) + 'px)');
             } else {
-              // Fallback: NO cortar (mejor mantener foto que perderla)
+              // Fallback final: NO cortar (mejor mantener foto que perderla)
               H = img.height;
-              console.warn('[sello_v4 resello] NO se detectó línea dorada — NO se corta banner viejo (foto queda con doble banner pero completa)');
+              console.warn('[sello_v4 resello] NO se detectó banner viejo (ni línea dorada ni franja oscura) — NO se corta (foto puede quedar con doble banner)');
             }
           } catch(e) {
             console.warn('[sello_v4 resello] error detectando banner:', e);

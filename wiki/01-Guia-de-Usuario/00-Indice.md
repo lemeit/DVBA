@@ -1,8 +1,10 @@
 # 📘 Guía de Usuario — SIG Vial PBA
 
-> Manual completo del sistema, pensado para técnicos de campo, personal de oficina y gerencia. Para documentación técnica interna del proyecto, ver [[00-Inicio|Inicio]].
+> Manual completo del sistema, pensado para técnicos de campo, personal de oficina y gerencia.
 
-## Índice
+Guía dividida en 14 capítulos que cubren desde el acceso al portal hasta el uso del sello institucional y los reportes gerenciales.
+
+## Capítulos
 
 1. [[01-Que-es-el-sistema|¿Qué es el sistema?]]
 2. [[02-Primeros-pasos|Primeros pasos]] — acceso, instalar la app (PWA), sincronización

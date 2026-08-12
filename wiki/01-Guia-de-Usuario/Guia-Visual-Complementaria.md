@@ -2,43 +2,50 @@
 
 > Contenido original de la guía visual (versión resumida con capturas), útil como referencia rápida complementaria a las notas detalladas: [[07-App-Movil-Modo-Basico]], [[08-App-Movil-Modo-Avanzado]], [[14-FAQ]].
 
-## 6. Uso del Modo Básico
+## Uso del Modo Básico
 
 Es la app **por default** al instalar. Está pensada para operarios que necesitan solo sacar fotos con GPS, sin cargar formularios largos. Todos los demás datos los completa alguien en la oficina.
 
-### 6.1 Primera vez que la abrís · Ingresar
+### Primera vez que la abrís · Ingresar
 
-👷 Técnico · Zona VI
-
-🔐
-
-### Ingresar
-
-Ingresá con tu cuenta para poder enviar registros.
-
-Ingresar
-
-O usá la Modo Avanzado.
+<div class="demo" markdown="0">
+  <div class="phone">
+    <div class="screen">
+      <div class="lite-hdr" style="padding-top:34px">
+        <div class="hdr-top">
+          <div class="logo"><img src="img/logo_dvba_clean.png" alt="DVBA"></div>
+          <div class="brand">SIG Vial PBA · Modo Básico<span class="sub">👷 Técnico · Zona VI</span></div>
+        </div>
+        <div class="gps-badge"><span class="dot"></span>Ubicando…</div>
+      </div>
+      <div class="modal-lite">
+        <div class="modal-lite-box">
+          <div style="font-size:22px;margin-bottom:4px">🔐</div>
+          <h3>Ingresar</h3>
+          <p style="text-align:center;font-size:10px;color:#666;margin-bottom:10px">Ingresá con tu cuenta para poder enviar registros.</p>
+          <input type="text" placeholder="Correo">
+          <input type="password" placeholder="Contraseña">
+          <div style="background:#1a8a4a;color:#fff;padding:10px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;margin-top:4px">Ingresar</div>
+          <p style="font-size:9px;color:#888;margin-top:10px">O usá la <span style="color:#009aae;text-decoration:underline">Modo Avanzado</span>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 #### Instrucciones
 
 1. Ingresá con el correo y contraseña que te asignó el administrador.
-
 2. La primera vez **necesitás WiFi o datos** para que la app valide tu identidad con el servidor.
-
 3. Una vez logueado, la app te recuerda por tiempo indefinido. Podés cerrar y abrir sin volver a poner clave.
 
-💡
+!!! tip "💡 ¿No tenés usuario?"
+    Contactá al administrador del sistema: [lulamaita@vialidad.gba.gov.ar](mailto:lulamaita@vialidad.gba.gov.ar). Te van a dar de alta con tu correo institucional.
 
-¿No tenés usuario? Contactá al administrador del sistema:
+!!! info "📱 Multi-zona (v9.91+)"
+    La app es la misma para todas las zonas DVBA (I a XII). Una vez logueado, el header muestra tu **rol** y **zona** real (ej. `👷 Técnico · Zona IV`). El sistema aplica automáticamente las políticas de la zona asignada — solo ves y cargás datos de tu área.
 
-lulamaita@vialidad.gba.gov.ar
-
-. Te van a dar de alta con tu correo institucional.
-
-**📱 Multi-zona (v9.91+)** — la app es la misma para todas las zonas DVBA (I a XII). Una vez logueado, el header muestra tu **rol** y **zona** real (ej. `👷 Técnico · Zona IV`). El sistema aplica automáticamente las políticas de la zona asignada — solo ves y cargás datos de tu área.
-
-### 6.2 Verificar el GPS antes de sacar fotos
+### Verificar el GPS antes de sacar fotos
 
 <div class="demo" markdown="0">
   <div class="phone">
@@ -75,35 +82,7 @@ lulamaita@vialidad.gba.gov.ar
 
 3. Si estás en zona sin buena señal, movete al aire libre y esperá 30 segundos.
 
-### 6.3 Sacar y enviar una foto
-
-👷 Técnico · Zona VI
-
-📸
-
-Sacar foto
-
-y guardar ubicación
-
-Solo tocá el botón para
-
-sacar la foto
-
-y guardar el
-
-lugar exacto
-
-.
-
-Los demás datos los completa
-
-alguien en la oficina
-
-.
-
-📤
-
-Sin enviar
+### Sacar y enviar una foto
 
 <div class="demo" markdown="0">
   <div class="phone">
@@ -156,7 +135,7 @@ Feedback visual
 
 · Después de tocar Enviar, aparece un panel con el resultado: ✓ subida OK, 📴 sin conexión (queda en cola), ✗ error. Te dice cuántas fotos hay sin enviar en el celular.
 
-### 6.4 Ver y gestionar los pendientes
+### Ver y gestionar los pendientes
 
 <div class="demo" markdown="0">
   <div class="phone">
@@ -196,56 +175,53 @@ Feedback visual
 
 5. Botón **↻ Enviar ahora** reintenta la sincronización si hay internet.
 
-### 6.5 Panel de información y cerrar sesión
+### Panel de información y cerrar sesión
 
-👷 Técnico · Zona VI
-
-ℹ
-
-### Información
-
-SIG Vial PBA · Modo Básico
-
-Versión
-
-v9.91
-
----
-
-Sesión
-
-👷 Técnico · Zona VI
-
-tecnica.dvba.z6@vialidad.gba.gov.ar
-
-🟢 Con internet
-
-📤 Sin enviar:
-
-0
-
-Cerrar
-
-Cerrar sesión
+<div class="demo" markdown="0">
+  <div class="phone">
+    <div class="screen">
+      <div class="lite-hdr" style="padding-top:34px">
+        <div class="hdr-top"><div class="logo"><img src="img/logo_dvba_clean.png" alt="DVBA"></div><div class="brand">SIG Vial PBA · Modo Básico<span class="sub">👷 Técnico · Zona VI</span></div></div>
+      </div>
+      <div class="modal-lite" style="top:75px">
+        <div class="modal-lite-box" style="max-width:230px">
+          <div style="font-size:22px;color:#009aae;line-height:1;margin-bottom:6px">ℹ</div>
+          <h3 style="margin-bottom:10px">Información</h3>
+          <div style="text-align:left;font-size:10px;line-height:1.6;color:#333">
+            <b>SIG Vial PBA · Modo Básico</b><br>
+            Versión <b>v9.93.1</b>
+            <hr style="border:0;border-top:1px solid #e0e0e0;margin:8px 0">
+            <b>Sesión</b><br>
+            <span style="font-size:10px;color:#333"><b>👷 Técnico · Zona VI</b></span><br>
+            <span style="font-size:9px;color:#888">tecnica.dvba.z6@vialidad.gba.gov.ar</span><br>
+            <span style="font-size:9.5px;color:#555">🟢 Con internet</span><br>
+            <span style="font-size:9.5px;color:#555">📤 Sin enviar: <b>0</b></span>
+          </div>
+          <div class="actions">
+            <div class="btn gris">Cerrar</div>
+            <div class="btn rojo">Cerrar sesión</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 #### Instrucciones
 
 1. Tocá **ℹ Info** en el footer.
-
 2. Aparece un panel con:
-        
-Nombre y versión de la app.
-Sesión activa (correo del usuario).
-Estado de conexión (🟢 con internet / 🔴 sin internet).
-Cantidad de fotos sin enviar.
-
+    - Nombre y versión de la app.
+    - Sesión activa (correo del usuario).
+    - Estado de conexión (🟢 con internet / 🔴 sin internet).
+    - Cantidad de fotos sin enviar.
 3. Botón **Cerrar sesión** · si hay pendientes te avisa que se van a perder. Doble confirmación antes de proceder.
 
-## 7. Uso del Modo Avanzado
+## Uso del Modo Avanzado
 
 Es la app tradicional con wizard completo. Se accede desde el link **⚙ App completa** del footer de la lite o directamente en `lemeit.github.io/DVBA/dvba_campo.html`. Se recomienda para operarios con fluidez técnica que quieren clasificar en el momento.
 
-### 7.1 Elegir categoría
+### Elegir categoría
 
 👷 Técnico · Zona VI
 
@@ -280,23 +256,24 @@ Es la app tradicional con wizard completo. Se accede desde el link **⚙ App com
 
 Ver la lista completa de tipos disponibles en la [sección 8](#tipos).
 
-### 7.2 Elegir tipo específico
+### Elegir tipo específico
 
-Elegí el tipo específico
-
-Bache
-
-Bache crítico
-
-Pavimento fisurado
-
-Huellas (camino tierra)
-
-Anegamiento por mala conformación
-
-Erosión de calzada
-
-Calzada en buen estado
+<div class="demo" markdown="0">
+  <div class="phone">
+    <div class="screen">
+      <div class="full-hdr" style="padding-top:34px">🛣️ Calzada<span class="sub">Elegí el tipo específico</span></div>
+      <div style="background:#fff;color:#1a2a3a;padding:8px;flex:1;overflow-y:auto">
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px">Bache</div>
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px;background:#e6f4f8;border-left:3px solid #009aae">Bache crítico</div>
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px">Pavimento fisurado</div>
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px">Huellas (camino tierra)</div>
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px">Anegamiento por mala conformación</div>
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px">Erosión de calzada</div>
+        <div style="padding:10px;border-bottom:1px solid #eee;font-size:11px">Calzada en buen estado</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 #### Instrucciones
 
@@ -308,55 +285,36 @@ Calzada en buen estado
 
 4. Si el tipo ya incluye el sub-atributo en el nombre (ej. "Desmalezado *mecánico*"), el selector se oculta y el valor se guarda solo.
 
-### 7.3 Completar datos, sacar foto y guardar
+### Completar datos, sacar foto y guardar
 
-Bache crítico · Calzada
-
-Ruta
-
-RP 30
-
-Progresiva
-
-274,50
-
-Estado
-
-🟠 Malo
-
-Superficie
-
-Asfalto
-
-📷
-
-Foto tomada
-
-GPS ±5m · 82m
-
-Guardar
+<div class="demo" markdown="0">
+  <div class="phone">
+    <div class="screen">
+      <div class="full-hdr" style="padding-top:34px">Detalles del registro<span class="sub">Bache crítico · Calzada</span></div>
+      <div style="background:#fff;color:#1a2a3a;padding:12px;flex:1;overflow-y:auto;font-size:10.5px">
+        <div style="margin-bottom:8px"><label style="display:block;color:#666;font-size:9px;text-transform:uppercase;font-weight:700;margin-bottom:2px">Ruta</label><div style="padding:8px;background:#f4f6f9;border:1px solid #d4dce4;border-radius:6px;font-weight:600">RP 30</div></div>
+        <div style="margin-bottom:8px"><label style="display:block;color:#666;font-size:9px;text-transform:uppercase;font-weight:700;margin-bottom:2px">Progresiva</label><div style="padding:8px;background:#f4f6f9;border:1px solid #d4dce4;border-radius:6px;font-weight:600">274,50</div></div>
+        <div style="margin-bottom:8px"><label style="display:block;color:#666;font-size:9px;text-transform:uppercase;font-weight:700;margin-bottom:2px">Estado</label><div style="padding:8px;background:#fff4e0;border:1px solid #f0d090;border-radius:6px;font-weight:600;color:#c47a00">🟠 Malo</div></div>
+        <div style="margin-bottom:8px"><label style="display:block;color:#666;font-size:9px;text-transform:uppercase;font-weight:700;margin-bottom:2px">Superficie</label><div style="padding:8px;background:#f4f6f9;border:1px solid #d4dce4;border-radius:6px;font-weight:600">Asfalto</div></div>
+        <div style="background:#e6f4e8;border:1px solid #a0d0a5;border-radius:8px;padding:10px;text-align:center;margin-top:12px"><div style="font-size:20px;margin-bottom:4px">📷</div><div style="font-size:10px;color:#1a6a2e;font-weight:700">Foto tomada</div><div style="font-size:9px;color:#555;margin-top:2px">GPS ±5m · 82m</div></div>
+        <div style="background:#1a8a4a;color:#fff;padding:12px;border-radius:8px;text-align:center;font-weight:800;font-size:11px;text-transform:uppercase;margin-top:12px">Guardar</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 #### Instrucciones
 
 1. Completá la ruta y la progresiva (la app ayuda con autocomplete).
-
 2. Elegí el **estado** (Bueno / Regular / Malo / Crítico según categoría).
-
 3. Si aplica: superficie (asfalto/tierra/…), modalidad (manual/mecánico), observaciones.
-
 4. Tocá el botón de **cámara** para sacar la foto.
-
 5. Botón **Guardar**: se sube a Supabase o queda en cola offline.
 
-Sellado en oficina
+!!! info "Sellado en oficina"
+    La foto se sube **sin sello**. El sello institucional v4 se aplica cuando alguien de oficina apruebe el registro con los datos definitivos.
 
-· La foto se sube
-
-sin sello
-
-. El sello institucional v4 se aplica cuando alguien de oficina apruebe el registro con los datos definitivos.
-
-## 8. Tipos de relevamiento disponibles
+## Tipos de relevamiento disponibles
 
 El sistema tiene **10 categorías** definidas en el catálogo `dvba_tipos.js`. Cada categoría agrupa ítems específicos con estados coherentes:
 
@@ -418,7 +376,7 @@ Programado / En ejecución / Finalizado / Suspendido / Cancelado
 
 Ver el detalle completo del modelo Tipo↔Estado en [docs/MODELO_TIPOS_ESTADOS.md](MODELO_TIPOS_ESTADOS.md).
 
-## 9. Preguntas frecuentes
+## Preguntas frecuentes
 
 ### ¿Puedo usar la app sin instalar? ¿Solo desde el navegador?
 

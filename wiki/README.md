@@ -1,78 +1,103 @@
-# Wiki MkDocs · Experimento paralelo al Quartz actual
+# Wiki DVBA · Documentación del sistema SIG Vial PBA
 
-Prueba de **MkDocs Material** como alternativa a Quartz para la Guía de Usuario.
-No toca el `DVBA-wiki` que ya está publicado en `lemeit.github.io/DVBA-wiki/` — es
-un experimento para comparar antes de decidir cuál va como link final.
+Wiki interna del proyecto en **Obsidian** (edición local con vault + wikilinks) que se **publica como sitio web** con **MkDocs Material** (guía de usuario navegable con búsqueda + mockups CSS).
 
-## Diferencias contra Quartz
+Fuente única, dos vistas:
+- Local (Obsidian) para editar / vincular con `[[wikilinks]]`.
+- Público (MkDocs → GitHub Pages) para técnicos, gerencia y cualquiera que quiera consultar el manual.
 
-|                | Quartz (actual)                        | MkDocs Material (experimento) |
-|----------------|----------------------------------------|-------------------------------|
-| Público objetivo | Digital gardens con grafo             | Guías / docs lineales |
-| Wikilinks      | Nativos `[[Nota]]`                     | Requiere conversión a markdown estándar |
-| Navegación     | Backlinks + grafo + sidebar            | Sidebar jerárquico + tabs + TOC integrado |
-| Búsqueda       | Client-side (Fuse.js)                  | Client-side (lunr con highlight) |
-| Instalación    | Node + Quartz build                    | Python + `pip install mkdocs-material` |
-| Personalización| CSS + componentes React (complejo)    | YAML declarativo + CSS ad-hoc |
-| Renderizado    | React con hidratación                  | HTML estático puro |
-| Peso final     | ~600 KB por página (React runtime)     | ~100 KB por página (HTML plano) |
-| Modo oscuro    | Sí                                     | Sí (auto según sistema) |
-
-## Estructura de este experimento
+## Estructura de carpetas
 
 ```
-wiki-mkdocs-experimento/
-├── build.py         # Convierte wiki/01-Guia-de-Usuario/*.md → docs/ (wikilinks → md links)
-├── mkdocs.yml       # Configuración del sitio + tema Material
-├── docs/            # (generado) Fuente lista para mkdocs
+wiki/
+├── 00-Inicio.md                        ← landing interna (Obsidian)
+│
+├── 01-Guia-de-Usuario/                 ← ⭐ FUENTE PÚBLICA · lo que se publica
 │   ├── 00-Indice.md
 │   ├── 01-Que-es-el-sistema.md
-│   ├── ... (14 notas)
+│   ├── 02-Primeros-pasos.md
+│   ├── … (14 capítulos numerados)
 │   ├── Guia-Visual-Complementaria.md
-│   └── index.md
-└── README.md        # Este archivo
+│   └── index.md                        ← copia del índice como landing MkDocs
+│
+├── 02-Arquitectura-Tecnica/            ← interno · NO se publica
+├── 03-Origen-e-Historia/               ← interno · NO se publica
+├── 04-Desarrollo-y-Estado-Actual/      ← interno · NO se publica (bitácora)
+├── 05-Roadmap-y-Proyecciones/          ← interno · NO se publica
+├── 06-Decisiones-Tecnicas/             ← interno · NO se publica (ADRs)
+├── 99-Informes-Gerenciales/            ← interno · NO se publica
+│
+├── stylesheets/
+│   └── mockups.css                     ← CSS de los mockups de UI (frames, botones, etc.)
+├── img/
+│   └── logo_dvba_clean.png             ← logo para mockups (copia del datos/img/)
+│
+├── build.py                            ← convierte wikilinks Obsidian → markdown MkDocs
+├── mkdocs.yml                          ← configuración del sitio (nav, tema Material, plugins)
+├── README.md                           ← este archivo
+│
+└── docs/                               ← 🔄 GENERADO por build.py · NO EDITAR
+    ├── 00-Indice.md                    (copia con wikilinks convertidos)
+    ├── … (todas las notas de 01-Guia)
+    ├── stylesheets/mockups.css         (copia de assets)
+    └── img/logo_dvba_clean.png
 ```
 
-## Cómo probarlo (local)
+**⚠ Importante:** editá SOLO en `01-Guia-de-Usuario/` (o carpetas internas). Todo lo que está en `docs/` se sobrescribe cada vez que corrés `build.py`.
 
-Requisitos: Python 3.9+, pip.
+## Flujo de trabajo
+
+### 1. Editar
+
+En Obsidian, abrí el vault (esta carpeta `wiki/`). Editá las notas de `01-Guia-de-Usuario/` con:
+- `[[Nombre-de-nota]]` para linkear a otra nota
+- `[[Nombre|Texto alternativo]]` para links con alias
+- Markdown estándar (headings, listas, tablas, admonitions `!!! tip`, etc.)
+
+Los mockups de la UI van embebidos como HTML dentro de `<div class="demo" markdown="0">…</div>` usando las clases de `stylesheets/mockups.css`.
+
+### 2. Regenerar `docs/`
+
+Cada vez que edités notas o assets:
 
 ```bash
-# 1. Instalar dependencias (solo la primera vez)
-pip install mkdocs mkdocs-material pymdown-extensions
-
-# 2. Regenerar los .md desde la wiki original (opcional si ya está en docs/)
-cd wiki-mkdocs-experimento
-python build.py            # o `python build.py --clean` para regenerar de cero
-
-# 3. Preview local (http://localhost:8000)
-mkdocs serve
-
-# 4. Build estático para publicar
-mkdocs build               # genera ./site/
+cd wiki
+python build.py --clean
 ```
 
-## Cómo publicar (dos opciones)
+Esto:
+1. Borra `docs/` viejo.
+2. Copia cada `.md` de `01-Guia-de-Usuario/` a `docs/`, convirtiendo `[[wikilinks]]` a `[texto](Nota.md)`.
+3. Copia `stylesheets/` y `img/` a `docs/`.
 
-### Opción A · Deploy manual desde local
+### 3. Previsualizar local
+
+```bash
+mkdocs serve
+```
+
+Abrí `http://localhost:8000` — hot-reload al editar cualquier archivo.
+
+### 4. Publicar
+
+**Opción A · deploy manual** desde local (rápido):
 
 ```bash
 mkdocs gh-deploy --force
 ```
 
-Esto crea/actualiza la rama `gh-pages` del repo actual. Configurable en
-`mkdocs.yml` con `site_url` para el subpath correcto.
+Empuja `docs/` compilado a la rama `gh-pages` del repo.
 
-### Opción B · GitHub Actions (auto-deploy en cada push)
+**Opción B · GitHub Actions** (auto-deploy en cada `git push`):
 
-Crear `.github/workflows/mkdocs-experimento.yml` en el repo padre:
+Crear `.github/workflows/wiki-deploy.yml`:
 
 ```yaml
-name: Deploy MkDocs Experimento
+name: Deploy Wiki (MkDocs)
 on:
   push:
     branches: [main]
-    paths: ['wiki-mkdocs-experimento/**']
+    paths: ['wiki/**']
 
 jobs:
   deploy:
@@ -82,53 +107,40 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.11'}
       - run: pip install mkdocs mkdocs-material pymdown-extensions
-      - working-directory: wiki-mkdocs-experimento
-        run: mkdocs build
+      - working-directory: wiki
+        run: |
+          python build.py --clean
+          mkdocs build
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: wiki-mkdocs-experimento/site
-          publish_branch: gh-pages-mkdocs
-          destination_dir: mkdocs-experimento
+          publish_dir: wiki/site
+          publish_branch: gh-pages
 ```
 
-Después habilitar GitHub Pages desde branch `gh-pages-mkdocs` → subpath `/mkdocs-experimento/`.
+Después en el repo → Settings → Pages → Source: branch `gh-pages`.
 
-## Sincronización con la wiki de Obsidian
-
-La wiki de Obsidian está en `../wiki/` (gitignored, editada en Obsidian localmente).
-Cuando actualices notas en Obsidian, correr:
+## Requisitos
 
 ```bash
-python build.py --clean
+pip install mkdocs mkdocs-material pymdown-extensions
 ```
 
-Y `docs/` se regenera con los wikilinks convertidos. Después `mkdocs serve` o
-`mkdocs build`.
+Python 3.9+. En Windows PowerShell usar `python` en vez de `python3`.
 
-## Qué comparar contra Quartz
+## Convenciones del sitio publicado
 
-1. **Legibilidad** — ¿se lee más cómodo? ¿Encoder Sans institucional se usa bien?
-2. **Navegación** — sidebar + tabs vs Quartz grafo/backlinks: ¿cuál es más rápida para técnicos/gerencia?
-3. **Búsqueda** — probar términos: "sello", "modo básico", "zona V" — ver relevancia.
-4. **Modo móvil** — abrir en el celular ambas versiones: ¿cuál es más usable?
-5. **Peso/velocidad** — DevTools Network en cada sitio: primer paint + tamaño total.
-6. **Mantenimiento** — Quartz requiere Node build (más frágil), MkDocs solo Python (más simple).
+- **Numeración**: la da el prefijo del archivo (`01-…`, `02-…`) — reflejado en el sidebar por MkDocs. Los headings internos (`## Cómo se accede`) NO llevan número — evita duplicar.
+- **Landing**: `index.md` (copia de `00-Indice.md`) se muestra al abrir la raíz del sitio.
+- **Mockups**: usan CSS de `stylesheets/mockups.css`. Frame smartphone + headers app + badges GPS + grilla de categorías + preview foto + lista pendientes.
+- **Wikilinks**: solo se usan en la fuente Obsidian. `build.py` los convierte a links markdown estándar antes de publicar.
+- **Carpetas internas (`02-…` a `99-…`)**: NO están en el `nav` de mkdocs.yml, por lo tanto no se publican. Son documentación técnica interna que solo se ve en Obsidian.
 
-## Decisión final
+## Contenido interno (fuera de la guía pública)
 
-Después de comparar, tres opciones:
-
-- **Quedar con Quartz** — si el grafo/backlinks aportan valor y la estética engancha.
-- **Migrar a MkDocs Material** — si la guía es más lineal y prevalece la simplicidad.
-- **Coexistir** — Quartz para navegación exploratoria + MkDocs para consulta rápida.
-  (Cambiar `link` en el README del proyecto según el uso.)
-
-## Notas técnicas
-
-- El script `build.py` NO modifica los .md originales de `../wiki/` — solo los copia
-  y convierte a `./docs/`.
-- Los `[[wikilinks|Alias]]` se convierten preservando el texto alias visible.
-- Los enlaces relativos a imágenes / assets no se procesan (heredan tal cual).
-- Si Obsidian usa embeds `![[Imagen.png]]`, hay que agregar al regex del build.py
-  (por ahora no se detectaron embeds en las 14 notas).
+- `02-Arquitectura-Tecnica/` — diagramas del sistema, componentes, flujo de datos
+- `03-Origen-e-Historia/` — contexto institucional, decisiones fundacionales
+- `04-Desarrollo-y-Estado-Actual/` — bitácora cronológica del proyecto
+- `05-Roadmap-y-Proyecciones/` — hoja de ruta, features planeadas
+- `06-Decisiones-Tecnicas/` — ADRs (Architecture Decision Records)
+- `99-Informes-Gerenciales/` — plantillas de informes oficiales DVBA

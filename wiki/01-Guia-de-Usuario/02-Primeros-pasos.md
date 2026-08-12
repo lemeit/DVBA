@@ -4,7 +4,7 @@
 
 > Cómo acceder al sistema, instalar la app en el celular y entender cómo sincroniza. Para la visión general del sistema ver [[01-Que-es-el-sistema]].
 
-## 2. Cómo se accede
+## Cómo se accede
 
 El sistema tiene **dos URLs** según lo que quieras usar:
 
@@ -14,7 +14,7 @@ El sistema tiene **dos URLs** según lo que quieras usar:
 !!! tip "No hace falta bajar nada de la tienda"
     Todo funciona con el navegador del celular o de la compu. Si abrís la URL base (`/DVBA/`) en un celular vas a caer en el portal — para instalar la app tenés que ir directo a `/app.html`.
 
-## 3. Instalar la app en el celular (PWA)
+## Instalar la app en el celular (PWA)
 
 La app se instala como cualquier otra app del celular, pero **sin pasar por la Play Store o App Store**. El proceso lleva 30 segundos:
 
@@ -41,7 +41,7 @@ Cuando hay una versión nueva del sistema, al abrir la app aparece un banner ver
 !!! warning "Importante"
     Si no tocás Actualizar, la app va a seguir funcionando con la versión vieja cacheada. No perdés nada, pero no tenés los últimos cambios.
 
-## 4. Navegador vs app instalada · WiFi/datos vs GPS
+## Navegador vs app instalada · WiFi/datos vs GPS
 
 ### 🌐 Desde el navegador (sin instalar)
 
@@ -67,7 +67,7 @@ Una vez que instalaste la app y te logueaste al menos una vez con internet:
 !!! tip "💡 Regla práctica"
     Instalá la app la primera vez que tengas WiFi (en la oficina). Después usala en el campo sin importar si tenés señal — el GPS funciona en cualquier lado. Cuando volvés a la oficina o entrás en zona con señal, todo se sincroniza solo.
 
-## 5. Cómo sincroniza con el sistema de escritorio
+## Cómo sincroniza con el sistema de escritorio
 
 Todo lo que se carga desde el celular aparece automáticamente en el sistema de escritorio, sin que nadie tenga que hacer nada manual:
 
