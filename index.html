@@ -484,7 +484,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.66f.3</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.66f.4</span></div>
   </div>
 </div>
 <div class="layout">
@@ -857,8 +857,8 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.66f.3';
-window.APP_VERSION = APP_VERSION;  // v8.66f.3 · expone a window para legales.js
+const APP_VERSION = 'v8.66f.4';
+window.APP_VERSION = APP_VERSION;  // v8.66f.4 · expone a window para legales.js
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -920,6 +920,26 @@ function mostrarModalSello(datos){
     if (btnCcw) btnCcw.onclick = () => { _rotacionManualSello = (_rotacionManualSello + 3) % 4; _updRotLbl(); };
     if (btnCw)  btnCw.onclick  = () => { _rotacionManualSello = (_rotacionManualSello + 1) % 4; _updRotLbl(); };
     if (btnRst) btnRst.onclick = () => { _rotacionManualSello = 0; _updRotLbl(); };
+    // v8.66f.4 · Preset de tamaño del sello (Normal/Mediano/Mínimo) ANTES del primer sellado
+    let _tamSello = 1.00;  // default Normal
+    const _btnTam100 = $('ms-tam-100'), _btnTam75 = $('ms-tam-75'), _btnTam50 = $('ms-tam-50');
+    const _lblTam = $('ms-tam-lbl');
+    const _updTam = (val, label) => {
+      _tamSello = val;
+      if (_lblTam) _lblTam.textContent = '— ' + label;
+      [[_btnTam100,1.00],[_btnTam75,0.75],[_btnTam50,0.50]].forEach(([b,v]) => {
+        if (!b) return;
+        const activo = v === val;
+        b.style.background = activo ? 'var(--p)' : '#fafbfc';
+        b.style.color      = activo ? '#fff'     : 'var(--txt)';
+        b.style.border     = activo ? '2px solid var(--p)' : '1px solid #d0d4dc';
+        b.style.fontWeight = activo ? '600' : '400';
+      });
+    };
+    if (_btnTam100) _btnTam100.onclick = () => _updTam(1.00, 'Normal (100%)');
+    if (_btnTam75)  _btnTam75.onclick  = () => _updTam(0.75, 'Mediano (75%)');
+    if (_btnTam50)  _btnTam50.onclick  = () => _updTam(0.50, 'Mínimo (50%)');
+    _updTam(1.00, 'Normal (100%)');  // reset al abrir cada modal
     const ov = $('modal-sello-ov'), btnOk = $('ms-aplicar'), btnNo = $('ms-cancel');
     const limpiar = () => {
       ov.classList.remove('on');
@@ -927,6 +947,10 @@ function mostrarModalSello(datos){
       if (btnCcw) btnCcw.onclick = null;
       if (btnCw)  btnCw.onclick  = null;
       if (btnRst) btnRst.onclick = null;
+      // v8.66f.4 · Limpiar handlers de los 3 presets de tamaño
+      if (_btnTam100) _btnTam100.onclick = null;
+      if (_btnTam75)  _btnTam75.onclick  = null;
+      if (_btnTam50)  _btnTam50.onclick  = null;
     };
     btnOk.onclick = () => {
       const r = {
@@ -938,7 +962,8 @@ function mostrarModalSello(datos){
         alt:       $('ms-alt').value.trim(),
         ruta:      $('ms-ruta').value.trim(),
         prog:      $('ms-prog').value.trim(),
-        tipo:      $('ms-tipo').value.trim()
+        tipo:      $('ms-tipo').value.trim(),
+        escalaSello: _tamSello   // v8.66f.4 · 0.50 - 1.00 elegido por el user
       };
       limpiar(); resolve(r);
     };
@@ -8332,6 +8357,13 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
         <button type="button" id="ms-rot-cw"  title="Rotar 90° a la derecha"  style="flex:1;padding:8px;border:1px solid #d0d4dc;background:#fafbfc;border-radius:6px;font-size:16px;cursor:pointer">↻ 90°</button>
         <button type="button" id="ms-rot-reset" title="Sin rotación manual" style="flex:0.7;padding:8px;border:1px solid #d0d4dc;background:#fafbfc;border-radius:6px;font-size:12px;cursor:pointer">Reset</button>
       </div>
+      <!-- v8.66f.4 · Preset de tamaño del sello ANTES del primer sellado -->
+      <label style="margin-top:12px">📏 Tamaño del sello <span id="ms-tam-lbl" style="font-weight:400;color:#999;text-transform:none;letter-spacing:0">— Normal (100%)</span></label>
+      <div style="display:flex;gap:6px;margin-top:2px;align-items:center">
+        <button type="button" id="ms-tam-100" title="Sello altura completa (default)" style="flex:1;padding:8px;border:2px solid var(--p);background:var(--p);color:#fff;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600">🖋 Normal</button>
+        <button type="button" id="ms-tam-75"  title="Sello reducido 75% (para no tapar detalles del bottom)" style="flex:1;padding:8px;border:1px solid #d0d4dc;background:#fafbfc;color:var(--txt);border-radius:6px;font-size:12px;cursor:pointer">🖋 Mediano</button>
+        <button type="button" id="ms-tam-50"  title="Sello mínimo 50% (foto chica o detalle crítico en el pie)" style="flex:1;padding:8px;border:1px solid #d0d4dc;background:#fafbfc;color:var(--txt);border-radius:6px;font-size:12px;cursor:pointer">🖋 Mínimo</button>
+      </div>
       <div class="ms-hint">El QR del sello apunta a Google Maps con las coordenadas. Lo que dejes vacío no aparecerá.</div>
     </div>
     <div class="ms-f">
@@ -8361,7 +8393,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
       <div style="margin-bottom:14px">
         <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
-        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.66f.3</span> · Familia escritorio</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.66f.4</span> · Familia escritorio</div>
         <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.91</b></div>
       </div>
 

@@ -138,9 +138,15 @@ function aplicar(base64, datos, opts){
             if (bordeBanner > 0) {
               H = bordeBanner;
             } else {
-              // Fallback: NO cortar (mejor mantener foto entera que recortarla mal)
-              H = img.height;
-              console.warn('[sello_v4 resello] línea dorada no detectada — NO se corta (si hay sello viejo puede aparecer doble banner; verificar si existe backup del original)');
+              // v8.66f.4 · Fallback ASUMIDO: si no detectamos la línea dorada,
+              // asumimos que el banner viejo fue estampado al 100% (tamaño default)
+              // y recortamos EXACTAMENTE esa altura. Antes se dejaba la foto entera,
+              // lo que causaba doble sello garantizado al re-sellar con escala < 1.
+              // Este recorte es reversible: si NO había sello viejo la foto queda
+              // recortada de más (aceptable — el user re-sella intencionalmente).
+              const bH_asumido = Math.max(160, Math.min(Math.round(W*0.16), 270));
+              H = Math.max(1, img.height - bH_asumido);
+              console.warn('[sello_v4 resello] línea dorada no detectada — recorte ASUMIDO de ' + bH_asumido + 'px del bottom (banner 100% inferido). Sin backup limpio, esta es la mejor aproximación.');
             }
           } catch(e) {
             console.warn('[sello_v4 resello] error detectando banner:', e);
