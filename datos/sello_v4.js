@@ -219,9 +219,12 @@ function aplicar(base64, datos, opts){
         // === COL DER: QR Google Maps === (solo si mostrarQR)
         // v9.84 · QR con tamaño garantizado + logo DVBA al centro.
         // Se omite en foto muy angosta (W < 500) para no pisar el texto.
-        const qrSz = Math.min(Math.round(bH * 0.85), Math.round(colSide * 0.98));
+        // v8.66f.6 · QR más chico (0.72 vs 0.85) y anclado al TOP del banner
+        // para dejar franja libre ABAJO donde va la versión. Antes el QR ocupaba
+        // casi todo el alto y la versión quedaba encima del QR.
+        const qrSz = Math.min(Math.round(bH * 0.72), Math.round(colSide * 0.98));
         const qrX  = colRX + Math.round((colSide - qrSz)/2);
-        const qrY  = y0    + Math.round((bH      - qrSz)/2);
+        const qrY  = y0    + Math.round(bH * 0.06);   // pegado al top del banner
         if (mostrarQR && typeof qrcode === 'function' && datos.lat && datos.lng){
           try {
             const url = 'https://www.google.com/maps/search/?api=1&query=' + datos.lat + ',' + datos.lng;
@@ -277,7 +280,11 @@ function aplicar(base64, datos, opts){
         const padX = Math.round(W * 0.018);
         const tx = colCX + padX;
         const maxW = colCW - padX*2;
-        const baseFont = Math.max(16, Math.min(Math.round(W*0.022), 36));
+        // v8.66f.7 · Fuentes DE DIBUJO escaladas igual que en el cálculo de bH.
+        // Bug histórico v8.66f: _baseF (bH) se escalaba pero baseFont (dibujo) NO,
+        // → con Mínimo el banner quedaba chico pero el texto se dibujaba tamaño
+        // completo → se cortaba la fecha/hora (última línea) fuera del banner.
+        const baseFont = Math.round(Math.max(16, Math.min(Math.round(W*0.022), 36)) * _esc);
         const fT = Math.round(baseFont * 1.20);
         const fM = Math.round(baseFont * 1.05);
         const fS = Math.round(baseFont * 0.85);
