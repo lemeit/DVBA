@@ -7,7 +7,12 @@ repo_name: lemeit/DVBA
 repo_url: https://github.com/lemeit/DVBA
 edit_uri: ''
 
-docs_dir: docs
+docs_dir: docs  # los .md editables viven directamente acá (sin traductor Obsidian)
+
+# Excluir archivos que están en docs/ pero no forman parte de la guía publicada
+exclude_docs: |
+  README.md
+  00-Inicio.md
 
 theme:
   name: material

@@ -32,12 +32,7 @@ jobs:
       - name: Install MkDocs + Material
         run: pip install -r wiki/requirements.txt
 
-      - name: Build (convierte wikilinks + copia assets)
-        run: |
-          cd wiki
-          python3 build.py
-
-      - name: Build MkDocs site → ../wiki-site
+      - name: Build MkDocs site → wiki-site/
         run: |
           cd wiki
           mkdocs build --site-dir ../wiki-site --strict
