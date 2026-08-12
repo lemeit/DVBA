@@ -2339,9 +2339,7 @@
 <p>Repositorio: <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a></p>
 <p>Estado general: 🟢 En desarrollo activo</p>
 <p>═══════ TABS ═══════</p>
-<p>═══════════════════════════════════════════════════════════════════</p>
 <p>TAB 1 · RESUMEN</p>
-<p>═══════════════════════════════════════════════════════════════════</p>
 <h2 id="descripcion-del-proyecto">Descripción del Proyecto<a class="headerlink" href="#descripcion-del-proyecto" title="Permanent link">¶</a></h2>
 <p>Sistema web de relevamiento, cartografía y gestión de la red vial provincial a cargo de la <strong>Departamento Zona VI</strong> de la Dirección de Vialidad de la Provincia de Buenos Aires (DVBA), con sede en Saladillo. Cubre <strong>8 partidos</strong>, <strong>15 rutas provinciales pavimentadas</strong> y la red de caminos secundarios no pavimentados.</p>
 <p>El sistema está compuesto por dos aplicaciones complementarias y una infraestructura QGIS + Python detrás:</p>
@@ -2352,38 +2350,156 @@
 <p>dvba_campo.html</p>
 <p>Toma de registros de campo con GPS, foto sellada y sincronización con Supabase. Cola offline en IndexedDB. Instalable en Android.</p>
 <h2 id="contexto-institucional">Contexto Institucional<a class="headerlink" href="#contexto-institucional" title="Permanent link">¶</a></h2>
-<p>| Atributo | Detalle |</p>
-<p>|---|---|</p>
-<p>| Organismo | DVBA — Dirección de Vialidad de la Provincia de Buenos Aires |</p>
-<p>| Zona | Departamento Zona VI — sede Saladillo |</p>
-<p>| Partidos cubiertos | Saladillo, Gral. Alvear, Gral. Las Heras, Lobos, Roque Pérez, Las Flores, Navarro, 25 de Mayo |</p>
-<p>| Red vial | 15 rutas provinciales pavimentadas + red de caminos secundarios |</p>
-<p>| Nomenclatura oficial | Manual de Señalamiento Vertical MSV 2017 (DNV/AAC) — fuente primaria para tipos de registro |</p>
-<p>| Denominación oficial | <strong>"Departamento Zona VI Saladillo"</strong> o "Zona VI Saladillo". Nunca "Delegación Saladillo". |</p>
+<table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Organismo</td>
+<td>DVBA — Dirección de Vialidad de la Provincia de Buenos Aires</td>
+</tr>
+<tr>
+<td>Zona</td>
+<td>Departamento Zona VI — sede Saladillo</td>
+</tr>
+<tr>
+<td>Partidos cubiertos</td>
+<td>Saladillo, Gral. Alvear, Gral. Las Heras, Lobos, Roque Pérez, Las Flores, Navarro, 25 de Mayo</td>
+</tr>
+<tr>
+<td>Red vial</td>
+<td>15 rutas provinciales pavimentadas + red de caminos secundarios</td>
+</tr>
+<tr>
+<td>Nomenclatura oficial</td>
+<td>Manual de Señalamiento Vertical MSV 2017 (DNV/AAC) — fuente primaria para tipos de registro</td>
+</tr>
+<tr>
+<td>Denominación oficial</td>
+<td><strong>"Departamento Zona VI Saladillo"</strong> o "Zona VI Saladillo". Nunca "Delegación Saladillo".</td>
+</tr>
+</tbody>
+</table>
 <h2 id="stack-tecnico">Stack Técnico<a class="headerlink" href="#stack-tecnico" title="Permanent link">¶</a></h2>
-<p>| Herramienta | Versión | Rol |</p>
-<p>|---|---|---|</p>
-<p>| QGIS | 3.42.0 Münster | Edición, limpieza y análisis espacial de capas vectoriales |</p>
-<p>| Leaflet.js | 1.9.4 | Mapa interactivo (escritorio + tests) |</p>
-<p>| Python | 3.12 | Scripts de reconstrucción de cadenas y generación de bundles JS |</p>
-<p>| Supabase | Free tier | Backend de registros de campo: PostgreSQL + Storage + REST. Keepalive vía GitHub Action. |</p>
-<p>| GitHub Pages | — | Hosting estático del sistema (HTTPS gratuito) |</p>
-<p>| Service Worker + IndexedDB | — | Cola offline + sync automático en la app de campo |</p>
-<p>| Overpass Turbo / OSM | — | Descarga auxiliar de trazas para verificación |</p>
-<p>| QuickMapServices | plugin QGIS | Fondo Google Hybrid para digitalización de gaps |</p>
+<table>
+<thead>
+<tr>
+<th>Herramienta</th>
+<th>Versión</th>
+<th>Rol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>QGIS</td>
+<td>3.42.0 Münster</td>
+<td>Edición, limpieza y análisis espacial de capas vectoriales</td>
+</tr>
+<tr>
+<td>Leaflet.js</td>
+<td>1.9.4</td>
+<td>Mapa interactivo (escritorio + tests)</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>3.12</td>
+<td>Scripts de reconstrucción de cadenas y generación de bundles JS</td>
+</tr>
+<tr>
+<td>Supabase</td>
+<td>Free tier</td>
+<td>Backend de registros de campo: PostgreSQL + Storage + REST. Keepalive vía GitHub Action.</td>
+</tr>
+<tr>
+<td>GitHub Pages</td>
+<td>—</td>
+<td>Hosting estático del sistema (HTTPS gratuito)</td>
+</tr>
+<tr>
+<td>Service Worker + IndexedDB</td>
+<td>—</td>
+<td>Cola offline + sync automático en la app de campo</td>
+</tr>
+<tr>
+<td>Overpass Turbo / OSM</td>
+<td>—</td>
+<td>Descarga auxiliar de trazas para verificación</td>
+</tr>
+<tr>
+<td>QuickMapServices</td>
+<td>plugin QGIS</td>
+<td>Fondo Google Hybrid para digitalización de gaps</td>
+</tr>
+</tbody>
+</table>
 <h2 id="estado-por-ruta">Estado por Ruta<a class="headerlink" href="#estado-por-ruta" title="Permanent link">¶</a></h2>
-<p>| Ruta | Cadena GeoJSON | Mojones | Bundle JS | Notas |</p>
-<p>|---|---|---|---|---|</p>
-<p>| <strong>RP 40</strong> | ✓ | 5 físicos + 37 sintéticos | rutas_rp40.js | Gaps Salado (×2) + 25 de Mayo (×2). Bundle más completo del sistema. |</p>
-<p>| RP 30 | ✓ | ✓ | rutas_rp30.js | — |</p>
-<p>| RP 41 | ✓ | ✓ | rutas_rp41.js | — |</p>
-<p>| RP 46 | ✓ | ✓ | rutas_rp46.js | — |</p>
-<p>| RP 51 | ✓ | ✓ | rutas_rp51.js | — |</p>
-<p>| RP 91 | ✓ | ✓ | rutas_rp91.js | — |</p>
-<p>| RP 6, 20, 24, 42, 43, 44, 48 | pendiente | pendiente | pendiente | 7 rutas restantes para completar las 15 de Zona VI (RP 47 y 61 completadas) |</p>
-<p>═══════════════════════════════════════════════════════════════════</p>
+<table>
+<thead>
+<tr>
+<th>Ruta</th>
+<th>Cadena GeoJSON</th>
+<th>Mojones</th>
+<th>Bundle JS</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RP 40</strong></td>
+<td>✓</td>
+<td>5 físicos + 37 sintéticos</td>
+<td>rutas_rp40.js</td>
+<td>Gaps Salado (×2) + 25 de Mayo (×2). Bundle más completo del sistema.</td>
+</tr>
+<tr>
+<td>RP 30</td>
+<td>✓</td>
+<td>✓</td>
+<td>rutas_rp30.js</td>
+<td>—</td>
+</tr>
+<tr>
+<td>RP 41</td>
+<td>✓</td>
+<td>✓</td>
+<td>rutas_rp41.js</td>
+<td>—</td>
+</tr>
+<tr>
+<td>RP 46</td>
+<td>✓</td>
+<td>✓</td>
+<td>rutas_rp46.js</td>
+<td>—</td>
+</tr>
+<tr>
+<td>RP 51</td>
+<td>✓</td>
+<td>✓</td>
+<td>rutas_rp51.js</td>
+<td>—</td>
+</tr>
+<tr>
+<td>RP 91</td>
+<td>✓</td>
+<td>✓</td>
+<td>rutas_rp91.js</td>
+<td>—</td>
+</tr>
+<tr>
+<td>RP 6, 20, 24, 42, 43, 44, 48</td>
+<td>pendiente</td>
+<td>pendiente</td>
+<td>pendiente</td>
+<td>7 rutas restantes para completar las 15 de Zona VI (RP 47 y 61 completadas)</td>
+</tr>
+</tbody>
+</table>
 <p>TAB 2 · RUTAS Y QGIS</p>
-<p>═══════════════════════════════════════════════════════════════════</p>
 <h2 id="linea-de-tiempo-trabajo-sobre-rp-40">Línea de Tiempo · Trabajo sobre RP 40<a class="headerlink" href="#linea-de-tiempo-trabajo-sobre-rp-40" title="Permanent link">¶</a></h2>
 <p>12 abril 2026 · Sesión 1</p>
 <p>Inicio del proyecto · Tipos MSV y UI de registro</p>
@@ -2865,32 +2981,53 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 </li>
 </ol>
 <h2 id="sistema-de-progresivas">Sistema de Progresivas<a class="headerlink" href="#sistema-de-progresivas" title="Permanent link">¶</a></h2>
-<p>| Parámetro | Valor / Decisión |</p>
-<p>|---|---|</p>
-<p>| Método de cálculo | Haversine 2D — terreno llano, error &lt;0.1% |</p>
-<p>| Convención | DVBA/DNVB — progresiva acumulada sobre traza oficial |</p>
-<p>| Mojón 0 RP40 | Intersección RP40/RP7, calles Moreno y Libertad, partido de Merlo (FFCC) |</p>
-<p>| Inicio Zona VI RP40 | ~29.4 km real — intersección con RP6, partido de General Las Heras |</p>
-<p>| Gaps | Progresiva acumula por recorrido real del tramo (no por línea recta) |</p>
-<p>| Mojones físicos | Datos internos DVBA — posición GPS desde escritorio, <em>no medidos con odómetro</em>. Requieren verificación de campo. |</p>
-<p>| Mojones sintéticos | Generados cada 5 km por interpolación sobre la cadena. Flag <code>en_gap:true</code> = posición aproximada. |</p>
+<table>
+<thead>
+<tr>
+<th>Parámetro</th>
+<th>Valor / Decisión</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Método de cálculo</td>
+<td>Haversine 2D — terreno llano, error &lt;0.1%</td>
+</tr>
+<tr>
+<td>Convención</td>
+<td>DVBA/DNVB — progresiva acumulada sobre traza oficial</td>
+</tr>
+<tr>
+<td>Mojón 0 RP40</td>
+<td>Intersección RP40/RP7, calles Moreno y Libertad, partido de Merlo (FFCC)</td>
+</tr>
+<tr>
+<td>Inicio Zona VI RP40</td>
+<td>~29.4 km real — intersección con RP6, partido de General Las Heras</td>
+</tr>
+<tr>
+<td>Gaps</td>
+<td>Progresiva acumula por recorrido real del tramo (no por línea recta)</td>
+</tr>
+<tr>
+<td>Mojones físicos</td>
+<td>Datos internos DVBA — posición GPS desde escritorio, <em>no medidos con odómetro</em>. Requieren verificación de campo.</td>
+</tr>
+<tr>
+<td>Mojones sintéticos</td>
+<td>Generados cada 5 km por interpolación sobre la cadena. Flag <code>en_gap:true</code> = posición aproximada.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="notas-tecnicas-importantes">Notas Técnicas Importantes<a class="headerlink" href="#notas-tecnicas-importantes" title="Permanent link">¶</a></h2>
-<p>⚠ Precaución al editar</p>
-<p>dvba_campo.html</p>
-<p>El archivo contiene ~133 KB de JavaScript. Hacer regex replacements cerca del bloque</p>
-<p>LOGO_SELLO</p>
-<p>(base64) puede truncar silenciosamente el código. Siempre partir del backup conocido-bueno:</p>
-<p>archivo/versiones/dvba_campo_BKFUNCIONAL.html</p>
-<p>.</p>
-<p>⚠ Error sistemático en verificación de mojones</p>
-<p>El error de ~-27 km en todos los mojones es correcto y esperado. La cadena RP40 inicia en la progresiva real 29.4 km. La función</p>
-<p>calcProg()</p>
-<p>interpola correctamente entre pares</p>
-<p>(km_real, acc_local)</p>
-<p>y devuelve la progresiva oficial.</p>
-<p>═══════════════════════════════════════════════════════════════════</p>
-<p>TAB 3 · APPS WEB</p>
-<p>═══════════════════════════════════════════════════════════════════</p>
+<div class="admonition warning">
+<p class="admonition-title">⚠ Precaución al editar</p>
+<p>dvba_campo.html El archivo contiene ~133 KB de JavaScript. Hacer regex replacements cerca del bloque LOGO_SELLO (base64) puede truncar silenciosamente el código. Siempre partir del backup conocido-bueno: archivo/versiones/dvba_campo_BKFUNCIONAL.html.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">⚠ Error sistemático en verificación de mojones</p>
+<p>El error de ~-27 km en todos los mojones es correcto y esperado. La cadena RP40 inicia en la progresiva real 29.4 km. La función calcProg() interpola correctamente entre pares (km_real, acc_local) y devuelve la progresiva oficial. TAB 3 · APPS WEB</p>
+</div>
 <h2 id="app-escritorio-indexhtml">App Escritorio · <code>index.html</code><a class="headerlink" href="#app-escritorio-indexhtml" title="Permanent link">¶</a></h2>
 <p><strong>Propósito:</strong> mapa interactivo Leaflet con cálculo de progresivas, sidebar de registros (con buscador + paginación 30/página), reportes descargables PDF/CSV. Carga datos modulares por ruta vía <code>&lt;script src="datos/rutas_rpXX.js"&gt;</code>.</p>
 <p><strong>URL pública:</strong> <a href="https://lemeit.github.io/DVBA/">lemeit.github.io/DVBA/</a></p>
@@ -2930,12 +3067,10 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 <h3 id="caracteristicas-clave">Características clave<a class="headerlink" href="#caracteristicas-clave" title="Permanent link">¶</a></h3>
 <p>📍 GPS continuo</p>
 <p><code>watchPosition</code> con botón ↓ Usar para fijar la posición actual al registro.</p>
-<p>📷 Cámara sin crash</p>
-<p><code>getUserMedia</code> directo a canvas, evita el crash RAM de <code>&lt;input type="file" capture&gt;</code>.</p>
-<p>🏷 Sello v2 editable (GPS Map Camera style)</p>
-<p>Modal pre-poblado con form + GPS + Plus Code + fecha/hora antes de estampar. Layout 2 columnas (texto izq + logo der). Editable campo por campo. Implementado en ambas apps (v9.15 / v7.7).</p>
-<p>📡 Cola offline + sync</p>
-<p>Registros pendientes en <code>IndexedDB.cola</code>. Service Worker dispara <code>BackgroundSync</code> al recuperar red.</p>
+<div class="admonition note">
+<p class="admonition-title">📷 Cámara sin crash</p>
+<p><code>getUserMedia</code>directo a canvas, evita el crash RAM de <code>&lt;input type="file" capture&gt;</code>. 🏷 Sello v2 editable (GPS Map Camera style) Modal pre-poblado con form + GPS + Plus Code + fecha/hora antes de estampar. Layout 2 columnas (texto izq + logo der). Editable campo por campo. Implementado en ambas apps (v9.15 / v7.7). 📡 Cola offline + sync Registros pendientes en <code>IndexedDB.cola</code>. Service Worker dispara <code>BackgroundSync</code>al recuperar red.</p>
+</div>
 <h3 id="sello-v2-diseno-detallado-24-jun-2026">Sello v2 — diseño detallado (24 jun 2026)<a class="headerlink" href="#sello-v2-diseno-detallado-24-jun-2026" title="Permanent link">¶</a></h3>
 <p>Antes de estampar la foto se abre un modal de edición con todos los campos pre-cargados (Localidad, Dirección, Lat/Lng, Fecha, Hora, Altura, Plus Code, Ruta, Km, Tipo). El operador confirma o ajusta y recién entonces se imprime la banda inferior. Botón <em>"Sin sello"</em> sube la foto original.</p>
 <p>🧮 Plus Code (Open Location Code)</p>
@@ -2992,21 +3127,10 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 <p><strong>Keepalive:</strong> GitHub Action <code>.github/workflows/supabase_keepalive.yml</code> hace ping periódico para evitar el sleep automático del free tier por inactividad.</p>
 </li>
 </ul>
-<p>⚠ Seguridad:</p>
-<p>la</p>
-<p>anon key</p>
-<p>está embebida en</p>
-<p>sw.js</p>
-<p>y</p>
-<p>dvba_campo.html</p>
-<p>. Es la clave pública anónima de Supabase (no la</p>
-<p>service_role</p>
-<p>) — está pensada para ser pública en clientes, pero</p>
-<p>las políticas RLS de Supabase deben estar bien configuradas</p>
-<p>para que solo permitan INSERT y no SELECT/UPDATE/DELETE de otros registros.</p>
-<p>═══════════════════════════════════════════════════════════════════</p>
-<p>TAB 4 · INFRAESTRUCTURA</p>
-<p>═══════════════════════════════════════════════════════════════════</p>
+<div class="admonition warning">
+<p class="admonition-title">⚠ Seguridad:</p>
+<p>la anon key está embebida en sw.js y dvba_campo.html. Es la clave pública anónima de Supabase (no la service_role) — está pensada para ser pública en clientes, pero las políticas RLS de Supabase deben estar bien configuradas para que solo permitan INSERT y no SELECT/UPDATE/DELETE de otros registros. TAB 4 · INFRAESTRUCTURA</p>
+</div>
 <h2 id="estructura-del-repositorio">Estructura del Repositorio<a class="headerlink" href="#estructura-del-repositorio" title="Permanent link">¶</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>C:\GitHub\DVBA\                        ← repo lemeit/DVBA
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── index.html                         ← App Escritorio (= ex dvba_zona6.html)
@@ -3063,16 +3187,48 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    └── caminos_saladillo.osm
 </code></pre></div>
 <h2 id="urls-de-acceso">URLs de Acceso<a class="headerlink" href="#urls-de-acceso" title="Permanent link">¶</a></h2>
-<p>| Recurso | URL |</p>
-<p>|---|---|</p>
-<p>| App Escritorio (home) | <a href="https://lemeit.github.io/DVBA/">lemeit.github.io/DVBA/</a> |</p>
-<p>| App Móvil PWA | <a href="https://lemeit.github.io/DVBA/dvba_campo.html">lemeit.github.io/DVBA/dvba_campo.html</a> |</p>
-<p>| Bitácora (esta) | <a href="https://lemeit.github.io/DVBA/docs/bitacora.html">lemeit.github.io/DVBA/docs/bitacora.html</a> |</p>
-<p>| Guía app de campo (textual) | <a href="https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html">lemeit.github.io/DVBA/docs/guia_dvba_campo.html</a> |</p>
-<p>| Guía visual (mockups) | <a href="https://lemeit.github.io/DVBA/docs/guia_visual_dvba_campo.html">lemeit.github.io/DVBA/docs/guia_visual_dvba_campo.html</a> |</p>
-<p>| Guía app de campo (PDF) | <a href="https://lemeit.github.io/DVBA/docs/guia_dvba_campo.pdf">lemeit.github.io/DVBA/docs/guia_dvba_campo.pdf</a> |</p>
-<p>| Tests por ruta | <a href="https://lemeit.github.io/DVBA/tests/test_rp40.html">…/tests/test_rp40.html</a> (rp30, rp41, rp46, rp51, rp91 idem) |</p>
-<p>| Repositorio | <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a> |</p>
+<table>
+<thead>
+<tr>
+<th>Recurso</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>App Escritorio (home)</td>
+<td><a href="https://lemeit.github.io/DVBA/">lemeit.github.io/DVBA/</a></td>
+</tr>
+<tr>
+<td>App Móvil PWA</td>
+<td><a href="https://lemeit.github.io/DVBA/dvba_campo.html">lemeit.github.io/DVBA/dvba_campo.html</a></td>
+</tr>
+<tr>
+<td>Bitácora (esta)</td>
+<td><a href="https://lemeit.github.io/DVBA/docs/bitacora.html">lemeit.github.io/DVBA/docs/bitacora.html</a></td>
+</tr>
+<tr>
+<td>Guía app de campo (textual)</td>
+<td><a href="https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html">lemeit.github.io/DVBA/docs/guia_dvba_campo.html</a></td>
+</tr>
+<tr>
+<td>Guía visual (mockups)</td>
+<td><a href="https://lemeit.github.io/DVBA/docs/guia_visual_dvba_campo.html">lemeit.github.io/DVBA/docs/guia_visual_dvba_campo.html</a></td>
+</tr>
+<tr>
+<td>Guía app de campo (PDF)</td>
+<td><a href="https://lemeit.github.io/DVBA/docs/guia_dvba_campo.pdf">lemeit.github.io/DVBA/docs/guia_dvba_campo.pdf</a></td>
+</tr>
+<tr>
+<td>Tests por ruta</td>
+<td><a href="https://lemeit.github.io/DVBA/tests/test_rp40.html">…/tests/test_rp40.html</a> (rp30, rp41, rp46, rp51, rp91 idem)</td>
+</tr>
+<tr>
+<td>Repositorio</td>
+<td><a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a></td>
+</tr>
+</tbody>
+</table>
 <h2 id="flujo-de-releases">Flujo de Releases<a class="headerlink" href="#flujo-de-releases" title="Permanent link">¶</a></h2>
 <p>Para actualizar la app de escritorio:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a># Editar index.html, datos/rutas_rpXX.js, scripts/, etc.
@@ -3092,9 +3248,7 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 <h2 id="historico-migracion-a-github-pages">Histórico · Migración a GitHub Pages<a class="headerlink" href="#historico-migracion-a-github-pages" title="Permanent link">¶</a></h2>
 <p>Originalmente las apps corrían sobre <strong>ngrok</strong> (servidor local en la PC de la oficina + túnel HTTPS gratuito), iniciado con <code>servidor.bat</code>. Esto requería que la PC de la oficina estuviera siempre encendida y conectada.</p>
 <p>En abril 2026 se migró a <strong>GitHub Pages</strong> para tener disponibilidad 24/7 con HTTPS gratuito y sin dependencia de hardware local. Los archivos legacy (<code>servidor_http.py</code>, <code>servidor.bat</code>, <code>ngrok.exe</code>, <code>ngrok-dvba.yml</code>) están conservados en <code>archivo/</code> por trazabilidad.</p>
-<p>═══════════════════════════════════════════════════════════════════</p>
 <p>TAB 5 · DECISIONES</p>
-<p>═══════════════════════════════════════════════════════════════════</p>
 <h2 id="decisiones-tecnicas-clave">Decisiones Técnicas Clave<a class="headerlink" href="#decisiones-tecnicas-clave" title="Permanent link">¶</a></h2>
 <h3 id="1-arquitectura-modular-por-ruta-decision">1. Arquitectura modular por ruta DECISIÓN<a class="headerlink" href="#1-arquitectura-modular-por-ruta-decision" title="Permanent link">¶</a></h3>
 <p>Cada ruta = un archivo <code>datos/rutas_rpXX.js</code> independiente con su bundle (cadena + anchors + mojones + gaps). Permite editar una ruta sin tocar el HTML. GitHub Pages sirve todos los archivos estáticos. El HTML solo carga <code>&lt;script&gt;</code> tags.</p>
@@ -3116,19 +3270,11 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 <p>La estrategia original del SW era <em>cache-first</em>, que servía contenido viejo aún después dal del SW era <em>cache-first</em>, que servía contenido viejo aún después de eliminar archivos del repo (URLs fantasma como <code>/dvba_zona6</code>). Se cambió a <strong>network-first con offline fallback + auto-purge de 404</strong>: siempre se intenta la red primero; si responde 404 se borra la entrada del caché; si la red falla se sirve el caché o un mensaje 503 amigable. La PWA sigue funcionando offline porque el caché se sigue manteniendo, solo cambia la prioridad de lectura.</p>
 <h3 id="10-versionado-independiente-por-artefacto-decision-7-may-2026">10. Versionado independiente por artefacto DECISIÓN · 7 may 2026<a class="headerlink" href="#10-versionado-independiente-por-artefacto-decision-7-may-2026" title="Permanent link">¶</a></h3>
 <p>Cada artefacto del proyecto (app campo, app escritorio, guía, bitácora) tiene su propia versión y su propio ciclo de vida. La consistencia entre versiones <strong>no se fuerza</strong>. El script <code>scripts/bump_version.py</code> permite bumpear cada artefacto por separado: <code>python scripts/bump_version.py campo v9.3</code>. Para casos puntuales hay <code>todos vX.Y</code> que sincroniza todo.</p>
-<p>═══════════════════════════════════════════════════════════════════</p>
 <p>TAB 6 · PENDIENTES</p>
-<p>═══════════════════════════════════════════════════════════════════</p>
-<p>✅ Actualizado a v7.75 · 13 julio 2026.</p>
-<p>El grueso de los pendientes históricos ya está resuelto (sello v3, caminos integrados, mudanza C:\DVBA, RLS Supabase). Los nuevos ejes son</p>
-<p>reportes PDF oficiales</p>
-<p>,</p>
-<p>capa de partes en el mapa</p>
-<p>,</p>
-<p>escalado multi-zona</p>
-<p>, y</p>
-<p>completar las RPs faltantes en QGIS</p>
-<p>.</p>
+<div class="admonition note">
+<p class="admonition-title">✅ Actualizado a v7.75 · 13 julio 2026.</p>
+<p>El grueso de los pendientes históricos ya está resuelto (sello v3, caminos integrados, mudanza C:\DVBA, RLS Supabase). Los nuevos ejes son reportes PDF oficiales, capa de partes en el mapa, escalado multi-zona, y completar las RPs faltantes en QGIS.</p>
+</div>
 <h2 id="alta-prioridad">🔴 Alta Prioridad<a class="headerlink" href="#alta-prioridad" title="Permanent link">¶</a></h2>
 <ul>
 <li>
@@ -3235,12 +3381,42 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 </li>
 </ul>
 <h2 id="changelog-apps">📋 Changelog · Apps<a class="headerlink" href="#changelog-apps" title="Permanent link">¶</a></h2>
-<p>| Artefacto | Versión | Archivo(s) | Bumpear con |</p>
-<p>|---|---|---|---|</p>
-<p>| <strong>📱 App Campo (PWA unificada)</strong> | v9.88 | <code>app.html</code> (router) + <code>dvba_campo_lite.html</code> (Modo Básico) + <code>dvba_campo.html</code> (Modo Avanzado) + <code>sw.js</code> | Manual: <code>APP_VER</code> en HTMLs + <code>CACHE_NAME</code> en <code>sw.js</code> |</p>
-<p>| <strong>🖥 Familia escritorio</strong> | v8.52 | <code>index.html</code>, <code>partes_diarios.html</code>, <code>reportes.html</code> + módulos <code>datos/</code> | Manual en <code>const APP_VERSION</code> + spans footer en los 3 |</p>
-<p>| <strong>🎨 Módulo sello v4</strong> | unificado | <code>datos/sello_v4.js</code> + <code>datos/exif_writer.js</code> + <code>datos/piexif.min.js</code> | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |</p>
-<p>| <strong>🛣 Caminos Secundarios</strong> | v1.1 | <code>caminos_secundarios.html</code> | — |</p>
+<table>
+<thead>
+<tr>
+<th>Artefacto</th>
+<th>Versión</th>
+<th>Archivo(s)</th>
+<th>Bumpear con</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>📱 App Campo (PWA unificada)</strong></td>
+<td>v9.88</td>
+<td><code>app.html</code> (router) + <code>dvba_campo_lite.html</code> (Modo Básico) + <code>dvba_campo.html</code> (Modo Avanzado) + <code>sw.js</code></td>
+<td>Manual: <code>APP_VER</code> en HTMLs + <code>CACHE_NAME</code> en <code>sw.js</code></td>
+</tr>
+<tr>
+<td><strong>🖥 Familia escritorio</strong></td>
+<td>v8.52</td>
+<td><code>index.html</code>, <code>partes_diarios.html</code>, <code>reportes.html</code> + módulos <code>datos/</code></td>
+<td>Manual en <code>const APP_VERSION</code> + spans footer en los 3</td>
+</tr>
+<tr>
+<td><strong>🎨 Módulo sello v4</strong></td>
+<td>unificado</td>
+<td><code>datos/sello_v4.js</code> + <code>datos/exif_writer.js</code> + <code>datos/piexif.min.js</code></td>
+<td>Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear</td>
+</tr>
+<tr>
+<td><strong>🛣 Caminos Secundarios</strong></td>
+<td>v1.1</td>
+<td><code>caminos_secundarios.html</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
 <h3 id="v867-v994-12-agosto-2026-presets-tamano-sello-fix-doble-sello-version-reubicada">v8.67 / v9.94 · 12 agosto 2026 — Presets tamaño sello + fix doble sello + versión reubicada<a class="headerlink" href="#v867-v994-12-agosto-2026-presets-tamano-sello-fix-doble-sello-version-reubicada" title="Permanent link">¶</a></h3>
 <p>Cierre de la serie <strong>v8.66f (7 hotfixes iterativos)</strong> sobre <code>datos/sello_v4.js</code> + portal + móvil. Origen: fotos donde el banner del sello tapa detalles críticos (puentes, defectos en el pie de la foto). Resuelto sin romper el diseño base para el resto de las fotos.</p>
 <p><strong>Presets de tamaño</strong> — el modal "🖋 Editar datos del sello" (aprobación) y el sidebar de edición ahora tienen 3 botones <strong>🖋 Normal (100%) / 🖋 Mediano (75%) / 🖋 Mínimo (50%)</strong>. Reemplazan al slider intermedio de v8.66f-f.2 que confundía al user (quedaba pegado en el último valor entre fotos). El preset se resetea a Normal al abrir cada foto.</p>
