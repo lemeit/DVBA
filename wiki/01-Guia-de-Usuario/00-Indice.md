@@ -23,4 +23,4 @@ Guía dividida en 14 capítulos que cubren desde el acceso al portal hasta el us
 
 ---
 
-📎 [[Guia-Visual-Complementaria|Versión visual complementaria]] (capturas y paso a paso simplificado de Modo Básico, Modo Avanzado y FAQ)
+📎 [[Guia-Visual-Complementaria|Versión visual complementaria]] · mockups de la UI: instalar PWA + sincronización + navegador vs app + Modo Básico + Modo Avanzado

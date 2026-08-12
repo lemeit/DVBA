@@ -80,3 +80,52 @@
 .preview-ov .prev-actions .btn{flex:1;padding:10px;border-radius:8px;font-size:10px;font-weight:700;text-transform:uppercase;text-align:center}
 .btn-desc{background:#3a2020;color:#ffbfbf;border:1px solid #6a3535}
 .btn-gua{background:#1a8a4a;color:#fff}
+
+/* ═══ v1.1 · Slides 3 y 5 (PWA + sync) + cards/boxes reutilizables ═══ */
+
+/* Vars locales (misma paleta que guia_visual_sig_vial_pba.html) */
+.demo, .card, .box, .grid2, .sync-diagram, .pwa-update{--azul:#003366;--teal:#009aae;--teal-cl:#26b3c8;--teal-d:#007d90;--border:#cdd9e6;--muted:#5a6a7a;--good:#28a745;--warn:#f0a500;--info:#17a2b8}
+
+/* Card genérico + grid 2 col */
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,.04);color:#1a2a3a}
+.card h3{margin-top:0;color:var(--azul);font-size:1rem}
+.card ul, .card ol{margin:6px 0 8px 22px}
+.card li{margin:3px 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:12px 0}
+
+/* Callouts .box (tip/warn/info/ok) */
+.box{padding:12px 14px;border-radius:6px;margin:10px 0;border-left:4px solid var(--azul);background:#fff;font-size:.92rem;color:#1a2a3a}
+.box strong{color:var(--azul)}
+.box.ok{background:#f0fff4;border-color:var(--good)}
+.box.warn{background:#fff8e6;border-color:var(--warn)}
+.box.info{background:#e6f4f8;border-color:var(--info)}
+.box.tip{background:#f5edfa;border-color:#7e57c2}
+
+/* Modal overlay dentro del smartphone (para diálogos tipo Instalar PWA / Login) */
+.modal-lite{position:absolute;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:16px;border-radius:22px}
+.modal-lite-box{background:#fff;color:#1a1a1a;border-radius:14px;padding:16px 12px;max-width:220px;width:100%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.modal-lite-box h3{font-size:13px;color:#009aae;margin-bottom:8px}
+.modal-lite-box .icon{font-size:28px;color:#009aae;margin-bottom:6px}
+.modal-lite-box p{font-size:10px;text-align:center;color:#666;margin-bottom:8px}
+.modal-lite-box input{width:100%;padding:7px;border:1px solid #ddd;border-radius:6px;font-size:11px;margin-bottom:5px;box-sizing:border-box}
+.modal-lite-box .actions{display:flex;gap:6px;margin-top:10px}
+.modal-lite-box .btn{flex:1;padding:8px;border-radius:6px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.modal-lite-box .btn.gris{background:#e0e0e0;color:#333}
+.modal-lite-box .btn.verde{background:#1a8a4a;color:#fff}
+.modal-lite-box .btn.teal{background:#009aae;color:#fff}
+
+/* Banner PWA-update (verde, arriba del header lite) */
+.pwa-update{position:absolute;top:0;left:0;right:0;background:linear-gradient(135deg,#1a8a4a,#0f6d3a);color:#fff;padding:10px 12px;padding-top:26px;display:flex;align-items:center;gap:10px;border-radius:22px 22px 0 0;z-index:6}
+.pwa-update .ub-icon{font-size:20px}
+.pwa-update .ub-text{flex:1;line-height:1.3;font-size:10px}
+.pwa-update .ub-text b{display:block;font-size:11px;font-weight:800}
+.pwa-update .ub-text small{opacity:.9;font-size:9px}
+.pwa-update .ub-btn{background:#fff;color:#0f6d3a;padding:6px 10px;border-radius:6px;font-size:9.5px;font-weight:900;text-transform:uppercase}
+
+/* Diagrama de sincronización (📱 → ☁ → 🖥) */
+.sync-diagram{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px;margin:16px 0;display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:16px}
+.sync-node{text-align:center;flex:1;min-width:130px}
+.sync-node .box-ico{width:56px;height:56px;background:linear-gradient(135deg,var(--azul),var(--teal));color:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 8px}
+.sync-node .name{font-weight:700;color:var(--azul);font-size:.9rem;margin-bottom:2px}
+.sync-node .detail{font-size:.78rem;color:var(--muted);line-height:1.4}
+.sync-arrow{font-size:1.6rem;color:var(--teal-cl);flex-shrink:0}

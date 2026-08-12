@@ -1,6 +1,147 @@
 # Guía Visual Complementaria
 
-> Contenido original de la guía visual (versión resumida con capturas), útil como referencia rápida complementaria a las notas detalladas: [[07-App-Movil-Modo-Basico]], [[08-App-Movil-Modo-Avanzado]], [[14-FAQ]].
+> Contenido original de la guía visual (versión resumida con capturas), útil como referencia rápida complementaria a las notas detalladas: [[02-Primeros-pasos]], [[07-App-Movil-Modo-Basico]], [[08-App-Movil-Modo-Avanzado]], [[13-Modo-Offline]], [[14-FAQ]].
+
+## Instalar la app en el celular (PWA)
+
+La app se instala como cualquier otra del celular, pero **sin pasar por Play Store o App Store**. El proceso toma 30 segundos:
+
+<div class="demo" markdown="0">
+  <div class="phone">
+    <div class="screen">
+      <div style="background:#009aae;padding:26px 12px 10px;color:#fff;font-weight:800;font-size:11px">SIG Vial PBA</div>
+      <div style="padding:16px;background:#f4f6f9;color:#1a2a3a;font-size:11px;height:calc(100% - 50px)">
+        <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,.15);text-align:center;margin-top:180px">
+          <div style="font-size:28px;margin-bottom:8px">📥</div>
+          <div style="font-weight:800;font-size:12px;margin-bottom:6px">Instalar SIG Vial PBA</div>
+          <div style="font-size:10px;color:#666;margin-bottom:12px">Agregar a la pantalla de inicio</div>
+          <div style="display:flex;gap:6px">
+            <div style="flex:1;padding:9px;background:#e0e0e0;color:#333;border-radius:6px;font-size:10px;font-weight:700">Cancelar</div>
+            <div style="flex:1;padding:9px;background:#009aae;color:#fff;border-radius:6px;font-size:10px;font-weight:700">Instalar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="step" markdown="1">
+
+**Paso a paso**
+
+1. Abrir **Chrome** en el celular.
+2. Ir a `lemeit.github.io/DVBA/app.html` (importante: el `/app.html` al final, sino se abre el portal escritorio).
+3. Al abrir aparece un banner, o el menú `⋮` muestra la opción **"Instalar aplicación"**.
+4. Tocarla y aceptar. Se agrega el ícono al launcher del celular.
+5. A partir de ahí, abrís la app tocando el ícono como cualquier otra.
+
+<div class="box info" markdown="0"><strong>El ícono se llama "SIG Vial PBA"</strong> y aparece con el logo institucional DVBA.</div>
+
+  </div>
+</div>
+
+### Actualizaciones automáticas
+
+Cuando hay una versión nueva del sistema, al abrir la app aparece un banner verde arriba:
+
+<div class="demo" markdown="0">
+  <div class="phone">
+    <div class="screen">
+      <div class="pwa-update">
+        <div class="ub-icon">🔄</div>
+        <div class="ub-text"><b>Hay una versión más nueva</b><small>De v9.93 → v9.94 · tocá Actualizar</small></div>
+        <div class="ub-btn">Actualizar</div>
+      </div>
+      <div class="lite-hdr" style="margin-top:52px">
+        <div class="hdr-top">
+          <div class="logo"><img src="img/logo_dvba_clean.png" alt="DVBA"></div>
+          <div class="brand">SIG Vial PBA · Modo Básico<span class="sub">👷 Técnico · Zona VI</span></div>
+        </div>
+        <div class="gps-badge on"><span class="dot"></span>±8m · 65m</div>
+      </div>
+      <div class="lite-main"><div class="big-btn"><div class="icon">📸</div><div class="lbl">Sacar foto</div><div class="sublbl">y guardar ubicación</div></div></div>
+    </div>
+  </div>
+  <div class="step" markdown="1">
+
+**Cómo actualizar**
+
+1. Al abrir la app, si hay versión nueva aparece el banner verde arriba.
+2. Tocar **Actualizar**.
+3. La app se recarga con la versión nueva en menos de 2 segundos.
+
+<div class="box warn" markdown="0"><strong>Importante</strong> · Si no tocás Actualizar, la app va a seguir funcionando con la versión vieja cacheada. No perdés nada, pero no tenés los últimos cambios.</div>
+
+  </div>
+</div>
+
+## Sincronización con la oficina
+
+Todo lo que se carga desde el celular aparece automáticamente en el sistema de escritorio, sin que nadie tenga que hacer nada manual:
+
+<div class="sync-diagram" markdown="0">
+  <div class="sync-node">
+    <div class="box-ico">📱</div>
+    <div class="name">App celular</div>
+    <div class="detail">Saca la foto con GPS<br>y la guarda en cola local</div>
+  </div>
+  <div class="sync-arrow">→</div>
+  <div class="sync-node">
+    <div class="box-ico">☁</div>
+    <div class="name">Supabase</div>
+    <div class="detail">Sube automáticamente<br>cuando hay conexión</div>
+  </div>
+  <div class="sync-arrow">→</div>
+  <div class="sync-node">
+    <div class="box-ico">🖥</div>
+    <div class="name">Portal escritorio</div>
+    <div class="detail">Aparece en el mapa,<br>lista para aprobar</div>
+  </div>
+</div>
+
+### Qué ve el personal de oficina
+
+Cuando el técnico de campo envía una foto, en el portal (abierto en la computadora de oficina o cualquier notebook con conexión) aparece:
+
+- Un **pin nuevo en el mapa**, en la posición GPS exacta donde se sacó la foto.
+- Un registro en la **cola de aprobación** con estado *"campo"* (a la espera de revisión).
+- La foto cruda **sin sello** (el sello institucional se aplica al aprobar).
+
+Desde escritorio, el personal responsable revisa, completa datos y aprueba. La foto queda sellada con los datos definitivos y trazable con QR de Google Maps.
+
+<div class="box info" markdown="0"><strong>🔒 Seguridad</strong> · Todos los registros llevan el ID del usuario que los cargó. Cada zona de la DVBA solo ve sus propios datos (excepto Gerencia y Admin, que ven todo).</div>
+
+## Navegador vs app instalada · WiFi/datos vs GPS
+
+<div class="grid2" markdown="0">
+  <div class="card" style="border-left:4px solid #f0a500" markdown="1">
+
+**🌐 Desde el navegador (sin instalar)**
+
+Si abrís la URL directamente en Chrome sin instalar la app:
+
+- Necesitás **obligatoriamente** WiFi o datos móviles para que la app cargue.
+- Si se corta la conexión, se pierde todo lo que estabas haciendo.
+- No hay cola offline: cada foto necesita internet en el momento.
+
+**Uso recomendado**: prueba rápida, primera vez, o desde la computadora de oficina.
+
+  </div>
+  <div class="card" style="border-left:4px solid #28a745" markdown="1">
+
+**📱 Como app instalada (PWA)**
+
+Una vez que instalaste la app y te logueaste al menos una vez con internet:
+
+- **NO requiere WiFi ni datos** para funcionar.
+- Solo necesita **señal de GPS** del celular (que funciona incluso sin internet).
+- Guarda las fotos en una cola local.
+- Sincroniza automáticamente cuando vuelva la conexión.
+
+**Uso recomendado**: campo, zonas rurales, cualquier situación operativa.
+
+  </div>
+</div>
+
+<div class="box tip" markdown="0"><strong>💡 Regla práctica</strong> · Instalá la app la primera vez que tengas WiFi (en la oficina). Después usala en el campo sin importar si tenés señal — el GPS funciona en cualquier lado. Cuando volvés a la oficina o entrás en zona con señal, todo se sincroniza solo.</div>
 
 ## Uso del Modo Básico
 
