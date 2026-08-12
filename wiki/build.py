@@ -20,7 +20,7 @@ Después:
 Requisitos:
     pip install mkdocs mkdocs-material pymdown-extensions
 """
-import re, shutil, sys
+import re, shutil, sys, unicodedata
 from pathlib import Path
 
 HERE = Path(__file__).parent
@@ -34,15 +34,30 @@ ASSETS = [
     ('01-Guia-de-Usuario/img', 'img'),  # wiki/01-Guia-de-Usuario/img/ → wiki/docs/img/
 ]
 
-# [[Nota]]        → [Nota](Nota.md)
-# [[Nota|Alias]]  → [Alias](Nota.md)
+# [[Nota]]              → [Nota](Nota.md)
+# [[Nota|Alias]]        → [Alias](Nota.md)
+# [[Nota#Sección]]      → [Nota > Sección](Nota.md#seccion)
+# [[Nota#Sección|Alt]]  → [Alt](Nota.md#seccion)
 WIKILINK_RE = re.compile(r'\[\[([^\]|]+)(?:\|([^\]]+))?\]\]')
+
+def _slugify(s: str) -> str:
+    """Convierte 'Uso del Modo Básico' → 'uso-del-modo-basico' (formato MkDocs Material / toc default).
+    Quita tildes, minúsculas, reemplaza espacios por guiones, elimina puntuación."""
+    s = s.strip().lower()
+    # NFD + filter Mn = quita tildes/diacríticos preservando la letra base (á→a, ñ→n)
+    s = ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+    s = re.sub(r'[·.,;:¿?¡!()\[\]{}"\'/\\]', '', s)
+    s = re.sub(r'\s+', '-', s)
+    return s
 
 def convertir_wikilinks(texto: str) -> str:
     def repl(m):
-        destino = m.group(1).strip()
-        alias   = (m.group(2) or destino).strip()
-        return f'[{alias}]({destino}.md)'
+        raw   = m.group(1).strip()
+        alias = (m.group(2) or raw.replace('#', ' > ')).strip()
+        if '#' in raw:
+            nota, seccion = raw.split('#', 1)
+            return f'[{alias}]({nota.strip()}.md#{_slugify(seccion)})'
+        return f'[{alias}]({raw}.md)'
     return WIKILINK_RE.sub(repl, texto)
 
 def copiar_assets():

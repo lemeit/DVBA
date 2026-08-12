@@ -395,7 +395,7 @@ Es la app tradicional con wizard completo. Se accede desde el link **⚙ App com
 
 3. Se abre la lista de tipos específicos dentro de esa categoría.
 
-Ver la lista completa de tipos disponibles en la [sección 8](#tipos).
+Ver la lista completa de tipos disponibles en la sección [MODELO_TIPOS_ESTADOS.md](https://github.com/lemeit/DVBA/blob/main/docs/MODELO_TIPOS_ESTADOS.md) del repositorio.
 
 ### Elegir tipo específico
 
@@ -515,7 +515,7 @@ Programado / En ejecución / Finalizado / Suspendido / Cancelado
 
 .
 
-Ver el detalle completo del modelo Tipo↔Estado en [docs/MODELO_TIPOS_ESTADOS.md](MODELO_TIPOS_ESTADOS.md).
+Ver el detalle completo del modelo Tipo↔Estado en [docs/MODELO_TIPOS_ESTADOS.md](https://github.com/lemeit/DVBA/blob/main/docs/MODELO_TIPOS_ESTADOS.md) del repositorio.
 
 ## Preguntas frecuentes
 

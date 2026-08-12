@@ -1,7 +1,7 @@
 site_name: SIG Vial PBA · Guía de Usuario
 site_description: Sistema de Información Geográfica Vial · Provincia de Buenos Aires · DVBA
 site_author: Dirección de Vialidad de la Provincia de Buenos Aires
-site_url: https://lemeit.github.io/DVBA-wiki-mkdocs/
+site_url: https://lemeit.github.io/DVBA/wiki-site/
 
 repo_name: lemeit/DVBA
 repo_url: https://github.com/lemeit/DVBA
