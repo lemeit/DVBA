@@ -17,6 +17,7 @@ exclude_docs: |
 theme:
   name: material
   language: es
+  custom_dir: overrides  # v8.68 · footer institucional DVBA (partials/copyright.html)
   palette:
     - scheme: default
       primary: teal
@@ -92,7 +93,8 @@ markdown_extensions:
       custom_checkbox: true
 
 extra_css:
-  - stylesheets/mockups.css  # v1.0 · reproduce los mockups de UI de la guía visual
+  - stylesheets/mockups.css     # v1.0 · reproduce los mockups de UI de la guía visual
+  - stylesheets/theme-dvba.css  # v8.68 · paleta institucional DVBA + footer portal
 
 extra:
   social:
@@ -101,6 +103,4 @@ extra:
       name: Repositorio DVBA
   generator: false  # oculta "Made with Material for MkDocs"
 
-copyright: >
-  © 2026 Dirección de Vialidad de la Provincia de Buenos Aires ·
-  Ministerio de Infraestructura y Servicios Públicos
+# copyright ya no se usa · lo reemplaza overrides/partials/copyright.html (v8.68)
