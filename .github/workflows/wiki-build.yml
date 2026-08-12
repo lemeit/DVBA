@@ -1,14 +1,13 @@
 name: Build wiki (MkDocs Material)
 
-# Dispara en cada push a main que TOQUE la wiki (fuente o config),
-# excluyendo el output generado (wiki-site/) para evitar loops.
+# Dispara en cada push a main que TOQUE la fuente de la wiki,
+# excluyendo el output generado (wiki/) para evitar loops.
 on:
   push:
     branches: [main]
     paths:
-      - 'wiki/**'
+      - 'wiki-src/**'
       - '.github/workflows/wiki-build.yml'
-      - '!wiki-site/**'
   workflow_dispatch:  # permite dispararlo a mano desde GitHub Actions
 
 # Necesario para que el commit al final pueda pushear al repo
@@ -27,24 +26,24 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
-          cache-dependency-path: wiki/requirements.txt
+          cache-dependency-path: wiki-src/requirements.txt
 
       - name: Install MkDocs + Material
-        run: pip install -r wiki/requirements.txt
+        run: pip install -r wiki-src/requirements.txt
 
-      - name: Build MkDocs site → wiki-site/
+      - name: Build MkDocs site → wiki/
         run: |
-          cd wiki
-          mkdocs build --site-dir ../wiki-site --strict
+          cd wiki-src
+          mkdocs build --site-dir ../wiki --strict
 
-      - name: Commit wiki-site/ si cambió
+      - name: Commit wiki/ si cambió
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add wiki-site/
+          git add wiki/
           if git diff --cached --quiet; then
-            echo "Sin cambios en wiki-site/ — nada que commitear."
+            echo "Sin cambios en wiki/ — nada que commitear."
           else
-            git commit -m "chore(wiki): rebuild site [skip ci]" -m "Generado automáticamente por wiki-build.yml desde wiki/**."
+            git commit -m "chore(wiki): rebuild site [skip ci]" -m "Generado automáticamente por wiki-build.yml desde wiki-src/**."
             git push
           fi
