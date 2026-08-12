@@ -62,11 +62,15 @@ function aplicar(base64, datos, opts){
     img.onload = () => {
       try {
         const W = img.width;
-        // Banner con AJUSTE DINÁMICO · v8.16
-        // Compromiso: banner menos "gordo" (foto se ve menos afinada) pero
-        // con interlineado suficiente para no pisarse.
-        const bH_base = Math.max(160, Math.min(Math.round(W*0.16), 270));
-        const _baseF = Math.max(16, Math.min(Math.round(W*0.022), 36));
+        // v8.66f · Escala opcional del sello (0.50 - 1.00) para casos puntuales
+        // donde el sello tapa algo importante de la foto (ej. puente en el bottom).
+        // Se pasa vía datos.escalaSello. Default 1.0 = tamaño normal (sin cambios).
+        // Achica proporcionalmente banner + fuentes + QR + logo.
+        const _esc = (typeof datos.escalaSello === 'number' && datos.escalaSello >= 0.5 && datos.escalaSello <= 1)
+                     ? datos.escalaSello : 1.0;
+        // Banner con AJUSTE DINÁMICO · v8.16 · escalado v8.66f
+        const bH_base = Math.round(Math.max(160, Math.min(Math.round(W*0.16), 270)) * _esc);
+        const _baseF = Math.round(Math.max(16, Math.min(Math.round(W*0.022), 36)) * _esc);
         const _fT_ = Math.round(_baseF*1.20), _fM_ = Math.round(_baseF*1.05),
               _fS_ = Math.round(_baseF*0.85), _fV_ = Math.round(_baseF*0.65);
         const _LH_ = 1.35;  // interlineado (1.5 era demasiado, 1.26 pisaba)

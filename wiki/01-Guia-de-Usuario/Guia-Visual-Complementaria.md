@@ -40,20 +40,28 @@ lulamaita@vialidad.gba.gov.ar
 
 ### 6.2 Verificar el GPS antes de sacar fotos
 
-```
-┌─ App móvil · Modo Básico ─────────────┐
-│ 👷 Técnico · Zona VI                  │
-├───────────────────────────────────────┤
-│           📸 Sacar foto               │
-│         y guardar ubicación           │
-│                                       │
-│ ⚠ La ubicación no está lista.         │
-│ Tocá el indicador de arriba           │
-│ para intentar de nuevo.               │
-├───────────────────────────────────────┤
-│ 📤 Sin enviar · ⚙ Modo Avanzado · ℹ  │
-└───────────────────────────────────────┘
-```
+<div class="demo" markdown="0">
+  <div class="phone">
+    <div class="screen">
+      <div class="lite-hdr" style="padding-top:34px">
+        <div class="hdr-top">
+          <div class="logo"><img src="img/logo_dvba_clean.png" alt="DVBA"></div>
+          <div class="brand">SIG Vial PBA · Modo Básico<span class="sub">👷 Técnico · Zona VI</span></div>
+        </div>
+        <div class="gps-badge off"><span class="dot"></span>Sin ubicación · tocar</div>
+      </div>
+      <div class="lite-main">
+        <div class="big-btn dis"><div class="icon">📸</div><div class="lbl">Sacar foto</div><div class="sublbl">y guardar ubicación</div></div>
+        <div class="hint-alerta">⚠ La ubicación no está lista.<br><b>Tocá el indicador de arriba</b> para intentar de nuevo.</div>
+      </div>
+      <div class="lite-footer">
+        <div class="fb pend"><span class="ico">📤</span><span>Sin enviar</span></div>
+        <div class="fb"><span class="ico">⚙</span><span>Modo Avanzado</span></div>
+        <div class="fb info"><span class="ico">ℹ</span><span>Info</span></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 #### Instrucciones
 
@@ -97,23 +105,40 @@ alguien en la oficina
 
 Sin enviar
 
-2
-
-⚙: Modo Avanzado
-
-ℹ: Info
-
-🛣
-
-📍
-
-Lat -35.641234   Long -59.784567
-
-±6m · 78m alt · 19/07/2026, 08:45
-
-↺ Sacar otra
-
-✓ Enviar
+<div class="demo" markdown="0">
+  <div class="phone">
+    <div class="screen">
+      <div class="lite-hdr" style="padding-top:34px">
+        <div class="hdr-top">
+          <div class="logo"><img src="img/logo_dvba_clean.png" alt="DVBA"></div>
+          <div class="brand">SIG Vial PBA · Modo Básico<span class="sub">👷 Técnico · Zona VI</span></div>
+        </div>
+        <div class="gps-badge on"><span class="dot"></span>±6m · 78m</div>
+      </div>
+      <div class="lite-main">
+        <div class="big-btn"><div class="icon">📸</div><div class="lbl">Sacar foto</div><div class="sublbl">y guardar ubicación</div></div>
+        <div class="hint">Solo tocá el botón para <b>sacar la foto</b> y guardar el <b>lugar exacto</b>.<br><br>Los demás datos los completa <b>alguien en la oficina</b>.</div>
+      </div>
+      <div class="lite-footer">
+        <div class="fb pend"><span class="ico">📤</span><span>Sin enviar</span></div>
+        <div class="fb"><span class="ico">⚙</span><span>Modo Avanzado</span></div>
+        <div class="fb info"><span class="ico">ℹ</span><span>Info</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="phone">
+    <div class="screen">
+      <div class="preview-ov">
+        <div class="prev-img"><div class="fake">🛣</div></div>
+        <div class="prev-info">📍 <b>Lat -35.641234   Long -59.784567</b><br><span style="opacity:.75">±6m · 78m alt · 19/07/2026, 08:45</span></div>
+        <div class="prev-actions">
+          <div class="btn btn-desc">↺ Sacar otra</div>
+          <div class="btn btn-gua">✓ Enviar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 #### Instrucciones
 
@@ -133,29 +158,31 @@ Feedback visual
 
 ### 6.4 Ver y gestionar los pendientes
 
-3 pendientes
-
-🛣
-
-19/07 08:45
-
--35.6412, -59.7846
-
-Borrar
-
-🛣
-
-19/07 09:02
-
--35.6398, -59.7889
-
-⚠ Sin ubicación GPS
-
-Borrar
-
-Borrar todo
-
-↻ Enviar ahora
+<div class="demo" markdown="0">
+  <div class="phone">
+    <div class="screen">
+      <div class="lite-hdr" style="padding-top:34px">
+        <div class="hdr-top"><div class="logo"><img src="img/logo_dvba_clean.png" alt="DVBA"></div><div class="brand">Fotos sin enviar<span class="sub">3 pendientes</span></div></div>
+      </div>
+      <div style="background:#fff;color:#1a1a1a;flex:1;padding:10px 8px;overflow-y:auto;height:calc(100% - 130px)">
+        <div style="display:flex;gap:8px;padding:8px;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:6px">
+          <div style="width:44px;height:44px;background:#8b6f47;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🛣</div>
+          <div style="flex:1;font-size:9.5px"><div style="font-weight:700;font-size:10px">19/07 08:45</div><div style="color:#888;font-size:9px">-35.6412, -59.7846</div></div>
+          <div style="background:#ffe8e8;color:#b20900;padding:5px 8px;border-radius:6px;font-size:9px;font-weight:800">Borrar</div>
+        </div>
+        <div style="display:flex;gap:8px;padding:8px;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:6px">
+          <div style="width:44px;height:44px;background:#a08055;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🛣</div>
+          <div style="flex:1;font-size:9.5px"><div style="font-weight:700;font-size:10px">19/07 09:02</div><div style="color:#888;font-size:9px">-35.6398, -59.7889</div><div style="color:#b20900;font-size:8.5px;font-weight:700">⚠ Sin ubicación GPS</div></div>
+          <div style="background:#ffe8e8;color:#b20900;padding:5px 8px;border-radius:6px;font-size:9px;font-weight:800">Borrar</div>
+        </div>
+      </div>
+      <div style="padding:8px;background:#f8f8f8;display:flex;gap:6px;border-top:1px solid #e0e0e0">
+        <div style="flex:1;padding:10px;background:#fff;color:#b20900;border:1.5px solid #d24040;border-radius:8px;font-size:9.5px;font-weight:800;text-align:center">Borrar todo</div>
+        <div style="flex:1;padding:10px;background:#1a8a4a;color:#fff;border-radius:8px;font-size:10px;font-weight:800;text-transform:uppercase;text-align:center">↻ Enviar ahora</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 #### Instrucciones
 
@@ -222,27 +249,26 @@ Es la app tradicional con wizard completo. Se accede desde el link **⚙ App com
 
 👷 Técnico · Zona VI
 
-¿Qué vas a relevar?
-
-🛣️
-
-💧
-
-🌉
-
-🚧
-
-🛑
-
-💡
-
-🌿
-
-🚨
-
-🚜
-
-📝
+<div class="demo" markdown="0">
+  <div class="phone">
+    <div class="screen">
+      <div class="full-hdr" style="padding-top:34px">SIG Vial PBA · Campo<span class="sub">👷 Técnico · Zona VI</span></div>
+      <div style="background:#fff;color:#1a2a3a;padding:10px 12px 6px;font-size:10px;font-weight:700;color:#009aae">¿Qué vas a relevar?</div>
+      <div class="full-cats">
+        <div class="full-cat"><span class="ico">🛣️</span>Calzada</div>
+        <div class="full-cat"><span class="ico">💧</span>Drenaje</div>
+        <div class="full-cat"><span class="ico">🌉</span>Estructura</div>
+        <div class="full-cat"><span class="ico">🚧</span>Señalización</div>
+        <div class="full-cat"><span class="ico">🛑</span>Demarcación</div>
+        <div class="full-cat"><span class="ico">💡</span>Iluminación</div>
+        <div class="full-cat"><span class="ico">🌿</span>Entorno</div>
+        <div class="full-cat"><span class="ico">🚨</span>Seguridad</div>
+        <div class="full-cat"><span class="ico">🚜</span>Mantenimiento</div>
+        <div class="full-cat"><span class="ico">📝</span>Otro</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 #### Instrucciones
 

@@ -86,6 +86,9 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
 
+extra_css:
+  - stylesheets/mockups.css  # v1.0 · reproduce los mockups de UI de la guía visual
+
 extra:
   social:
     - icon: fontawesome/brands/github
