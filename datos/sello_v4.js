@@ -114,51 +114,33 @@ function aplicar(base64, datos, opts){
               // Línea dorada: 50%+ de la fila es dorado → borde del banner
               if (dorados / total > 0.50) { bordeBanner = y; break; }
             }
-            // v8.66f.1 · Segundo intento: si NO se detectó línea dorada, buscar
-            // la franja OSCURA HOMOGÉNEA del banner semi-transparente v4. El sello
-            // aplica un rectángulo negro con alpha ~0.55 al pie de la foto, que se
-            // ve como una franja notablemente más oscura que la foto natural (cielo,
-            // camino, campo). Escaneamos luma promedio por fila: la primera fila
-            // significativamente más oscura que las de arriba marca el borde del banner.
+            // v8.66f.2 · REVERT del método luma de v8.66f.1: causaba falsos positivos
+            // (sombras naturales de árboles/terreno se detectaban como banner y recortaban
+            // parte de la foto real). Volvemos al método original solo con línea dorada
+            // pero con UMBRAL MÁS PERMISIVO (30% en vez de 50%) para tolerar compresión
+            // JPEG que degrada el amarillo dorado a naranja/verdoso.
             if (bordeBanner < 0) {
-              try {
-                const lumaFila = [];
-                for (let y = scanFrom - 20; y < scanTo; y++){
-                  if (y < 0) { lumaFila.push(255); continue; }
-                  const row = pctx.getImageData(0, y, W, 1).data;
-                  let suma = 0, cnt = 0;
-                  for (let x = 0; x < W; x += step){
-                    const i = x * 4;
-                    suma += 0.299*row[i] + 0.587*row[i+1] + 0.114*row[i+2];
-                    cnt++;
-                  }
-                  lumaFila.push(suma / cnt);
+              for (let y = scanFrom; y < scanTo; y++) {
+                const row = pctx.getImageData(0, y, W, 1).data;
+                let dorados = 0, total = 0;
+                for (let x = 0; x < W; x += step) {
+                  const i = x * 4;
+                  const r = row[i], g = row[i+1], b = row[i+2];
+                  // v8.66f.2 · Rango dorado ampliado: tolera JPEG que degrada #d4a820
+                  if (r > 160 && r < 250 && g > 110 && g < 200 && b < 90) dorados++;
+                  total++;
                 }
-                // Buscar cambio brusco: promedio 20 filas anteriores vs actual.
-                // El banner es notablemente más oscuro (luma < 120 típicamente).
-                for (let i = 20; i < lumaFila.length; i++){
-                  const promAnt = lumaFila.slice(i-20, i).reduce((a,b)=>a+b,0) / 20;
-                  const actual = lumaFila[i];
-                  // Umbral: caída > 60 unidades de luma, sostenida (próximas 10 filas
-                  // también oscuras) → borde del banner
-                  if (promAnt - actual > 60 && actual < 130){
-                    const sostenido = lumaFila.slice(i, i+10).every(l => l < 140);
-                    if (sostenido){
-                      bordeBanner = scanFrom - 20 + i;
-                      console.log('[sello_v4 resello] banner oscuro detectado a y=' + bordeBanner + ' (Δluma=' + (promAnt-actual).toFixed(0) + ')');
-                      break;
-                    }
-                  }
-                }
-              } catch(e2){ console.warn('[sello_v4 resello] fallback luma falló:', e2); }
+                // Umbral 30% (antes 50%) → detecta mejor con compresión JPEG
+                if (dorados / total > 0.30) { bordeBanner = y; break; }
+              }
+              if (bordeBanner > 0) console.log('[sello_v4 resello] línea dorada detectada (umbral 30%) a y=' + bordeBanner);
             }
             if (bordeBanner > 0) {
               H = bordeBanner;
-              console.log('[sello_v4 resello] recorte banner viejo a y=' + bordeBanner + ' (banner ' + (img.height-bordeBanner) + 'px)');
             } else {
-              // Fallback final: NO cortar (mejor mantener foto que perderla)
+              // Fallback: NO cortar (mejor mantener foto entera que recortarla mal)
               H = img.height;
-              console.warn('[sello_v4 resello] NO se detectó banner viejo (ni línea dorada ni franja oscura) — NO se corta (foto puede quedar con doble banner)');
+              console.warn('[sello_v4 resello] línea dorada no detectada — NO se corta (si hay sello viejo puede aparecer doble banner; verificar si existe backup del original)');
             }
           } catch(e) {
             console.warn('[sello_v4 resello] error detectando banner:', e);
