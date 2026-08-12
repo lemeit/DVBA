@@ -4,9 +4,9 @@
 
 DVBA · Departamento Zona VI Saladillo
 
-Última actualización: 3 de agosto de 2026
+Última actualización: 12 de agosto de 2026
 
-Versión bitácora: v5.0 — apps v9.91 / v8.64.2 · 3-ago-2026
+Versión bitácora: v5.1 — apps v9.94 / v8.67 · 12-ago-2026
 
 Responsable: Ing. Luciano Lamaita
 
@@ -925,6 +925,22 @@ completar las RPs faltantes en QGIS
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
+
+### v8.67 / v9.94 · 12 agosto 2026 — Presets tamaño sello + fix doble sello + versión reubicada
+
+Cierre de la serie **v8.66f (7 hotfixes iterativos)** sobre `datos/sello_v4.js` + portal + móvil. Origen: fotos donde el banner del sello tapa detalles críticos (puentes, defectos en el pie de la foto). Resuelto sin romper el diseño base para el resto de las fotos.
+
+**Presets de tamaño** — el modal "🖋 Editar datos del sello" (aprobación) y el sidebar de edición ahora tienen 3 botones **🖋 Normal (100%) / 🖋 Mediano (75%) / 🖋 Mínimo (50%)**. Reemplazan al slider intermedio de v8.66f-f.2 que confundía al user (quedaba pegado en el último valor entre fotos). El preset se resetea a Normal al abrir cada foto.
+
+**Fix doble sello real** — al re-sellar con escala < 100% sobre foto sellada sin backup limpio, quedaban 2 banners superpuestos porque `sello_v4` no cortaba el banner viejo si no detectaba la línea dorada (compresión JPEG, rotación, o sello del móvil). Nuevo fallback ASUMIDO: si no aparece la línea, recorta la altura por defecto del banner al 100% (`max(160, min(W*0.16, 270))`) — ciego pero determinístico.
+
+**Versión reubicada** — el string `vX.X·origen · sello v4` (dorado transparente) pasó de la columna central (donde se pisaba con el texto principal en fotos con localidad larga) a **centrado debajo del QR en la columna derecha**. QR reducido a 0.72·bH y anclado al top del banner para dejar ~22% de altura libre debajo.
+
+**Fix crítico fecha recortada en Mínimo** — bug histórico de v8.66f: `_baseF` (usado para el alto del banner) se escalaba con el preset pero `baseFont` (usado para dibujar el texto) NO. Resultado: Mediano/Mínimo achicaban el banner pero dibujaban texto tamaño completo → la última línea (fecha/hora) se cortaba fuera. Ahora ambos escalan proporcionalmente y el texto entra siempre.
+
+**Advertencia legacy** — botón "🖋 Mediano/Mínimo" sobre foto legacy (sin backup del original) dispara `confirm()` explicando que puede quedar el sello anterior visible por atrás, y sugiere usar Normal. Banner rojo dismissible bajo la barra de herramientas.
+
+Archivos tocados: `datos/sello_v4.js`, `index.html`, `admin_usuarios.html`, `reportes.html`, `partes_diarios.html`, `dvba_campo.html`, `dvba_campo_lite.html`, `sw.js` (cache `dvba-campo-v9.94`).
 
 ### v8.44 – v8.52 · 31 julio – 1 agosto 2026 — Fase 4 completa (Panel Admin) + escalado multi-zona listo + branding SIG Vial PBAᵝ
 
