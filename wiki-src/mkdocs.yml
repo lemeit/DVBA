@@ -18,6 +18,8 @@ theme:
   name: material
   language: es
   custom_dir: overrides  # v8.68 · footer institucional DVBA (partials/copyright.html)
+  logo: img/logo_dvba_clean.png       # v8.68 · reemplaza el ícono default junto a "SIG Vial PBA"
+  favicon: img/logo_dvba_clean.png    # v8.68 · favicon del tab del navegador
   palette:
     - scheme: default
       primary: teal
