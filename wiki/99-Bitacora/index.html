@@ -1,0 +1,4246 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Sistema de Información Geográfica Vial · Provincia de Buenos Aires · DVBA">
+      
+      
+        <meta name="author" content="Dirección de Vialidad de la Provincia de Buenos Aires">
+      
+      
+        <link rel="canonical" href="https://lemeit.github.io/DVBA/wiki/99-Bitacora/">
+      
+      
+        <link rel="prev" href="../Guia-Visual-Complementaria/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../img/logo_dvba_clean.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Bitácora del proyecto - SIG Vial PBA · Guía de Usuario</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Encode+Sans:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Encode Sans";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/mockups.css">
+    
+      <link rel="stylesheet" href="../stylesheets/theme-dvba.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href=".." title="SIG Vial PBA · Guía de Usuario" class="md-header__button md-logo" aria-label="SIG Vial PBA · Guía de Usuario" data-md-component="logo">
+      
+  <img src="../img/logo_dvba_clean.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SIG Vial PBA · Guía de Usuario
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Bitácora del proyecto
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="amber"  aria-label="Modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="amber"  aria-label="Modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/lemeit/DVBA" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    lemeit/DVBA
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SIG Vial PBA · Guía de Usuario" class="md-nav__button md-logo" aria-label="SIG Vial PBA · Guía de Usuario" data-md-component="logo">
+      
+  <img src="../img/logo_dvba_clean.png" alt="logo">
+
+    </a>
+    SIG Vial PBA · Guía de Usuario
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/lemeit/DVBA" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    lemeit/DVBA
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-Indice/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inicio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-Que-es-el-sistema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qué es el sistema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-Primeros-pasos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Primeros pasos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-Modo-Publico/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modo Público
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-Roles-y-Accesos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roles y Accesos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-Portal-Escritorio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Portal Escritorio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-Panel-Administracion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Panel Administración
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-App-Movil-Modo-Basico/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    App Móvil · Modo Básico
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-App-Movil-Modo-Avanzado/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    App Móvil · Modo Avanzado
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-Plan-Seguridad-Circulacion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plan Seguridad Circulación
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-Reportes-Red-Vial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reportes Red Vial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-Reportes-Dashboard-Gerencial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reportes Dashboard Gerencial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-Sello-Institucional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sello Institucional
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-Modo-Offline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modo Offline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-FAQ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Guia-Visual-Complementaria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guía Visual
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bitácora del proyecto
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bitácora del proyecto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#descripcion-del-proyecto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Descripción del Proyecto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contexto-institucional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contexto Institucional
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stack-tecnico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stack Técnico
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estado-por-ruta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estado por Ruta
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linea-de-tiempo-trabajo-sobre-rp-40" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Línea de Tiempo · Trabajo sobre RP 40
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flujo-de-trabajo-por-ruta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flujo de Trabajo por Ruta
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sistema-de-progresivas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sistema de Progresivas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notas-tecnicas-importantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notas Técnicas Importantes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#app-escritorio-indexhtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        App Escritorio · index.html
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="App Escritorio · index.html">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#algoritmos-clave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Algoritmos clave
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bugs-resueltos-escritorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bugs resueltos · Escritorio
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#app-movil-pwa-dvba_campohtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        App Móvil PWA · dvba_campo.html
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="App Móvil PWA · dvba_campo.html">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caracteristicas-clave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Características clave
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sello-v2-diseno-detallado-24-jun-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sello v2 — diseño detallado (24 jun 2026)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bugs-resueltos-campo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bugs resueltos · Campo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checklist-por-release-de-la-app-de-campo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checklist por release de la app de campo
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-supabase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend · Supabase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estructura-del-repositorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estructura del Repositorio
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#carpetas-locales-fuera-del-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Carpetas Locales (FUERA del repo)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#urls-de-acceso" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        URLs de Acceso
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flujo-de-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flujo de Releases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-migracion-a-github-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico · Migración a GitHub Pages
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisiones-tecnicas-clave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisiones Técnicas Clave
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Decisiones Técnicas Clave">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-arquitectura-modular-por-ruta-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Arquitectura modular por ruta DECISIÓN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-fuente-de-datos-adoptada-para-rp40-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Fuente de datos adoptada para RP40 DECISIÓN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-representacion-de-gaps-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Representación de gaps DECISIÓN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-mojones-fisicos-vs-sinteticos-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Mojones · físicos vs sintéticos DECISIÓN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-denominacion-institucional-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Denominación institucional DECISIÓN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-estructura-monorepo-decision-6-may-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Estructura monorepo DECISIÓN · 6 may 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-renombrado-de-dvba_zona6html-indexhtml-decision-6-may-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Renombrado de dvba_zona6.html → index.html DECISIÓN · 6 may 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-paths-sin-caracteres-especiales-decision-operativa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Paths sin caracteres especiales DECISIÓN OPERATIVA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-service-worker-network-first-decision-6-may-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Service Worker network-first DECISIÓN · 6 may 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-versionado-independiente-por-artefacto-decision-7-may-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Versionado independiente por artefacto DECISIÓN · 7 may 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alta-prioridad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔴 Alta Prioridad
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#media-prioridad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔵 Media Prioridad
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#baja-prioridad-futuro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚪ Baja Prioridad / Futuro
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resueltos-recientemente-referencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Resueltos recientemente (referencia)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changelog-apps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📋 Changelog · Apps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Changelog · Apps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v867-v994-12-agosto-2026-presets-tamano-sello-fix-doble-sello-version-reubicada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.67 / v9.94 · 12 agosto 2026 — Presets tamaño sello + fix doble sello + versión reubicada
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v844-v852-31-julio-1-agosto-2026-fase-4-completa-panel-admin-escalado-multi-zona-listo-branding-sig-vial-pba" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.44 – v8.52 · 31 julio – 1 agosto 2026 — Fase 4 completa (Panel Admin) + escalado multi-zona listo + branding SIG Vial PBAᵝ
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v829-v842-2931-julio-2026-sistema-de-reportes-unificado-red-vial-provincial-paleta-minimalista-pba" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.29 – v8.42 · 29–31 julio 2026 — Sistema de reportes unificado Red Vial Provincial + paleta minimalista PBA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v811-v821-v979-v988-2128-julio-2026-refactor-sello-exif-metadata-rediseno-arquitectura-edicion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.11 – v8.21 / v9.79 – v9.88 · 21–28 julio 2026 — Refactor sello + EXIF metadata + rediseño arquitectura edición
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v950-7-julio-2026-fix-instalacion-pwa-webapk-id-start_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.50 · 7 julio 2026 — Fix instalación PWA (WebAPK id / start_url)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v950v953-v746v757-713-julio-2026-sprint-sig-vial-gestion-de-fotos-originales-ux-del-portal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.50–v9.53 / v7.46–v7.57 · 7–13 julio 2026 — Sprint SIG Vial + gestión de fotos originales + UX del portal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v945v949-v728v745-16-julio-2026-sprint-integracion-caminos-rediseno-ui-scripts-v211" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.45–v9.49 / v7.28–v7.45 · 1–6 julio 2026 — Sprint integración caminos + rediseño UI + scripts v2.11
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v919-v714-30-junio-2026-workflow-campo-oficina-armonizacion-geoespacial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.19 / v7.14 · 30 junio 2026 — Workflow "campo → oficina" + armonización geoespacial 🎯
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v918-24-junio-2026-modelo-tipoestado-redisenado-sub-atributos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.18 · 24 junio 2026 — Modelo Tipo↔Estado rediseñado + sub-atributos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v916-24-junio-2026-sello-v3-inicial-con-qr-fix-bug-rs_block_table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.16 · 24 junio 2026 — Sello v3 inicial con QR + fix bug RS_BLOCK_TABLE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v917-24-junio-2026-banner-del-sello-como-footer-no-tapa-la-foto-url-qr-oficial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.17 · 24 junio 2026 — Banner del sello como footer (no tapa la foto) + URL QR oficial
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v915-24-junio-2026-app-de-campo-sello-v2-modal-editable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.15 · 24 junio 2026 — App de campo (Sello v2 + Modal editable)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v77-24-junio-2026-app-de-escritorio-sello-v2-modal-editable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v7.7 · 24 junio 2026 — App de escritorio (Sello v2 + Modal editable)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v11-24-junio-2026-caminos-secundarios-hover-tolerante" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v1.1 · 24 junio 2026 — Caminos Secundarios (hover tolerante)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v910-20-mayo-2026-app-de-campo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.10 · 20 mayo 2026 — App de campo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v71-20-mayo-2026-app-de-escritorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v7.1 · 20 mayo 2026 — App de escritorio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v10-17-19-mayo-2026-caminos-secundarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v1.0 · 17-19 mayo 2026 — Caminos Secundarios
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v92-7-mayo-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.2 · 7 mayo 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v91-6-mayo-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.1 · 6 mayo 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v61-v90-historico-abril-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v6.1 → v9.0 · histórico (abril 2026)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changelog-service-worker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 Changelog · Service Worker
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Changelog · Service Worker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v915-v915a-v915b-24-junio-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.15 / v9.15a / v9.15b · 24 junio 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v34-20-mayo-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.4 · 20 mayo 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v31-6-mayo-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.1 · 6 mayo 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changelog-infraestructura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📦 Changelog · Infraestructura
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📦 Changelog · Infraestructura">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#20-mayo-2026-seguridad-supabase-auth-rls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20 mayo 2026 — Seguridad: Supabase Auth + RLS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#17-19-mayo-2026-caminos-secundarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17-19 mayo 2026 — Caminos Secundarios
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-mayo-2026-versionado-por-artefacto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7 mayo 2026 — Versionado por artefacto
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#descripcion-del-proyecto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Descripción del Proyecto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contexto-institucional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contexto Institucional
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stack-tecnico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stack Técnico
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estado-por-ruta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estado por Ruta
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linea-de-tiempo-trabajo-sobre-rp-40" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Línea de Tiempo · Trabajo sobre RP 40
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flujo-de-trabajo-por-ruta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flujo de Trabajo por Ruta
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sistema-de-progresivas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sistema de Progresivas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notas-tecnicas-importantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notas Técnicas Importantes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#app-escritorio-indexhtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        App Escritorio · index.html
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="App Escritorio · index.html">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#algoritmos-clave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Algoritmos clave
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bugs-resueltos-escritorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bugs resueltos · Escritorio
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#app-movil-pwa-dvba_campohtml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        App Móvil PWA · dvba_campo.html
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="App Móvil PWA · dvba_campo.html">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caracteristicas-clave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Características clave
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sello-v2-diseno-detallado-24-jun-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sello v2 — diseño detallado (24 jun 2026)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bugs-resueltos-campo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bugs resueltos · Campo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checklist-por-release-de-la-app-de-campo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checklist por release de la app de campo
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-supabase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend · Supabase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estructura-del-repositorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estructura del Repositorio
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#carpetas-locales-fuera-del-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Carpetas Locales (FUERA del repo)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#urls-de-acceso" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        URLs de Acceso
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flujo-de-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flujo de Releases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-migracion-a-github-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico · Migración a GitHub Pages
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisiones-tecnicas-clave" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisiones Técnicas Clave
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Decisiones Técnicas Clave">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-arquitectura-modular-por-ruta-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Arquitectura modular por ruta DECISIÓN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-fuente-de-datos-adoptada-para-rp40-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Fuente de datos adoptada para RP40 DECISIÓN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-representacion-de-gaps-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Representación de gaps DECISIÓN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-mojones-fisicos-vs-sinteticos-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Mojones · físicos vs sintéticos DECISIÓN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-denominacion-institucional-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Denominación institucional DECISIÓN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-estructura-monorepo-decision-6-may-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Estructura monorepo DECISIÓN · 6 may 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-renombrado-de-dvba_zona6html-indexhtml-decision-6-may-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Renombrado de dvba_zona6.html → index.html DECISIÓN · 6 may 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-paths-sin-caracteres-especiales-decision-operativa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Paths sin caracteres especiales DECISIÓN OPERATIVA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-service-worker-network-first-decision-6-may-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Service Worker network-first DECISIÓN · 6 may 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-versionado-independiente-por-artefacto-decision-7-may-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Versionado independiente por artefacto DECISIÓN · 7 may 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alta-prioridad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔴 Alta Prioridad
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#media-prioridad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔵 Media Prioridad
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#baja-prioridad-futuro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚪ Baja Prioridad / Futuro
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resueltos-recientemente-referencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Resueltos recientemente (referencia)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changelog-apps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📋 Changelog · Apps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 Changelog · Apps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v867-v994-12-agosto-2026-presets-tamano-sello-fix-doble-sello-version-reubicada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.67 / v9.94 · 12 agosto 2026 — Presets tamaño sello + fix doble sello + versión reubicada
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v844-v852-31-julio-1-agosto-2026-fase-4-completa-panel-admin-escalado-multi-zona-listo-branding-sig-vial-pba" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.44 – v8.52 · 31 julio – 1 agosto 2026 — Fase 4 completa (Panel Admin) + escalado multi-zona listo + branding SIG Vial PBAᵝ
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v829-v842-2931-julio-2026-sistema-de-reportes-unificado-red-vial-provincial-paleta-minimalista-pba" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.29 – v8.42 · 29–31 julio 2026 — Sistema de reportes unificado Red Vial Provincial + paleta minimalista PBA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v811-v821-v979-v988-2128-julio-2026-refactor-sello-exif-metadata-rediseno-arquitectura-edicion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.11 – v8.21 / v9.79 – v9.88 · 21–28 julio 2026 — Refactor sello + EXIF metadata + rediseño arquitectura edición
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v950-7-julio-2026-fix-instalacion-pwa-webapk-id-start_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.50 · 7 julio 2026 — Fix instalación PWA (WebAPK id / start_url)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v950v953-v746v757-713-julio-2026-sprint-sig-vial-gestion-de-fotos-originales-ux-del-portal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.50–v9.53 / v7.46–v7.57 · 7–13 julio 2026 — Sprint SIG Vial + gestión de fotos originales + UX del portal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v945v949-v728v745-16-julio-2026-sprint-integracion-caminos-rediseno-ui-scripts-v211" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.45–v9.49 / v7.28–v7.45 · 1–6 julio 2026 — Sprint integración caminos + rediseño UI + scripts v2.11
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v919-v714-30-junio-2026-workflow-campo-oficina-armonizacion-geoespacial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.19 / v7.14 · 30 junio 2026 — Workflow "campo → oficina" + armonización geoespacial 🎯
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v918-24-junio-2026-modelo-tipoestado-redisenado-sub-atributos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.18 · 24 junio 2026 — Modelo Tipo↔Estado rediseñado + sub-atributos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v916-24-junio-2026-sello-v3-inicial-con-qr-fix-bug-rs_block_table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.16 · 24 junio 2026 — Sello v3 inicial con QR + fix bug RS_BLOCK_TABLE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v917-24-junio-2026-banner-del-sello-como-footer-no-tapa-la-foto-url-qr-oficial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.17 · 24 junio 2026 — Banner del sello como footer (no tapa la foto) + URL QR oficial
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v915-24-junio-2026-app-de-campo-sello-v2-modal-editable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.15 · 24 junio 2026 — App de campo (Sello v2 + Modal editable)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v77-24-junio-2026-app-de-escritorio-sello-v2-modal-editable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v7.7 · 24 junio 2026 — App de escritorio (Sello v2 + Modal editable)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v11-24-junio-2026-caminos-secundarios-hover-tolerante" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v1.1 · 24 junio 2026 — Caminos Secundarios (hover tolerante)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v910-20-mayo-2026-app-de-campo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.10 · 20 mayo 2026 — App de campo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v71-20-mayo-2026-app-de-escritorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v7.1 · 20 mayo 2026 — App de escritorio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v10-17-19-mayo-2026-caminos-secundarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v1.0 · 17-19 mayo 2026 — Caminos Secundarios
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v92-7-mayo-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.2 · 7 mayo 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v91-6-mayo-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.1 · 6 mayo 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v61-v90-historico-abril-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v6.1 → v9.0 · histórico (abril 2026)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changelog-service-worker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 Changelog · Service Worker
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Changelog · Service Worker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v915-v915a-v915b-24-junio-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.15 / v9.15a / v9.15b · 24 junio 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v34-20-mayo-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.4 · 20 mayo 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v31-6-mayo-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.1 · 6 mayo 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changelog-infraestructura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📦 Changelog · Infraestructura
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📦 Changelog · Infraestructura">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#20-mayo-2026-seguridad-supabase-auth-rls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20 mayo 2026 — Seguridad: Supabase Auth + RLS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#17-19-mayo-2026-caminos-secundarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17-19 mayo 2026 — Caminos Secundarios
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-mayo-2026-versionado-por-artefacto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7 mayo 2026 — Versionado por artefacto
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<p>═══════ HEADER ═══════</p>
+<h1 id="bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial">📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial<a class="headerlink" href="#bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial" title="Permanent link">¶</a></h1>
+<p>DVBA · Departamento Zona VI Saladillo</p>
+<p>Última actualización: 12 de agosto de 2026</p>
+<p>Versión bitácora: v5.1 — apps v9.94 / v8.67 · 12-ago-2026</p>
+<p>Responsable: Ing. Luciano Lamaita</p>
+<p>Repositorio: <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a></p>
+<p>Estado general: 🟢 En desarrollo activo</p>
+<p>═══════ TABS ═══════</p>
+<p>═══════════════════════════════════════════════════════════════════</p>
+<p>TAB 1 · RESUMEN</p>
+<p>═══════════════════════════════════════════════════════════════════</p>
+<h2 id="descripcion-del-proyecto">Descripción del Proyecto<a class="headerlink" href="#descripcion-del-proyecto" title="Permanent link">¶</a></h2>
+<p>Sistema web de relevamiento, cartografía y gestión de la red vial provincial a cargo de la <strong>Departamento Zona VI</strong> de la Dirección de Vialidad de la Provincia de Buenos Aires (DVBA), con sede en Saladillo. Cubre <strong>8 partidos</strong>, <strong>15 rutas provinciales pavimentadas</strong> y la red de caminos secundarios no pavimentados.</p>
+<p>El sistema está compuesto por dos aplicaciones complementarias y una infraestructura QGIS + Python detrás:</p>
+<p>🖥 App Escritorio ·</p>
+<p>index.html</p>
+<p>Mapa Leaflet interactivo, cálculo de progresivas, sidebar de registros con buscador y paginación, reportes PDF/CSV. Hosting en GitHub Pages.</p>
+<p>📱 App Móvil PWA ·</p>
+<p>dvba_campo.html</p>
+<p>Toma de registros de campo con GPS, foto sellada y sincronización con Supabase. Cola offline en IndexedDB. Instalable en Android.</p>
+<h2 id="contexto-institucional">Contexto Institucional<a class="headerlink" href="#contexto-institucional" title="Permanent link">¶</a></h2>
+<p>| Atributo | Detalle |</p>
+<p>|---|---|</p>
+<p>| Organismo | DVBA — Dirección de Vialidad de la Provincia de Buenos Aires |</p>
+<p>| Zona | Departamento Zona VI — sede Saladillo |</p>
+<p>| Partidos cubiertos | Saladillo, Gral. Alvear, Gral. Las Heras, Lobos, Roque Pérez, Las Flores, Navarro, 25 de Mayo |</p>
+<p>| Red vial | 15 rutas provinciales pavimentadas + red de caminos secundarios |</p>
+<p>| Nomenclatura oficial | Manual de Señalamiento Vertical MSV 2017 (DNV/AAC) — fuente primaria para tipos de registro |</p>
+<p>| Denominación oficial | <strong>"Departamento Zona VI Saladillo"</strong> o "Zona VI Saladillo". Nunca "Delegación Saladillo". |</p>
+<h2 id="stack-tecnico">Stack Técnico<a class="headerlink" href="#stack-tecnico" title="Permanent link">¶</a></h2>
+<p>| Herramienta | Versión | Rol |</p>
+<p>|---|---|---|</p>
+<p>| QGIS | 3.42.0 Münster | Edición, limpieza y análisis espacial de capas vectoriales |</p>
+<p>| Leaflet.js | 1.9.4 | Mapa interactivo (escritorio + tests) |</p>
+<p>| Python | 3.12 | Scripts de reconstrucción de cadenas y generación de bundles JS |</p>
+<p>| Supabase | Free tier | Backend de registros de campo: PostgreSQL + Storage + REST. Keepalive vía GitHub Action. |</p>
+<p>| GitHub Pages | — | Hosting estático del sistema (HTTPS gratuito) |</p>
+<p>| Service Worker + IndexedDB | — | Cola offline + sync automático en la app de campo |</p>
+<p>| Overpass Turbo / OSM | — | Descarga auxiliar de trazas para verificación |</p>
+<p>| QuickMapServices | plugin QGIS | Fondo Google Hybrid para digitalización de gaps |</p>
+<h2 id="estado-por-ruta">Estado por Ruta<a class="headerlink" href="#estado-por-ruta" title="Permanent link">¶</a></h2>
+<p>| Ruta | Cadena GeoJSON | Mojones | Bundle JS | Notas |</p>
+<p>|---|---|---|---|---|</p>
+<p>| <strong>RP 40</strong> | ✓ | 5 físicos + 37 sintéticos | rutas_rp40.js | Gaps Salado (×2) + 25 de Mayo (×2). Bundle más completo del sistema. |</p>
+<p>| RP 30 | ✓ | ✓ | rutas_rp30.js | — |</p>
+<p>| RP 41 | ✓ | ✓ | rutas_rp41.js | — |</p>
+<p>| RP 46 | ✓ | ✓ | rutas_rp46.js | — |</p>
+<p>| RP 51 | ✓ | ✓ | rutas_rp51.js | — |</p>
+<p>| RP 91 | ✓ | ✓ | rutas_rp91.js | — |</p>
+<p>| RP 6, 20, 24, 42, 43, 44, 48 | pendiente | pendiente | pendiente | 7 rutas restantes para completar las 15 de Zona VI (RP 47 y 61 completadas) |</p>
+<p>═══════════════════════════════════════════════════════════════════</p>
+<p>TAB 2 · RUTAS Y QGIS</p>
+<p>═══════════════════════════════════════════════════════════════════</p>
+<h2 id="linea-de-tiempo-trabajo-sobre-rp-40">Línea de Tiempo · Trabajo sobre RP 40<a class="headerlink" href="#linea-de-tiempo-trabajo-sobre-rp-40" title="Permanent link">¶</a></h2>
+<p>12 abril 2026 · Sesión 1</p>
+<p>Inicio del proyecto · Tipos MSV y UI de registro</p>
+<ul>
+<li>
+<p>Definición del alcance: mapa interactivo con progresivas + app de campo.</p>
+</li>
+<li>
+<p>Análisis del MSV 2017 (290 pp.) para extracción de nomenclatura oficial de señales viales.</p>
+</li>
+<li>
+<p>Rediseño del selector: de dropdown único a selector jerárquico <code>Familia → Tipo → Código MSV</code>.</p>
+</li>
+<li>
+<p>Armonización de <code>dvba_tipos.js</code> con las 3 familias MSV: Reglamentarias (R-), Preventivas (P-), Informativas (I-).</p>
+</li>
+<li>
+<p>Corrección de progresivas RP40: bug en <code>proj()</code> y <code>acumEnCadena()</code> — búsqueda sin restricción de rango causaba proyecciones incorrectas en la curva del Salado.</p>
+</li>
+</ul>
+<p>12–15 abril 2026 · Sesiones 2–3</p>
+<p>Sidebar, paginación y análisis inicial RP40</p>
+<ul>
+<li>
+<p>Fix sidebar: <code>regs.slice(0,30)</code> cortaba la lista — implementado buscador de texto + paginación 30 por página.</p>
+</li>
+<li>
+<p>Botón ✏ Editar agregado al popup del marcador en el mapa.</p>
+</li>
+<li>
+<p>Descarga de RP40 desde Overpass Turbo (query por bbox) como fuente auxiliar.</p>
+</li>
+<li>
+<p>Comparativa: SHP Oficial Provincia (957 pts, 179.4 km) vs Overpass/OSM (561 pts, 173 km).</p>
+</li>
+<li>
+<p>Análisis de gaps RP40: gap zona urbana 25 de Mayo (~16.3 km línea recta, ~22-24 km recorrido real).</p>
+</li>
+<li>
+<p>Flujo QGIS documentado: Filtrar → Corregir geometrías → Multiparte a monoparte → Disolver.</p>
+</li>
+</ul>
+<p>15–18 abril 2026 · Sesiones 4–6</p>
+<p>Reconstrucción de cadena RP40 y generación de</p>
+<p>rutas_rp40.js</p>
+<ul>
+<li>
+<p>Identificación de features duplicadas en la capa original (14 features, 346 km — doble de lo esperado).</p>
+</li>
+<li>
+<p>Diagnóstico: cada partido había registrado los mismos tramos por separado — features de distintos municipios con geometría idéntica.</p>
+</li>
+<li>
+<p>Reordenamiento geográfico de 4 features (F3→F2→F1→F0, este→oeste).</p>
+</li>
+<li>
+<p>Generación de cadena Zona VI: <strong>957 puntos, 183.027 km</strong>, orientada este→oeste.</p>
+</li>
+<li>
+<p><strong>Anchors calibrados:</strong> km50 acc=22.953, km100 acc=73.079, km150 acc=132.667, km200 acc=180.720.</p>
+</li>
+<li>
+<p>Error sistemático de ~-27 km en verificación: <em>correcto y esperado</em> — la cadena empieza en progresiva ~29.4 km.</p>
+</li>
+<li>
+<p>Generación del bundle <code>rutas_rp40.js</code> (cadena + anchors + mojones + gaps).</p>
+</li>
+</ul>
+<p>18–20 abril 2026 · Sesión 7</p>
+<p>Arquitectura modular + mojones sintéticos + test de integración</p>
+<ul>
+<li>
+<p>Análisis de <code>rp40_unificada_congaps.geojson</code> (1710 pts, traza completa) y <code>mojones_rp40_ajustados.geojson</code> (5 mojones ajustados a la traza).</p>
+</li>
+<li>
+<p>Clasificación de 3 gaps: <code>gap_salado</code> (acum 104.6→110.4 km, cruce Río Salado sin puente) + dos tramos en zona urbana de 25 de Mayo.</p>
+</li>
+<li>
+<p>Generación de <strong>37 mojones sintéticos cada 5 km</strong> interpolados sobre la traza real (km30 a km210).</p>
+</li>
+<li>
+<p>Arquitectura final: cada ruta = un bundle <code>datos/rutas_rpXX.js</code> independiente.</p>
+</li>
+<li>
+<p>Test de integración <code>tests/test_rp40.html</code>: capas toggle, clic→progresiva, selector de paso para mojones sintéticos.</p>
+</li>
+</ul>
+<p>21–30 abril 2026 · Sesiones 8–10</p>
+<p>Procesamiento batch del resto de rutas Zona VI</p>
+<ul>
+<li>
+<p>Generación de bundles para <strong>RP 30, 41, 46, 51, 91</strong> siguiendo el flujo estándar.</p>
+</li>
+<li>
+<p>Limpieza extrema de SHP RP44 con corrección unificada de coordenadas.</p>
+</li>
+<li>
+<p>Diagnóstico y corrección masiva de capas: campos, atributos, sincronización entre capas.</p>
+</li>
+<li>
+<p>Tests de integración para todas las rutas procesadas.</p>
+</li>
+</ul>
+<p>6 mayo 2026 · Reorganización monorepo</p>
+<p>Reestructuración del repositorio</p>
+<ul>
+<li>
+<p>Migración de <code>C:\DVBA\app\</code> (clon antiguo) a <code>C:\GitHub\DVBA\</code>.</p>
+</li>
+<li>
+<p>Adopción de estructura monorepo: <code>datos/ scripts/ docs/ tests/ archivo/ geojson_procesados/</code>.</p>
+</li>
+<li>
+<p>Renombrado <code>dvba_zona6.html → index.html</code> para que GitHub Pages lo sirva como home.</p>
+</li>
+<li>
+<p>Centralización de ~50 scripts Python QGIS en <code>scripts/</code>.</p>
+</li>
+<li>
+<p>Bitácora unificada reemplaza las dos versiones anteriores (con tabs por temática).</p>
+</li>
+</ul>
+<p>6 mayo 2026 · Fixes técnicos · v9.0</p>
+<p>Tests, manifest PWA, Service Worker</p>
+<ul>
+<li>
+<p>Tests <code>test_rpXX.html</code>: paths corregidos a <code>../datos/</code> tras el cambio a subcarpeta <code>tests/</code>.</p>
+</li>
+<li>
+<p><code>manifest.json</code> mejorado: íconos <code>any</code> y <code>maskable</code> separados (4 entradas), <code>display_override</code>, <code>id</code>, <code>categories</code> — soluciona instalación PWA en Android.</p>
+</li>
+<li>
+<p><code>sw.js v3.0</code>: filtra schemes no cacheables (<code>chrome-extension://</code>, <code>data:</code>, <code>blob:</code>, <code>file:</code>) que rompían <code>cache.put()</code>.</p>
+</li>
+<li>
+<p>Filtro de respuestas no-basic (opaque/redirects) en cache para evitar excepciones.</p>
+</li>
+</ul>
+<p>6 mayo 2026 · Versionado centralizado · v9.1</p>
+<p>Script bump_version + sw.js network-first</p>
+<ul>
+<li>
+<p><code>scripts/bump_version.py</code>: nuevo script que sincroniza la versión en 5 ubicaciones (footer campo, var JS, comentario, header escritorio, CACHE_NAME del SW). Comando único: <code>python scripts/bump_version.py v9.X</code>.</p>
+</li>
+<li>
+<p><code>dvba_campo.html</code> footer: reemplazado <code>v6.1</code> hardcoded por <code>&lt;span id="app-ver"&gt;</code> dinámico.</p>
+</li>
+<li>
+<p><code>dvba_campo.html</code> JS: <code>APP_VER='v...'</code> (placeholder bug) corregido a versión real (sello de fotos).</p>
+</li>
+<li>
+<p><code>index.html</code>: <code>APP_VERSION</code> de <code>'v6.8.0'</code> a <code>'v9.1'</code>.</p>
+</li>
+<li>
+<p><code>sw.js v3.1</code>: estrategia cambiada de cache-first a <strong>network-first con offline fallback + auto-purge de 404</strong>. Resuelve URLs fantasma cuando se eliminan archivos del repo.</p>
+</li>
+</ul>
+<p>7 mayo 2026 · UX y PWA · v9.2</p>
+<p>Botón install, fix menú mobile, "Desarrollado por"</p>
+<ul>
+<li>
+<p>Botón <strong>flotante "📲 Instalar app"</strong> en <code>dvba_campo.html</code> usando <code>beforeinstallprompt</code>. Detecta automáticamente si la app ya está instalada (display-mode standalone) y se oculta. En iOS muestra instrucciones manuales.</p>
+</li>
+<li>
+<p><strong>Fix bug menú hamburguesa mobile</strong> en <code>index.html</code>: el JS agregaba la clase <code>mob-open</code> al overlay y <code>vis</code> al botón cerrar, pero el CSS esperaba <code>visible</code>. Resultado: el panel se abría pero no había forma de cerrarlo (overlay invisible, botón × oculto). Corregido el mismatch.</p>
+</li>
+<li>
+<p>Header escritorio: agregado "<strong>Desarrollado por</strong> Ing. Luciano Lamaita · vX.Y".</p>
+</li>
+<li>
+<p>Footer campo: agregado "<strong>Desarrollado por</strong> Ing. Luciano Lamaita · vX.Y" reemplazando el formato anterior.</p>
+</li>
+<li>
+<p><strong>Guía de uso de la app de campo</strong> reescrita y actualizada (<code>docs/guia_dvba_campo.html</code>): incluye los 11 categorías × ~90 tipos MSV 2017, instrucciones de instalación Android/iOS/desktop, flujo del wizard de 4 pestañas, modo offline, problemas frecuentes. La versión vieja se archivó en <code>archivo/guias_historicas/</code>.</p>
+</li>
+</ul>
+<p>10-15 mayo 2026 · Procesamiento de rutas pciales con orden por fid</p>
+<p>Refactor gen_ruta_bundle.py v2.6 y corrección de progresivas</p>
+<ul>
+<li>
+<p><code>scripts/gen_ruta_bundle.py</code> v2.6: nueva flag <code>--order-by {fid,mojones,proximity}</code> (default <code>fid</code>). El bucle ahora ordena estrictamente por columna <code>fid</code> ascendente — la traza nace en <code>fid=1</code> y crece según fid creciente, sin invertir segmentos.</p>
+</li>
+<li>
+<p>Atributo <code>es_gap</code> respetado en cada tramo; su distancia suma al acumulado total aunque sea un salto.</p>
+</li>
+<li>
+<p><strong>Fix prog_ini negativo</strong>: cuando hay mojón km 0 anclado al inicio de la traza, <code>prog_ini</code> se fuerza a 0 (antes promediaba todos los anchors y eso arrastraba desfasajes espurios cuando había gaps largos).</p>
+</li>
+<li>
+<p>RP40 regenerada a mano en QGIS con 6 features fid 1→6, 2 gaps reales (25 de Mayo, Pedernales↔N. Riestra). <strong>248,6 km, progIni=0</strong>.</p>
+</li>
+<li>
+<p>RP91: estaba invertida por auto-flip del v2.5. Reprocesada: Saladillo (km 0, intersección RP51) → Las Flores (intersección RP61). 51,6 km, progIni=0.</p>
+</li>
+<li>
+<p>Tests: <code>_template.html</code> arreglado con <code>lyMF.eachLayer(l =&gt; l.bringToFront &amp;&amp; l.bringToFront())</code> (antes <code>lyMF.bringToFront()</code> lanzaba TypeError porque LayerGroup no tiene ese método). El error rompía todos los handlers de mousemove/click → panel de progresivas no respondía.</p>
+</li>
+</ul>
+<p>17-19 mayo 2026 · Caminos Secundarios DVBA Zona VI</p>
+<p>Nueva subruta caminos_secundarios.html + procesamiento red secundaria</p>
+<ul>
+<li>
+<p>Nueva subruta <code>caminos_secundarios.html</code> (servida desde <code>/DVBA/</code>): mapa interactivo de los caminos secundarios provinciales de Zona VI con polígonos de partido como contexto.</p>
+</li>
+<li>
+<p><strong>Estructura de carpetas:</strong></p>
+</li>
+</ul>
+<p><code>referencias/partidos_pba.json</code> — listado oficial ARBA
+<code>scripts/calcular_longitudes_red_vial.py</code> — script Python que recalcula longitudes geodésicas WGS84 con <code>pyproj</code>
+<code>datos/caminos_secundarios_PBA.geojson</code> — fuente canónica (1681 features de toda PBA)
+<code>datos/partidos_zona_vi.geojson</code> — polígonos de los 8 partidos (extraídos de la constante <code>PARTIDOS_GEO</code> de <code>index.html</code> para compartir)
+<code>geojson_procesados/red_secundaria/caminos_secundarios_NNN_final.geojson</code> — uno por partido, revisado a mano en QGIS</p>
+<ul>
+<li>Funcionalidad del mapa:</li>
+</ul>
+<p><strong>Multi-select de partidos</strong> con chips horizontales (toggle on/off + botones Todos/Ninguno)
+<strong>Filtros por CLASE</strong> (Tierra / Pavimentado / Sin Abrir) con chips de color toggleables
+<strong>Toggle de límites de partidos</strong> (capa de polígonos)
+Click en tramo → popup Leaflet con info detallada + botón <strong>Agregar/Quitar selección</strong> (toggle)
+Selección acumulada: agregar tramos con clicks sucesivos, ver totales por clase
+Tabla lateral con agrupación por NOMENCLATURA, sub-filas por tramo, sincronización mapa↔tabla
+Exportar a <strong>CSV</strong> (BOM UTF-8 para Excel) — selección o toda la vista filtrada
+Botón <strong>📊 Reporte</strong> que abre ventana imprimible con resumen por partido + detalle por camino + firma DVBA
+<strong>Normalización defensiva en JS:</strong> trata <code>NOMENCLATURA</code>/<code>NOMEMCLATURA</code> indistintamente, normaliza CLASE con typos comunes (<code>DE TIERRRA</code>, <code>TIERRA</code>, <code>PAV.</code>), fuerza <code>PARTIDO_NOMBRE</code> desde el código si viene como "Desconocido".</p>
+<ul>
+<li>
+<p><strong>Partidos revisados a mano en QGIS:</strong> 034 General Alvear, 058 Las Flores, 091 Roque Pérez, 093 Saladillo, 109 Veinticinco de Mayo. <strong>Pendientes:</strong> 041 General Las Heras, 062 Lobos, 075 Navarro (caen al fallback del dataset preliminar de PBA, marcados con ◌ en la UI).</p>
+</li>
+<li>
+<p>Documentación: <code>docs/HANDOFF_caminos_secundarios.md</code> con SQL de RLS, criterio de revisión, estructura, comandos.</p>
+</li>
+</ul>
+<p>19-20 mayo 2026 · Seguridad: login + RLS · v9.10 / v7.1</p>
+<p>Supabase Auth con email/password + Row Level Security</p>
+<ul>
+<li>
+<p><strong>Problema resuelto:</strong> antes, cualquiera con el link a la app de campo o de escritorio podía crear, editar o borrar registros sin identificación. La <code>anon key</code> de Supabase estaba embebida en el JS público.</p>
+</li>
+<li>
+<p><strong>Nuevo módulo compartido <code>datos/auth.js</code></strong> con <code>login</code>, <code>logout</code>, <code>session</code> (auto-refresh), <code>token</code>, <code>user</code>, <code>fetchAuth</code> helper. Sesión en <code>localStorage['dvba_session']</code>.</p>
+</li>
+<li>
+<p><strong>App de campo (<code>dvba_campo.html</code> v9.10):</strong> pantalla de login al abrir si no hay sesión. Badge usuario integrado en el header debajo del subtitle. Todos los fetches a Supabase (POST relevamiento, POST foto, sync de cola) usan <code>Bearer &lt;access_token&gt;</code> del usuario en vez de la anon key.</p>
+</li>
+<li>
+<p><strong>App de escritorio (<code>index.html</code> v7.1):</strong> modal de login al iniciar. Después del login, <code>_supa.auth.setSession()</code> propaga el token al cliente Supabase SDK para que insert/update/delete/storage usen el token.</p>
+</li>
+<li>
+<p><strong>Sesión OFFLINE-tolerante:</strong> el access_token de Supabase dura 1h pero el refresh_token dura típicamente 30 días o más. <code>session()</code> detecta cuando no hay red (<code>navigator.onLine === false</code>) y devuelve la sesión local aunque el access_token esté vencido. La app sigue funcionando logueada por días sin internet. Cuando vuelve la red, el próximo <code>session()</code> refresca transparente.</p>
+</li>
+<li>
+<p>SQL de políticas RLS y procedimiento documentados en <code>docs/SETUP_AUTH.md</code>:</p>
+</li>
+</ul>
+<p><code>SELECT</code> público (anon + authenticated): la consulta del mapa sigue siendo libre.
+<code>INSERT / UPDATE / DELETE</code> solo para usuarios <code>authenticated</code>.
+Idem para <code>storage.objects</code> del bucket <code>relevamientos</code>.</p>
+<ul>
+<li>Usuarios se crean manualmente desde el dashboard de Supabase. Sign-up libre deshabilitado.</li>
+</ul>
+<p>20 mayo 2026 · Fixes PWA offline · v9.10</p>
+<p>Service Worker reconstruido + GPS offline + banner update</p>
+<ul>
+<li>
+<p><strong>Fix sw.js truncado</strong> (versión previa quedó cortada en <code>procesarCola</code>, lo que rompía "ServiceWorker script evaluation failed" y por ende todo el modo offline). Reconstruido a v3.4 con sintaxis validada por <code>node --check</code>.</p>
+</li>
+<li>
+<p><code>CACHE_URLS</code> ahora son <strong>relativas</strong> (<code>./dvba_campo.html</code>) — antes eran absolutas (<code>/dvba_campo.html</code>) que en GitHub Pages bajo subpath <code>/DVBA/</code> daban 404 al instalar y dejaban el cache vacío.</p>
+</li>
+<li>
+<p>Cachea ambas variantes de URL principal: <code>./dvba_campo</code> y <code>./dvba_campo.html</code>. Fallback offline inteligente: si la URL es sin <code>.html</code> o solo <code>/DVBA/</code>, devuelve el <code>.html</code> cacheado.</p>
+</li>
+<li>
+<p><strong>Fix GPS bloqueado por reload del SW:</strong> el listener <code>controllerchange</code> recargaba la app incluso en el primer install del SW. Si el GPS estaba arrancando, la app recargaba y el GPS reiniciaba desde 0 en loop. Ahora <code>controllerchange</code> ignora el primer install (cuando no había controller previo); solo recarga en updates reales.</p>
+</li>
+<li>
+<p>GPS tolerante a fix lento sin A-GPS: <code>maximumAge: 60s</code> (antes 3s), <code>timeout: 2 min</code> (antes 30s), <code>getCurrentPosition</code> inicial con <code>enableHighAccuracy:false</code> para fix rápido aproximado.</p>
+</li>
+<li>
+<p><strong>Banner de actualización funcional:</strong> cuando hay SW nuevo en estado <em>waiting</em>, aparece banner verde "Hay una versión nueva" con botón Actualizar que dispara <code>postMessage('skipWaiting')</code> → <code>controllerchange</code> → reload automático.</p>
+</li>
+</ul>
+<p>21-22 mayo 2026 · Red secundaria — orden por tramo, sentido cardinal · v7.2</p>
+<p>Reprocesamiento de caminos secundarios con orden real de tramos</p>
+<ul>
+<li>
+<p><strong>Script <code>calcular_longitudes_red_vial.py</code>:</strong> detecta los campos opcionales del GeoPackage (<code>temporal</code>, <code>long_inicial</code>, <code>lat_inicial</code>, <code>long_final</code>, <code>lat_final</code>) y los renombra a <code>TRAMO_NUM</code>, <code>LON_INI</code>, <code>LAT_INI</code>, <code>LON_FIN</code>, <code>LAT_FIN</code>. Los preserva en CSV, GPKG y GeoJSON output.</p>
+</li>
+<li>
+<p>Sort estable por <code>(PARTIDO, NOMEMCLATURA, TRAMO_NUM)</code>. Los partidos sin <code>temporal</code> cargado siguen funcionando con default 999.</p>
+</li>
+<li>
+<p><strong>Fix <code>PARTIDO_NOMBRE = 'Desconocido'</code>:</strong> lookup de partidos ahora tolerante a int/string padded — antes <code>'041'</code> no matcheaba contra <code>numero = 41</code> y todos los features de ese partido salían "Desconocido". Ahora indexa por int, str y str padded a 3 dígitos.</p>
+</li>
+<li>
+<p><strong>Nueva función <code>direccionCardinal(latI, lonI, latF, lonF)</code>:</strong> devuelve <code>'NO → SE'</code>, <code>'Oeste → Este'</code>, etc. según deltas de coordenadas. 100% offline, sin reverse geocoding.</p>
+</li>
+<li>
+<p><code>caminos_secundarios.html</code>: popup ahora muestra sentido cardinal calculado en vez de coordenadas crudas. <code>Tramo n°</code> solo aparece si el camino tiene más de un tramo (antes se mostraba siempre).</p>
+</li>
+<li>
+<p>041 (Gral. Las Heras) reprocesado con el orden correcto: tramo 1 PAVIMENTADO va antes que tramo 2 DE TIERRA.</p>
+</li>
+<li>
+<p>Bump cosmético <code>index.html v7.2</code> para forzar refresh de GitHub Pages y confirmar deploy del login opcional.</p>
+</li>
+</ul>
+<p>22 mayo – 3 junio 2026 · Datos · Reprocesamiento y expansión de caminos secundarios</p>
+<p>Incorporación progresiva de caminos revisados por partido</p>
+<ul>
+<li>
+<p>Camino <strong>041-01</strong> — tramos corregidos (Gral. Las Heras).</p>
+</li>
+<li>
+<p>Camino <strong>075</strong> incorporado completo.</p>
+</li>
+<li>
+<p>Camino <strong>093-15</strong> — cambios menores + fix de partición de tramos (Saladillo).</p>
+</li>
+<li>
+<p>Camino <strong>062-10</strong> — CAMBIO DE CLASE (registrado en el nomenclador local).</p>
+</li>
+<li>
+<p>Múltiples caminos reprocesados el 22 y 27 mayo con la nueva lógica de orden por <code>TRAMO_NUM</code>.</p>
+</li>
+<li>
+<p>Estado al cierre del período: se completó el ciclo de "levantar catastro de caminos por partido" para la mayoría de las localidades de Zona VI.</p>
+</li>
+</ul>
+<p>24 junio 2026 · Fixes puntuales del modelo Tipo↔Estado · sw v9.18a</p>
+<p>normStr Unicode + modalidad/superficie implícitas</p>
+<ul>
+<li>
+<p><strong>Fix <code>dvba_tipos.js → normStr()</code>:</strong> el regex usaba caracteres Unicode literales (<code>̀-ͯ</code> = U+0300..U+036F) para limpiar tildes después de <code>.normalize('NFD')</code>. Esos caracteres no siempre se preservaban entre Windows/Linux/Mobile. Cambiado a <code>new RegExp('[\u0300-\u036f]', 'g')</code> que evita ambigüedad de codificación. También agregado <code>.replace(/\s+/g, ' ')</code> para colapsar espacios múltiples antes del trim.</p>
+</li>
+<li>
+<p><strong>Síntoma que curó:</strong> <code>categoriaDe()</code> no encontraba match para tipos con acentos ("Desmalezado mecánico") → estado vacío en el dropdown móvil.</p>
+</li>
+<li>
+<p><strong>Nuevas funciones <code>modalidadImplicita()</code> y <code>superficieImplicita()</code> en <code>dvba_estados.js</code>:</strong> detectan cuando el nombre del tipo ya incluye la modalidad/superficie:</p>
+</li>
+</ul>
+<p><code>modalidadImplicita</code>: matches <code>\bmanual\b</code>, <code>\bmecánica?\b</code>, <code>\bmixt[oa]\b</code>
+<code>superficieImplicita</code>: matches <code>\bdolomita\b</code>, <code>\bsuelo cal\b</code>, <code>\bcamino tierra\b</code> + reconformado, <code>\bhormigón\b</code>, <code>\basfáltic[oa]\b</code> + <code>riego asf</code></p>
+<ul>
+<li>
+<p><strong>Fix <code>onTipoChange()</code> en ambas apps:</strong> si la categoría aplica superficie/modalidad Y está implícita en el nombre del tipo → oculta el selector pero <em>guarda el valor implícito</em> en el <code>&lt;select&gt;</code> (para que la metadata serializada lo capture igual).</p>
+</li>
+<li>
+<p>Bump: <code>sw.js CACHE_NAME 'dvba-campo-v9.18a'</code>. No se tocó <code>APP_VERSION</code> ni <code>&lt;span id='app-ver'&gt;</code> (es tweak, no release visible).</p>
+</li>
+<li>
+<p>Ver detalle actualizado en <code>docs/MODELO_TIPOS_ESTADOS.md</code> sección 4.1 "Sub-atributos implícitos".</p>
+</li>
+</ul>
+<p>julio 2026 · Consolidación · v9.19 – v9.70 / v7.10 – v8.0.1</p>
+<p>Workflow oficina, subida directa de foto, roles multi-zona y app lite (resumen)</p>
+<ul>
+<li>
+<p><strong>Workflow captura campo → aprobación oficina:</strong> nuevas columnas <code>estado_workflow</code> (<code>'campo' | 'aprobado' | 'rechazado'</code>), <code>validado_geo</code>, <code>sello_version</code> en <code>relevamientos</code>. El sellado dejó de aplicarse en campo — la foto se sube cruda y se sella al aprobar en oficina. Módulo <code>datos/armonizador.js</code> hace pre-fill offline de ruta/prog/partido desde GPS con umbrales adaptativos según <code>gpsAcc</code>.</p>
+</li>
+<li>
+<p><strong>Integración caminos secundarios ↔ apps principales:</strong> columna <code>tipo_via</code> (<code>'rp' | 'camino'</code>) en <code>relevamientos</code>. Nuevo módulo <code>datos/red_vial.js</code>. Toggle RP/Camino en móvil, tabs en escritorio, layers en el mapa. Interpolación progresiva→coords para caminos con <code>pdInterpolarCamino</code> (v7.91).</p>
+</li>
+<li>
+<p><strong>Módulo Reportes (<code>reportes.html</code>):</strong> 4 charts (km por tarea, timeline, uso vehículos, acciones por vía), filtros en vivo, export CSV + PDF institucional con jsPDF + autotable.</p>
+</li>
+<li>
+<p><strong>Sello v4:</strong> banner compacto, versión inline en el pie, 3 columnas (logo · texto · QR Google Maps), extraído a módulo compartido <code>datos/sello_v4.js</code> (v7.89) usado por app móvil y por la subida directa desde <code>partes_diarios.html</code>.</p>
+</li>
+<li>
+<p><strong>Subida directa de foto desde partes_diarios (v7.89-91):</strong> input file → lee GPS del EXIF con <code>exifr</code> → sella con sello v4 → sube a Storage → INSERT en <code>relevamientos</code> como aprobado → vincula al parte vía <code>parte_fotos</code>. Fallback: si no hay EXIF, la progresiva tipeada se interpola sobre el bundle de la RP o el geojson del camino.</p>
+</li>
+<li>
+<p><strong>App móvil lite (<code>dvba_campo_lite.html</code> · v9.59-70):</strong> UI minimalista solo con botón "Sacar foto" + GPS. Todo lo demás lo completa alguien en oficina. Es el <code>start_url</code> del <code>manifest.json</code> (default al instalar la PWA). Auth offline via JWT cacheado, gestión de pendientes, cierre de sesión desde Info.</p>
+</li>
+<li>
+<p><strong>Bloque Roles Multi-zona (Fase 1 + 2 · v7.92-8.0.1):</strong></p>
+</li>
+</ul>
+<p>SQL 7: tabla <code>usuarios_perfil</code> con CHECK <code>rol↔zona</code>, funciones helper <code>current_user_zona()</code> y <code>current_user_rol()</code> (SECURITY DEFINER STABLE).
+SQL 8: columna <code>zona</code> en <code>partes_diarios</code> y <code>relevamientos</code>, backfill a <code>'VI'</code>, view <code>v_partes_diarios_export</code> con columna Zona.
+Módulo compartido <code>datos/perfil.js</code>: loader de <code>usuarios_perfil</code> al login + helpers <code>zonaActual()</code>, <code>esGerenciaOAdmin()</code>, auto-descarte de cache huérfano.
+Fill automático de <code>zona</code> en INSERTs de partes y relevamientos en las 4 apps.
+UI zone-aware: header muestra nombre del usuario, tooltip con rol + zona, picker de zonas oculto a técnicos (solo ven su zona), link "Reportes" oculto a técnicos, panel Visualización solo admin. Anti-FOUC con <code>data-solo-gerencia</code> + CSS default oculto.
+Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF oficial Gerencia.</p>
+<ul>
+<li><strong>Nomenclatura "tarea" (v7.87):</strong> pase completo <em>parte → tarea</em> en toda la UI visible de las 3 apps escritorio + docs (tabla y funciones internas mantienen <code>partes_diarios</code>/<code>pd*</code> por compatibilidad de código).</li>
+</ul>
+<p>24 junio 2026 · v9.18a · Fixes modelo Tipo↔Estado</p>
+<p>normStr Unicode + modalidad/superficie implícitas</p>
+<ul>
+<li>
+<p><strong>Normalizador Unicode:</strong> <code>normStr()</code> ahora aplica <code>NFD → strip combining marks</code> para que "Riego" == "riego" == "riegò". Fix bugs de match en autocomplete y en armonizador.</p>
+</li>
+<li>
+<p><strong>Sub-atributos implícitos:</strong> cuando el nombre del tipo ya incluye modalidad ("Desmalezado mecánico") o superficie ("Mejoramiento con dolomita"), la UI oculta el selector correspondiente pero guarda el valor implícito automáticamente. Regex documentado en la sección 4.1 de <code>MODELO_TIPOS_ESTADOS.md</code>.</p>
+</li>
+</ul>
+<p>agosto 2026 · v8.53 – v8.58 / v9.91 · Convergencia UI + público</p>
+<p>Header/footer unificados, portal público, aviso híbrido</p>
+<ul>
+<li>
+<p><strong>Header/footer unificados</strong> en los 4 portales escritorio con logo real de DVBA en Admin y subtítulo "SIG Vial PBAᵝ" en todos. Módulo <code>datos/legales.js</code> con 4 tabs (Acerca / Términos / Privacidad / Permisos PWA) auto-inyectado en 6 HTMLs.</p>
+</li>
+<li>
+<p><strong>Portal público sin login (v8.56 · SQL_12):</strong> función <code>anon_ver_publico()</code> devuelve KPIs mínimos sin exponer datos personales. Portal abre en modo público por default con banner dismissible + botón <code>ℹ Alcance</code> en header.</p>
+</li>
+<li>
+<p><strong>Móvil sin "Zona VI" hardcoded (v9.91/v8.54):</strong> el header muestra rol + zona real desde el perfil del user. Footer avanzado unificado con modal <code>DVBA_LEGAL</code>. Fix reportes.html: cambio de picker de zona ahora refetchea correctamente.</p>
+</li>
+</ul>
+<p>agosto 2026 · v8.59 – v8.62 · Fase A + B multi-zona</p>
+<p>Reorganización datos/ + loader dinámico multi-zona</p>
+<ul>
+<li>
+<p><strong>Reorganización <code>datos/</code>:</strong> estructura <code>zonas/zona_XX/</code> (per-zona) + <code>rutas/</code> (bundles RP compartidos) + <code>referencias/</code> (masters PBA). Script <code>generar_zona_desde_master.py</code> filtra masters por zona.</p>
+</li>
+<li>
+<p><strong>Loader dinámico multi-zona (<code>datos/loader_zona.js</code>):</strong> detecta zona por URL (<code>?zona=X</code>) → perfil técnico → default público PBA. Carga bundles RP + assets zonales vía <code>document.write</code> sincrónico. API <code>window.DVBA_ZONA</code> para consulta/cambio. Auto-redirect técnico → <code>?zona=X</code>.</p>
+</li>
+<li>
+<p><strong>Manifests IV Junín + V Chivilcoy:</strong> pilotos con rps calibradas compartidas con VI (RP46, RP40, RP30, RP51, RP61). Corregidos según CSV oficial <code>rutas_partidos.csv</code>.</p>
+</li>
+<li>
+<p><strong>Catálogo <code>partidos_pba.json v2.2</code>:</strong> 135 partidos oficiales (fixes ARBA: Ituzaingó #112→#136, Zona IX partido #48→#40) + campo <code>rutas[]</code> por partido + <code>zonas_dvba{}</code> con las 12 zonas y sus partidos.</p>
+</li>
+</ul>
+<p>agosto 2026 · v8.63a-h · Portal multi-zona real (bugfix cascada)</p>
+<p>PARTIDOS_GEO dinámico + sidebar adaptativo + fixes</p>
+<ul>
+<li>
+<p><strong>Frente A:</strong> <code>PARTIDOS_GEO</code> reasignable, PBA default público, fitBounds automático por zona.</p>
+</li>
+<li>
+<p><strong>Frente B:</strong> sidebar adaptativo — chips para zona específica, dropdown multi-select para PBA con 135 partidos. Fix normalización UPPERCASE → Title Case (shp master tenía "ADOLFO ALSINA").</p>
+</li>
+<li>
+<p><strong>Fixes cascada:</strong> rutas zonales respetan <code>selR</code>; capas VI se limpian al cambiar zona; <code>cargarRegs</code> filtra por zona activa; <code>selR</code> arranca con TODAS las rutas activas en cualquier zona; <code>partesCargar</code> filtra <code>.eq('zona', X)</code> + fix <code>select('lat, lng')</code> (era latitud/longitud inexistentes → 400 Bad Request); labels partidos ocultos en PBA.</p>
+</li>
+<li>
+<p><strong>Bug crítico v8.63h:</strong> <code>_reemplazarPartidos</code> limpiaba <code>capasP</code> sin <code>.flat()</code> — Leaflet ignoraba los <code>removeLayer(array)</code> y los polígonos viejos de VI quedaban en el DOM al cambiar de zona. Sombreado persistente resuelto.</p>
+</li>
+</ul>
+<p>agosto 2026 · v8.64 – v8.64.2 · Frente D · Paleta 12 zonas + clipping</p>
+<p>Sombreado por zona, labels romanos, recorte cliente-side</p>
+<ul>
+<li>
+<p><strong>Paleta institucional 12 zonas:</strong> función <code>_colorZona(cod)</code> con 12 tonos armónicos gama neutra-azulada (sin saturaciones tipo circo). <code>_partidoAZona{}</code> cargado async desde <code>partidos_pba.json</code>. En vista PBA cada partido pintado con el color de su zona vial DVBA.</p>
+</li>
+<li>
+<p><strong>Labels romanos por zona:</strong> función <code>_dibujarLabelsZonasPBA()</code> calcula el centroide de cada agrupación de partidos y pone el nº romano (I..XII) grande con opacidad 42% coloreado con el tono de la zona. Reemplazó la watermark inferior anterior.</p>
+</li>
+<li>
+<p><strong>Filtro tareas por partido→zona (v8.64.1):</strong> defensa cliente-side en <code>partesDibujar</code>. Aunque el <code>.eq('zona', X)</code> SQL falle (datos legacy con zona=NULL), se descarta cualquier tarea cuyo partido pertenezca a otra zona.</p>
+</li>
+<li>
+<p><strong>Clipping cliente-side (v8.64.2):</strong> las trazas de RP30/46/51 sobrepasaban la zona activa porque el shp master asigna un partido único por LineString pero la geometría se extiende a vecinos. Fix con ray-casting: <code>_recortarFeatureRuta()</code> parte cada polilínea en sub-tramos donde puntos consecutivos caen dentro de algún polígono de <code>PARTIDOS_GEO</code>. Rendimiento: ~9M ops = milésimas de segundo en desktop.</p>
+</li>
+</ul>
+<h2 id="flujo-de-trabajo-por-ruta">Flujo de Trabajo por Ruta<a class="headerlink" href="#flujo-de-trabajo-por-ruta" title="Permanent link">¶</a></h2>
+<p>Proceso estándar para incorporar cada nueva ruta:</p>
+<ol>
+<li>
+<p>En QGIS: Filtrar → Corregir geometrías → Multiparte a monoparte → Disolver → Exportar GeoJSON unificado.</p>
+</li>
+<li>
+<p>Digitalizar gaps (cruces de río sin puente, zonas urbanas) sobre imagen satelital con snap activado.</p>
+</li>
+<li>
+<p>Preparar capa de mojones ajustados (campo <code>Name</code>: "0KM", "50KM", etc.; campo <code>description</code>: sentido).</p>
+</li>
+<li>
+<p>Ejecutar <code>python scripts/gen_ruta_bundle.py rpXX</code> → produce <code>datos/rutas_rpXX.js</code>.</p>
+</li>
+<li>
+<p>Agregar <code>&lt;script src="datos/rutas_rpXX.js"&gt;</code> al <code>index.html</code> y registrar en <code>datos/rutas.js</code>.</p>
+</li>
+</ol>
+<h2 id="sistema-de-progresivas">Sistema de Progresivas<a class="headerlink" href="#sistema-de-progresivas" title="Permanent link">¶</a></h2>
+<p>| Parámetro | Valor / Decisión |</p>
+<p>|---|---|</p>
+<p>| Método de cálculo | Haversine 2D — terreno llano, error &lt;0.1% |</p>
+<p>| Convención | DVBA/DNVB — progresiva acumulada sobre traza oficial |</p>
+<p>| Mojón 0 RP40 | Intersección RP40/RP7, calles Moreno y Libertad, partido de Merlo (FFCC) |</p>
+<p>| Inicio Zona VI RP40 | ~29.4 km real — intersección con RP6, partido de General Las Heras |</p>
+<p>| Gaps | Progresiva acumula por recorrido real del tramo (no por línea recta) |</p>
+<p>| Mojones físicos | Datos internos DVBA — posición GPS desde escritorio, <em>no medidos con odómetro</em>. Requieren verificación de campo. |</p>
+<p>| Mojones sintéticos | Generados cada 5 km por interpolación sobre la cadena. Flag <code>en_gap:true</code> = posición aproximada. |</p>
+<h2 id="notas-tecnicas-importantes">Notas Técnicas Importantes<a class="headerlink" href="#notas-tecnicas-importantes" title="Permanent link">¶</a></h2>
+<p>⚠ Precaución al editar</p>
+<p>dvba_campo.html</p>
+<p>El archivo contiene ~133 KB de JavaScript. Hacer regex replacements cerca del bloque</p>
+<p>LOGO_SELLO</p>
+<p>(base64) puede truncar silenciosamente el código. Siempre partir del backup conocido-bueno:</p>
+<p>archivo/versiones/dvba_campo_BKFUNCIONAL.html</p>
+<p>.</p>
+<p>⚠ Error sistemático en verificación de mojones</p>
+<p>El error de ~-27 km en todos los mojones es correcto y esperado. La cadena RP40 inicia en la progresiva real 29.4 km. La función</p>
+<p>calcProg()</p>
+<p>interpola correctamente entre pares</p>
+<p>(km_real, acc_local)</p>
+<p>y devuelve la progresiva oficial.</p>
+<p>═══════════════════════════════════════════════════════════════════</p>
+<p>TAB 3 · APPS WEB</p>
+<p>═══════════════════════════════════════════════════════════════════</p>
+<h2 id="app-escritorio-indexhtml">App Escritorio · <code>index.html</code><a class="headerlink" href="#app-escritorio-indexhtml" title="Permanent link">¶</a></h2>
+<p><strong>Propósito:</strong> mapa interactivo Leaflet con cálculo de progresivas, sidebar de registros (con buscador + paginación 30/página), reportes descargables PDF/CSV. Carga datos modulares por ruta vía <code>&lt;script src="datos/rutas_rpXX.js"&gt;</code>.</p>
+<p><strong>URL pública:</strong> <a href="https://lemeit.github.io/DVBA/">lemeit.github.io/DVBA/</a></p>
+<h3 id="algoritmos-clave">Algoritmos clave<a class="headerlink" href="#algoritmos-clave" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p><strong>Haversine 2D</strong> para cálculo de distancias entre puntos en la cadena.</p>
+</li>
+<li>
+<p><strong>Proyección a la cadena:</strong> dado un punto cliqueado, encuentra el punto más cercano de la cadena y devuelve el acumulado local.</p>
+</li>
+<li>
+<p><strong>Interpolación de progresiva:</strong> interpola linealmente entre los anchors <code>(km_real, acc_local)</code> calibrados con mojones físicos.</p>
+</li>
+<li>
+<p><strong>Detección de gaps:</strong> compara <code>acc_actual</code> contra rangos <code>acc_desde / acc_hasta</code> de cada gap → muestra advertencia "Posición en gap".</p>
+</li>
+</ul>
+<h3 id="bugs-resueltos-escritorio">Bugs resueltos · Escritorio<a class="headerlink" href="#bugs-resueltos-escritorio" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>✅ <strong>Sidebar truncado:</strong> <code>regs.slice(0,30)</code> mostraba solo los primeros 30 registros — reemplazado por buscador + paginación.</p>
+</li>
+<li>
+<p>✅ <strong>Tema oscuro:</strong> migrado a paleta clara igual a la app de campo (header teal #009aae, fondo claro, popups Leaflet en claro).</p>
+</li>
+<li>
+<p>✅ <strong>Logo oficial:</strong> reemplazo del logo rediseñado por el PNG oficial DVBA en header y sello de fotos.</p>
+</li>
+<li>
+<p>✅ <strong>Progresivas RP40:</strong> bug en <code>proj()</code> que producía proyecciones incorrectas en la curva del Salado — corregido con restricción de rango.</p>
+</li>
+</ul>
+<h2 id="app-movil-pwa-dvba_campohtml">App Móvil PWA · <code>dvba_campo.html</code><a class="headerlink" href="#app-movil-pwa-dvba_campohtml" title="Permanent link">¶</a></h2>
+<p><strong>Propósito:</strong> aplicación web instalable en Android para relevamiento de campo. Wizard de 4 pestañas (Ubicación → Tipo → Foto → Confirmar). GPS continuo con <code>watchPosition</code>. Cámara via <code>getUserMedia</code> sin pasar por archivo. Sello institucional sobre la foto: logo circular + datos de ruta + GPS + timestamp. Cola offline en IndexedDB. Sincronización automática a Supabase al recuperar red.</p>
+<p><strong>URL pública:</strong> <a href="https://lemeit.github.io/DVBA/dvba_campo.html">lemeit.github.io/DVBA/dvba_campo.html</a></p>
+<h3 id="caracteristicas-clave">Características clave<a class="headerlink" href="#caracteristicas-clave" title="Permanent link">¶</a></h3>
+<p>📍 GPS continuo</p>
+<p><code>watchPosition</code> con botón ↓ Usar para fijar la posición actual al registro.</p>
+<p>📷 Cámara sin crash</p>
+<p><code>getUserMedia</code> directo a canvas, evita el crash RAM de <code>&lt;input type="file" capture&gt;</code>.</p>
+<p>🏷 Sello v2 editable (GPS Map Camera style)</p>
+<p>Modal pre-poblado con form + GPS + Plus Code + fecha/hora antes de estampar. Layout 2 columnas (texto izq + logo der). Editable campo por campo. Implementado en ambas apps (v9.15 / v7.7).</p>
+<p>📡 Cola offline + sync</p>
+<p>Registros pendientes en <code>IndexedDB.cola</code>. Service Worker dispara <code>BackgroundSync</code> al recuperar red.</p>
+<h3 id="sello-v2-diseno-detallado-24-jun-2026">Sello v2 — diseño detallado (24 jun 2026)<a class="headerlink" href="#sello-v2-diseno-detallado-24-jun-2026" title="Permanent link">¶</a></h3>
+<p>Antes de estampar la foto se abre un modal de edición con todos los campos pre-cargados (Localidad, Dirección, Lat/Lng, Fecha, Hora, Altura, Plus Code, Ruta, Km, Tipo). El operador confirma o ajusta y recién entonces se imprime la banda inferior. Botón <em>"Sin sello"</em> sube la foto original.</p>
+<p>🧮 Plus Code (Open Location Code)</p>
+<p>Implementación vanilla JavaScript ~40 líneas, sin dependencias externas. Genera código completo de 10 caracteres válido offline. Se auto-recalcula al editar lat/lng en el modal.</p>
+<p>🎨 Layout estilo GPS Map Camera</p>
+<p>Banda inferior con gradient negro y línea superior dorada. Izquierda: 5 líneas (localidad dorada, dirección, lat/long+alt verde mono, plus code azul mono, fecha+hora+tipo). Firma institucional separada en italic dorado tenue. Derecha: logo institucional DVBA centrado vertical.</p>
+<p>📐 Tipografía proporcional al ancho</p>
+<p><code>baseFont = max(14, min(W*0.018, 32))</code>. Antes era proporcional al alto, pero en fotos panorámicas las letras se veían chicas — el ancho es mejor proxy del espacio disponible. Text shadow sutil + JPEG quality 0.95 + imageSmoothing 'high' para nitidez.</p>
+<p>🚫 Sin clima ni mini-mapa</p>
+<p>Decisión explícita: la app debe funcionar 100% offline en campo. Solo GPS. Nada de tiles OSM ni APIs de clima — todo lo que aparece en el sello sale del GPS, el form o el operador.</p>
+<h3 id="bugs-resueltos-campo">Bugs resueltos · Campo<a class="headerlink" href="#bugs-resueltos-campo" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>✅ <strong>Banner de actualización v(X-1)→vX:</strong> Service Worker queda en "waiting" hasta que el usuario haga click en el banner → dispara <code>skipWaiting</code>.</p>
+</li>
+<li>
+<p>✅ <strong>Cola offline persistente:</strong> <code>IndexedDB.dvba_campo</code> v9 con stores <code>cola</code> y <code>hoy</code>.</p>
+</li>
+<li>
+<p>✅ <strong>SW filtra schemes no cacheables:</strong> en <code>v3.0/v3.1</code> se ignoran <code>chrome-extension://</code>, <code>data:</code>, <code>blob:</code> que rompían <code>cache.put()</code>.</p>
+</li>
+<li>
+<p>✅ <strong>Compatibilidad escritorio:</strong> registros del campo se leen en escritorio con clave <code>dvba_z6v6</code>.</p>
+</li>
+</ul>
+<h3 id="checklist-por-release-de-la-app-de-campo">Checklist por release de la app de campo<a class="headerlink" href="#checklist-por-release-de-la-app-de-campo" title="Permanent link">¶</a></h3>
+<ol>
+<li>
+<p>Bumpear <code>APP_VER='vX'</code> en <code>dvba_campo.html</code>.</p>
+</li>
+<li>
+<p>Bumpear <code>CACHE_NAME='dvba-campo-vX'</code> en <code>sw.js</code>.</p>
+</li>
+<li>
+<p><code>git push</code>.</p>
+</li>
+<li>
+<p>El banner de actualización <strong>v(X-1)→vX</strong> aparece automáticamente en los dispositivos de campo cuando se reabre la app.</p>
+</li>
+</ol>
+<h2 id="backend-supabase">Backend · Supabase<a class="headerlink" href="#backend-supabase" title="Permanent link">¶</a></h2>
+<p>Las apps usan <strong>Supabase free tier</strong> como persistencia en la nube:</p>
+<ul>
+<li>
+<p><strong>PostgreSQL:</strong> tabla <code>relevamientos</code> con los registros de campo.</p>
+</li>
+<li>
+<p><strong>Storage:</strong> bucket <code>relevamientos</code> con las fotos selladas (<code>fotos/{timestamp}_{ruta}.sello.jpg</code>).</p>
+</li>
+<li>
+<p><strong>API:</strong> REST con <code>anon key</code> embebida en el cliente. Insert vía <code>POST /rest/v1/relevamientos</code>, upload vía <code>POST /storage/v1/object/{bucket}/{path}</code>.</p>
+</li>
+<li>
+<p><strong>Keepalive:</strong> GitHub Action <code>.github/workflows/supabase_keepalive.yml</code> hace ping periódico para evitar el sleep automático del free tier por inactividad.</p>
+</li>
+</ul>
+<p>⚠ Seguridad:</p>
+<p>la</p>
+<p>anon key</p>
+<p>está embebida en</p>
+<p>sw.js</p>
+<p>y</p>
+<p>dvba_campo.html</p>
+<p>. Es la clave pública anónima de Supabase (no la</p>
+<p>service_role</p>
+<p>) — está pensada para ser pública en clientes, pero</p>
+<p>las políticas RLS de Supabase deben estar bien configuradas</p>
+<p>para que solo permitan INSERT y no SELECT/UPDATE/DELETE de otros registros.</p>
+<p>═══════════════════════════════════════════════════════════════════</p>
+<p>TAB 4 · INFRAESTRUCTURA</p>
+<p>═══════════════════════════════════════════════════════════════════</p>
+<h2 id="estructura-del-repositorio">Estructura del Repositorio<a class="headerlink" href="#estructura-del-repositorio" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>C:\GitHub\DVBA\                        ← repo lemeit/DVBA
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── index.html                         ← App Escritorio (= ex dvba_zona6.html)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── dvba_campo.html                    ← App Móvil PWA
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── dvba_tipos.js                      ← Selector jerárquico tipos MSV 2017
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── manifest.json  sw.js               ← PWA + Service Worker
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>├── icon-192.png  icon-512.png
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>├── datos/                             ← Bundles JS por ruta
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   ├── rutas.js                       ← Índice maestro
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   ├── rutas_rp30.js  rp40  rp41  rp46  rp51  rp91
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   └── img/                           ← Logos institucionales
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>├── scripts/                           ← Python (QGIS + bundle generators)
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   ├── gen_ruta_bundle.py             ← Generador de datos/rutas_rpXX.js
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   ├── build_campo.py                 ← Build de la app de campo
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│   ├── Armonizar_mojones.py
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│   ├── 01_procesamiento_rutas/        ← Cálculo progresivas, validación
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│   ├── 02_analisis_topologia/
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│   ├── 03_utilidades/                 ← Exploración SHP, gen mojones
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│   ├── 04_reportes/
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│   └── requirements.txt
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>├── geojson_procesados/                ← GeoJSONs intermedios listos
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│   └── rp30  rp40  rp41  rp46  rp51  rp91 (unificada + mojones)
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>├── docs/                              ← Documentación
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│   ├── bitacora.html (este archivo)
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│   ├── guia_dvba_campo.html
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│   └── guia_dvba_campo.pdf
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>├── tests/                             ← Tests integración por ruta
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│   └── test_rp30  rp40  rp41  rp46  rp51  rp91 .html
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>│
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>├── archivo/                           ← Legacy y referencias
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>│   ├── versiones/                     ← Backups históricos HTMLs
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>│   ├── bitacoras_historicas/          ← Versiones previas de la bitácora
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>│   ├── dvba_zona6_bk2.html  _bx.html
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>│   └── servidor_http.py               ← Server local antiguo
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>│
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>└── .github/workflows/
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>    └── supabase_keepalive.yml         ← Mantiene viva la BD del free tier
+</code></pre></div>
+<h2 id="carpetas-locales-fuera-del-repo">Carpetas Locales (FUERA del repo)<a class="headerlink" href="#carpetas-locales-fuera-del-repo" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>C:\DVBA_fuentes\                       ← Fuentes pesadas, no versionadas
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── qgis/
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│   ├── proyecto_redes_viales.qgz
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│   ├── 02_BASES_VECTORES/             ← SHP fuente (305 MB)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│   ├── 03_CAPAS_GENERADAS/            ← Capas procesadas
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│   ├── 04_BACKUPS/  05_TABLAS/  06_RESULTADOS/
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│   └── venv_redes_viales/             ← Virtualenv (regenerable)
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>└── osm/
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    ├── argentina-260405.osm.pbf       ← OSM PBF Argentina (413 MB)
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    └── caminos_saladillo.osm
+</code></pre></div>
+<h2 id="urls-de-acceso">URLs de Acceso<a class="headerlink" href="#urls-de-acceso" title="Permanent link">¶</a></h2>
+<p>| Recurso | URL |</p>
+<p>|---|---|</p>
+<p>| App Escritorio (home) | <a href="https://lemeit.github.io/DVBA/">lemeit.github.io/DVBA/</a> |</p>
+<p>| App Móvil PWA | <a href="https://lemeit.github.io/DVBA/dvba_campo.html">lemeit.github.io/DVBA/dvba_campo.html</a> |</p>
+<p>| Bitácora (esta) | <a href="https://lemeit.github.io/DVBA/docs/bitacora.html">lemeit.github.io/DVBA/docs/bitacora.html</a> |</p>
+<p>| Guía app de campo (textual) | <a href="https://lemeit.github.io/DVBA/docs/guia_dvba_campo.html">lemeit.github.io/DVBA/docs/guia_dvba_campo.html</a> |</p>
+<p>| Guía visual (mockups) | <a href="https://lemeit.github.io/DVBA/docs/guia_visual_dvba_campo.html">lemeit.github.io/DVBA/docs/guia_visual_dvba_campo.html</a> |</p>
+<p>| Guía app de campo (PDF) | <a href="https://lemeit.github.io/DVBA/docs/guia_dvba_campo.pdf">lemeit.github.io/DVBA/docs/guia_dvba_campo.pdf</a> |</p>
+<p>| Tests por ruta | <a href="https://lemeit.github.io/DVBA/tests/test_rp40.html">…/tests/test_rp40.html</a> (rp30, rp41, rp46, rp51, rp91 idem) |</p>
+<p>| Repositorio | <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a> |</p>
+<h2 id="flujo-de-releases">Flujo de Releases<a class="headerlink" href="#flujo-de-releases" title="Permanent link">¶</a></h2>
+<p>Para actualizar la app de escritorio:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a># Editar index.html, datos/rutas_rpXX.js, scripts/, etc.
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>git add .
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>git commit -m &quot;Descripción del cambio&quot;
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>git push origin main
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a># GitHub Pages publica en ~1-2 minutos
+</code></pre></div>
+<p>Para actualizar la app de campo (PWA):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a># 1. Bumpear versión en dvba_campo.html (APP_VER=&#39;vX&#39;)
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a># 2. Bumpear versión en sw.js (CACHE_NAME=&#39;dvba-campo-vX&#39;)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a># 3. git add dvba_campo.html sw.js manifest.json
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a># 4. git commit -m &quot;v8 → v9: descripción&quot;
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a># 5. git push origin main
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a># 6. Los celulares ven el banner v8→v9 al reabrir la app
+</code></pre></div>
+<h2 id="historico-migracion-a-github-pages">Histórico · Migración a GitHub Pages<a class="headerlink" href="#historico-migracion-a-github-pages" title="Permanent link">¶</a></h2>
+<p>Originalmente las apps corrían sobre <strong>ngrok</strong> (servidor local en la PC de la oficina + túnel HTTPS gratuito), iniciado con <code>servidor.bat</code>. Esto requería que la PC de la oficina estuviera siempre encendida y conectada.</p>
+<p>En abril 2026 se migró a <strong>GitHub Pages</strong> para tener disponibilidad 24/7 con HTTPS gratuito y sin dependencia de hardware local. Los archivos legacy (<code>servidor_http.py</code>, <code>servidor.bat</code>, <code>ngrok.exe</code>, <code>ngrok-dvba.yml</code>) están conservados en <code>archivo/</code> por trazabilidad.</p>
+<p>═══════════════════════════════════════════════════════════════════</p>
+<p>TAB 5 · DECISIONES</p>
+<p>═══════════════════════════════════════════════════════════════════</p>
+<h2 id="decisiones-tecnicas-clave">Decisiones Técnicas Clave<a class="headerlink" href="#decisiones-tecnicas-clave" title="Permanent link">¶</a></h2>
+<h3 id="1-arquitectura-modular-por-ruta-decision">1. Arquitectura modular por ruta DECISIÓN<a class="headerlink" href="#1-arquitectura-modular-por-ruta-decision" title="Permanent link">¶</a></h3>
+<p>Cada ruta = un archivo <code>datos/rutas_rpXX.js</code> independiente con su bundle (cadena + anchors + mojones + gaps). Permite editar una ruta sin tocar el HTML. GitHub Pages sirve todos los archivos estáticos. El HTML solo carga <code>&lt;script&gt;</code> tags.</p>
+<h3 id="2-fuente-de-datos-adoptada-para-rp40-decision">2. Fuente de datos adoptada para RP40 DECISIÓN<a class="headerlink" href="#2-fuente-de-datos-adoptada-para-rp40-decision" title="Permanent link">¶</a></h3>
+<p>SHP Oficial Provincia de Buenos Aires (a través de DVP / IGN), campo <code>fuente_geometria: "oficial_provincia"</code>. La fuente Overpass/OSM fue descartada para progresivas por peor alineación en km100 (error 3.4 km vs 0.07 km del oficial).</p>
+<h3 id="3-representacion-de-gaps-decision">3. Representación de gaps DECISIÓN<a class="headerlink" href="#3-representacion-de-gaps-decision" title="Permanent link">¶</a></h3>
+<p>Los gaps (cruce Salado, zona urbana 25 de Mayo) se digitalizan sobre imagen satelital y se incluyen en la cadena como tramos reales. La progresiva acumula por el recorrido real del gap (no por línea recta). Los tramos de gap se muestran en rojo punteado en el mapa.</p>
+<h3 id="4-mojones-fisicos-vs-sinteticos-decision">4. Mojones · físicos vs sintéticos DECISIÓN<a class="headerlink" href="#4-mojones-fisicos-vs-sinteticos-decision" title="Permanent link">¶</a></h3>
+<p>Los mojones físicos del organismo no fueron medidos con odómetro calibrado y algunos están fuera de la traza. Se mantienen como referencia interna pero requieren verificación de campo. Los <strong>mojones sintéticos</strong> (interpolados cada 5 km) son los que se usan para el cálculo de progresivas en la app. La generación de sintéticos reemplaza la fase de "Interpolate point on line" en QGIS.</p>
+<h3 id="5-denominacion-institucional-decision">5. Denominación institucional DECISIÓN<a class="headerlink" href="#5-denominacion-institucional-decision" title="Permanent link">¶</a></h3>
+<p>En todos los documentos y aplicaciones: <strong>"Departamento Zona VI Saladillo"</strong> o abreviado <strong>"Zona VI Saladillo"</strong>. Nunca "Delegación Saladillo" ni ninguna forma de "Delegación".</p>
+<h3 id="6-estructura-monorepo-decision-6-may-2026">6. Estructura monorepo DECISIÓN · 6 may 2026<a class="headerlink" href="#6-estructura-monorepo-decision-6-may-2026" title="Permanent link">¶</a></h3>
+<p>Un único repositorio <code>lemeit/DVBA</code> con subcarpetas <code>datos/ scripts/ docs/ tests/ archivo/ geojson_procesados/</code>. Las fuentes pesadas (proyecto QGIS, SHP fuente, OSM PBF, virtualenv) viven en una carpeta hermana <code>C:\DVBA_fuentes\</code> fuera del repo. Esta separación mantiene el repo liviano (~2.4 MB) y facilita el sync con GitHub.</p>
+<h3 id="7-renombrado-de-dvba_zona6html-indexhtml-decision-6-may-2026">7. Renombrado de <code>dvba_zona6.html → index.html</code> DECISIÓN · 6 may 2026<a class="headerlink" href="#7-renombrado-de-dvba_zona6html-indexhtml-decision-6-may-2026" title="Permanent link">¶</a></h3>
+<p>La app de escritorio quedó como <code>index.html</code> en la raíz, lo que la convierte en la home automática de GitHub Pages: <code>lemeit.github.io/DVBA/</code> abre directo la app. La URL antigua <code>…/dvba_zona6.html</code> deja de funcionar.</p>
+<h3 id="8-paths-sin-caracteres-especiales-decision-operativa">8. Paths sin caracteres especiales DECISIÓN OPERATIVA<a class="headerlink" href="#8-paths-sin-caracteres-especiales-decision-operativa" title="Permanent link">¶</a></h3>
+<p>El usuario tiene su carpeta de Windows como <code>C:\Users\Of. Técnica Z6\</code> — espacio + tilde + punto rompen scripts Python y herramientas. Por eso el repo vive en <code>C:\GitHub\DVBA\</code> y las fuentes pesadas en <code>C:\DVBA_fuentes\</code>, ambos en la raíz de C: con nombres limpios.</p>
+<h3 id="9-service-worker-network-first-decision-6-may-2026">9. Service Worker network-first DECISIÓN · 6 may 2026<a class="headerlink" href="#9-service-worker-network-first-decision-6-may-2026" title="Permanent link">¶</a></h3>
+<p>La estrategia original del SW era <em>cache-first</em>, que servía contenido viejo aún después dal del SW era <em>cache-first</em>, que servía contenido viejo aún después de eliminar archivos del repo (URLs fantasma como <code>/dvba_zona6</code>). Se cambió a <strong>network-first con offline fallback + auto-purge de 404</strong>: siempre se intenta la red primero; si responde 404 se borra la entrada del caché; si la red falla se sirve el caché o un mensaje 503 amigable. La PWA sigue funcionando offline porque el caché se sigue manteniendo, solo cambia la prioridad de lectura.</p>
+<h3 id="10-versionado-independiente-por-artefacto-decision-7-may-2026">10. Versionado independiente por artefacto DECISIÓN · 7 may 2026<a class="headerlink" href="#10-versionado-independiente-por-artefacto-decision-7-may-2026" title="Permanent link">¶</a></h3>
+<p>Cada artefacto del proyecto (app campo, app escritorio, guía, bitácora) tiene su propia versión y su propio ciclo de vida. La consistencia entre versiones <strong>no se fuerza</strong>. El script <code>scripts/bump_version.py</code> permite bumpear cada artefacto por separado: <code>python scripts/bump_version.py campo v9.3</code>. Para casos puntuales hay <code>todos vX.Y</code> que sincroniza todo.</p>
+<p>═══════════════════════════════════════════════════════════════════</p>
+<p>TAB 6 · PENDIENTES</p>
+<p>═══════════════════════════════════════════════════════════════════</p>
+<p>✅ Actualizado a v7.75 · 13 julio 2026.</p>
+<p>El grueso de los pendientes históricos ya está resuelto (sello v3, caminos integrados, mudanza C:\DVBA, RLS Supabase). Los nuevos ejes son</p>
+<p>reportes PDF oficiales</p>
+<p>,</p>
+<p>capa de partes en el mapa</p>
+<p>,</p>
+<p>escalado multi-zona</p>
+<p>, y</p>
+<p>completar las RPs faltantes en QGIS</p>
+<p>.</p>
+<h2 id="alta-prioridad">🔴 Alta Prioridad<a class="headerlink" href="#alta-prioridad" title="Permanent link">¶</a></h2>
+<ul>
+<li>
+<p><strong>Módulo Reportes (Bloque 3 · Sesión 3)</strong>: dashboard con métricas + reporte oficial DVBA en PDF con layout institucional (portada, resumen ejecutivo, tabla de tareas por partido, gráficos de barras, tabla luminarias LED, anexo fotográfico). Pendiente confirmar layout con adjunto del user. Es lo que faltaría para "presentación Gerencia".</p>
+</li>
+<li>
+<p><strong>Capa de partes en el mapa del portal (v7.76 planeado)</strong>: nueva capa toggleable en <code>index.html</code> sobre panel Capas. Cada parte se dibuja como polyline del tramo <code>prog_ini↔prog_fin</code> sobre la traza RP + pin en el punto medio. Partes con foto usan el punto del relevamiento asociado. Sin foto: polyline gruesa + pin gris (necesita agregar columnas <code>lat</code>/<code>lon</code> o computar on-the-fly).</p>
+</li>
+<li>
+<p><strong>[SQL] Correr <code>SQL_5_rls_partes_flexible.sql</code> y <code>SQL_6_partido_en_partes.sql</code></strong> en Supabase antes del próximo test end-to-end del portal Plan de Seguridad. El primero fixea el 403 al guardar; el segundo agrega columna <code>partido</code> y actualiza la view de export.</p>
+</li>
+<li>
+<p><strong>Regenerar RP30 y RP46</strong> con calma en QGIS (task #195): el <code>_traza_completa</code> original tenía zigzag / mala longitud. Requiere revisar el orden geográfico de fids uno a uno antes de re-correr <code>gen_ruta_bundle.py</code>.</p>
+</li>
+<li>
+<p><strong>Documentar bitácora entradas v7.62 → v7.75</strong>: sprint de módulo Partes Diarios (renombrado a "Plan de Seguridad en la Circulación"), detección automática de partido, dropdown único + typeahead nativo, sidebar-footer institucional, plan de roles multi-zona. Ver commits del 13/7.</p>
+</li>
+</ul>
+<h2 id="media-prioridad">🔵 Media Prioridad<a class="headerlink" href="#media-prioridad" title="Permanent link">¶</a></h2>
+<ul>
+<li>
+<p><strong>Completar las 7 RPs restantes en QGIS</strong>: RP 6, 20, 24, 42, 43, 44, 48 (de las 15 de Zona VI). Sin bundle procesado no hay detección de partido ni progresivas oficiales para estas rutas — el badge de v7.75 ya avisa "(ruta sin traza cargada — pendiente de procesar en QGIS)".</p>
+</li>
+<li>
+<p><strong>Detección de partido en app móvil</strong> (<code>dvba_campo.html</code>): replicar <code>pdDetectarPartido</code> + <code>pdInterpolarProgresiva</code> del portal Plan de Seguridad usando el mismo <code>datos/partidos_zona_vi.geojson</code> y los bundles CHAIN. Reutilizar helpers <code>_pdGetChainRP</code> (patrón <code>typeof</code>, no <code>window</code>).</p>
+</li>
+<li>
+<p><strong>Backfill columna <code>partido</code></strong> en los 632 partes históricos migrados. Un script Python + Supabase que corre point-in-polygon offline sobre las progresivas medias. O SQL con extensión PostGIS si está habilitada.</p>
+</li>
+<li>
+<p><strong>Fase 1 del Plan de Roles</strong> (ver <code>docs/PLAN_ROLES_MULTIZONA.md</code>): crear tabla <code>usuarios_perfil</code>, columna <code>zona</code> en tablas operativas, funciones helper <code>current_user_zona()</code> / <code>current_user_rol()</code>. Preparación para Fase 3 (RLS zonal).</p>
+</li>
+<li>
+<p><strong>Verificación de campo</strong> de mojones físicos con GPS calibrado (los actuales son datos internos no medidos con odómetro). Pendiente crónico — buena candidata para piloto colaborativo con Zona VII cuando arranquemos multi-zona.</p>
+</li>
+<li>
+<p><strong>Completar historial v9.10 → v9.15 / v7.1 → v7.7</strong> en el changelog. Reconstruir desde <code>git log</code>.</p>
+</li>
+<li>
+<p><strong>Renombrar CACHE_NAME del SW</strong> (task #153): actualmente <code>dvba-campo-vX.Y</code> aunque cachea AMBAS apps (móvil + escritorio). Confuso.</p>
+</li>
+</ul>
+<h2 id="baja-prioridad-futuro">⚪ Baja Prioridad / Futuro<a class="headerlink" href="#baja-prioridad-futuro" title="Permanent link">¶</a></h2>
+<ul>
+<li>
+<p><strong>Debounce del <code>oninput</code></strong> del selector de ruta y progresivas: mientras el user tipea "RP 91" pasa por estados intermedios ("RP 9", "RP") que generan warnings en consola. Inofensivo pero se puede pulir.</p>
+</li>
+<li>
+<p><strong>Ocultar del datalist las RPs sin bundle procesado</strong> (o marcarlas visualmente como "no operativas") hasta que se resuelvan en QGIS.</p>
+</li>
+<li>
+<p><strong>Panel Admin de usuarios</strong> (Fase 4 del Plan de Roles): página <code>admin_usuarios.html</code> con alta/baja/cambio de rol.</p>
+</li>
+<li>
+<p><strong>Reportes PDF oficiales DVBA</strong> (Fase 5 del Plan de Roles): stack probable <code>jsPDF + jsPDF-autotable</code> client-side o Edge Function con <code>pdf-lib</code>. Bloqueado hasta que el user comparta el adjunto de referencia.</p>
+</li>
+<li>
+<p><strong>Catálogo caminos editable</strong> (task #126): UI de escritorio + tabla Supabase para editar nombres locales sin tocar código.</p>
+</li>
+<li>
+<p><strong>Reportes de caminos secundarios en tab Reportes</strong> (task #125): F5.</p>
+</li>
+<li>
+<p><strong>Edición fotos post-captura en escritorio</strong>: reubicar el pin + re-sellar (task #202).</p>
+</li>
+<li>
+<p><strong>Piloto TMD</strong> (Tránsito Medio Diario) con cámara de video en rutas seleccionadas.</p>
+</li>
+<li>
+<p>Integración con <strong>acelerómetro RURAL IT</strong> para condición de pavimento.</p>
+</li>
+<li>
+<p>Medición <strong>V85</strong> (velocidad percentil 85) con LIDAR del colega.</p>
+</li>
+<li>
+<p>Integración con sistema de despacho de cuadrillas.</p>
+</li>
+</ul>
+<h2 id="resueltos-recientemente-referencia">✅ Resueltos recientemente (referencia)<a class="headerlink" href="#resueltos-recientemente-referencia" title="Permanent link">¶</a></h2>
+<ul>
+<li>
+<p>Sello v3 con QR Google Maps → <em>completado v7.8+</em>.</p>
+</li>
+<li>
+<p>Integrar caminos secundarios al portal → <em>completado v7.15–v7.45</em>.</p>
+</li>
+<li>
+<p>Mudanza <code>C:\DVBA\</code> + <code>C:\GitHub\DVBA</code> → <em>hecho, ver memoria feedback_paths</em>.</p>
+</li>
+<li>
+<p>Módulo Partes Diarios / Plan de Seguridad en la Circulación → <em>desarrollado v7.62–v7.75</em>.</p>
+</li>
+<li>
+<p>Detección automática de partido en carga → <em>v7.70 (SQL_6) + v7.75 (fix bundles)</em>.</p>
+</li>
+<li>
+<p>RLS Supabase documentada + flexibilizada para uso interno → <em>v7.69 (SQL_5)</em>.</p>
+</li>
+<li>
+<p>Doc <code>PLAN_ROLES_MULTIZONA.md</code> con 4 niveles y roadmap 5 fases → <em>v7.73</em>.</p>
+</li>
+<li>
+<p>Convención versionado unificado escritorio (index + partes juntos) → <em>v7.71 en adelante</em>.</p>
+</li>
+</ul>
+<h2 id="changelog-apps">📋 Changelog · Apps<a class="headerlink" href="#changelog-apps" title="Permanent link">¶</a></h2>
+<p>| Artefacto | Versión | Archivo(s) | Bumpear con |</p>
+<p>|---|---|---|---|</p>
+<p>| <strong>📱 App Campo (PWA unificada)</strong> | v9.88 | <code>app.html</code> (router) + <code>dvba_campo_lite.html</code> (Modo Básico) + <code>dvba_campo.html</code> (Modo Avanzado) + <code>sw.js</code> | Manual: <code>APP_VER</code> en HTMLs + <code>CACHE_NAME</code> en <code>sw.js</code> |</p>
+<p>| <strong>🖥 Familia escritorio</strong> | v8.52 | <code>index.html</code>, <code>partes_diarios.html</code>, <code>reportes.html</code> + módulos <code>datos/</code> | Manual en <code>const APP_VERSION</code> + spans footer en los 3 |</p>
+<p>| <strong>🎨 Módulo sello v4</strong> | unificado | <code>datos/sello_v4.js</code> + <code>datos/exif_writer.js</code> + <code>datos/piexif.min.js</code> | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |</p>
+<p>| <strong>🛣 Caminos Secundarios</strong> | v1.1 | <code>caminos_secundarios.html</code> | — |</p>
+<h3 id="v867-v994-12-agosto-2026-presets-tamano-sello-fix-doble-sello-version-reubicada">v8.67 / v9.94 · 12 agosto 2026 — Presets tamaño sello + fix doble sello + versión reubicada<a class="headerlink" href="#v867-v994-12-agosto-2026-presets-tamano-sello-fix-doble-sello-version-reubicada" title="Permanent link">¶</a></h3>
+<p>Cierre de la serie <strong>v8.66f (7 hotfixes iterativos)</strong> sobre <code>datos/sello_v4.js</code> + portal + móvil. Origen: fotos donde el banner del sello tapa detalles críticos (puentes, defectos en el pie de la foto). Resuelto sin romper el diseño base para el resto de las fotos.</p>
+<p><strong>Presets de tamaño</strong> — el modal "🖋 Editar datos del sello" (aprobación) y el sidebar de edición ahora tienen 3 botones <strong>🖋 Normal (100%) / 🖋 Mediano (75%) / 🖋 Mínimo (50%)</strong>. Reemplazan al slider intermedio de v8.66f-f.2 que confundía al user (quedaba pegado en el último valor entre fotos). El preset se resetea a Normal al abrir cada foto.</p>
+<p><strong>Fix doble sello real</strong> — al re-sellar con escala &lt; 100% sobre foto sellada sin backup limpio, quedaban 2 banners superpuestos porque <code>sello_v4</code> no cortaba el banner viejo si no detectaba la línea dorada (compresión JPEG, rotación, o sello del móvil). Nuevo fallback ASUMIDO: si no aparece la línea, recorta la altura por defecto del banner al 100% (<code>max(160, min(W*0.16, 270))</code>) — ciego pero determinístico.</p>
+<p><strong>Versión reubicada</strong> — el string <code>vX.X·origen · sello v4</code> (dorado transparente) pasó de la columna central (donde se pisaba con el texto principal en fotos con localidad larga) a <strong>centrado debajo del QR en la columna derecha</strong>. QR reducido a 0.72·bH y anclado al top del banner para dejar ~22% de altura libre debajo.</p>
+<p><strong>Fix crítico fecha recortada en Mínimo</strong> — bug histórico de v8.66f: <code>_baseF</code> (usado para el alto del banner) se escalaba con el preset pero <code>baseFont</code> (usado para dibujar el texto) NO. Resultado: Mediano/Mínimo achicaban el banner pero dibujaban texto tamaño completo → la última línea (fecha/hora) se cortaba fuera. Ahora ambos escalan proporcionalmente y el texto entra siempre.</p>
+<p><strong>Advertencia legacy</strong> — botón "🖋 Mediano/Mínimo" sobre foto legacy (sin backup del original) dispara <code>confirm()</code> explicando que puede quedar el sello anterior visible por atrás, y sugiere usar Normal. Banner rojo dismissible bajo la barra de herramientas.</p>
+<p>Archivos tocados: <code>datos/sello_v4.js</code>, <code>index.html</code>, <code>admin_usuarios.html</code>, <code>reportes.html</code>, <code>partes_diarios.html</code>, <code>dvba_campo.html</code>, <code>dvba_campo_lite.html</code>, <code>sw.js</code> (cache <code>dvba-campo-v9.94</code>).</p>
+<h3 id="v844-v852-31-julio-1-agosto-2026-fase-4-completa-panel-admin-escalado-multi-zona-listo-branding-sig-vial-pba">v8.44 – v8.52 · 31 julio – 1 agosto 2026 — Fase 4 completa (Panel Admin) + escalado multi-zona listo + branding SIG Vial PBAᵝ<a class="headerlink" href="#v844-v852-31-julio-1-agosto-2026-fase-4-completa-panel-admin-escalado-multi-zona-listo-branding-sig-vial-pba" title="Permanent link">¶</a></h3>
+<p>Cierre de la infraestructura para escalar a las 12 zonas viales de la DVBA. Con esta ronda queda operativo: RLS zonal blindado con trigger server-side, panel administrativo completo para gestionar usuarios de todas las zonas, título institucional unificado con marca "beta" superíndice, y módulo legal compartido (Acerca + Términos + Privacidad + Permisos PWA) en los 6 HTMLs del ecosistema.</p>
+<h4 id="fase-4-panel-de-administracion-v845">🛡 Fase 4 · Panel de Administración (v8.45)<a class="headerlink" href="#fase-4-panel-de-administracion-v845" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>Nuevo <code>admin_usuarios.html</code> accesible solo con rol admin</p>
+</li>
+<li>
+<p>Función SQL <code>admin_listar_usuarios()</code> SECURITY DEFINER con guard interno</p>
+</li>
+<li>
+<p>Métricas: total users, admins, gerencia, técnicos, sin perfil, inactivos</p>
+</li>
+<li>
+<p>Filtros por rol, zona, estado + buscador email/nombre</p>
+</li>
+<li>
+<p>Editar rol/zona/nombre inline, activar/desactivar, reset password via <code>supabase.auth.resetPasswordForEmail</code></p>
+</li>
+<li>
+<p>Invitar users vía Supabase Dashboard (link directo) con mensaje pre-armado para copiar</p>
+</li>
+<li>
+<p>Guard tolerante a token expirado con fallback a localStorage (v8.49)</p>
+</li>
+</ul>
+<h4 id="trigger-de-zona-por-rol-sql_10-v844">🔒 Trigger de zona por rol · SQL_10 (v8.44)<a class="headerlink" href="#trigger-de-zona-por-rol-sql_10-v844" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>Función <code>forzar_zona_por_rol()</code> SECURITY DEFINER con BEFORE INSERT/UPDATE en <code>relevamientos</code> y <code>partes_diarios</code></p>
+</li>
+<li>
+<p>Sobrescribe <code>NEW.zona = current_user_zona()</code> para técnicos automáticamente</p>
+</li>
+<li>
+<p>Admin y gerencia respetan el valor enviado (para reasignar)</p>
+</li>
+<li>
+<p>Defensa en profundidad sobre las policies RLS: aunque el frontend mande zona equivocada, la BD la corrige</p>
+</li>
+<li>
+<p>SQL_9 con bloque defensivo <code>DO $$</code> que elimina policies legacy con nombres alternativos</p>
+</li>
+</ul>
+<h4 id="branding-sig-vial-pba-v850-v852">🎨 Branding "SIG Vial PBAᵝ" (v8.50 – v8.52)<a class="headerlink" href="#branding-sig-vial-pba-v850-v852" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>Título único con beta superíndice ámbar en 6 HTMLs (portal, reportes, partes_diarios, admin, dvba_campo, dvba_campo_lite)</p>
+</li>
+<li>
+<p>Footer minimalista sin autor visible (movido a modal Acerca)</p>
+</li>
+<li>
+<p>Módulo <code>datos/legales.js</code> compartido con contenido único de Acerca / Términos / Privacidad / Permisos PWA</p>
+</li>
+<li>
+<p>Modal auto-inyectable con tabs, mismo look en todos los sitios</p>
+</li>
+<li>
+<p>Sección Permisos PWA explica claramente cámara, ubicación, storage, conexión — tranquilidad para el usuario móvil</p>
+</li>
+<li>
+<p>Contactos: <code>lulamaita@vialidad.gba.gov.ar</code> (institucional) + <code>lucianolamaita@gmail.com</code> (personal)</p>
+</li>
+</ul>
+<h4 id="progresiva-inversa-para-caminos-v847">🗺 Progresiva inversa para caminos (v8.47)<a class="headerlink" href="#progresiva-inversa-para-caminos-v847" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><code>progresivaAPuntoCamino(nomenclatura, kmTarget)</code> análoga a la de RPs</p>
+</li>
+<li>
+<p>Reusa <code>_offsetTramoCache</code> + <code>_haversineM</code> con aplanado de coords</p>
+</li>
+<li>
+<p>Se dispatchea desde <code>ubicarPorProgresiva()</code> según <code>tipoVia</code></p>
+</li>
+<li>
+<p>Ahora funciona para RPs y caminos secundarios por igual</p>
+</li>
+</ul>
+<h4 id="logout-robusto-v846">🔐 Logout robusto (v8.46)<a class="headerlink" href="#logout-robusto-v846" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>Fix del <code>POST /auth/v1/logout 403 Forbidden</code> que dejaba sesión colgada</p>
+</li>
+<li>
+<p><code>signOut({scope:'local'})</code> evita el POST problemático</p>
+</li>
+<li>
+<p>Limpieza manual de <code>localStorage.sb-*</code> + <code>location.reload()</code> para estado limpio</p>
+</li>
+<li>
+<p>Reload post-login que también evita race conditions de datos con token viejo (v8.49)</p>
+</li>
+</ul>
+<h4 id="login-general-user-info-rolzona-v848">👤 Login general + user-info Rol+Zona (v8.48)<a class="headerlink" href="#login-general-user-info-rolzona-v848" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>Modal login con texto general multi-zona (sin mencionar Zona VI)</p>
+</li>
+<li>
+<p>Header muestra siempre <strong>🛡 Admin</strong> | <strong>📊 Gerencia</strong> | <strong>👷 Técnico · Zona X</strong></p>
+</li>
+<li>
+<p>Nunca se muestra el mail (que puede ser largo). Nombre real va al tooltip.</p>
+</li>
+</ul>
+<h4 id="plan-de-escalado-multi-zona">🌎 Plan de escalado multi-zona<a class="headerlink" href="#plan-de-escalado-multi-zona" title="Permanent link">¶</a></h4>
+<p>Nuevo documento <code>docs/PLAN_ESCALADO_MULTIZONA.md</code> con:</p>
+<ul>
+<li>
+<p>Estructura de carpetas por zona (<code>datos/zona_I/</code>, <code>zona_II/</code>, etc.)</p>
+</li>
+<li>
+<p>Assets requeridos por zona (partidos, RPs, caminos, mojones, CARACT_VIALES)</p>
+</li>
+<li>
+<p>Checklist paso a paso para habilitar zona nueva (4 etapas: preparación QGIS → calibración → subida → habilitación institucional)</p>
+</li>
+<li>
+<p>Presupuesto estimado (~50 h por zona · ~550 h para las 11 restantes)</p>
+</li>
+<li>
+<p>Prioridades: IV Junín + V 9 de Julio primero (limítrofes con VI, más fáciles)</p>
+</li>
+<li>
+<p>Roadmap post-concurso 2026 por trimestres</p>
+</li>
+</ul>
+<h3 id="v829-v842-2931-julio-2026-sistema-de-reportes-unificado-red-vial-provincial-paleta-minimalista-pba">v8.29 – v8.42 · 29–31 julio 2026 — Sistema de reportes unificado Red Vial Provincial + paleta minimalista PBA<a class="headerlink" href="#v829-v842-2931-julio-2026-sistema-de-reportes-unificado-red-vial-provincial-paleta-minimalista-pba" title="Permanent link">¶</a></h3>
+<p>Refactor completo del tab Reportes del portal, integrando Rutas Provinciales (Red Vial Provincial Primaria) y Caminos Secundarios (Red Vial Provincial Secundaria) en un único flujo simétrico basado en selección manual por click en el mapa. PDF unificado con logo DVBA, SVG con partidos + ciudades + trazas + mojones + registros, y toda la nomenclatura oficial DVBA aplicada.</p>
+<h4 id="seleccion-homogenea-rutas-caminos-v829-v831-v836-v839">🎯 Selección homogénea Rutas ↔ Caminos (v8.29 – v8.31 · v8.36 · v8.39)<a class="headerlink" href="#seleccion-homogenea-rutas-caminos-v829-v831-v836-v839" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Sin dropdown</strong> — el sistema detecta automáticamente qué tipos hay seleccionados (RPs, Caminos o ambos) y genera el reporte correspondiente</p>
+</li>
+<li>
+<p><strong>Selección solo manual</strong> por click en la vía → botón "+ Agregar al reporte" del modal SIG Vial. Los chips del panel Mapa quedaron solo para visualización, no entran al reporte (evita el bug de "se reportan las 15 RPs si tildo todas")</p>
+</li>
+<li>
+<p><strong>Halo dorado #ffb800</strong> en el mapa para cada RP o tramo seleccionado (paralelo entre ambos tipos)</p>
+</li>
+<li>
+<p><strong>Chip contador único</strong> <code>✓ 🛣 N rutas · 🚜 M tramos</code> siempre visible, con lista expandible por tipo y × por cada item para deseleccionar</p>
+</li>
+<li>
+<p>Tabla RUTAS reescrita a formato <strong>1 fila por tramo</strong> homogéneo con Caminos aprovechando <code>CARACT_VIALES[rid].tramos[]</code> del CSV oficial SALADILLO_RED (96 tramos, 15 RPs)</p>
+</li>
+</ul>
+<h4 id="pdf-mixto-unificado-v838-v840">📄 PDF mixto unificado (v8.38 · v8.40)<a class="headerlink" href="#pdf-mixto-unificado-v838-v840" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>Reporte mixto abre <strong>1 sola pestaña de PDF</strong> con las 2 secciones consecutivas (evita popup blocker que descartaba el 2do tab)</p>
+</li>
+<li>
+<p>Ambos PDFs con <strong>header institucional idéntico</strong>: logo DVBA + título + fecha + línea turquesa PBA</p>
+</li>
+<li>
+<p><strong>Banner sello institucional</strong>: "📋 Datos oficiales de la Red Vial Provincial (Primaria + Secundaria) de Zona VI Saladillo · Fuente: DVBA - PBA" — se muestra para cualquier rol, sirve cuando el PDF circula por email/WhatsApp/impreso</p>
+</li>
+<li>
+<p>Nomenclatura oficial en títulos: "Reporte de Red Vial Provincial Primaria" y "Reporte de Red Vial Provincial Secundaria (Caminos)"</p>
+</li>
+</ul>
+<h4 id="mapa-svg-enriquecido-para-caminos-v837-v841">🗺 Mapa SVG enriquecido para Caminos (v8.37 · v8.41)<a class="headerlink" href="#mapa-svg-enriquecido-para-caminos-v837-v841" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>Nueva función <code>generarMapaSVGCaminos()</code> análoga a la de rutas, dibuja contornos de partidos, ciudades de referencia, trazas coloreadas por CLASE, mojones (si <code>rc-moj</code>) y registros (si <code>rc-regs</code>) dentro del bbox</p>
+</li>
+<li>
+<p>Grilla dashed sutil, norte y escala; orden Z: grilla → partidos (fondo) → ciudades → trazas → mojones → registros → escala/norte</p>
+</li>
+<li>
+<p>Único elemento que sigue requiriendo captura real (<code>rc-mapa-cap</code> con leaflet-image): el basemap OSM de tiles</p>
+</li>
+<li>
+<p>Fix crítico <code>leaflet-image</code>: los divIcons custom (pin, mojones) rompían la captura con "Cannot read 'match'". Ahora se ocultan temporalmente los <code>L.Marker</code> antes de la captura y se restauran al terminar</p>
+</li>
+<li>
+<p>Captura contextual: al generar PDF de rutas se ocultan capas de caminos (y viceversa), y los mojones se muestran según el checkbox</p>
+</li>
+</ul>
+<h4 id="paleta-minimalista-pba-v826-v834">🎨 Paleta minimalista PBA (v8.26 – v8.34)<a class="headerlink" href="#paleta-minimalista-pba-v826-v834" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>Sacados todos los fondos oscuros tipo IDE (<code>#0d2030</code>, <code>#1a0d0d</code>, <code>#0a1620</code>, <code>#1a2a35</code>) del panel edición del sidebar</p>
+</li>
+<li>
+<p>Botones sidebar variantes .side-neutral y .side-danger: fondo blanco con borde <code>--light</code>, texto en color institucional</p>
+</li>
+<li>
+<p>Modal grande de edición de registros: fondo blanco con header banda turquesa PBA, botón Cerrar blanco con borde suave</p>
+</li>
+<li>
+<p>Fila fecha/hora, filtro por tipo, panel Mantenimiento Storage, todos migrados a paleta clara</p>
+</li>
+<li>
+<p>Footer <code>reportes.html</code> pasa de <code>#1f2732</code> a <code>--bg</code> claro con texto <code>--mut</code></p>
+</li>
+</ul>
+<h4 id="nomenclatura-oficial-dvba-v842">📚 Nomenclatura oficial DVBA (v8.42)<a class="headerlink" href="#nomenclatura-oficial-dvba-v842" title="Permanent link">¶</a></h4>
+<p>Aplicada en títulos formales de PDFs y headers de secciones. Nueva memoria de referencia (<code>reference_nomenclatura_red_vial.md</code>):</p>
+<ul>
+<li>
+<p><strong>Red Vial Provincial Primaria</strong> = Rutas Provinciales (RPs)</p>
+</li>
+<li>
+<p><strong>Red Vial Provincial Secundaria</strong> = Caminos secundarios</p>
+</li>
+<li>
+<p><strong>Red Vial Terciaria</strong> = Caminos municipales (aún no implementado)</p>
+</li>
+</ul>
+<h4 id="bugs-criticos-resueltos">🐛 Bugs críticos resueltos<a class="headerlink" href="#bugs-criticos-resueltos" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>v8.32: <code>leaflet-image</code> rompía la captura con "Cannot read 'match'" por divIcons custom (fix: ocultar markers)</p>
+</li>
+<li>
+<p>v8.33: SVG del mapa sin trazas cuando <code>_selRutas</code> vacía + captura apaisada (fix: forzar String(rid) + <code>object-fit:contain</code>)</p>
+</li>
+<li>
+<p>v8.34: Botón "Nuevo Pin" verde flotante eliminado (redundante con "Pin mapa" y se solapaba con la rosa del Norte)</p>
+</li>
+<li>
+<p>v8.35 (patch v8.34): "Limpiar todos" del chip solo limpiaba caminos aunque hubiera RPs (fix: limpia ambos)</p>
+</li>
+<li>
+<p>v8.37: PDF caminos mostraba lista GLOBAL de partidos/clases del mapa aunque el reporte fuera de 1 solo camino (fix: derivar del <code>_repCaminosData</code>)</p>
+</li>
+<li>
+<p>v8.38: PDF mixto solo generaba el 1er tab por popup blocker (fix: combinar en 1 solo PDF con salto de página)</p>
+</li>
+</ul>
+<h3 id="v811-v821-v979-v988-2128-julio-2026-refactor-sello-exif-metadata-rediseno-arquitectura-edicion">v8.11 – v8.21 / v9.79 – v9.88 · 21–28 julio 2026 — Refactor sello + EXIF metadata + rediseño arquitectura edición<a class="headerlink" href="#v811-v821-v979-v988-2128-julio-2026-refactor-sello-exif-metadata-rediseno-arquitectura-edicion" title="Permanent link">¶</a></h3>
+<p><strong>Sprint intensivo de 8 días con 25+ versiones incrementales que refactorizó completamente el sistema de sellado y el flujo de edición de registros.</strong> Cambio arquitectónico crítico + varios diferenciales técnicos nuevos.</p>
+<h4 id="refactor-sello-v4-v811">🎨 Refactor sello v4 (v8.11)<a class="headerlink" href="#refactor-sello-v4-v811" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Eliminada la duplicación</strong>: 3 copias embebidas del sello (portal + partes + móvil) → 1 solo módulo <code>datos/sello_v4.js</code> que todos importan. Cada fix se propaga instantáneamente sin desincronizarse.</p>
+</li>
+<li>
+<p><strong>Wrapper del portal</strong>: mantiene la lógica de rotación EXIF+manual específica del portal como pre-procesamiento; delega el sellado real al módulo.</p>
+</li>
+<li>
+<p><strong>Compresión foto PC pre-sello</strong>: fotos subidas desde <code>&lt;input file&gt;</code> del portal se comprimen a max 1600px/q=0.85 con <code>createImageBitmap</code> ANTES del sello. Elimina anomalías de cálculo por dimensiones extremas.</p>
+</li>
+</ul>
+<h4 id="sello-overlay-semitransparente-v815-v817">🌐 Sello overlay semitransparente (v8.15 – v8.17)<a class="headerlink" href="#sello-overlay-semitransparente-v815-v817" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>El banner ya NO se agrega DEBAJO de la foto (que la afinaba), sino que se dibuja ENCIMA con fondo <code>rgba(0,0,0,0.55→0.75)</code>. Foto conserva 100% su ratio original.</p>
+</li>
+<li>
+<p><strong>Layout adaptativo</strong>: <code>bH</code> dinámico según cuántas líneas de texto haya + interlineado 1.35 → texto nunca se pisa.</p>
+</li>
+<li>
+<p><strong>QR con logo DVBA al centro</strong> (18% del área, error correction H = tolera hasta 30% de oclusión). Cap <code>colSide</code> a 20% del ancho para foto vertical.</p>
+</li>
+<li>
+<p><strong>Auto-fit de la línea de versión</strong>: ancla al fondo del banner + baja fontsize si no entra.</p>
+</li>
+<li>
+<p><strong>Detector de banner viejo</strong> por escaneo estricto de línea dorada <code>#d4a820</code> (no fila oscura, que confundía sombras con banner y cortaba parte de foto real).</p>
+</li>
+</ul>
+<h4 id="metadatos-exif-completos-v812-v813">📸 Metadatos EXIF completos (v8.12 – v8.13)<a class="headerlink" href="#metadatos-exif-completos-v812-v813" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>Nuevo módulo <code>datos/exif_writer.js</code> con wrapper <code>DVBA_EXIF.inyectar()</code>.</p>
+</li>
+<li>
+<p><strong>Fix crítico Latin1</strong>: <code>piexif.insert</code> usa <code>btoa</code> que solo acepta Latin1. Función <code>_asciiSafe(s)</code> mapea ñ/tildes/·/etc. → ASCII. <code>_asciiNuclear</code> con <code>encodeURIComponent</code> para <code>UserComment</code>. Sin esto la inyección fallaba silenciosamente con caracteres UTF-8 comunes.</p>
+</li>
+<li>
+<p><strong>Carga SINCRÓNICA</strong> de <code>piexif.min.js</code> con <code>&lt;script src&gt;</code> (era dinámico → race condition: sello corría antes que piexif se cargara).</p>
+</li>
+<li>
+<p>Import del <code>sello_v4.js</code> en <code>index.html</code> (faltaba tras el refactor v8.11).</p>
+</li>
+<li>
+<p><strong>Botón <code>🔧 EXIF+</code></strong>: re-inyecta metadatos sobre foto existente (útil para registros anteriores a v8.12 que quedaron sin EXIF).</p>
+</li>
+<li>
+<p>Diagnóstico <code>🔍 EXIF</code> muestra qué campos están en el archivo real de Storage.</p>
+</li>
+</ul>
+<h4 id="rediseno-arquitectura-edicion-v819-v821">🗂 Rediseño arquitectura edición (v8.19 – v8.21)<a class="headerlink" href="#rediseno-arquitectura-edicion-v819-v821" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Sidebar drawer colapsable</strong>: botón <code>◀</code> en el borde derecho + atajo <code>Ctrl+B</code>. Colapsa a 32px liberando el mapa. Persiste en <code>localStorage</code>. Leaflet recalcula tiles con <code>invalidateSize()</code>.</p>
+</li>
+<li>
+<p><strong>4 flujos de creación/edición coordinados</strong>:</p>
+</li>
+</ul>
+<p>Foto móvil (Modo Básico): auto-ubicada + auto-completado (partido/ruta/prog) con ARMONIZADOR.
+Desde mapa: <code>📍 Nuevo Pin</code> centra pin arrastrable en el viewport.
+Por progresiva: elegir RP + km + <code>🎯 Ubicar</code> → sistema calcula lat/lng con <code>progresivaAPunto()</code> (interpolación lineal Haversine sobre CHAIN+ANCHORS).
+Edición: arrastrar pin recalcula ruta/prog al vuelo.</p>
+<ul>
+<li>
+<p>Descartado modal grande centrado (bloqueaba mapa) tras iteración de UX.</p>
+</li>
+<li>
+<p><strong>Descarga con nombre custom</strong>: <code>fetch → blob → objectURL</code> forzando <code>SIGVialPBA_ID_RP.jpg</code> (Chrome ignora <code>&lt;a download&gt;</code> cross-origin de Supabase).</p>
+</li>
+<li>
+<p>Cache defensivo <code>_ultimaRutaCargada</code> para no perder el camino al enviar el wizard.</p>
+</li>
+<li>
+<p>Sincronización <code>_rotacionPreview</code> (sidebar) ↔ <code>_rotacionManualSello</code> (sello) en aprobación post-edición.</p>
+</li>
+</ul>
+<h4 id="pwa-movil-unificada-low-memory-v979-v988">📱 PWA móvil unificada + low-memory (v9.79 – v9.88)<a class="headerlink" href="#pwa-movil-unificada-low-memory-v979-v988" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Bootstrap <code>app.html</code></strong>: router de 10 líneas que decide entre Modo Básico y Modo Avanzado según <code>localStorage.dvba_modo_preferido</code>. Una sola PWA, un solo ícono en el launcher.</p>
+</li>
+<li>
+<p><code>campo.html</code> queda como redirect legacy para instalaciones previas.</p>
+</li>
+<li>
+<p><strong>Fix GPS de raíz</strong> (v9.81 → v9.83): flow simplificado, si badge verde y GPS conocido, snap directo del watch — sin re-pedir GPS ni bloquear con promises que colgaban.</p>
+</li>
+<li>
+<p><strong>Compresión low-memory</strong> con <code>createImageBitmap</code> + <code>resizeWidth</code>: decodifica directo al tamaño target sin cargar la foto full en RAM. Elimina crashes "memoria insuficiente" en celulares 2-3GB al volver de la cámara nativa.</p>
+</li>
+<li>
+<p>Foto móvil a 1200px (era 900px) → menos sensación de "afinada" contra el banner del sello.</p>
+</li>
+<li>
+<p>Fix instalación PWA: modal grande con fallback manual si <code>beforeinstallprompt</code> no dispara.</p>
+</li>
+<li>
+<p>Íconos PWA con fondo negro <code>#0a0a0a</code> (era transparente → Android rellenaba con blanco).</p>
+</li>
+</ul>
+<h4 id="fix-bundle-rp30-v975">🗺 Fix bundle RP30 (v9.75)<a class="headerlink" href="#fix-bundle-rp30-v975" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>Reetiquetado de mojones oficiales en QGIS: "300"→100, "100"→250, "250"→300 (etiquetas cruzadas históricamente).</p>
+</li>
+<li>
+<p>Recalibrado del bundle con anchors km 300/350/400 (offset consistente 262.60): <code>progIni</code> 262.60 (era 245.96, +16.6 km), <code>progFin</code> 435.12.</p>
+</li>
+<li>
+<p>Gap real RN205 incorporado (acc 117.75 → 123.51, ~km 380-386 sobre RN205).</p>
+</li>
+</ul>
+<h3 id="v950-7-julio-2026-fix-instalacion-pwa-webapk-id-start_url">v9.50 · 7 julio 2026 — Fix instalación PWA (WebAPK id / start_url)<a class="headerlink" href="#v950-7-julio-2026-fix-instalacion-pwa-webapk-id-start_url" title="Permanent link">¶</a></h3>
+<p><strong>Fix operativo:</strong> el <code>manifest.json</code> tenía un desajuste menor entre <code>"id"</code> y <code>"start_url"</code> que hacía que Android considerara el WebAPK como inseguro (app "fantasma" en algunos celulares — se instalaba pero no reconocía como válida). Unificados ambas rutas → Chrome instala la PWA sin interrupciones.</p>
+<h4 id="efecto-secundario-detectado-task-201-pendiente">Efecto secundario detectado (task #201, pendiente)<a class="headerlink" href="#efecto-secundario-detectado-task-201-pendiente" title="Permanent link">¶</a></h4>
+<p>Al reinstalar el WebAPK con el nuevo <code>id</code>, se perdió el <strong>diálogo del sistema para activar GPS cuando está apagado</strong>. Antes: tocar "sin señal" abría el prompt nativo de Android. Ahora: solo muestra "GPS denegado, ir a ajustes".</p>
+<p><strong>Causa probable:</strong> el WebAPK con nuevo <code>id</code> se considera "app nueva" → perdió el nivel de confianza que Chrome le daba antes para pasar la solicitud a Play Services (que sí muestra el diálogo). Cae en la Geolocation API estándar que <em>no puede activar el GPS del sistema por diseño</em>.</p>
+<p>Solución en el ROADMAP: implementar botón "🔧 Abrir ajustes de ubicación" con intent Android <code>android.settings.LOCATION_SOURCE_SETTINGS</code> + reintentar automáticamente al volver del ajuste vía <code>visibilitychange</code>.</p>
+<h3 id="v950v953-v746v757-713-julio-2026-sprint-sig-vial-gestion-de-fotos-originales-ux-del-portal">v9.50–v9.53 / v7.46–v7.57 · 7–13 julio 2026 — Sprint SIG Vial + gestión de fotos originales + UX del portal<a class="headerlink" href="#v950v953-v746v757-713-julio-2026-sprint-sig-vial-gestion-de-fotos-originales-ux-del-portal" title="Permanent link">¶</a></h3>
+<p><strong>Sprint enfocado en 4 ejes:</strong> (1) preservar originales y sistema de re-sello editable, (2) rediseño UI del portal con paleta cálida y agrupación inteligente, (3) <strong>modal SIG Vial tipo DNV</strong> para RPs y caminos secundarios con datos oficiales, (4) hotfixes de bugs críticos que rompieron dos veces la app.</p>
+<h4 id="sistema-de-fotos-originales-preservadas-re-sellado-v747-v750">📸 Sistema de fotos originales preservadas + re-sellado (v7.47 → v7.50)<a class="headerlink" href="#sistema-de-fotos-originales-preservadas-re-sellado-v747-v750" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Convención de paths (Opción A):</strong> el archivo <code>{path}.jpg</code> es el <strong>original</strong> y NUNCA se sobreescribe. El sellado se guarda como <code>{path}_sello.jpg</code>. Helpers <code>getOriginalUrl()</code>, <code>getSelloPathFromOriginal()</code>, <code>esRegistroLegacy()</code>.</p>
+</li>
+<li>
+<p><strong>Aprobar registro pendiente</strong> ahora abre el modal SIG para editar datos + rotar la foto (EXIF + manual con botones ↺ ↻ Reset) antes de sellar. Preserva <code>fechaISO</code> original del registro.</p>
+</li>
+<li>
+<p><strong>Sidebar de edición con botones rotación + re-sellar</strong>: al hacer ✏ Editar sobre un registro, aparece bajo el preview de foto un bloque con <code>↺ 90°</code> <code>↻ 90°</code> <code>Reset</code> <code>🖋 Re-sellar</code>. Rotación visual instantánea con CSS transform + re-sello contra el original.</p>
+</li>
+<li>
+<p><strong>Registros legacy</strong> (sellados con sistema viejo que sobreescribió el original): botón re-sellar deshabilitado con tooltip explicativo. No se puede re-sellar sin acumular banners.</p>
+</li>
+<li>
+<p><strong>Sello incluye estado</strong> además de tipo: la Línea 3 combina <code>tipo · estado</code> (ej: "Encrucijada en T · faltante") desde <code>aprobarRegistro</code> y <code>reSellarFotoEditada</code>.</p>
+</li>
+<li>
+<p><strong>Gestión de backups:</strong> botón "🗑 Backup de esta foto" en edición individual + sección "🧹 Mantenimiento Storage" en tab Reportes para limpieza masiva de originales de registros aprobados hace más de N días. Nunca borra el archivo <code>_sello.jpg</code>.</p>
+</li>
+</ul>
+<h4 id="rediseno-ui-del-portal-v753">🎨 Rediseño UI del portal (v7.53)<a class="headerlink" href="#rediseno-ui-del-portal-v753" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Pills de registros agrupadas</strong> por Partido / Ruta / Mes / Tipo, con grupos colapsables y contadores <code>activos/total</code>. Botones +/− por grupo para activar/desactivar sin abrir. Escala con 1000+ registros sin llenar visualmente el sidebar.</p>
+</li>
+<li>
+<p><strong>Paleta cálida por RP</strong>: 15 colores dentro de la gama terracota/rojizo/anaranjado oxidado (<code>RP_COLORES_CALIDOS</code>). Cada RP con su propio tono. Reemplaza el rojizo único (v7.31) que quedaba monótono.</p>
+</li>
+<li>
+<p><strong>Ancho de trazas armonizado</strong>: todas las RPs a <code>weight: 4</code> uniforme.</p>
+</li>
+<li>
+<p><strong>Mojones colapsados</strong> en sidebar (<code>&lt;details&gt;</code> nativo) — antes llenaba el panel al seleccionar RP.</p>
+</li>
+</ul>
+<h4 id="modal-sig-vial-tipo-dnv-v754-v757">🏛 Modal SIG Vial tipo DNV (v7.54 → v7.57)<a class="headerlink" href="#modal-sig-vial-tipo-dnv-v754-v757" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Nuevo bundle <code>datos/caracteristicas_viales.js</code></strong> generado desde <code>SALADILLO_RED.csv</code>. 15 RPs con longitud oficial (agregada por tramos), clases (PAVIMENTADO/CONSOLIDADO/TIERRA), partidos por los que pasa, doble vía (solo RP6), 96 tramos oficiales con sección_vial, denominación, longitud, clase, partido. Placeholders <code>null</code> para ancho calzada, banquinas (D e I), TMDA, pavimento específico, estado — completables vía sistema colaborativo (Fase futura).</p>
+</li>
+<li>
+<p><strong>Modal centrado tipo SIG Vial DNV al hacer click en una RP</strong>: header con color de la RP + progresiva en el punto clickeado + ubicación + longitud oficial vs GIS con diferencia coloreada + características viales + tabla colapsable de tramos oficiales con nowrap y tooltip para textos largos. Reemplaza el popup viejo que listaba mojones + últimos 2 registros.</p>
+</li>
+<li>
+<p><strong>Modal también para caminos secundarios (v7.57)</strong>: header violeta, mismos campos + Denominación (Gral Alvear - Mamaguita) + Transitabilidad (PERMANENTE / TEMPORARIO) + Datos GIS colapsables (puntos inicio/fin, N° líneas, N° vértices) + banner ⚠ si <code>ALERTA:REVISAR</code>. Info tomada del geojson de red secundaria.</p>
+</li>
+<li>
+<p><strong>Bugfix mapeo partidos (v7.55)</strong>: los códigos DVBA sin cero (34, 41, 93) estaban mapeados mal — 034=General Alvear (no Cañuelas), reforzados con <code>PARTIDOS_TABLA</code> real del index.html.</p>
+</li>
+<li>
+<p><strong>Botón "Editar datos viales"</strong> como placeholder para futura UI colaborativa (tabla Supabase <code>caract_viales</code>).</p>
+</li>
+</ul>
+<h4 id="hotfixes-criticos">🐛 Hotfixes críticos<a class="headerlink" href="#hotfixes-criticos" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>v7.51 progresiva --- al mover pin</strong>: en edición, <code>#fruta.value</code> tenía prefijo "RP N" que <code>calcProg("RP N")</code> no encontraba. Reemplazado por <code>autoDetectarCampos(pos.lat, pos.lng, { forzarAuto: true })</code>.</p>
+</li>
+<li>
+<p><strong>v7.53a TDZ</strong>: <code>RP_COLORES_CALIDOS</code> se accedía en for-loop de <code>META_DATA</code> antes de declararse → JS entero no ejecutaba, mapa en blanco. Declaración movida arriba.</p>
+</li>
+<li>
+<p><strong>v7.53a armonizador.js truncado</strong>: fragmentos duplicados tras <code>module.exports</code> rompían syntax. Cortado al cierre real.</p>
+</li>
+<li>
+<p><strong>v7.54a modal SIG Vial mal ubicado</strong>: Python <code>.replace('&lt;/body&gt;')</code> tomó el primer match, que era una string dentro del template literal de <code>exportReporteHTML</code>. Modal insertado <em>dentro</em> del script, rompiendo todo. Rescatado con <code>rfind('&lt;/body&gt;')</code>.</p>
+</li>
+</ul>
+<h4 id="app-movil-v950-v953">📱 App móvil (v9.50 → v9.53)<a class="headerlink" href="#app-movil-v950-v953" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>v9.50 fix manifest PWA fantasma</strong>: <code>id</code> y <code>start_url</code> unificados. Instalación en celulares que la rechazaban antes.</p>
+</li>
+<li>
+<p><strong>v9.53 sin rotación de fotos en móvil</strong>: se hace en escritorio al aprobar/re-sellar. Móvil captura la foto tal cual la sacó el celular.</p>
+</li>
+<li>
+<p><strong>Sin botón intent GPS en móvil</strong>: v9.52 lo probó pero se removió — solo el mensaje de error clásico.</p>
+</li>
+</ul>
+<h3 id="v945v949-v728v745-16-julio-2026-sprint-integracion-caminos-rediseno-ui-scripts-v211">v9.45–v9.49 / v7.28–v7.45 · 1–6 julio 2026 — Sprint integración caminos + rediseño UI + scripts v2.11<a class="headerlink" href="#v945v949-v728v745-16-julio-2026-sprint-integracion-caminos-rediseno-ui-scripts-v211" title="Permanent link">¶</a></h3>
+<p><strong>Sprint intenso</strong> con 3 ejes: integrar completamente la red de caminos secundarios al portal principal, rediseñar la visualización del mapa, y mejorar el pipeline de generación de bundles con recorte exacto de límite de partido.</p>
+<h4 id="integracion-de-red-vial-completa">🛣 Integración de red vial completa<a class="headerlink" href="#integracion-de-red-vial-completa" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Caminos secundarios integrados</strong>: los 100 caminos (129 tramos) de los 8 partidos aparecen en el mapa principal junto con las RPs. Filtros por partido, clase (pavimentado / mixto / tierra / sin abrir) y chips individuales.</p>
+</li>
+<li>
+<p><strong>Renderizado doble capa (HALO + BASE)</strong> portado desde <code>caminos_secundarios.html</code> — trazas nítidas sin offset visual sobre OSM/Oscura/Satélite.</p>
+</li>
+<li>
+<p><strong>Detección de caminos en app móvil (v9.32+)</strong>: <code>datos/armonizador.js</code> extendido con <code>caminoMasCercano()</code> y <code>viaMasCercana()</code>. El wizard móvil ahora sugiere <em>"★ Vía sugerida: Cno. 093-13 · km 4.5"</em> si el GPS cae sobre camino secundario.</p>
+</li>
+</ul>
+<h4 id="cursor-progresivas-al-hover">🎯 Cursor + progresivas al hover<a class="headerlink" href="#cursor-progresivas-al-hover" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Cursor naranja flotante</strong> que se posiciona sobre la cadena real al pasar el mouse.</p>
+</li>
+<li>
+<p><strong>Tooltip permanente</strong>: <code>RP 91 · 15+041 (15.04 km)</code> o <code>Cno. 093-13 · km 4.87</code>.</p>
+</li>
+<li>
+<p><strong>Círculos de progresiva cada N km</strong> (1 / 5 / 10) activables con <em>🎯 Progresivas al hover</em>.</p>
+</li>
+<li>
+<p><strong>Densidad de mojones configurable</strong>: 5 / 10 / 20 / 50 km / Ninguno. Default 50 (modo minimalista).</p>
+</li>
+<li>
+<p><strong>Modo detallado</strong>: atajo que pone mojones cada 10 km + progresivas ON con paso 5.</p>
+</li>
+</ul>
+<h4 id="unificacion-visual">🎨 Unificación visual<a class="headerlink" href="#unificacion-visual" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>RPs color único</strong> <code>#c25a2a</code> (rojizo ladrillo). Diferencia por label, no por color arcoíris.</p>
+</li>
+<li>
+<p><strong>Partidos color único</strong> <code>#3a5a7a</code> con opacidad baja — fondo administrativo.</p>
+</li>
+<li>
+<p><strong>Caminos por clase</strong>: azul pavimentado / violeta mixto / gris sin abrir / marrón tierra.</p>
+</li>
+<li>
+<p><strong>Panel "🗺 Capas" plegable</strong> reemplaza los botones sueltos: Fondo + Capas + Visualización + Leyenda.</p>
+</li>
+</ul>
+<h4 id="workflow-del-sellado-saneado-v734-v738">🔧 Workflow del sellado saneado (v7.34 → v7.38)<a class="headerlink" href="#workflow-del-sellado-saneado-v734-v738" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Fix crítico modal escritorio</strong>: <code>modal-sello-ov</code> de <code>index.html</code> estaba incompleto desde task #76 (v7.4) — le faltaban 10 inputs + botones + cierres. Reconstruido.</p>
+</li>
+<li>
+<p><strong>Guard anti-doble-sello</strong>: si la foto ya contiene <code>_sello.</code> en la URL o tiene <code>sello_version='v3'</code>, no se re-sella. Aplica a <code>guardar()</code> post-edición y a <code>aprobarRegistro()</code> desde la cola.</p>
+</li>
+<li>
+<p><strong>Modo pin no muestra círculo naranja</strong>: al activar modo pin, el cursor se oculta para no confundir con la cruz.</p>
+</li>
+<li>
+<p><strong>Auto-detección inteligente al hacer pin</strong>: click sobre camino → toggle → 'camino' + <code>Cno. XX-YY</code>. Click sobre RP → 'rp' + progresiva. En hover normal se respeta el toggle actual.</p>
+</li>
+</ul>
+<h4 id="scripts-gen_ruta_bundlepy-v211-recortar_zonavipy-v11">⚙ Scripts <code>gen_ruta_bundle.py v2.11</code> + <code>recortar_zonavi.py v1.1</code><a class="headerlink" href="#scripts-gen_ruta_bundlepy-v211-recortar_zonavipy-v11" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>v2.9 — Descarte anchors en gap</strong>: si el mojón físico snap cae dentro de un tramo <code>es_gap=1</code>, no se usa como anchor. Corrige el "estiramiento" que producía rectas visuales en RP61 v7.39.</p>
+</li>
+<li>
+<p><strong>v2.10 — Cruce exacto en el borde del partido</strong>: <code>recortar_zonavi.py</code> ahora calcula el punto exacto de intersección segment-polygon. <code>gen_ruta_bundle.py</code> INSERTA ese punto como vertex real. RP47 ganó +2.9km al borde Navarro/Mercedes, RP51 +1.2km en Alvear/Tapalqué, RP61 +141m.</p>
+</li>
+<li>
+<p><strong>v2.11 — Mojones sintéticos interpolados con anchors</strong>: antes usaban <code>acc = km - prog_ini</code> (lineal); ahora km→acc via anchors (inverso de <code>calcProg</code>). Los mojones km 250, 300, etc. caen sobre las progresivas oficiales sin desplazamiento acumulado.</p>
+</li>
+<li>
+<p><strong>Filtro anchors no-monotónicos</strong>: si un anchor rompe la monotonicidad (RP51 tenía km 300 con acc menor que km 250), se descarta con warning en consola.</p>
+</li>
+</ul>
+<h4 id="rp61-canonica">🗺 RP61 canónica<a class="headerlink" href="#rp61-canonica" title="Permanent link">¶</a></h4>
+<p>Recorrido real verificado (E→O): Gral Belgrano → Las Flores urbana → <strong>Gap RN3/RP30 hasta RP91</strong> → camino de tierra → Gral Alvear → <strong>Gap RN205 (~280m)</strong> → tierra → 9 de Julio. Renumerar fids en QGIS en orden geográfico eliminó el zigzag inicial.</p>
+<h4 id="deuda-tecnica-pendiente">🐛 Deuda técnica pendiente<a class="headerlink" href="#deuda-tecnica-pendiente" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>RP30 y RP46</strong>: al regenerar con <code>_traza_completa</code> dieron resultados inaceptables (zigzag y mala longitud). Se revirtieron al bundle previo (v7.40). Requieren revisión en QGIS del orden geográfico de fids del <code>_traza_completa.geojson</code> antes de regenerar.</p>
+</li>
+<li>
+<p>Task #195 marca este pendiente para próxima sesión con abordaje uno a uno.</p>
+</li>
+</ul>
+<h3 id="v919-v714-30-junio-2026-workflow-campo-oficina-armonizacion-geoespacial">v9.19 / v7.14 · 30 junio 2026 — Workflow "campo → oficina" + armonización geoespacial 🎯<a class="headerlink" href="#v919-v714-30-junio-2026-workflow-campo-oficina-armonizacion-geoespacial" title="Permanent link">¶</a></h3>
+<p><strong>Cambio mayor de paradigma:</strong> la foto se captura cruda en campo y se sella SOLO al aprobar en oficina, con armonización automática contra GPS. Cierra el ciclo de calidad de datos del sistema.</p>
+<h4 id="bd-5-columnas-nuevas-en-relevamientos">BD — 5 columnas nuevas en <code>relevamientos</code><a class="headerlink" href="#bd-5-columnas-nuevas-en-relevamientos" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><code>estado_workflow</code>: <code>'campo'</code> (recién cargado) | <code>'aprobado'</code> | <code>'rechazado'</code></p>
+</li>
+<li>
+<p><code>validado_geo</code>: <code>'pendiente'</code> | <code>'auto_ok'</code> | <code>'auto_corregido'</code> | <code>'usuario_priorizado'</code> | <code>'gps_sospechoso'</code> | <code>'sin_coords'</code></p>
+</li>
+<li>
+<p><code>sello_version</code>: <code>NULL</code> (sin sello) | <code>'v2'</code> (histórico) | <code>'v3'</code> (re-sellable)</p>
+</li>
+<li>
+<p><code>prioridad</code>: <code>'normal'</code> | <code>'urgente'</code></p>
+</li>
+<li>
+<p><code>motivo_rechazo</code>: <code>TEXT</code> opcional</p>
+</li>
+</ul>
+<p>Backfill aplicado: 82 registros con foto → estado <code>aprobado</code> + sello v2 (histórico). 19 registros sin foto → quedan en <code>campo</code> (revisión manual).</p>
+<h4 id="nuevo-modulo-datosarmonizadorjs-410-lineas-100-offline">Nuevo módulo <code>datos/armonizador.js</code> (~410 líneas, 100% offline)<a class="headerlink" href="#nuevo-modulo-datosarmonizadorjs-410-lineas-100-offline" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><code>detectarPartido(lat, lng)</code>: point-in-polygon contra <code>partidos_zona_vi.geojson</code></p>
+</li>
+<li>
+<p><code>rutaMasCercana(lat, lng, radioM)</code>: barrido sobre las 15 RPs con CHAINS_DATA</p>
+</li>
+<li>
+<p><code>progresivaEnRuta(lat, lng, rutaKey)</code>: proyección perpendicular + interpolación con ANCHORS_DATA (calibrados con mojones físicos)</p>
+</li>
+<li>
+<p><code>mojonMasCercano(lat, lng, rutaKey)</code>: referencia visual desde MOJONES_DATA</p>
+</li>
+<li>
+<p><code>armonizar(form)</code>: función principal, devuelve <code>{cambios, consistentes, sugerencias, severidad}</code></p>
+</li>
+<li>
+<p><strong>Umbrales adaptativos</strong> según precisión GPS: <code>max(50, gpsAcc*2)</code> para ruta, <code>max(80, gpsAcc*3)</code> para progresiva. Evita falsos positivos en zonas de mala señal.</p>
+</li>
+</ul>
+<h4 id="app-movil-v919">App móvil (v9.19)<a class="headerlink" href="#app-movil-v919" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Captura SIN sellar</strong>: nueva función <code>procesarFotoCampo(b64)</code> reemplaza a <code>agregarSelloInteractivo</code>. Foto se sube cruda a Storage, registro insertado con <code>estado_workflow='campo'</code> y <code>sello_version=NULL</code>.</p>
+</li>
+<li>
+<p>El modal "Editar datos del sello" sigue mostrándose para que el operador confirme/edite datos antes de sincronizar — pero NO genera sello.</p>
+</li>
+<li>
+<p><code>validado_geo</code> se pre-calcula en cliente con <code>ARMONIZADOR.armonizar()</code> al insertar (auto_ok / pendiente / gps_sospechoso / sin_coords).</p>
+</li>
+<li>
+<p><strong>Pre-fill GPS al tocar "↓ Usar"</strong>: en 2 niveles de radio</p>
+</li>
+</ul>
+<p>500m: <code>★ Ruta sugerida: RPXX · km YYY</code> (preciso)
+2km: <code>⚠ Ruta más cercana: RPXX a NNNm — ¿es esta?</code></p>
+<blockquote>
+<p>2km: <code>ℹ No hay RP cercana — cargá manualmente</code></p>
+</blockquote>
+<ul>
+<li>Mensaje en pestaña Confirmar: "Foto lista (sello al aprobar)" reemplaza "Con sello DVBA".</li>
+</ul>
+<h4 id="app-escritorio-v714-cola-de-pendientes">App escritorio (v7.14) — Cola de pendientes<a class="headerlink" href="#app-escritorio-v714-cola-de-pendientes" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>Badge "🔔 X pendientes"</strong> en header con animación pulse + gradient naranja. Rojo si hay urgentes. Visible solo logueado. Auto-actualiza con MutationObserver sobre user-info.</p>
+</li>
+<li>
+<p><strong><code>ensureColaBadge()</code></strong>: crea el botón dinámicamente si el HTML cacheado no lo tenía (fallback PWA).</p>
+</li>
+<li>
+<p><strong>Modal cola de pendientes</strong>: por cada registro foto thumb + datos + recuadro de armonización en tiempo real + 3 botones (Aprobar/Editar/Rechazar). Indicador de color según validado_geo (verde auto_ok, amarillo con sugerencias, rojo gps_sospechoso).</p>
+</li>
+<li>
+<p><strong>Aprobar</strong>: auto-acepta sugerencias del armonizador, genera sello v3 con <code>aplicarSelloDVBA</code>, sube al mismo path con <code>storage.update()</code>, UPDATE estado='aprobado' + sello_version='v3'.</p>
+</li>
+<li>
+<p><strong>Rechazar</strong>: prompt para motivo opcional, UPDATE estado='rechazado' + motivo_rechazo.</p>
+</li>
+<li>
+<p><strong>Botón "Aprobar los verificados"</strong> (batch): aprueba en lote los <code>validado_geo='auto_ok'</code>.</p>
+</li>
+<li>
+<p><strong>Auto-sellar al editar pendientes</strong>: si el revisor edita un registro en <code>'campo'</code> desde el sidebar normal, al guardar se sella v3 + aprueba automáticamente.</p>
+</li>
+<li>
+<p><strong>Badges en sidebar de registros</strong>: cada item muestra estado del workflow:</p>
+</li>
+</ul>
+<p>⏳ EN REVISIÓN (naranja) — <code>estado='campo'</code>
+✓ APROBADO (verde) — <code>estado='aprobado'</code> + sello v3
+📜 HISTÓRICO (gris) — <code>estado='aprobado'</code> + sello v2
+✕ RECHAZADO (rojo, tooltip con motivo)</p>
+<h4 id="infraestructura">Infraestructura<a class="headerlink" href="#infraestructura" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p>SQL: 5 ALTER TABLE en Supabase aplicados con CHECK constraints + backfill.</p>
+</li>
+<li>
+<p>Policy RLS de Storage: <code>auth_update_relevamientos</code> ya existía OK, pero <code>upload({upsert:true})</code> chocaba con policies de INSERT. Cambio a <code>storage.update(path, blob)</code> que es UPDATE puro → respeta solo la policy de UPDATE existente.</p>
+</li>
+<li>
+<p><code>sw.js</code> CACHE_URLS incluye armonizador.js + partidos_zona_vi.geojson + dvba_estados.js + qrcode.min.js.</p>
+</li>
+</ul>
+<h4 id="sub-versiones-intermedias-durante-el-desarrollo">Sub-versiones intermedias durante el desarrollo<a class="headerlink" href="#sub-versiones-intermedias-durante-el-desarrollo" title="Permanent link">¶</a></h4>
+<ul>
+<li>
+<p><strong>v9.18a (sw)</strong>: fix tildes en <code>modalidadImplicita</code> / <code>superficieImplicita</code> usando <code>.normalize('NFD').replace(̀-ͯ)</code> antes del regex (JavaScript <code>\b</code> no es Unicode-aware).</p>
+</li>
+<li>
+<p><strong>v9.19a (sw)</strong>: texto pestaña Confirmar móvil + pre-fill GPS en 2 niveles.</p>
+</li>
+<li>
+<p><strong>v9.19b (sw)</strong>: fix tildes confirmado en escritorio también.</p>
+</li>
+<li>
+<p><strong>v9.19c (sw)</strong>: <code>ensureColaBadge</code> fallback dinámico + no duplicar "RP " si reg.ruta ya lo incluye.</p>
+</li>
+<li>
+<p><strong>v9.19d (sw / v7.13)</strong>: auto-sellar v3 + aprobar al editar registros en 'campo'.</p>
+</li>
+<li>
+<p><strong>v9.19e (sw)</strong>: badges de workflow en sidebar + texto botón "Aprobar los verificados".</p>
+</li>
+<li>
+<p><strong>v9.19f (sw)</strong>: auto-seleccionar tipo cuando la categoría tiene un solo ítem (caso "Otro" — antes el operador creía que ya estaba seleccionado al tocar la categoría).</p>
+</li>
+<li>
+<p><strong>v9.19g (sw / v7.14)</strong>: fix storage.update() vs upsert para evitar conflicto RLS.</p>
+</li>
+</ul>
+<h3 id="v918-24-junio-2026-modelo-tipoestado-redisenado-sub-atributos">v9.18 · 24 junio 2026 — Modelo Tipo↔Estado rediseñado + sub-atributos<a class="headerlink" href="#v918-24-junio-2026-modelo-tipoestado-redisenado-sub-atributos" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p><strong>Nuevo módulo <code>datos/dvba_estados.js</code></strong>: estados específicos por categoría (Calzada: Bueno/Regular/Malo/Crítico · Señales: OK/Dañada/Ilegible/Falta · Iluminación: Funciona/No funciona/Parcial · Entorno: Activo/Bajo monitoreo/En limpieza · Mantenimiento: Programado/En ejecución/Finalizado · etc.) más 3 estados universales de seguimiento (Pendiente · En obra · Reparado) que aparecen en casi todas las categorías.</p>
+</li>
+<li>
+<p><strong>Reescritura de <code>dvba_tipos.js</code></strong> con 10 categorías separando RELEVAMIENTO (estado físico) de TAREA (acción). Categorías nuevas: <em>Demarcación horizontal</em>, <em>Mantenimiento / Tarea</em>. Eliminadas referencias viejas a "Tratamiento bituminoso". Agregados ítems específicos para caminos de tierra: Huellas, Anegamiento por mala conformación, Erosión de calzada. Seguridad vial ahora incluye Cámaras de control / fotomultas y Radares de velocidad.</p>
+</li>
+<li>
+<p><strong>Sub-atributos condicionales</strong>: Tipo de superficie (Asfalto · Hormigón · Tierra · Estabilizado · Mejorado con dolomita · Mejorado con suelo cal) y Modalidad de tarea (Manual · Mecánico · Mixto). Aparecen automáticamente solo cuando la categoría del tipo elegido los soporta (Calzada y Mantenimiento para superficie; solo Mantenimiento para modalidad).</p>
+</li>
+<li>
+<p><strong>Hook <code>onTipoChange(tipoStr)</code></strong> en ambas apps: al elegir un tipo, infiere su categoría con <code>DVBA_TIPOS.categoriaDe()</code>, repuebla el <code>&lt;select&gt;</code> de estado con los estados válidos, y muestra/oculta los selects de superficie y modalidad según corresponda.</p>
+</li>
+<li>
+<p><strong>Decisión: NO migrar Supabase (Opción B)</strong>. Los registros viejos con strings legacy ("Bueno", "Malo", "Crítico", "En obra") se siguen mostrando tal cual en listas. Al editar uno viejo, el dropdown se inicializa vacío y al guardar adopta el nuevo modelo. Cero downtime, cero riesgo de corrupción.</p>
+</li>
+<li>
+<p><strong>Serialización de sub-atributos en <code>observaciones</code></strong>: como no hay columnas dedicadas en BD, superficie y modalidad se concatenan al final del campo observaciones con formato <code>[superficie:asfalto · modalidad:mecanico]</code>. Parseable con regex para reportes futuros. Migrable a columnas dedicadas cuando se quieran cruces.</p>
+</li>
+<li>
+<p><strong>Antes</strong>: ambas apps usaban estados distintos (escritorio: Crítico/Grave/Regular/Leve/Resuelto · móvil: Bueno/Regular/Malo/En obra) sin sentido lógico cuando se aplicaban a tipos como "Mojón kilométrico" o "Siniestro vial".</p>
+</li>
+<li>
+<p>Documentado en nuevo <a href="https://github.com/lemeit/DVBA/blob/main/docs/MODELO_TIPOS_ESTADOS.md">docs/MODELO_TIPOS_ESTADOS.md</a> con árbol completo, matriz de estados, flujo en cada app y guía de extensibilidad.</p>
+</li>
+</ul>
+<h3 id="v916-24-junio-2026-sello-v3-inicial-con-qr-fix-bug-rs_block_table">v9.16 · 24 junio 2026 — Sello v3 inicial con QR + fix bug RS_BLOCK_TABLE<a class="headerlink" href="#v916-24-junio-2026-sello-v3-inicial-con-qr-fix-bug-rs_block_table" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p><strong>Primera implementación del sello v3</strong> con layout 3 columnas (logo izq + texto centro + QR der). Reemplaza el sello v2 (banda 5 líneas con localidad/dirección/lat-long/plus code/fecha-hora-tipo + firma institucional).</p>
+</li>
+<li>
+<p><strong>Lib QR vanilla JS embebida</strong> en <code>datos/qrcode.min.js</code>. Implementación basada en qrcode-generator de Kazuhiko Arase (MIT License), soporta hasta version 10 con error correction level M. Sin dependencias externas, ~14 KB.</p>
+</li>
+<li>
+<p><strong>Fix de bug crítico</strong> en <code>getRSBlocks()</code>: los valores de las constantes ECL están en orden L=1, M=0, Q=3, H=2 (usados así en el QR format info), pero la tabla <code>RS_BLOCK_TABLE</code> está ordenada L→M→Q→H. Mi primera versión mapeaba <code>idx = (typeNumber-1)*4 + errorCorrectionLevel</code> que daba resultados invertidos (L recibía la tabla de M, M la de L, etc.). El QR se "veía" pero al escanearlo no decodificaba. Reescrito con un switch que mapea la constante ECL al offset correcto.</p>
+</li>
+<li>
+<p><strong>Modal del sello simplificado</strong>: se sacan campos Dirección y Plus Code (reemplazados por el QR). Se reordena con Ruta+Km arriba y Tipo de incidencia más prominente. Pasa de 11 campos a 8.</p>
+</li>
+<li>
+<p><strong>Tipo de incidencia destacado</strong> como feature diferencial: GPS Map Camera no lo tiene (solo coordenada + fecha), mientras que el sistema DVBA permite categorizar el motivo del relevamiento desde el modal.</p>
+</li>
+<li>
+<p>Bump: <code>dvba_campo</code> v9.15 → v9.16, <code>index</code> v7.7 → v7.8, sw v9.15b → v9.16.</p>
+</li>
+</ul>
+<h3 id="v917-24-junio-2026-banner-del-sello-como-footer-no-tapa-la-foto-url-qr-oficial">v9.17 · 24 junio 2026 — Banner del sello como footer (no tapa la foto) + URL QR oficial<a class="headerlink" href="#v917-24-junio-2026-banner-del-sello-como-footer-no-tapa-la-foto-url-qr-oficial" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p><strong>Layout 3 columnas</strong> estilo GPS Map Camera: logo institucional DVBA centrado vertical a la izquierda · texto blanco grande con sombra (Localidad / Ruta+Km / Tipo / Lat-Lng / Fecha-Hora) en el centro · QR Code apuntando a <code>https://www.google.com/maps/search/?api=1&amp;query=LAT,LNG</code> a la derecha. URL oficial de Google Maps API que pone un pin EXACTO en la coordenada (no la interpreta como búsqueda de texto).</p>
+</li>
+<li>
+<p><strong>Lib QR vanilla JS embebida</strong> (<code>datos/qrcode.min.js</code>, ~14 KB, sin dependencias externas). Basada en qrcode-generator de Kazuhiko Arase. Soporta hasta version 10 con error correction level M. 100% offline. Fix de bug en <code>getRSBlocks</code>: el mapeo de ECL constants (L=1, M=0, Q=3, H=2 para format info) no coincidía con el índice de la tabla RS_BLOCK_TABLE (orden L/M/Q/H).</p>
+</li>
+<li>
+<p><strong>Banner como footer agregado debajo de la foto</strong> (no la tapa). El canvas se crea más alto que la imagen (H + bH) y el banner se dibuja en el espacio agregado con fondo negro sólido. La foto queda 100% intacta, sin transparencia que comprometa legibilidad de datos. Banda con altura adaptativa: <code>max(200, min(W*0.22), 340)</code>.</p>
+</li>
+<li>
+<p><strong>Modal simplificado</strong>: se sacan campos Dirección y Plus Code (reemplazados por el QR), se reordenan con Ruta+Km arriba y Tipo de incidencia más prominente.</p>
+</li>
+<li>
+<p>Fix: footer del modal de login de <code>index.html</code> lee <code>APP_VERSION</code> dinámico (estaba hardcoded en v7.3 desde hace varios commits).</p>
+</li>
+</ul>
+<h3 id="v915-24-junio-2026-app-de-campo-sello-v2-modal-editable">v9.15 · 24 junio 2026 — App de campo (Sello v2 + Modal editable)<a class="headerlink" href="#v915-24-junio-2026-app-de-campo-sello-v2-modal-editable" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p><strong>Modal "Editar datos del sello"</strong> antes de estampar la foto: campos Localidad, Dirección, Lat, Lng, Fecha, Hora, Altura, Plus Code, Ruta, Km, Tipo. Botones <em>"Sin sello"</em> y <em>"Aplicar y guardar"</em>.</p>
+</li>
+<li>
+<p><strong>Sello v2 estilo GPS Map Camera</strong>: banda inferior con gradient negro + línea dorada, 2 columnas (texto izq + logo der), 5 líneas de datos + firma institucional separada en italic dorado tenue.</p>
+</li>
+<li>
+<p><strong>Plus Code (Open Location Code)</strong> implementado en vanilla JavaScript (~40 líneas, 10 chars, offline). Se auto-recalcula al editar lat/lng.</p>
+</li>
+<li>
+<p>Nuevas funciones: <code>generarPlusCode</code>, <code>recolectarDatosSello</code>, <code>mostrarModalSello</code>, <code>agregarSelloInteractivo</code>, <code>editarSello</code>. Variable global <code>ultimoSelloDatos</code> permite a <code>regenerarSello</code> reusar valores sin abrir el modal.</p>
+</li>
+<li>
+<p>Banda dinámica con cap: <code>bH = max(120, min(H*0.20, W*0.16), 240)</code> para no comer fotos panorámicas ni desproporcionarse en imágenes enormes.</p>
+</li>
+<li>
+<p>Tipografía proporcional al <strong>ancho</strong> (no al alto): <code>baseFont = max(14, min(W*0.018, 32))</code>. Text shadow sutil + JPEG quality 0.95 + imageSmoothing 'high' para nitidez.</p>
+</li>
+<li>
+<p>Sub-bumps de tweaks cosméticos vía sufijo letra en sw.js: v9.15 → v9.15a → v9.15b (mantiene el <code>&lt;span&gt;</code> del footer en v9.15).</p>
+</li>
+</ul>
+<h3 id="v77-24-junio-2026-app-de-escritorio-sello-v2-modal-editable">v7.7 · 24 junio 2026 — App de escritorio (Sello v2 + Modal editable)<a class="headerlink" href="#v77-24-junio-2026-app-de-escritorio-sello-v2-modal-editable" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>Mismo modal + sello v2 + Plus Code que la app de campo, replicado en <code>index.html</code> con función <code>aplicarSelloDVBAInteractivo(b64, datosBase)</code> que envuelve a <code>aplicarSelloDVBA</code> v2.</p>
+</li>
+<li>
+<p>Intercepta el flujo de <code>procesarYGuardar</code>: el modal aparece con los datos pre-calculados desde el form + GPS antes de estampar y subir a Supabase Storage.</p>
+</li>
+<li>
+<p>CSS del modal centrado en pantalla (no bottom-sheet como móvil), con backdrop oscuro y animación fade-in.</p>
+</li>
+<li>
+<p>Iterativo desde v7.3 → v7.4 → v7.5 → v7.6 → v7.7 a lo largo del día con ajustes solicitados: banda más alta, logo solo (sin texto debajo), firma institucional separada al pie, fuentes más grandes.</p>
+</li>
+</ul>
+<h3 id="v11-24-junio-2026-caminos-secundarios-hover-tolerante">v1.1 · 24 junio 2026 — Caminos Secundarios (hover tolerante)<a class="headerlink" href="#v11-24-junio-2026-caminos-secundarios-hover-tolerante" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p><strong>Halo de hit detection más ancho</strong>: weight 11 → 18, opacity 0.22 → 0.16. La zona "caliente" para detectar hover crece ~65% sin que visualmente se note más.</p>
+</li>
+<li>
+<p><strong>Delay de salida 300 ms</strong>: <code>mouseout</code> dispara <code>setTimeout(ocultar, 300)</code> en lugar de ocultar inmediatamente. <code>mouseover</code> y <code>mousemove</code> cancelan el timer al re-entrar.</p>
+</li>
+<li>
+<p>En intersecciones de dos caminos, el <code>mouseover</code> del segundo cancela el timer pendiente del primero → se muestra correctamente la progresiva del último al que entró el cursor (no se mezclan datos).</p>
+</li>
+</ul>
+<h3 id="v910-20-mayo-2026-app-de-campo">v9.10 · 20 mayo 2026 — App de campo<a class="headerlink" href="#v910-20-mayo-2026-app-de-campo" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p><strong>Login Supabase Auth</strong> con email/password. Modal al iniciar si no hay sesión. Badge usuario en header. Sesión persiste 30+ días, tolerante offline.</p>
+</li>
+<li>
+<p>Helper <code>authHeaders()</code> que devuelve Bearer token del usuario en lugar de la anon key.</p>
+</li>
+<li>
+<p>SW v3.4: <code>CACHE_URLS</code> relativas, cachea variantes con/sin <code>.html</code>, fallback inteligente offline.</p>
+</li>
+<li>
+<p>Fix crítico: <code>controllerchange</code> ya no recarga la app en primer install (rompía el GPS).</p>
+</li>
+<li>
+<p>GPS tolerante a fix lento (maximumAge 60s, timeout 2 min, getCurrentPosition inicial sin alta precisión).</p>
+</li>
+<li>
+<p>Banner de actualización funcional con botón <strong>Actualizar</strong> que dispara skipWaiting + reload automático.</p>
+</li>
+<li>
+<p>Toast más claro cuando se guarda offline: "Sin conexión — guardado localmente, se sincroniza al volver".</p>
+</li>
+</ul>
+<h3 id="v71-20-mayo-2026-app-de-escritorio">v7.1 · 20 mayo 2026 — App de escritorio<a class="headerlink" href="#v71-20-mayo-2026-app-de-escritorio" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>Login Supabase Auth con el mismo módulo <code>datos/auth.js</code> compartido con la app de campo.</p>
+</li>
+<li>
+<p><code>_supa.auth.setSession()</code> propaga el token al cliente Supabase SDK → todas las queries (insert/update/delete/storage) usan el token del usuario.</p>
+</li>
+<li>
+<p><strong>Login opcional</strong>: el mapa carga sin login con la anon key (lectura libre). Botón "🔐 Iniciar sesión" en el header. El modal aparece solo al intentar crear/editar/borrar registros (helper <code>requireAuth()</code>).</p>
+</li>
+</ul>
+<h3 id="v10-17-19-mayo-2026-caminos-secundarios">v1.0 · 17-19 mayo 2026 — Caminos Secundarios<a class="headerlink" href="#v10-17-19-mayo-2026-caminos-secundarios" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>Nueva subruta <code>caminos_secundarios.html</code> con mapa interactivo de los caminos secundarios provinciales de Zona VI.</p>
+</li>
+<li>
+<p>Script <code>scripts/calcular_longitudes_red_vial.py</code> que recalcula longitudes WGS84 con pyproj. Acepta GeoPackage original del KMZ o output propio re-procesado.</p>
+</li>
+<li>
+<p>Filtros multi-select por partido + por CLASE. Toggle de polígonos. Selección acumulativa con popups. Export CSV + reporte HTML imprimible.</p>
+</li>
+<li>
+<p>5/8 partidos revisados en QGIS: 034, 058, 091, 093, 109. Pendientes: 041, 062, 075.</p>
+</li>
+<li>
+<p>Polígonos de partidos extraídos a <code>datos/partidos_zona_vi.geojson</code> para compartir entre apps.</p>
+</li>
+</ul>
+<h3 id="v92-7-mayo-2026">v9.2 · 7 mayo 2026<a class="headerlink" href="#v92-7-mayo-2026" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>Botón flotante "📲 Instalar app" en dvba_campo.</p>
+</li>
+<li>
+<p>Fix menú hamburguesa mobile en escritorio.</p>
+</li>
+<li>
+<p>Footer "Desarrollado por Ing. Luciano Lamaita · vX.Y".</p>
+</li>
+</ul>
+<h3 id="v91-6-mayo-2026">v9.1 · 6 mayo 2026<a class="headerlink" href="#v91-6-mayo-2026" title="Permanent link">¶</a></h3>
+<ul>
+<li>Centralización de versionado con <code>bump_version.py</code>.</li>
+</ul>
+<h3 id="v61-v90-historico-abril-2026">v6.1 → v9.0 · histórico (abril 2026)<a class="headerlink" href="#v61-v90-historico-abril-2026" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>Migración de C:\DVBA\app\ a C:\GitHub\DVBA\ (monorepo).</p>
+</li>
+<li>
+<p>Bundles JS por ruta, panel de progresivas, modo accesible, etc.</p>
+</li>
+</ul>
+<h2 id="changelog-service-worker">🔧 Changelog · Service Worker<a class="headerlink" href="#changelog-service-worker" title="Permanent link">¶</a></h2>
+<h3 id="v915-v915a-v915b-24-junio-2026">v9.15 / v9.15a / v9.15b · 24 junio 2026<a class="headerlink" href="#v915-v915a-v915b-24-junio-2026" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>Política de bumps clarificada: cambio cosmético (tweak de fuente, color, posición) → bump <strong>solo</strong> de <code>CACHE_NAME</code> con sufijo letra (<code>v9.15a</code>, <code>v9.15b</code>...) sin tocar el <code>&lt;span id='app-ver'&gt;</code> del footer. Cambio publicable (feature, fix funcional) → bump de los 3: <code>APP_VERSION</code> escritorio, <code>&lt;span&gt;</code> móvil, y <code>CACHE_NAME</code>.</p>
+</li>
+<li>
+<p>Esto permite iterar tweaks sin saturar la lista de versiones visibles al usuario.</p>
+</li>
+</ul>
+<h3 id="v34-20-mayo-2026">v3.4 · 20 mayo 2026<a class="headerlink" href="#v34-20-mayo-2026" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>CACHE_URLS relativas (compatibles con subpath /DVBA/ de GitHub Pages).</p>
+</li>
+<li>
+<p>Cachea variantes con/sin <code>.html</code>. Fallback offline inteligente al HTML.</p>
+</li>
+<li>
+<p>Reconstruido completo tras truncado previo que rompía la registración.</p>
+</li>
+</ul>
+<h3 id="v31-6-mayo-2026">v3.1 · 6 mayo 2026<a class="headerlink" href="#v31-6-mayo-2026" title="Permanent link">¶</a></h3>
+<ul>
+<li>Estrategia network-first con offline fallback + auto-purge de 404.</li>
+</ul>
+<h2 id="changelog-infraestructura">📦 Changelog · Infraestructura<a class="headerlink" href="#changelog-infraestructura" title="Permanent link">¶</a></h2>
+<h3 id="20-mayo-2026-seguridad-supabase-auth-rls">20 mayo 2026 — Seguridad: Supabase Auth + RLS<a class="headerlink" href="#20-mayo-2026-seguridad-supabase-auth-rls" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>Nuevo módulo <code>datos/auth.js</code> compartido entre apps.</p>
+</li>
+<li>
+<p>SQL de políticas RLS documentado en <code>docs/SETUP_AUTH.md</code>.</p>
+</li>
+<li>
+<p>Usuarios creados manualmente desde dashboard Supabase. Signup libre deshabilitado.</p>
+</li>
+</ul>
+<h3 id="17-19-mayo-2026-caminos-secundarios">17-19 mayo 2026 — Caminos Secundarios<a class="headerlink" href="#17-19-mayo-2026-caminos-secundarios" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>Nueva carpeta <code>referencias/</code> con <code>partidos_pba.json</code> (ARBA).</p>
+</li>
+<li>
+<p>Script <code>calcular_longitudes_red_vial.py</code> con pyproj.</p>
+</li>
+<li>
+<p>Estructura <code>geojson_procesados/red_secundaria/caminos_secundarios_NNN_final.geojson</code> por partido.</p>
+</li>
+</ul>
+<h3 id="7-mayo-2026-versionado-por-artefacto">7 mayo 2026 — Versionado por artefacto<a class="headerlink" href="#7-mayo-2026-versionado-por-artefacto" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>bump_version.py</code>: cada artefacto bumpea independiente.</li>
+</ul>
+<p>Bitácora unificada — Sistema de Relevamiento y Gestión Vial DVBA Departamento Zona VI Saladillo</p>
+<p>Ing. Luciano Lamaita · División Técnica · Última actualización: 30 de junio de 2026 · v4.3 (apps v9.19 / v7.14)</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      
+<div class="md-copyright dvba-footer">
+  <div class="dvba-footer__left">
+    <span class="dvba-footer__copy">© 2026 DVBA</span>
+    <span class="dvba-footer__label">Guía de usuario · Uso interno institucional.</span>
+  </div>
+  <div class="dvba-footer__right">
+    SIG Vial PBA<sup class="dvba-footer__beta">β</sup>
+    · <span class="dvba-footer__ver">v8.68</span>
+    · <a href="https://lemeit.github.io/DVBA/" target="_blank" rel="noopener">Portal</a>
+    · <a href="https://github.com/lemeit/DVBA" target="_blank" rel="noopener">Código</a>
+  </div>
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/lemeit/DVBA" target="_blank" rel="noopener" title="Repositorio DVBA" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
