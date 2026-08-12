@@ -26,8 +26,5 @@ El pie del sello incluye una línea con la versión del sistema y el origen (`vX
 
 Si una foto ya estampada se vuelve a sellar (por ejemplo tras corregir datos), el sistema detecta el banner viejo, lo corta y aplica el nuevo con la misma métrica. Resultado: el usuario ve la foto sin banners duplicados.
 
-📷
-
-Screenshot:
-
-ejemplo de foto sellada con las 3 columnas visibles.
+!!! note "📷 Screenshot:"
+    ejemplo de foto sellada con las 3 columnas visibles.

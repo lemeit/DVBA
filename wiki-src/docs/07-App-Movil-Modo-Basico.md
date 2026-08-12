@@ -12,31 +12,15 @@ Es la app **por default** al instalar la PWA en el celular. Está diseñada para
 
 3. **Abrir desde el ícono** — El ícono aparece como cualquier otra app en el launcher. Al abrir arranca directo en Modo Básico.
 
-📷
-
-Screenshot sugerido:
-
-diálogo de instalación de la PWA en Android mostrando "SIG Vial PBA".
+!!! note "📷 Screenshot sugerido:"
+    diálogo de instalación de la PWA en Android mostrando "SIG Vial PBA".
 
 ### Primer uso: ingresar
 
 La primera vez la app pide credenciales:
 
-📷
-
-Screenshot:
-
-Modal de login de la lite con "Ingresar" y link "O usá la Modo Avanzado"
-
-. (Ver captura tuya del 20/7.)
-
-Nota
-
-· Una vez que el usuario ingresó por primera vez con internet, la app queda logueada indefinidamente y puede usarse offline. La sesión se guarda en
-
-localStorage
-
-con el token JWT de Supabase.
+!!! note "📷 Screenshot:"
+    Modal de login de la lite con "Ingresar" y link "O usá la Modo Avanzado". (Ver captura tuya del 20/7.) Nota · Una vez que el usuario ingresó por primera vez con internet, la app queda logueada indefinidamente y puede usarse offline. La sesión se guarda en localStorage con el token JWT de Supabase.
 
 ### Uso diario
 
@@ -56,24 +40,5 @@ con el token JWT de Supabase.
 
 - **ℹ Info** · modal con versión, estado de conexión y botón *Cerrar sesión*.
 
-📷
-
-Screenshot:
-
-Modal Info de la lite con datos de sesión y botón "Cerrar sesión"
-
-. (Ver captura tuya del 20/7.)
-
-⚠ Importante
-
-· La lite
-
-no clasifica
-
-ni asigna tipo de tarea. Solo captura foto + GPS. Los demás datos los completa
-
-alguien en oficina
-
-desde el portal escritorio, en la cola de aprobación.
-
-> Complemento visual (capturas/paso a paso simplificado): [ver acá](Guia-Visual-Complementaria.md#uso-del-modo-basico)
+!!! note "📷 Screenshot:"
+    Modal Info de la lite con datos de sesión y botón "Cerrar sesión". (Ver captura tuya del 20/7.) ⚠ Importante · La lite no clasifica ni asigna tipo de tarea. Solo captura foto + GPS. Los demás datos los completa alguien en oficina desde el portal escritorio, en la cola de aprobación. > Complemento visual (capturas/paso a paso simplificado): [ver acá](Guia-Visual-Complementaria.md#uso-del-modo-basico)

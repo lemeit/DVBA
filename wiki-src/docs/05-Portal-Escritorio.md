@@ -6,11 +6,8 @@ El portal es el punto de entrada principal para técnicos, gerencia y administra
 
 ### Vista general
 
-📷
-
-Screenshot sugerido:
-
-vista general del portal con mapa + sidebar + capa 📋 Tareas activa.
+!!! note "📷 Screenshot sugerido:"
+    vista general del portal con mapa + sidebar + capa 📋 Tareas activa.
 
 ### Elementos de la interfaz
 
@@ -44,11 +41,8 @@ Al activar esta capa, cada tarea diaria aparece dibujada sobre la traza real de 
 
 Los pines abren un popup con los detalles de la tarea (fecha, tipo, ruta, prog inicial/final, equipos, fotos vinculadas).
 
-📷
-
-Screenshot sugerido:
-
-capa Tareas activa mostrando polylines de colores sobre RP30 con popup abierto.
+!!! note "📷 Screenshot sugerido:"
+    capa Tareas activa mostrando polylines de colores sobre RP30 con popup abierto.
 
 ### Cola de aprobación de registros
 

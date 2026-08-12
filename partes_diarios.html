@@ -332,17 +332,14 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 </div>
 
 <!-- ═══════════ FOOTER INSTITUCIONAL ═══════════ -->
-<footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--pd);position:fixed;bottom:0;left:0;right:0;z-index:80">
+<!-- v8.68 · Footer institucional unificado (mismo formato que reportes/admin/index) -->
+<footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid #444;position:fixed;bottom:0;left:0;right:0;z-index:80">
   <div style="flex:1;min-width:260px">
     <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
-    <span style="margin-left:8px">Uso interno institucional.</span>
-    <a href="#" onclick="DVBA_LEGAL.abrir('acerca');return false" style="color:#8ac6ff;text-decoration:none;margin-left:12px">Acerca</a>
-    <a href="#" onclick="DVBA_LEGAL.abrir('terminos');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Términos</a>
-    <a href="#" onclick="DVBA_LEGAL.abrir('privacidad');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Privacidad</a>
-    <a href="#" onclick="pdMostrarLegal('tecnologias');return false" style="color:#8ac6ff;text-decoration:none;margin-left:10px">Tecnologías</a>
+    <span style="margin-left:8px">Plan de Seguridad en la Circulación · Uso interno institucional.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.66f.2</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.68</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -1417,8 +1414,10 @@ function pdQuitarFoto(momento, i){
 // insertamos un relevamiento y vinculamos vía parte_fotos como "previa"
 // o "posterior" — así aparece en el mapa Y queda ligada al parte.
 // ═══════════════════════════════════════════════════════════════════
-const APP_VER = 'v8.67';
-window.APP_VER = APP_VER;  // v8.67 · expone a window para legales.js
+const APP_VER = 'v8.68';
+window.APP_VER = APP_VER;  // v8.68 · expone a window para legales.js
+// v8.68 · Auto-update del span del footer para que nunca quede desactualizado
+document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VER; });
 const _subEstado = { momento:'previa', file:null, base64:null, gps:null };
 
 function pdSubirFoto(momento){

@@ -58,8 +58,5 @@ Al pie de cada PDF: banner sello institucional *"📋 Datos oficiales de la Red 
 
 - **↓ PDF de relevamientos con fotos** (sección aparte, uso técnico DVBA) — agrupa registros con fotos por ruta, con mapa SVG de ubicación
 
-📷
-
-Screenshot:
-
-panel de reportes del sidebar con chip contador, columnas, opciones del PDF y banner "Datos oficiales".
+!!! note "📷 Screenshot:"
+    panel de reportes del sidebar con chip contador, columnas, opciones del PDF y banner "Datos oficiales".

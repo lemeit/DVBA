@@ -28,8 +28,5 @@ Fecha · tarea · vía · partido · km · equipos · foto ✓/✗. Ordenable, f
 
 - **PDF institucional** · portada + página de charts + tabla completa. Layout cotejado contra el Informe Mensual Gerencia Ejecutiva (paleta oficial de 8 colores).
 
-📷
-
-Screenshot:
-
-vista de Reportes con los 4 charts renderizados y filtros aplicados.
+!!! note "📷 Screenshot:"
+    vista de Reportes con los 4 charts renderizados y filtros aplicados.

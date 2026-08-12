@@ -4,11 +4,8 @@
 
 Módulo escritorio (`partes_diarios.html`) para cargar las **tareas diarias ejecutadas**. Está alineado al Google Form oficial de Gerencia Ejecutiva DVBA. Reemplaza el workflow anterior "por email".
 
-📷
-
-Screenshot:
-
-Modal "Nueva tarea" con detección automática de partido y autocomplete de caminos activo.
+!!! note "📷 Screenshot:"
+    Modal "Nueva tarea" con detección automática de partido y autocomplete de caminos activo.
 
 ### Cargar una tarea nueva
 
@@ -26,11 +23,8 @@ Modal "Nueva tarea" con detección automática de partido y autocomplete de cami
 
 **b) Subir foto directa**: elegís foto del disco → lee GPS del EXIF → si no hay EXIF, tipeás progresiva y se interpola → aplica sello v4 → sube a Storage → crea el relevamiento.
 
-📷
-
-Screenshot:
-
-Modal "Subir foto" con foto cargada + banner verde "Ubicación detectada en la foto".
+!!! note "📷 Screenshot:"
+    Modal "Subir foto" con foto cargada + banner verde "Ubicación detectada en la foto".
 
 ### Cambio de nombre "parte" → "tarea"
 

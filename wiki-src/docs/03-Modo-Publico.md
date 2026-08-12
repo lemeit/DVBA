@@ -32,16 +32,5 @@ Al entrar por primera vez sin sesión aparece un **banner informativo** en la pa
 
 Para volver a leer el mensaje, tocar el botón `ℹ Alcance` del header (a la derecha del botón de login), disponible únicamente en modo público.
 
-💡
-
-Seguridad
-
-: la RLS de Supabase (
-
-SQL_12
-
-) bloquea al rol
-
-anon
-
-de acceder por API a tareas, partes, fotos o perfiles de usuarios. Aunque alguien tenga la anon-key pública (visible en el HTML), no puede consultar información institucional interna.
+!!! info "🔒 Seguridad"
+    La RLS (Row Level Security) de Supabase (`SQL_12`) bloquea al rol `anon` de acceder por API a tareas, partes, fotos o perfiles de usuarios. Aunque alguien tenga la anon-key pública (visible en el HTML), **no puede consultar información institucional interna**.

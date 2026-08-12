@@ -275,7 +275,7 @@ table.rep td.center{text-align:center}
     <span style="margin-left:8px">Módulo de reportes · Uso interno institucional.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.66f.2</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.68</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -287,8 +287,10 @@ table.rep td.center{text-align:center}
 // Charts con Chart.js CDN · Export CSV vanilla
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v8.67';
-window.APP_VERSION = APP_VERSION;  // v8.67 · expone a window para legales.js
+const APP_VERSION = 'v8.68';
+window.APP_VERSION = APP_VERSION;  // v8.68 · expone a window para legales.js
+// v8.68 · Auto-update del span del footer para que nunca quede desactualizado
+document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VERSION; });
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
 let _supa = null;

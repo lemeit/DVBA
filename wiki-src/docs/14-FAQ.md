@@ -44,14 +44,8 @@ El módulo Reportes genera un PDF con charts + tabla, con la paleta oficial de 8
 
 Guía · SIG Vial PBA · v1.3 · 2 de agosto de 2026
 
-División Técnica DVBA · Departamento Zona VI Saladillo · Contacto:
+División Técnica DVBA · Departamento Zona VI Saladillo · Contacto: lulamaita@vialidad.gba.gov.ar lemeit.github.io/DVBA/
 
-lulamaita@vialidad.gba.gov.ar
-
-lemeit.github.io/DVBA/
-
-·
-
-github.com/lemeit/DVBA
+· github.com/lemeit/DVBA
 
 > Preguntas adicionales de la versión visual: [ver acá](Guia-Visual-Complementaria.md#preguntas-frecuentes)

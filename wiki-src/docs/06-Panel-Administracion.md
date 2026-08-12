@@ -32,8 +32,5 @@ Para dar de alta a un técnico o supervisor de una zona nueva:
 
 5. Al primer login, la app le muestra su rol y zona en el header (`👷 Técnico · Zona IV`).
 
-📷
-
-Screenshot sugerido:
-
-panel admin con métricas + tabla de usuarios + modal de edición abierto.
+!!! note "📷 Screenshot sugerido:"
+    panel admin con métricas + tabla de usuarios + modal de edición abierto.
