@@ -66,6 +66,7 @@ nav:
   - Modo Offline: 13-Modo-Offline.md
   - FAQ: 14-FAQ.md
   - Guía Visual: Guia-Visual-Complementaria.md
+  - Bitácora del proyecto: 99-Bitacora.md
 
 markdown_extensions:
   - abbr

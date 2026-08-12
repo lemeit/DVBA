@@ -1434,7 +1434,7 @@ Backfill aplicado: 82 registros con foto → estado `aprobado` + sello v2 (hist�
 
 - **Antes**: ambas apps usaban estados distintos (escritorio: Crítico/Grave/Regular/Leve/Resuelto · móvil: Bueno/Regular/Malo/En obra) sin sentido lógico cuando se aplicaban a tipos como "Mojón kilométrico" o "Siniestro vial".
 
-- Documentado en nuevo [docs/MODELO_TIPOS_ESTADOS.md](MODELO_TIPOS_ESTADOS.md) con árbol completo, matriz de estados, flujo en cada app y guía de extensibilidad.
+- Documentado en nuevo [docs/MODELO_TIPOS_ESTADOS.md](https://github.com/lemeit/DVBA/blob/main/docs/MODELO_TIPOS_ESTADOS.md) con árbol completo, matriz de estados, flujo en cada app y guía de extensibilidad.
 
 ### v9.16 · 24 junio 2026 — Sello v3 inicial con QR + fix bug RS_BLOCK_TABLE
 

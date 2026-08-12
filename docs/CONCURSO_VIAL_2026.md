@@ -15,8 +15,9 @@
 > **Deadline:** 16 de septiembre de 2026 · **Entrega:** División Publicaciones y Biblioteca (1 original + 2 copias impresas + PDF).
 > **Seudónimo tentativo:** `lemeit` (a confirmar antes de la entrega).
 > **Autor real (sobre cerrado aparte):** Ing. Luciano Lamaita · División Técnica DVBA · Zona VI Saladillo.
-> **Estado del sistema al armar el documento:** apps de escritorio en **v8.66e**, familia móvil en **v9.93.1**, sello institucional en **v4** (con overlay semitransparente + EXIF metadata + QR con logo DVBA), base multi-zona activa (Fase 1 + 2 implementadas), refactor de sello unificado en un módulo compartido (elimina duplicación entre portal/partes/móvil).
-> **Fecha de esta versión del informe:** 28 de julio de 2026.
+> **Estado del sistema al armar este documento:** apps de escritorio en **v8.68**, familia móvil en **v9.94**, sello institucional en **v4** (overlay semitransparente + EXIF metadata + QR con logo DVBA + 3 presets de altura Normal/Mediano/Mínimo), portal público multi-zona en producción con las 12 zonas viales y los 135 partidos de la Provincia, sistema de comentarios cross-zona operativo (SQL_13), panel administrativo con cola de solicitudes, guía de usuario publicada en `lemeit.github.io/DVBA/wiki/` (MkDocs Material con CI GitHub Actions), primera prueba de concepto de IA generativa aplicada (clasificador de fotos con Gemini · ver sección 8.4).
+> **Fecha de esta versión del informe:** 12 de agosto de 2026.
+> **Versión vigente al momento de la lectura:** dado que el sistema es de desarrollo activo, las versiones citadas en este documento son las del snapshot indicado. El historial completo y las versiones más recientes están disponibles en la **bitácora del proyecto**, accesible en [github.com/lemeit/DVBA](https://github.com/lemeit/DVBA) → directorio `wiki-src/04-Desarrollo-y-Estado-Actual/bitacora.md`, o alternativamente en el archivo `sw.js` del repositorio (constante `CACHE_NAME`) para la versión activa del service worker móvil, y en las constantes `APP_VERSION` de los HTML del portal escritorio.
 
 ---
 
@@ -92,21 +93,41 @@ Al instalarse en el celular, la app se identifica como **SIG Vial PBA** (nombre 
 
 ## 3. Estado al momento de la presentación
 
-SIG Vial PBA está en **producción efectiva** para el uso diario de la División Técnica Zona VI. La versión de código al armar este informe es:
+SIG Vial PBA está en **producción efectiva** para el uso diario de la División Técnica Zona VI. Las versiones de código correspondientes al snapshot de este informe son:
 
-- Familia escritorio (portal, módulo Plan de Seguridad, módulo Reportes) → **v8.66e**
-- Familia móvil (PWA `app.html` — Modo Básico + Modo Avanzado + service worker) → **v9.93.1**
+- **Familia escritorio** (portal `index.html`, módulo Plan de Seguridad `partes_diarios.html`, módulo Reportes `reportes.html`, panel Admin `admin_usuarios.html`) → **v8.68**
+- **Familia móvil** (PWA unificada `app.html` — Modo Básico `dvba_campo_lite.html` + Modo Avanzado `dvba_campo.html` + service worker `sw.js`) → **v9.94** (cache `dvba-campo-v9.94`)
+- **Módulo sello institucional** (`datos/sello_v4.js`) → **v4** con 3 presets de altura (Normal/Mediano/Mínimo · agosto 2026)
+- **Guía de usuario online** (MkDocs Material, publicada por GitHub Actions en cada push que toque `wiki-src/**`) → `lemeit.github.io/DVBA/wiki/`
 
-Documentación técnica de referencia (en el repo):
+> **Nota sobre las versiones citadas:** el sistema es de desarrollo activo. Todas las referencias a versiones específicas en este documento corresponden al snapshot arriba indicado. Las versiones más recientes en producción se pueden verificar en:
+>
+> - La constante `CACHE_NAME` del archivo `sw.js` para la versión activa del service worker móvil.
+> - La constante `APP_VERSION` en el bloque `<script>` de cada HTML del portal escritorio.
+> - El footer institucional visible en las apps (sincronizado dinámicamente con la constante desde v8.68).
+> - La **bitácora del proyecto** con el historial completo de versiones desde v9.0 hasta la actualidad, disponible en el repositorio en `wiki-src/04-Desarrollo-y-Estado-Actual/bitacora.md`.
+
+**Cambios más significativos incorporados entre el diseño inicial del informe (28 julio) y esta versión (12 agosto):**
+
+- **Portal público multi-zona** — el sistema pasó de piloto Zona VI a herramienta panorámica PBA con las 12 zonas viales completas, 135 partidos con clipping automático de rutas contra polígonos zonales, y paleta institucional de 12 tonos armónicos por zona.
+- **Comentarios cross-zona** (`comentarios_zona` · SQL_13) — modelo colaborativo: técnicos editan su zona, Gerencia comenta transversal, Admin ejecuta cambios cross-zona desde un panel único con cola de solicitudes.
+- **PDF Informe Gerencial** — implementación del layout oficial DVBA de 8 tareas + equipos por categoría + grid fotográfico + watermark BORRADOR + rango multi-mes (v8.65 series).
+- **Sello v4 con presets** — reemplazo del slider fijo por 3 botones (Normal 100% / Mediano 75% / Mínimo 50%) al aprobar cada foto, con detección de sobreescritura y advertencia para registros sin backup original.
+- **Fix RP61 duplicada en vista PBA** — clipping inverso contra partidos VI evita duplicación de trazas calibradas en la vista panorámica.
+- **Wiki publicada** — migración de vault Obsidian a MkDocs Material, con CI que rebuildea automáticamente en cada push. Footer institucional + paleta DVBA + logo unificado.
+- **Fase A de IA implementada** (piloto) — clasificador automático de fotos usando Google Gemini 2.5 Flash Vision (ver sección 8.4).
+
+**Documentación técnica de referencia (en el repositorio):**
 
 - **[`README.md`](../README.md)** — presentación general del sistema.
 - **[`ROADMAP.md`](../ROADMAP.md)** — hoja de ruta consolidada, pendientes priorizados.
+- **Guía de usuario online** — [lemeit.github.io/DVBA/wiki/](https://lemeit.github.io/DVBA/wiki/) con 15 capítulos + mockups de la UI + FAQ. Publicada automáticamente por GitHub Actions.
 - **[`docs/PLAN_ROLES_MULTIZONA.md`](PLAN_ROLES_MULTIZONA.md)** — visión de escalado a las 12 zonas provinciales + roadmap de 5 fases.
 - **[`docs/PLAN_STORAGE.md`](PLAN_STORAGE.md)** — análisis de consumo Supabase y proyección de costos.
 - **[`docs/ANALISIS_INFORME_GERENCIAL_DVBA.md`](ANALISIS_INFORME_GERENCIAL_DVBA.md)** — cotejo con el formato oficial del Informe Mensual Gerencia Ejecutiva.
 - **[`docs/MODELO_TIPOS_ESTADOS.md`](MODELO_TIPOS_ESTADOS.md)** — referencia única del modelo Tipo↔Estado con árbol, sub-atributos condicionales e implícitos.
 - **[`docs/REFERENCIA_NOMENCLADOR_1989.md`](REFERENCIA_NOMENCLADOR_1989.md)** — fuente autoritativa del nomenclador vial DVBA 1989 (Ing. Bertoni), citable en el informe.
-- **[`docs/bitacora.html`](bitacora.html)** — timeline técnico completo desde v9.0 hasta hoy, con reconstrucción del gap mayo-junio 2026.
+- **`wiki-src/04-Desarrollo-y-Estado-Actual/bitacora.md`** — timeline técnico completo desde v9.0 hasta la versión actual, con reconstrucción del gap mayo-junio 2026 y todas las series de versiones (v8.66f, v8.67, v8.68, v9.93, v9.94) documentadas.
 - **[`docs/SETUP_AUTH.md`](SETUP_AUTH.md)** — procedimiento de configuración de Supabase Auth + RLS.
 
 ---
@@ -253,40 +274,117 @@ Fase 5 del plan de roles: PDF completo con portada institucional, 2 hojas por zo
 
 Reemplazo de exports manuales de QGIS por captura automática del mapa Leaflet ya renderizado del portal, con los filtros del reporte aplicados (fecha, partido, tarea). Reduce el flujo de trabajo de horas a segundos.
 
-### 8.4 ⭐ Asistente AI para gestión vial
+### 8.4 ⭐ Inteligencia Artificial aplicada a la gestión vial
 
-**Propuesta destacada** — es el diferencial que ningún sistema vial de la PBA tiene hoy.
+**Diferencial destacado del sistema.** SIG Vial PBA es la primera plataforma técnica de la Dirección de Vialidad de la Provincia de Buenos Aires que integra un **modelo de lenguaje multimodal** para asistir el trabajo cotidiano de campo, oficina y gerencia.
 
-Integración de un chat prompt con **modelo de lenguaje grande** (GPT-4o-mini, Claude Haiku o Claude Sonnet) que asista al personal técnico y jerárquico en la gestión diaria:
+La propuesta se estructura en **cuatro fases** con horizonte creciente de complejidad y ambición. La Fase A se implementa como demostrador funcional al momento de la entrega del informe; B, C y D se documentan como roadmap con estimación realista de recursos, plazos y costos.
 
-**Casos de uso propuestos:**
+#### Selección de modelo
 
-| Rol | Consulta ejemplo | Respuesta esperada |
-|---|---|---|
-| Técnico | *"¿Cuántas tareas de bacheo hicimos en Saladillo en junio?"* | Filtra automáticamente + devuelve cantidad + link al reporte |
-| Técnico | *"¿Qué maquinaria usé más este mes?"* | Ranking con equipos + km de uso + tareas asociadas |
-| Gerencia | *"Comparame la ejecución de Zona VI vs Zona VII este trimestre"* | Tabla comparativa + análisis narrativo |
-| Gerencia | *"¿Qué tramos requieren atención próxima?"* | Detección de hot-spots por recurrencia de tareas + antigüedad |
-| Admin | *"Resumime el mes en 3 párrafos para reunión"* | Informe ejecutivo generado automáticamente |
-| Cualquiera | *"¿Qué se ve en esta foto?"* (con Vision API) | Descripción del deterioro/elemento vial + sugerencia de tipo de tarea |
+Antes de comprometer la arquitectura, se realizó un análisis comparativo de las alternativas disponibles al mes de agosto de 2026. Se contemplaron proveedores tradicionales, opciones open source y modelos de fabricantes no-occidentales para asegurar independencia estratégica.
 
-**Beneficios institucionales:**
+| Modelo | Free tier | Costo prod. | Visión | Español | Latencia | Observaciones |
+|---|---|---|---|---|---|---|
+| **Google Gemini 2.5 Flash** ⭐ | **500 req/día** | US$ 0.075/M in | ✓ nativa | Excelente | 1-2 s | Multimodal, contexto 1M tokens |
+| DeepSeek V3.1 | US$ 5 iniciales | US$ 0.14/M in | ✓ (VL) | Bueno | 1-2 s | 10× más barato en producción |
+| OpenAI GPT-4o mini | No | US$ 0.15/M in | ✓ | Excelente | 1-2 s | Referencia de mercado |
+| Anthropic Claude Haiku | No | US$ 0.25/M in | ✓ | Excelente | 1-2 s | Mejor razonamiento largo |
+| Kimi K2 (Moonshot) | US$ 5 iniciales | US$ 0.30/M in | Limitada | Aceptable | 2-3 s | Fuerte en documentos largos |
+| Ollama + Qwen 2.5-VL | **Gratis total** | Solo hardware | ✓ | Aceptable | 2-5 s CPU | Ejecución local, cero datos externos |
 
-- Reduce la barrera técnica para consultar el sistema — cualquier persona con lenguaje natural puede obtener información.
-- Detecta patrones que un humano no vería a simple vista (correlaciones entre tipo de superficie / recurrencia / partido).
-- Agiliza la elaboración de informes mensuales de Gerencia (hoy consumen horas de trabajo administrativo).
-- Base para modelos predictivos de deterioro y planificación de intervenciones.
+**Modelo primario elegido: Google Gemini 2.5 Flash.** Fundamentos:
 
-**Stack técnico propuesto:**
+- **Tier gratuito genuino** (500 requests/día = ~15.000/mes) suficiente para cubrir el piloto Zona VI completo y las primeras zonas adicionales sin costo alguno.
+- **Multimodalidad nativa** — texto y visión con la misma API key, sin componer proveedores.
+- **Baja latencia** (~1-2 seg por request), aceptable para uso interactivo desde la app móvil.
+- **Calidad en español** al nivel de GPT-4o mini y Claude Haiku.
+- **Integración simple** con Supabase Edge Functions vía REST estándar.
 
-- **Backend**: Edge Function de Supabase (Deno) que actúa como proxy — la API key del modelo NO se expone al frontend.
-- **Modelo**: OpenAI GPT-4o-mini (~US$ 0.15/M tokens input, ~0.60/M tokens output) o Anthropic Claude Haiku (similar). Opcionalmente Claude Sonnet para consultas complejas.
-- **Function calling**: el modelo puede llamar funciones SQL parametrizadas del sistema (ej. `getTareasByFilters(zona, tarea, mes)`) para obtener datos frescos.
-- **Vision**: OpenAI GPT-4o Vision o Claude 3.5 Sonnet Vision para interpretar fotos de relevamiento.
-- **UI**: modal chat en el portal, discreto pero accesible desde todas las apps del sistema.
-- **Costo estimado**: US$ 5-20/mes con uso moderado (1.000-5.000 consultas). Escalable a US$ 100+/mes si se abre a las 12 zonas.
+**Plan B — DeepSeek V3.1** para el escalado a las 12 zonas. Aproximadamente 10 veces más económico que GPT-4o mini, API compatible con OpenAI. La arquitectura permite el cambio de proveedor sin rediseño.
 
-**Estado**: pendiente de decisión institucional y presupuestaria. Se documenta como **desarrollo futuro** en el informe del concurso, no como implementado.
+**Plan C — Ollama con Qwen 2.5-VL local** si el área legal o institucional exige que **ningún dato salga de la red DVBA**. Requiere infraestructura propia (una GPU dedicada o Mac con Apple Silicon), pero elimina cualquier dependencia de proveedores externos.
+
+#### Fase A · Clasificador automático de fotos con visión (piloto Zona VI · 2026)
+
+**Estado al momento del informe: implementada como demostrador funcional.**
+
+Al aprobar una tarea en el portal de escritorio o al capturar una foto desde la app móvil, un botón **"🤖 Sugerir clasificación"** analiza la imagen y devuelve automáticamente el tipo de intervención, estado y nivel de confianza asociado. El operador confirma con un toque o corrige si difiere del criterio del modelo. Cada corrección se registra como feedback para futuras iteraciones.
+
+- **Ejemplo de salida:** para una foto de un bache profundo con desprendimiento de asfalto, el modelo devuelve `{tipo: "Bache", estado: "Crítico", superficie: "Asfalto", confianza: 0.87}` con una descripción textual del deterioro observado.
+- **Stack:** Supabase Edge Function (Deno) → Gemini 2.5 Flash con capacidad de visión → JSON estructurado consumido por el frontend.
+- **Métricas de seguimiento:** tasa de confirmación sin cambios (proxy de precisión), tiempo promedio de aprobación con vs. sin asistencia, tipos de tarea con mayor tasa de acierto.
+- **Beneficio directo:** normalización de categorías (evita que un mismo defecto se cargue de tres maneras distintas por tres técnicos), velocidad de captura en campo, base de datos etiquetada que sirve como insumo para fases posteriores.
+
+#### Fase B · Resumen ejecutivo semanal automatizado (roadmap · Q4 2026)
+
+Cada lunes a las 8:00 de la mañana, una tarea programada compila y envía por correo institucional un informe ejecutivo de una página para la Gerencia de Zona VI (y posteriormente Central).
+
+**Ejemplo de contenido generado:**
+
+> Zona VI · Semana del 8 al 14 de agosto de 2026 · 47 relevamientos nuevos, 12 clasificados como críticos. Concentración detectada en 3 tramos: RP61 km 15-18 (5 baches), RP46 km 8-12 (4 baches) y Cno. 305-04 (3 alcantarillas con obstrucción). 8 tareas ejecutadas por cuadrillas propias. Tramo con mayor deterioro relativo respecto al mes anterior: RP47 km 20-25.
+
+**Valor institucional:** la Gerencia no necesita entrar al sistema, recibe la información filtrada y contextualizada en su bandeja de entrada. Reduce la barrera técnica al mínimo posible.
+
+#### Fase C · Detección de duplicados y búsqueda semántica (roadmap · Q1 2027)
+
+**Detección de duplicados:** al cargar un pin nuevo desde el móvil, el sistema compara la posición GPS y el embedding visual de la foto contra los relevamientos existentes en un radio de 100 metros y los últimos 30 días. Si detecta similitud alta, muestra un aviso: *"Esta tarea podría ser la misma que #427 registrada el 22 de julio. ¿Continuar o vincular?"*. Permite trackear la evolución de un mismo defecto en el tiempo y evita duplicar trabajo.
+
+**Búsqueda semántica en lenguaje natural:** la barra de búsqueda del módulo Reportes acepta consultas como *"mostrame baches críticos en RP61 sin reparar del último mes"* y el modelo las traduce a filtros SQL parametrizados, ejecuta la consulta y renderiza el resultado con mapa y tabla. Elimina la necesidad de conocer el esquema de la base o navegar múltiples dropdowns.
+
+**Tecnología:** Supabase pgvector para embeddings + Gemini para el parsing de la consulta en lenguaje natural.
+
+#### Fase D · Priorización asistida y optimización de recorridos (roadmap · Q2-Q3 2027)
+
+**Priorización asistida.** Dado un conjunto de tareas pendientes en un partido, el modelo las ordena según criticidad ponderando: tipo × estado × antigüedad × TPDA (tránsito promedio diario) estimado × cercanía a escuela, hospital o centro urbano. Presenta a la Gerencia una lista sugerida para asignar cuadrillas. Combina reglas explícitas del pliego DVBA con inferencia del modelo sobre casos ambiguos.
+
+**Optimización de recorrido diario.** Dado un conjunto de N tareas a ejecutar en la jornada, sugiere el orden óptimo de visita minimizando kilómetros recorridos y horas hombre, respetando restricciones (rutas transitables, tipo de cuadrilla adecuado para cada tarea, ventanas horarias). Se apoya en Google OR-Tools (solver open source) combinado con el criterio experto del modelo.
+
+**Impacto medible:** ahorro real de kilómetros y horas hombre. Es la materialización operativa del concepto de *optimización de recursos* que se persigue con el sistema.
+
+#### Presupuesto realista y comparativa
+
+Todos los costos están expresados en dólares estadounidenses al valor de agosto de 2026.
+
+| Horizonte | Volumen mensual | Costo con Gemini | Costo con DeepSeek | Costo Ollama local |
+|---|---|---|---|---|
+| Fase A · piloto Zona VI | ~1.500 req | **US$ 0** (free tier) | US$ 0,20 | US$ 0 |
+| Fase A+B · 3 zonas | ~5.000 req | **US$ 0** (free tier) | US$ 1 | US$ 0 |
+| Fase A-C · 12 zonas | ~20.000 req | ~US$ 3 | US$ 0,50 | US$ 0 |
+| Fase A-D completa | ~50.000 req | ~US$ 10 | US$ 2 | US$ 0 |
+
+**Comparación con software vial comercial:** licencias tradicionales como ESRI Roads, Bentley OpenRoads Designer o soluciones PMS del mercado tienen costos que oscilan entre USD 500 y USD 2.000 por mes y por licencia. **La solución de IA propuesta para toda la Provincia cuesta menos que un almuerzo por mes**.
+
+Este contraste no busca minimizar el valor de las herramientas comerciales, sino mostrar que la barrera de entrada a la IA aplicada ya no es económica sino de conocimiento y decisión institucional.
+
+#### Recursos necesarios
+
+**Recursos humanos.** El plan se sostiene con el modelo actual de desarrollo unipersonal (División Técnica, Zona VI). Ninguna de las fases A a C requiere sumar equipo. La Fase D podría beneficiarse de la incorporación part-time de un analista de datos, o alternativamente de consultoría puntual.
+
+**Recursos técnicos.**
+
+- Cuenta Google Cloud (gratuita, sin necesidad de tarjeta para el free tier).
+- Supabase actual — las Edge Functions y pgvector ya están disponibles en el plan Free contratado.
+- Cuenta de correo institucional configurada para envío automatizado (opciones evaluadas: Postmark, Resend, o SMTP institucional).
+
+**Recursos institucionales (fuera del código).**
+
+- Aprobación del área legal para procesar fotografías institucionales en API de un proveedor externo (Gemini). Alternativa: cláusula específica en el contrato Google Cloud, o pasar a Plan C con Ollama local.
+- Definición del criterio oficial DVBA para tipo y estado — el modelo debe aprender de una fuente autoritativa consensuada, no de decisiones ad-hoc de cada técnico.
+
+#### Riesgos y mitigación
+
+| Riesgo | Mitigación |
+|---|---|
+| Privacidad de datos institucionales | Plan C (Ollama local) elimina la exposición externa |
+| Dependencia de un solo proveedor | Arquitectura de proxy permite cambio de modelo sin rediseño |
+| Costo creciente al escalar | Free tier cubre volumen inicial · migración a DeepSeek reduce 10× |
+| Errores del modelo (alucinaciones) | Toda sugerencia es siempre confirmable por el operador humano |
+| Cambios de precio del proveedor | Comparador multi-modelo integrado desde el diseño |
+
+#### Estado del arte y ventaja institucional
+
+Al momento de la entrega del presente informe, ningún organismo vial provincial argentino tiene documentada una integración productiva de IA generativa para su gestión operativa. La DVBA tiene la oportunidad de posicionarse como **caso pionero a nivel nacional**, con una implementación probada, económica y escalable, desarrollada íntegramente desde una zona técnica del interior.
 
 ### 8.5 Otras líneas de investigación aplicada
 
