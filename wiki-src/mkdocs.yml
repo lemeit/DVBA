@@ -39,34 +39,32 @@ theme:
   features:
     - navigation.instant       # SPA-like sin recargas
     - navigation.tracking      # URL refleja sección visible
-    - navigation.tabs          # tabs de secciones grandes
-    - navigation.sections      # agrupamiento visual del sidebar
-    - navigation.expand        # sidebar expandido por default
     - navigation.top           # botón "volver arriba"
     - toc.follow               # TOC scrollea con el contenido
-    - toc.integrate            # TOC integrado al sidebar (mejor para pantallas anchas)
     - search.suggest           # sugerencias en el buscador
     - search.highlight         # resalta términos buscados
     - content.code.copy        # botón copiar en bloques de código
-    - content.action.edit      # botón editar (link al repo)
+    # v8.68 · REMOVIDOS: tabs, sections, expand, toc.integrate
+    # → generaban jerarquía "Guía de Usuario > Índice > Capítulos > items"
+    # → ahora el nav es plano: 1 nivel = 1 página
 
+# v8.68 · Nav APLANADA · 1 entrada = 1 página, sin categorías anidadas
 nav:
-  - Guía de Usuario:
-      - Índice: 00-Indice.md
-      - Qué es el sistema: 01-Que-es-el-sistema.md
-      - Primeros pasos: 02-Primeros-pasos.md
-      - Modo Público: 03-Modo-Publico.md
-      - Roles y Accesos: 04-Roles-y-Accesos.md
-      - Portal Escritorio: 05-Portal-Escritorio.md
-      - Panel Administración: 06-Panel-Administracion.md
-      - App Móvil · Modo Básico: 07-App-Movil-Modo-Basico.md
-      - App Móvil · Modo Avanzado: 08-App-Movil-Modo-Avanzado.md
-      - Plan Seguridad Circulación: 09-Plan-Seguridad-Circulacion.md
-      - Reportes Red Vial: 10-Reportes-Red-Vial.md
-      - Reportes Dashboard Gerencial: 11-Reportes-Dashboard-Gerencial.md
-      - Sello Institucional: 12-Sello-Institucional.md
-      - Modo Offline: 13-Modo-Offline.md
-      - FAQ: 14-FAQ.md
+  - Inicio: 00-Indice.md
+  - Qué es el sistema: 01-Que-es-el-sistema.md
+  - Primeros pasos: 02-Primeros-pasos.md
+  - Modo Público: 03-Modo-Publico.md
+  - Roles y Accesos: 04-Roles-y-Accesos.md
+  - Portal Escritorio: 05-Portal-Escritorio.md
+  - Panel Administración: 06-Panel-Administracion.md
+  - App Móvil · Modo Básico: 07-App-Movil-Modo-Basico.md
+  - App Móvil · Modo Avanzado: 08-App-Movil-Modo-Avanzado.md
+  - Plan Seguridad Circulación: 09-Plan-Seguridad-Circulacion.md
+  - Reportes Red Vial: 10-Reportes-Red-Vial.md
+  - Reportes Dashboard Gerencial: 11-Reportes-Dashboard-Gerencial.md
+  - Sello Institucional: 12-Sello-Institucional.md
+  - Modo Offline: 13-Modo-Offline.md
+  - FAQ: 14-FAQ.md
   - Guía Visual: Guia-Visual-Complementaria.md
 
 markdown_extensions:
