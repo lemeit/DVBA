@@ -57,6 +57,8 @@
     
       <link rel="stylesheet" href="../stylesheets/mockups.css">
     
+      <link rel="stylesheet" href="../stylesheets/theme-dvba.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -958,17 +960,10 @@
 <h3 id="aviso-institucional-y-boton-iniciar-sesion">Aviso institucional y botón Iniciar sesión<a class="headerlink" href="#aviso-institucional-y-boton-iniciar-sesion" title="Permanent link">¶</a></h3>
 <p>Al entrar por primera vez sin sesión aparece un <strong>banner informativo</strong> en la parte inferior explicando el alcance del modo público, con un botón directo <code>🔐 Iniciar sesión</code>. El botón <code>Entendido ✕</code> lo oculta y no vuelve a aparecer en el mismo dispositivo (queda registrado en <code>localStorage</code>).</p>
 <p>Para volver a leer el mensaje, tocar el botón <code>ℹ Alcance</code> del header (a la derecha del botón de login), disponible únicamente en modo público.</p>
-<p>💡</p>
-<dl>
-<dt>Seguridad</dt>
-<dd>
-<p>la RLS de Supabase (</p>
-</dd>
-</dl>
-<p>SQL_12</p>
-<p>) bloquea al rol</p>
-<p>anon</p>
-<p>de acceder por API a tareas, partes, fotos o perfiles de usuarios. Aunque alguien tenga la anon-key pública (visible en el HTML), no puede consultar información institucional interna.</p>
+<div class="admonition info">
+<p class="admonition-title">🔒 Seguridad</p>
+<p>La RLS (Row Level Security) de Supabase (<code>SQL_12</code>) bloquea al rol <code>anon</code> de acceder por API a tareas, partes, fotos o perfiles de usuarios. Aunque alguien tenga la anon-key pública (visible en el HTML), <strong>no puede consultar información institucional interna</strong>.</p>
+</div>
 
 
 
@@ -1001,14 +996,18 @@
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
-  
-    <div class="md-copyright__highlight">
-      © 2026 Dirección de Vialidad de la Provincia de Buenos Aires · Ministerio de Infraestructura y Servicios Públicos
-
-    </div>
-  
-  
+      
+<div class="md-copyright dvba-footer">
+  <div class="dvba-footer__left">
+    <span class="dvba-footer__copy">© 2026 DVBA</span>
+    <span class="dvba-footer__label">Guía de usuario · Uso interno institucional.</span>
+  </div>
+  <div class="dvba-footer__right">
+    SIG Vial PBA<sup class="dvba-footer__beta">β</sup>
+    · <span class="dvba-footer__ver">v8.68</span>
+    · <a href="https://lemeit.github.io/DVBA/" target="_blank" rel="noopener">Portal</a>
+    · <a href="https://github.com/lemeit/DVBA" target="_blank" rel="noopener">Código</a>
+  </div>
 </div>
       
         
