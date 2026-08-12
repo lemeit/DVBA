@@ -80,7 +80,7 @@ function aplicar(base64, datos, opts){
         if (datos.tipo)                 _espLineas += Math.round(_fM_*_LH_);
         if (datos.lat && datos.lng)     _espLineas += Math.round(_fS_*_LH_);
         if (datos.fecha || datos.hora)  _espLineas += Math.round(_fS_*_LH_);
-        _espLineas += Math.round(_fV_*1.4) + 6;  // versión + margen
+        // v8.66f.5 · YA NO sumamos línea de versión al bH (se movió a la col DER debajo del QR).
         _espLineas += Math.round(bH_base*0.10);  // padBottom
         const bH = Math.max(bH_base, _espLineas);
         let H = img.height;
@@ -332,9 +332,9 @@ function aplicar(base64, datos, opts){
           yB += Math.round(fS * 1.35);
         }
         // Versión + origen (campo/oficina/re-sello)
-        // v9.85 · Ancla al FONDO del banner + AUTO-FIT del ancho para que no se
-        // corte a la derecha si el string es más largo que el maxW disponible.
-        let fV = Math.round(baseFont * 0.65);
+        // v8.66f.5 · MOVIDA a la columna DERECHA (debajo del QR) para NO pisar
+        // el texto principal cuando este ocupa muchas líneas (localidad larga
+        // + ruta + tipo + coords + fecha llenan el bottom del banner).
         // v8.14 · Portal usa APP_VERSION, móvil usa APP_VER → probar ambos
         const appVer = (typeof APP_VER === 'string') ? APP_VER
                      : (typeof APP_VERSION === 'string') ? APP_VERSION
@@ -342,19 +342,35 @@ function aplicar(base64, datos, opts){
         const stampInfo = [
           appVer + '·' + origen,
           (datos.esResellado ? '↻ re-sello' : 'sello ' + SELLO_VER)
-        ].join('  ·  ');
+        ].join(' · ');
         ctx.textBaseline = 'bottom';
-        ctx.textAlign = 'left';
-        ctx.fillStyle = 'rgba(212,168,32,0.55)';
-        // Auto-fit: bajar font-size hasta que entre en maxW
-        ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
-        while (ctx.measureText(stampInfo).width > maxW && fV > 8) {
-          fV--;
-          ctx.font = '500 ' + fV + 'px Arial,Helvetica,sans-serif';
+        ctx.fillStyle = 'rgba(212,168,32,0.75)';  // dorado un poco más opaco (fondo QR blanco al lado)
+        if (mostrarQR) {
+          // Centrado en la columna DER, en el espacio libre BAJO el QR
+          const verMaxW = colSide - 6;      // ancho útil = columna QR con pad
+          let fVr = Math.round(baseFont * 0.55);
+          ctx.textAlign = 'center';
+          ctx.font = '500 ' + fVr + 'px Arial,Helvetica,sans-serif';
+          while (ctx.measureText(stampInfo).width > verMaxW && fVr > 7) {
+            fVr--;
+            ctx.font = '500 ' + fVr + 'px Arial,Helvetica,sans-serif';
+          }
+          const verCX = colRX + Math.round(colSide / 2);
+          const yVer  = totalH - Math.round(bH * 0.04);  // pegado al borde
+          ctx.fillText(stampInfo, verCX, yVer);
+        } else {
+          // Sin QR (foto muy angosta): fallback al bottom-left de la col centro
+          let fVr = Math.round(baseFont * 0.65);
+          ctx.textAlign = 'left';
+          ctx.font = '500 ' + fVr + 'px Arial,Helvetica,sans-serif';
+          while (ctx.measureText(stampInfo).width > maxW && fVr > 8) {
+            fVr--;
+            ctx.font = '500 ' + fVr + 'px Arial,Helvetica,sans-serif';
+          }
+          const yVer = totalH - Math.round(bH * 0.08);
+          ctx.fillText(stampInfo, tx, yVer);
         }
-        // Padding inferior fijo — la versión queda pegada al borde del banner
-        const yVer = totalH - Math.round(bH * 0.08);
-        ctx.fillText(stampInfo, tx, yVer);
+        ctx.textAlign = 'left';
         ctx.textBaseline = 'top';  // restaurar default
         let jpegOut = C.toDataURL('image/jpeg', 0.95);
         // v9.80 · Inyectar metadatos EXIF (GPS + ruta + prog + tipo + registro JSON)
