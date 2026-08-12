@@ -70,5 +70,9 @@ NOTAS_LOCALES.md
 TODO_PERSONAL.md
 
 
-# Obsidian — vault de documentación local (no se sube a GitHub por ahora)
-wiki/
+# Wiki (Obsidian + MkDocs) · publicada como Guía de Usuario del sistema
+# Ignoramos solo los subproductos generados (docs/ y site/ los regenera build.py + mkdocs)
+wiki/docs/
+wiki/site/
+wiki/.obsidian/
+wiki/.trash/
