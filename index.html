@@ -484,7 +484,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.66f.2</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.66f.3</span></div>
   </div>
 </div>
 <div class="layout">
@@ -615,13 +615,15 @@ body.modo-campo #campo-fab{display:flex}
       <button type="button" id="btn-test-exif" onclick="testExifDiag()" title="Ver si la foto actual tiene metadatos EXIF" style="padding:6px 10px;border:1px solid var(--light);background:var(--w);color:var(--pd);border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">🔍 EXIF</button>
       <button type="button" id="btn-reinject-exif" onclick="reinyectarExifExistente()" title="Bajar la foto, re-inyectar metadatos EXIF y re-subirla (sin re-sellar visual)" style="padding:6px 10px;border:1px solid var(--light);background:var(--w);color:var(--am);border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">🔧 EXIF+</button>
       <button type="button" id="btn-borrar-backup" onclick="borrarBackupOriginal()" title="Eliminar el archivo original SOLO de este registro — libera espacio pero no podrá re-sellarse limpio después" style="display:none;padding:6px 8px;border:1px solid var(--light);background:var(--w);color:var(--ro);border-radius:4px;cursor:pointer;font-size:11px">🗑 Backup de esta foto</button>
-      <span id="rot-lbl" style="font-size:10px;color:var(--mut);width:100%">Rotá la foto si se ve de costado, luego "Re-sellar"</span>
-      <!-- v8.66f.2 · Slider de altura del sello (50-100%) para casos puntuales donde tapa algo importante -->
-      <div style="width:100%;display:flex;align-items:center;gap:8px;padding:6px 4px;border-top:1px dashed var(--light);margin-top:2px" title="Achica el sello solo para esta foto si tapa un puente/cordón/detalle importante. NO afecta al resto del sistema.">
-        <label for="selloEscala" style="font-size:10px;color:var(--mut);white-space:nowrap">📏 Altura sello</label>
-        <input type="range" id="selloEscala" min="50" max="100" step="5" value="100" oninput="document.getElementById('selloEscalaVal').textContent = this.value + '%'" style="flex:1;accent-color:var(--vd)">
-        <span id="selloEscalaVal" style="font-size:11px;color:var(--pd);font-weight:700;min-width:38px;text-align:right">100%</span>
+      <span id="rot-lbl" style="font-size:10px;color:var(--mut);width:100%">Rotá la foto si se ve de costado, luego elegí tamaño del sello</span>
+      <!-- v8.66f.3 · 3 presets de sello: Normal / Mediano / Mínimo (reemplaza slider engañoso) -->
+      <div style="width:100%;display:flex;gap:5px;padding:6px 4px;border-top:1px dashed var(--light);margin-top:2px;align-items:center">
+        <span style="font-size:10px;color:var(--mut);white-space:nowrap;margin-right:2px">📏 Tamaño:</span>
+        <button type="button" onclick="reSellarConEscala(1.00)" title="Sello altura completa (default). Para fotos con horizonte o cielo abundante." style="flex:1;padding:6px 4px;background:var(--w);color:var(--vd);border:1px solid var(--vd);border-radius:4px;font-size:10.5px;font-weight:700;cursor:pointer">🖋 Normal</button>
+        <button type="button" onclick="reSellarConEscala(0.75)" title="Sello reducido 75%. Para fotos donde el detalle está en la mitad inferior." style="flex:1;padding:6px 4px;background:var(--w);color:var(--am);border:1px solid var(--am);border-radius:4px;font-size:10.5px;font-weight:700;cursor:pointer">🖋 Mediano</button>
+        <button type="button" onclick="reSellarConEscala(0.50)" title="Sello mínimo 50%. Para fotos con detalle importante al pie (puentes, cordón)." style="flex:1;padding:6px 4px;background:var(--w);color:var(--pd);border:1px solid var(--pd);border-radius:4px;font-size:10.5px;font-weight:700;cursor:pointer">🖋 Mínimo</button>
       </div>
+      <span id="selloAdvertencia" style="display:none;width:100%;font-size:10px;color:var(--ro);padding:4px 6px;background:#fee;border-left:2px solid var(--ro);border-radius:3px">⚠ Sin backup del original: el sello nuevo se aplica ENCIMA del anterior.</span>
     </div>
     <div id="coords-row">
       <input type="text" id="flat" placeholder="Lat (manual o pin)" style="flex:1;font-size:10px" oninput="onCoordsManual()">
@@ -855,8 +857,8 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.66f.2';
-window.APP_VERSION = APP_VERSION;  // v8.66f.2 · expone a window para legales.js
+const APP_VERSION = 'v8.66f.3';
+window.APP_VERSION = APP_VERSION;  // v8.66f.3 · expone a window para legales.js
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -6560,6 +6562,29 @@ async function limpiarBackupsMasivo(){
   console.log('[Limpieza masiva]', { total: candidatos.length, ok, fail });
 }
 
+// v8.66f.3 · Wrapper del re-sellado con preset de escala fijo.
+// Llamado por los 3 botones "Normal / Mediano / Mínimo" del sidebar de edición.
+// Advierte al user si NO hay backup limpio del original (queda doble banner inevitable).
+async function reSellarConEscala(escala){
+  if (!_regEditandoFoto) { alert('No hay foto seleccionada.'); return; }
+  window._selloEscalaPreset = Math.max(0.5, Math.min(1, escala));  // 0.50 - 1.00
+  // Si NO hay backup limpio y escala < 100%, avisar antes con confirm específico
+  const sinBackup = esRegistroLegacy(_regEditandoFoto);
+  if (sinBackup && escala < 1.0) {
+    const ok = confirm(
+      '⚠ ATENCIÓN\n\nEsta foto NO tiene backup del original limpio (fue sellada antes ' +
+      'del sistema de backup). Aplicar un sello más chico va a dejar VISIBLE parte del ' +
+      'sello anterior por atrás.\n\n' +
+      'Recomendaciones:\n' +
+      '· Usar Normal (100%) para que el nuevo sello cubra el viejo\n' +
+      '· O aceptar el doble sello si el nuevo tapa lo importante\n\n' +
+      '¿Continuar con el sello achicado igualmente?'
+    );
+    if (!ok) return;
+  }
+  return reSellarFotoEditada();
+}
+
 async function reSellarFotoEditada(){
   if (!_regEditandoFoto || !_regEditandoFoto.foto) {
     alert('No hay foto para re-sellar en este registro.');
@@ -6589,10 +6614,11 @@ async function reSellarFotoEditada(){
     const lngN    = parseFloat(document.getElementById('flng').value);
     const reg     = _regEditandoFoto;
     const fechaISO = reg.fechaISO || new Date().toISOString();
-    // v8.66f.2 · Escala del sello (slider en el sidebar, 50-100%) para casos
-    // donde el sello tapa algo importante. Default 100% = sin cambio.
-    const _escSlider = document.getElementById('selloEscala');
-    const _escVal = _escSlider ? Math.max(50, Math.min(100, Number(_escSlider.value) || 100)) : 100;
+    // v8.66f.3 · Escala del sello desde el preset elegido (Normal/Mediano/Mínimo)
+    // vía botones en el sidebar. Fallback 100% si se llama sin preset (compat).
+    const _escVal = (typeof window._selloEscalaPreset === 'number')
+                    ? Math.round(Math.max(0.5, Math.min(1, window._selloEscalaPreset)) * 100)
+                    : 100;
     const datosSello = {
       localidad: partido ? partido + ', Buenos Aires, Argentina' : 'Saladillo, Buenos Aires, Argentina',
       ruta: _prefijoRutaSello(ruta, tipoVia),
@@ -6831,13 +6857,13 @@ function editReg(id) {
     _rotacionPreview = 0;
     const tools = document.getElementById('foto-tools');
     if (tools) tools.style.display = 'flex';
-    // v8.66f.2 · Reset slider altura sello a 100% al abrir CADA foto para editar
-    // (antes quedaba en el último valor usado y se re-sellaba achicado por error)
-    const selloSlider = document.getElementById('selloEscala');
-    if (selloSlider) {
-      selloSlider.value = 100;
-      const lbl = document.getElementById('selloEscalaVal');
-      if (lbl) lbl.textContent = '100%';
+    // v8.66f.3 · Reset preset sello a Normal (100%) al abrir CADA foto.
+    // Los presets reemplazaron el slider (que confundía al user cuando quedaba en 50%).
+    window._selloEscalaPreset = 1.00;
+    // Mostrar advertencia si NO hay backup limpio del original (registro legacy).
+    const _selloAdv = document.getElementById('selloAdvertencia');
+    if (_selloAdv) {
+      _selloAdv.style.display = esRegistroLegacy(reg) ? 'block' : 'none';
     }
     _regEditandoFoto = reg;
     // v7.49 — Deshabilitar re-sellar si el registro es legacy (sin backup del original)
@@ -8335,7 +8361,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
       <div style="margin-bottom:14px">
         <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
-        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.66f.2</span> · Familia escritorio</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.66f.3</span> · Familia escritorio</div>
         <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.91</b></div>
       </div>
 
