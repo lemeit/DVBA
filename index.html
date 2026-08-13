@@ -2995,6 +2995,7 @@ async function guardar(){
     document.getElementById('flat').value = '';
     document.getElementById('flng').value = '';
     if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
+    _pinFijado = false;  // v8.70c
     _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
     alert('Guardado: RP ' + ruta + ' ' + prog + (_supa ? ' ✓ nube' : ' (local)'));
   };
@@ -3660,7 +3661,10 @@ function exportCSV(){
 }
 
 // PIN EN MAPA
-let pinMode=false, pinMarker=null;
+let pinMode=false, pinMarker=null, _pinFijado=false;
+// v8.70c · _pinFijado=true significa que el user ya colocó un pin y está editando
+// datos en el sidebar. Bloquea que el mousemove sobre rutas/caminos sobreescriba
+// los campos del formulario mientras el user mueve el cursor hacia el panel lateral.
 function pip(pt,ring){
   let inside=false,j=ring.length-1;
   for(let i=0;i<ring.length;i++){
@@ -3676,6 +3680,8 @@ function togglePin(){
     btn.style.background='#1a4060';btn.style.borderColor='#5aaccc';btn.style.color='#8ad4f4';
     btn.textContent='Cancelar';
     map.getContainer().style.cursor='crosshair';
+    // v8.70c · Al entrar en modo pin, desbloquear el mousemove (por si venía de un pin previo fijado)
+    _pinFijado = false;
     // En móvil: cerrar panel para poder ver y tocar el mapa
     if (window.innerWidth <= 700) closeSidebar();
   } else {
@@ -3731,12 +3737,14 @@ map.on('click', function(e) {
   });
   pinMarker = L.marker([lat, lng], { icon: pinIcon, draggable: true })
     .addTo(map).bindPopup(popTxt).openPopup();
+  // v8.70c · Fijar el pin: bloquea el mousemove sobre rutas para no sobreescribir campos
+  _pinFijado = true;
 
-  // Al arrastrar: actualizar coords y recalcular todo
+  // Al arrastrar: actualizar coords y recalcular todo (con opts.desdePin para saltear el bloqueo)
   pinMarker.on('drag', function(ev) {
     const pos = ev.target.getLatLng();
     const rid = document.getElementById('fruta').value;
-    if (rid) actualizarPanelPos(rid, pos);
+    if (rid) actualizarPanelPos(rid, pos, { desdePin: true });
     else {
       document.getElementById('flat').value = pos.lat.toFixed(6);
       document.getElementById('flng').value = pos.lng.toFixed(6);
@@ -3747,7 +3755,7 @@ map.on('click', function(e) {
     const pos = ev.target.getLatLng();
     autoDetectarCampos(pos.lat, pos.lng, { forzarAuto: true });  // v7.38
     const rid = document.getElementById('fruta').value;
-    if (rid) actualizarPanelPos(rid, pos);
+    if (rid) actualizarPanelPos(rid, pos, { desdePin: true });
   });
 
   togglePin();
@@ -4269,6 +4277,8 @@ function onCoordsManual() {
       autoDetectarCampos(pos.lat, pos.lng, { forzarAuto: true });  // v7.38
     });
   }
+  // v8.70c · Bloquear mousemove sobre rutas mientras hay pin colocado
+  _pinFijado = true;
 
   map.panTo([lat, lng]);
   autoDetectarCampos(lat, lng, { forzarAuto: true });  // v7.38
@@ -4790,7 +4800,11 @@ function generarMapaSVGRegistros(ridsArr, regsLista, W, H) {
 
 
 // Actualiza el panel "Posición sobre Ruta" — usado por mousemove Y por drag del pin
-function actualizarPanelPos(rid, latlng) {
+// v8.70c · Si el pin ya está fijado (_pinFijado=true) solo actualiza el HTML informativo
+//         del panel pero NO los campos del formulario. Evita que el cursor "robe" la
+//         progresiva mientras el user se mueve hacia el sidebar para editar.
+function actualizarPanelPos(rid, latlng, opts) {
+  opts = opts || {};
   const meta  = RUTA_META[rid] || { color:'#888', label:'RP '+rid, w:3 };
   const p     = calcProg(rid, latlng);
   const mojs  = MOJONES_DATA.filter(m => m.ruta === rid);
@@ -4803,7 +4817,9 @@ function actualizarPanelPos(rid, latlng) {
     <span class="lbl">Mojones (${mojs.length})</span><details style="font-size:10px;color:#5a8090"><summary style="cursor:pointer;color:#4d8ab0;font-size:9px;user-select:none">▸ ver lista</summary><div style="margin-top:3px;line-height:1.5">${mjStr}</div></details>
     <span class="lbl">Registros</span><div style="color:#4d8ab0;font-weight:700">${regsR.length}</div>
     <div style="color:#2a3a4a;font-size:9px;margin-top:4px">${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}</div>`;
-  // También actualizar campos del formulario
+  // v8.70c · Solo tocar campos del form si NO hay pin fijado O si viene del drag del pin
+  if (_pinFijado && !opts.desdePin) return;
+  // Actualizar campos del formulario
   document.getElementById('fruta').value   = rid;
   document.getElementById('fprog').value   = p.prog;
   document.getElementById('flat').value    = latlng.lat.toFixed(6);
@@ -5007,6 +5023,7 @@ function ubicarPorProgresiva(){
   document.getElementById('flng').value = punto.lng.toFixed(6);
   // Mover/crear pin en el mapa
   if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
+    _pinFijado = false;  // v8.70c
   const pinIcon = L.divIcon({
     className: 'pin-icon',
     html: '<div style="background:#c47a00;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>',
@@ -5015,6 +5032,7 @@ function ubicarPorProgresiva(){
   pinMarker = L.marker([punto.lat, punto.lng], { draggable: true, icon: pinIcon }).addTo(map);
   pinMarker.on('drag',    ev => { const p = ev.target.getLatLng(); autoDetectarCampos(p.lat, p.lng, { forzarAuto:true }); });
   pinMarker.on('dragend', ev => { const p = ev.target.getLatLng(); autoDetectarCampos(p.lat, p.lng, { forzarAuto:true }); });
+  _pinFijado = true;  // v8.70c · bloquear mousemove
   map.flyTo([punto.lat, punto.lng], Math.max(map.getZoom(), 14), { duration: 0.6 });
   toast('📍 Pin ubicado en ' + ruta + ' km ' + prog, 'ok');
   // Auto-detectar partido después (por si el user quiere refinar)
@@ -5537,21 +5555,42 @@ function _expRepRutasCSV() {
 // v8.30 · Captura real del mapa Leaflet (usa leaflet-image, se carga on-demand).
 // v8.32 · Fix crítico: leaflet-image falla con divIcons custom (Cannot read 'match').
 // v8.51 · Acepta opts para ocultar contextualmente lo que no corresponde al reporte:
-//   { tipo: 'rutas'|'caminos', mostrarMojones: bool, mostrarRegistros: bool }
+//   { tipo: 'rutas'|'caminos', mostrarMojones: bool, mostrarRegistros: bool, regs: [...] }
+// v8.70c · Fix "mapa vacío en Reporte con fotos":
+//   - fitBounds automático a las capas visibles ANTES de capturar
+//   - reemplazar divIcons de registros por L.circleMarker temporales (sí soporta leaflet-image)
+//   - restaurar TODO al terminar
 function _capturarMapaComoImg(opts){
   opts = opts || {};
   return new Promise((resolve) => {
     if (typeof map === 'undefined' || !map) return resolve(null);
     const layersOcultados = [];
-    // 1) Ocultar SIEMPRE markers custom (leaflet-image rompe con divIcons)
+    const circleMarkersTemp = [];
+    const zoomPrevio   = map.getZoom();
+    const centroPrevio = map.getCenter();
+    // 1) Ocultar markers custom (divIcons rompen leaflet-image)
+    // v8.70c · Si mostrarRegistros=true, en vez de solo ocultar, reemplazar por
+    //          L.circleMarker que sí funciona con leaflet-image.
+    const regsParaPin = opts.mostrarRegistros && Array.isArray(opts.regs) ? opts.regs : null;
     map.eachLayer(l => {
       if (l instanceof L.Marker) {
         try { map.removeLayer(l); layersOcultados.push(l); } catch(e){}
       }
     });
+    // 1b) Agregar circleMarkers temporales para los registros si se pidió
+    if (regsParaPin) {
+      regsParaPin.forEach(r => {
+        if (r.lat == null || r.lng == null) return;
+        try {
+          const cm = L.circleMarker([r.lat, r.lng], {
+            radius: 4, color: '#003366', weight: 1.5,
+            fillColor: '#c47a00', fillOpacity: 0.9
+          }).addTo(map);
+          circleMarkersTemp.push(cm);
+        } catch(e){}
+      });
+    }
     // 2) v8.51 · Ocultar contextualmente según tipo de reporte
-    // Si tipo=rutas: ocultar caminos (halo, base, sel-halo). Y si !mostrarMojones: ocultar mojones.
-    // Si tipo=caminos: ocultar rutas (todos los capasR).
     if (opts.tipo === 'rutas') {
       [_caminosSecHalo, _caminosSecLayer, _caminosSecSelHalo].forEach(l => {
         if (l && map.hasLayer(l)) { try { map.removeLayer(l); layersOcultados.push(l); } catch(e){} }
@@ -5567,15 +5606,39 @@ function _capturarMapaComoImg(opts){
         capasM.forEach(l => { try { map.removeLayer(l); layersOcultados.push(l); } catch(e){} });
       }
     }
-    const restaurar = () => layersOcultados.forEach(l => { try { l.addTo(map); } catch(e){} });
+    // 3) v8.70c · fitBounds a lo visible (rutas + pins) para que la captura tenga contenido
+    try {
+      const bounds = L.latLngBounds([]);
+      map.eachLayer(l => {
+        if (l instanceof L.Polyline || l instanceof L.CircleMarker) {
+          try {
+            const b = l.getBounds ? l.getBounds() : null;
+            if (b && b.isValid()) bounds.extend(b);
+            else if (l.getLatLng) bounds.extend(l.getLatLng());
+          } catch(e){}
+        }
+      });
+      if (bounds.isValid()) map.fitBounds(bounds, { padding: [20, 20], animate: false });
+    } catch(e){ console.warn('[capturaMapa fitBounds]', e); }
+    const restaurar = () => {
+      // Sacar circleMarkers temporales
+      circleMarkersTemp.forEach(cm => { try { map.removeLayer(cm); } catch(e){} });
+      // Restaurar layers originales
+      layersOcultados.forEach(l => { try { l.addTo(map); } catch(e){} });
+      // Restaurar zoom/centro
+      try { map.setView(centroPrevio, zoomPrevio, { animate: false }); } catch(e){}
+    };
     const hacer = () => {
-      try {
-        leafletImage(map, (err, canvas) => {
-          restaurar();
-          if (err || !canvas) { console.warn('[capturaMapa]', err); return resolve(null); }
-          try { resolve(canvas.toDataURL('image/png')); } catch(e){ console.warn('[capturaMapa toDataURL]', e); resolve(null); }
-        });
-      } catch(e){ restaurar(); console.warn('[capturaMapa]', e); resolve(null); }
+      // Esperar un pequeño tick para que el fitBounds y los circleMarkers se rendericen
+      setTimeout(() => {
+        try {
+          leafletImage(map, (err, canvas) => {
+            restaurar();
+            if (err || !canvas) { console.warn('[capturaMapa]', err); return resolve(null); }
+            try { resolve(canvas.toDataURL('image/png')); } catch(e){ console.warn('[capturaMapa toDataURL]', e); resolve(null); }
+          });
+        } catch(e){ restaurar(); console.warn('[capturaMapa]', e); resolve(null); }
+      }, 300);
     };
     if (typeof leafletImage !== 'undefined') return hacer();
     const s = document.createElement('script');
@@ -5793,9 +5856,11 @@ async function exportRegistrosPDF() {
   const todosRegsLista = rutasOrden.flatMap(rid => (grupos[rid]||{lista:[]}).lista);
 
   // v8.30 · Captura del mapa si el user la pidió · v8.51 tipo=rutas + registros ON (este es el PDF de relevamientos)
+  // v8.70c · Pasar la lista de registros para dibujarlos como circleMarker (fix mapa vacío)
   let mapaImgDataUrl_r = null;
   if (showMapa_r && usarCaptura_r) mapaImgDataUrl_r = await _capturarMapaComoImg({
-    tipo: 'rutas', mostrarMojones: false, mostrarRegistros: true
+    tipo: 'rutas', mostrarMojones: false, mostrarRegistros: true,
+    regs: todosRegsLista
   });
 
   const ahora   = new Date().toLocaleString('es-AR',{dateStyle:'short',timeStyle:'short'});
@@ -7147,6 +7212,7 @@ function editReg(id) {
   // Colocar pin en la posición actual del registro (arrastrable)
   if (reg.lat && reg.lng) {
     if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
+    _pinFijado = false;  // v8.70c
     const pinIcon = L.divIcon({
       className: '',
       html: '<div style="width:22px;height:22px;border-radius:50%;background:#00aec3;border:3px solid #007e8c;box-shadow:0 2px 12px rgba(0,0,0,.8);cursor:grab"></div>',
@@ -7228,6 +7294,7 @@ function cancelarEdit() {
   const badgeBox = document.getElementById('edit-origen-badge');
   if (badgeBox) { badgeBox.innerHTML = ''; badgeBox.style.display = 'none'; }
   if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
+    _pinFijado = false;  // v8.70c
 }
 
 
