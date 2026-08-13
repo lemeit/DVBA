@@ -441,7 +441,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.1</span></div>
   </div>
 </div>
 
@@ -654,7 +654,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:auto">
-  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
+  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.1</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
 </div>
 
 
@@ -1149,7 +1149,7 @@ function prefillDesdeArmonizacion(){
         lejos = !!rp;
       }
       if (via) {
-        // v9.95 · FIX bug: primero armar el select con las options correctas del tipo,
+        // v9.95.1 · FIX bug: primero armar el select con las options correctas del tipo,
         // DESPUÉS asignar el value. Antes se hacía al revés y m_setTipoVia() pisaba
         // el value al reconstruir el <select>. Además el armonizador devuelve la RP
         // como "40" pero las options son "RP 40" — hay que agregar el prefijo.
@@ -2099,6 +2099,15 @@ function hacerThumb(b64){
     img.onerror=()=>res(null); img.src=b64;
   });
 }
+</script>
+<script>
+  // v9.95.1 · Declaración de APP_VER como variable global para que legales.js
+  // pueda leerla en runtime al abrir el modal "Acerca de".
+  // Hasta v9.94 los spans del footer eran HTML estático pero APP_VER JS no
+  // se declaraba, y el modal caía a un fallback que mostraba versión vieja
+  // cacheada por el service worker.
+  const APP_VER = 'v9.95.1';
+  window.APP_VER = APP_VER;
 </script>
 <script src="datos/auth.js"></script>
 <script src="datos/perfil.js" defer></script>
