@@ -184,6 +184,14 @@ input[type=file]{width:100%;color:var(--mut);font-size:10px;margin-bottom:4px}
 
 /* ═══ REPORTES ═══════════════════════════════════════════════ */
 .rep-chk{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--mut);cursor:pointer;padding:2px 0}
+/* v8.70b · Presets del wizard de reportes · botones tipo tarjeta */
+.rep-preset-btn{display:flex;align-items:center;gap:8px;padding:10px 8px;background:var(--w);border:1.5px solid var(--light);border-radius:6px;cursor:pointer;text-align:left;font-family:inherit;transition:all .15s;color:var(--txt)}
+.rep-preset-btn:hover{border-color:var(--p);background:var(--p-xl);transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,174,195,.15)}
+.rep-preset-btn.active{border-color:var(--p);background:var(--p-xl);box-shadow:inset 0 0 0 1px var(--p)}
+.rep-preset-btn > span:first-child{flex-shrink:0}
+.rep-preset-btn > span:last-child{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+.rep-preset-btn b{font-size:11px;color:var(--pd);font-weight:700;line-height:1.2}
+.rep-preset-btn small{font-size:9.5px;color:var(--mut);line-height:1.2}
 .rep-table{width:100%;border-collapse:collapse;font-size:10px;color:var(--txt);margin-top:6px}
 .rep-table th{background:var(--bg);color:var(--mut);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:5px 8px;border-bottom:1px solid var(--light);text-align:left;white-space:nowrap}
 .rep-table td{padding:4px 8px;border-bottom:1px solid var(--bg);font-size:10px;vertical-align:top}
@@ -675,34 +683,67 @@ body.modo-campo #campo-fab{display:flex}
       <!-- El select queda oculto por retrocompatibilidad con _repTipo() legacy -->
       <select id="rep-tipo" style="display:none"><option value="mixto" selected>mixto</option></select>
 
-      <!-- v8.33 · Chip contador SIEMPRE visible con estado + v8.51 lista expandible + v8.70 shortcuts "+ Todas" -->
-      <div id="rep-selchip" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--light);color:var(--mut);padding:5px 8px;border-radius:4px;margin-bottom:6px;font-size:11px;flex-wrap:wrap">
-        <b class="chip-text">Sin selección manual · usa las vías activas del mapa</b>
-        <button onclick="_toggleSelList()" class="chip-toggle" style="display:none;padding:2px 6px;background:var(--w);color:var(--vd);border:1px solid var(--vd);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">▾ Ver</button>
-        <!-- v8.70 · Shortcuts para agregar toda la red de una sin ir click por click -->
-        <button onclick="agregarTodasLasRutasAlReporte()" class="chip-btn" title="Agregar todas las Rutas Provinciales (Red Primaria) al reporte" style="margin-left:auto;padding:2px 8px;background:#f0f8fa;color:var(--pd);border:1px solid var(--p);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Todas rutas</button>
-        <button onclick="agregarTodosLosCaminosAlReporte()" class="chip-btn" title="Agregar todos los Caminos Secundarios (Red Secundaria) al reporte" style="padding:2px 8px;background:#faf0eb;color:#c25a2a;border:1px solid #c25a2a;border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Todos caminos</button>
-        <button onclick="limpiarSelReporteActual()" id="chip-btn-limpiar" class="chip-btn" style="padding:2px 8px;background:var(--w);color:var(--mut);border:1px solid var(--light);border-radius:3px;cursor:not-allowed;font-size:10px;font-weight:600" disabled>✕ Limpiar todos</button>
+      <!-- v8.70b · WIZARD REPORTES · Paso 1: qué querés reportar -->
+      <div style="font-size:10px;color:var(--pd);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">
+        <span style="background:var(--p);color:#fff;padding:1px 6px;border-radius:8px;font-size:9px;margin-right:4px">1</span>¿Qué querés reportar?
+      </div>
+      <div id="rep-presets" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+        <button onclick="repPresetRedCompleta()" class="rep-preset-btn" title="Agrega todas las Rutas Provinciales y todos los Caminos Secundarios de la zona activa">
+          <span style="font-size:18px">🏛</span>
+          <span><b>Red vial completa</b><small>Rutas + Caminos de la zona</small></span>
+        </button>
+        <button onclick="repPresetPorPartido()" class="rep-preset-btn" title="Elegí un partido y agregá sus rutas y caminos">
+          <span style="font-size:18px">📍</span>
+          <span><b>Por partido</b><small>Todo lo del partido elegido</small></span>
+        </button>
+        <button onclick="repPresetSoloRutas()" class="rep-preset-btn" title="Agrega todas las Rutas Provinciales (Red Primaria) de la zona">
+          <span style="font-size:18px">🛣</span>
+          <span><b>Solo Rutas</b><small>Red Vial Provincial Primaria</small></span>
+        </button>
+        <button onclick="repPresetSoloCaminos()" class="rep-preset-btn" title="Agrega todos los Caminos Secundarios (Red Secundaria) de la zona">
+          <span style="font-size:18px">🚜</span>
+          <span><b>Solo Caminos</b><small>Red Vial Provincial Secundaria</small></span>
+        </button>
+      </div>
+
+      <!-- Paso 1b · Wizard 'Por partido' que solo aparece al elegir ese preset -->
+      <div id="rep-paso-partido" style="display:none;background:var(--p-xl);border:1px solid #b0dde0;border-left:4px solid var(--p);padding:8px 10px;border-radius:4px;margin-bottom:10px">
+        <div style="font-size:10px;color:var(--pd);text-transform:uppercase;letter-spacing:.3px;font-weight:700;margin-bottom:6px">📍 Elegí el partido</div>
+        <select id="rep-partido-filter" onchange="_actualizarBotonesPartidoReporte()" style="width:100%;padding:6px 8px;border:1px solid #b0dde0;background:var(--w);border-radius:3px;font-size:12px;font-family:inherit;color:var(--txt);margin-bottom:6px">
+          <option value="">— Elegí partido —</option>
+        </select>
+        <div style="display:flex;gap:6px">
+          <button onclick="agregarRutasDelPartidoAlReporte()" id="chip-btn-rutas-partido" class="chip-btn" style="display:none;flex:1;padding:6px 10px;background:var(--w);color:var(--pd);border:1px solid var(--p);border-radius:3px;cursor:pointer;font-size:11px;font-weight:600">🛣 Sumar Rutas</button>
+          <button onclick="agregarCaminosDelPartidoAlReporte()" id="chip-btn-caminos-partido" class="chip-btn" style="display:none;flex:1;padding:6px 10px;background:var(--w);color:var(--pd);border:1px solid var(--p);border-radius:3px;cursor:pointer;font-size:11px;font-weight:600">🚜 Sumar Caminos</button>
+        </div>
+      </div>
+
+      <!-- Paso 2 · Resumen de lo seleccionado + acciones sobre la selección -->
+      <div style="font-size:10px;color:var(--pd);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">
+        <span style="background:var(--p);color:#fff;padding:1px 6px;border-radius:8px;font-size:9px;margin-right:4px">2</span>Selección actual
+      </div>
+      <div id="rep-selchip" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--light);color:var(--mut);padding:8px 10px;border-radius:4px;margin-bottom:6px;font-size:11px;flex-wrap:wrap">
+        <b class="chip-text" style="flex:1">Sin selección · elegí una opción arriba o cliqueá una vía en el mapa</b>
+        <button onclick="_toggleSelList()" class="chip-toggle" style="display:none;padding:3px 8px;background:var(--w);color:var(--vd);border:1px solid var(--vd);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">▾ Ver detalle</button>
+        <button onclick="limpiarSelReporteActual()" id="chip-btn-limpiar" class="chip-btn" style="padding:3px 8px;background:var(--w);color:var(--mut);border:1px solid var(--light);border-radius:3px;cursor:not-allowed;font-size:10px;font-weight:600" disabled>✕ Limpiar</button>
         <div id="rep-sellist" style="display:none;width:100%;margin-top:4px;padding-top:6px;border-top:1px solid var(--vd);max-height:180px;overflow-y:auto;font-size:10px">
           <!-- Items dinámicos -->
         </div>
       </div>
-
-      <!-- v8.70 · Filtro por partido con paleta institucional DVBA (turquesa) -->
-      <div style="display:flex;align-items:center;gap:6px;background:var(--p-xl);border:1px solid #b0dde0;border-left:4px solid var(--p);color:var(--txt);padding:5px 8px;border-radius:4px;margin-bottom:8px;font-size:11px;flex-wrap:wrap">
-        <b style="color:var(--pd);text-transform:uppercase;letter-spacing:.3px;font-size:10px">📍 Por partido:</b>
-        <select id="rep-partido-filter" onchange="_actualizarBotonesPartidoReporte()" style="padding:2px 6px;border:1px solid #b0dde0;background:var(--w);border-radius:3px;font-size:11px;font-family:inherit;flex:1;min-width:100px;color:var(--txt)">
-          <option value="">— Elegí partido —</option>
-        </select>
-        <button onclick="agregarRutasDelPartidoAlReporte()" id="chip-btn-rutas-partido" class="chip-btn" style="display:none;padding:2px 8px;background:var(--w);color:var(--pd);border:1px solid var(--p);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Rutas</button>
-        <button onclick="agregarCaminosDelPartidoAlReporte()" id="chip-btn-caminos-partido" class="chip-btn" style="display:none;padding:2px 8px;background:var(--w);color:var(--pd);border:1px solid var(--p);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Caminos</button>
+      <div style="font-size:9.5px;color:var(--mut);margin-bottom:12px;line-height:1.45">
+        💡 También podés <b>cliquear una ruta o camino en el mapa</b> y usar el botón <b style="color:var(--vd)">"+ Agregar al reporte"</b> para ir agregando de a uno.
       </div>
 
-      <!-- v8.51 · Info: solo selección manual entra al reporte (chips del mapa son solo visualización) -->
-      <div id="rep-modo" style="font-size:10px;color:var(--mut);background:var(--bg);border-left:3px solid var(--p);padding:6px 8px;border-radius:4px;margin-bottom:8px;line-height:1.45">
-        <b style="color:var(--pd)">Selección para el reporte:</b><br>
-        Solo lo que agregás con <b style="color:var(--vd)">click en la vía del mapa → "+ Agregar al reporte"</b>. Los chips del panel Mapa (tildar rutas o filtrar caminos) sólo sirven para ver u ocultar en el mapa, no entran al reporte.
+      <!-- Paso 3 · Ajustes avanzados (colapsable) -->
+      <div style="font-size:10px;color:var(--pd);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">
+        <span style="background:var(--p);color:#fff;padding:1px 6px;border-radius:8px;font-size:9px;margin-right:4px">3</span>Ajustes y generar
       </div>
+      <details style="margin-bottom:8px">
+        <summary style="cursor:pointer;padding:6px 8px;background:var(--bg);border:1px solid var(--light);border-radius:4px;font-size:11px;color:var(--pd);font-weight:600;list-style:none;display:flex;align-items:center;justify-content:space-between">
+          <span>⚙ Ajustes del reporte (columnas, mapa, filtros)</span>
+          <span style="font-size:9px;color:var(--mut)">▾ expandir</span>
+        </summary>
+        <div style="padding:8px 4px 0">
 
       <!-- Columnas a incluir (aplican a ambos tipos) -->
       <div style="font-size:10px;color:var(--pd);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Columnas a incluir</div>
@@ -742,6 +783,9 @@ body.modo-campo #campo-fab{display:flex}
           </div>
         </div>
       </div>
+
+        </div>
+      </details>
 
       <!-- Botones unificados · dispatchean según #rep-tipo -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px">
@@ -7421,7 +7465,13 @@ function csRefrescarLayer(){
         if (!r.ok) throw new Error('HTTP ' + r.status + ' cargando caminos secundarios');
         return r.json();
       })
-      .then(geo => { _caminosGeoJSON_cache = geo; csRefrescarLayer(); })
+      .then(geo => {
+        _caminosGeoJSON_cache = geo;
+        csRefrescarLayer();
+        // v8.70b · Repoblar el dropdown de partidos del reporte cuando termina de cargar caminos
+        // (fix bug: dropdown vacío al primer abrir del tab Reportes antes de que los caminos carguen)
+        if (typeof _poblarFiltroPartidosReporte === 'function') _poblarFiltroPartidosReporte();
+      })
       .catch(err => {
         console.error('[Caminos Secundarios] Error cargando geojson:', err.message);
         alert('No se pudieron cargar los Caminos Secundarios.\nError: ' + err.message + '\n\nSolución: recargá con Ctrl+Shift+R (hard refresh) para actualizar el Service Worker.');
@@ -8909,18 +8959,84 @@ function agregarTodosLosCaminosAlReporte(){
   console.log(`[Reporte] +${agregados} caminos agregados · total ${_selCaminos.size}`);
 }
 
+// v8.70b · PRESETS del wizard de reportes · shortcuts que agrupan las acciones más comunes
+function _repPresetMarcar(btnFn){
+  document.querySelectorAll('.rep-preset-btn').forEach(b => b.classList.remove('active'));
+  if (btnFn && btnFn.currentTarget) btnFn.currentTarget.classList.add('active');
+  else {
+    // Buscar el botón por su onclick handler y marcarlo
+    const btns = document.querySelectorAll('.rep-preset-btn');
+    for (const b of btns) if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(btnFn)) { b.classList.add('active'); break; }
+  }
+}
+
+function repPresetRedCompleta(event){
+  _repPresetMarcar(event || 'repPresetRedCompleta');
+  document.getElementById('rep-paso-partido').style.display = 'none';
+  if (_selRutas) _selRutas.clear();
+  if (_selCaminos) _selCaminos.clear();
+  agregarTodasLasRutasAlReporte();
+  agregarTodosLosCaminosAlReporte();
+  if (typeof toast === 'function') toast('✓ Toda la red vial de la zona activa incluida', 'ok');
+}
+
+function repPresetPorPartido(event){
+  _repPresetMarcar(event || 'repPresetPorPartido');
+  document.getElementById('rep-paso-partido').style.display = 'block';
+  if (typeof _poblarFiltroPartidosReporte === 'function') _poblarFiltroPartidosReporte();
+  const sel = document.getElementById('rep-partido-filter');
+  if (sel) { sel.focus(); }
+}
+
+function repPresetSoloRutas(event){
+  _repPresetMarcar(event || 'repPresetSoloRutas');
+  document.getElementById('rep-paso-partido').style.display = 'none';
+  if (_selRutas) _selRutas.clear();
+  if (_selCaminos) _selCaminos.clear();
+  agregarTodasLasRutasAlReporte();
+  if (typeof toast === 'function') toast('✓ Todas las Rutas Provinciales incluidas', 'ok');
+}
+
+function repPresetSoloCaminos(event){
+  _repPresetMarcar(event || 'repPresetSoloCaminos');
+  document.getElementById('rep-paso-partido').style.display = 'none';
+  if (_selRutas) _selRutas.clear();
+  if (_selCaminos) _selCaminos.clear();
+  agregarTodosLosCaminosAlReporte();
+  if (typeof toast === 'function') toast('✓ Todos los Caminos Secundarios incluidos', 'ok');
+}
+
 // v8.70 · Poblar el dropdown de partidos del filtro del reporte con PARTIDOS_LIST
-// Se llama al cargar la app y cada vez que cambia la zona activa.
+// v8.70b · Fallback: si PARTIDOS_LIST está vacío, extraer partidos del geojson de caminos
+//         (arregla bug: dropdown vacío al primer abrir del tab Reportes)
 function _poblarFiltroPartidosReporte(){
   const sel = document.getElementById('rep-partido-filter');
   if (!sel) return;
   const prev = sel.value;
-  const partidos = (Array.isArray(PARTIDOS_LIST) ? PARTIDOS_LIST : []).slice().sort();
+  let partidos = (Array.isArray(PARTIDOS_LIST) ? PARTIDOS_LIST : []).slice();
+  // Fallback si PARTIDOS_LIST aún no cargó
+  if (partidos.length === 0 && _caminosGeoJSON_cache && _caminosGeoJSON_cache.features) {
+    const set = new Set();
+    _caminosGeoJSON_cache.features.forEach(f => {
+      const p = f.properties && (f.properties.PARTIDO_NOMBRE || f.properties.PARTIDO || f.properties.partido);
+      if (p) set.add(p);
+    });
+    partidos = [...set];
+  }
+  partidos.sort();
   sel.innerHTML = '<option value="">— Elegí partido —</option>' +
     partidos.map(p => `<option value="${p}">${p}</option>`).join('');
   // Restaurar selección previa si sigue siendo válida
   if (prev && partidos.includes(prev)) sel.value = prev;
   _actualizarBotonesPartidoReporte();
+}
+
+// v8.70b · Normaliza partido para matching tolerante (case + tildes + espacios)
+// Fix bug: "General Alvear" en el dropdown vs "GENERAL ALVEAR" en el geojson
+function _normPartido(s){
+  if (!s) return '';
+  return String(s).trim().toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '');
 }
 
 // v8.70 · Actualizar la visibilidad y label de los botones "+ Rutas/Caminos del partido"
@@ -8948,11 +9064,13 @@ function agregarRutasDelPartidoAlReporte(){
   const partido = sel ? sel.value : '';
   if (!partido) { alert('Elegí un partido del dropdown primero.'); return; }
   const rpsSet = new Set();
+  const partidoNorm = _normPartido(partido);
   // Método 1: geojson zonal (más preciso, ya clipeado a los polígonos)
   if (typeof _rutasZonalesGeoCache !== 'undefined' && _rutasZonalesGeoCache && _rutasZonalesGeoCache.features) {
     _rutasZonalesGeoCache.features.forEach(f => {
-      const p = f.properties && (f.properties.partido || f.properties.PARTIDO);
-      if (p === partido && f.properties.ruta) {
+      const p = f.properties && (f.properties.partido || f.properties.PARTIDO || f.properties.PARTIDO_NOMBRE);
+      // v8.70b · match case-insensitive · antes fallaba si Mayús vs Título
+      if (p && _normPartido(p) === partidoNorm && f.properties.ruta) {
         rpsSet.add(String(f.properties.ruta).replace(/^RP\s*/i, ''));
       }
     });
@@ -8961,8 +9079,8 @@ function agregarRutasDelPartidoAlReporte(){
   if (rpsSet.size === 0 && typeof CARACT_VIALES !== 'undefined' && CARACT_VIALES) {
     Object.entries(CARACT_VIALES).forEach(([rid, cvr]) => {
       const enPartido = (cvr && (
-        (cvr.partidos && cvr.partidos.includes(partido)) ||
-        (cvr.tramos && cvr.tramos.some(t => t.partido === partido))
+        (cvr.partidos && cvr.partidos.some(p => _normPartido(p) === partidoNorm)) ||
+        (cvr.tramos && cvr.tramos.some(t => _normPartido(t.partido) === partidoNorm))
       ));
       if (enPartido) rpsSet.add(String(rid));
     });
@@ -8993,11 +9111,13 @@ function agregarCaminosDelPartidoAlReporte(){
     return;
   }
   let agregados = 0;
+  const partidoNorm = _normPartido(partido);
   _caminosGeoJSON_cache.features.forEach(f => {
     if (!f.properties) return;
-    // v8.70 · Propiedad correcta es PARTIDO_NOMBRE (no PARTIDO ni partido) según buildReporteCaminosData
+    // v8.70 · Propiedad correcta es PARTIDO_NOMBRE (no PARTIDO ni partido)
+    // v8.70b · match case-insensitive · fix bug "General Alvear" vs "GENERAL ALVEAR"
     const p = f.properties.PARTIDO_NOMBRE || f.properties.PARTIDO || f.properties.partido;
-    if (p !== partido) return;
+    if (!p || _normPartido(p) !== partidoNorm) return;
     const fid = _caminoFid(f);
     if (fid && !_selCaminos.has(fid)) { _selCaminos.add(fid); agregados++; }
   });
