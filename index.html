@@ -688,14 +688,14 @@ body.modo-campo #campo-fab{display:flex}
         </div>
       </div>
 
-      <!-- v8.70 · Filtro por partido: elegí un partido y aparecen 2 botones para agregar solo lo de ese partido -->
-      <div style="display:flex;align-items:center;gap:6px;background:#fef9e6;border:1px solid #f0c250;color:var(--txt);padding:5px 8px;border-radius:4px;margin-bottom:8px;font-size:11px;flex-wrap:wrap">
-        <b style="color:#8a6d00">📍 Por partido:</b>
-        <select id="rep-partido-filter" onchange="_actualizarBotonesPartidoReporte()" style="padding:2px 6px;border:1px solid #d0d4dc;background:var(--w);border-radius:3px;font-size:11px;font-family:inherit;flex:1;min-width:100px">
+      <!-- v8.70 · Filtro por partido con paleta institucional DVBA (turquesa) -->
+      <div style="display:flex;align-items:center;gap:6px;background:var(--p-xl);border:1px solid #b0dde0;border-left:4px solid var(--p);color:var(--txt);padding:5px 8px;border-radius:4px;margin-bottom:8px;font-size:11px;flex-wrap:wrap">
+        <b style="color:var(--pd);text-transform:uppercase;letter-spacing:.3px;font-size:10px">📍 Por partido:</b>
+        <select id="rep-partido-filter" onchange="_actualizarBotonesPartidoReporte()" style="padding:2px 6px;border:1px solid #b0dde0;background:var(--w);border-radius:3px;font-size:11px;font-family:inherit;flex:1;min-width:100px;color:var(--txt)">
           <option value="">— Elegí partido —</option>
         </select>
-        <button onclick="agregarRutasDelPartidoAlReporte()" id="chip-btn-rutas-partido" class="chip-btn" style="display:none;padding:2px 8px;background:#f0f8fa;color:var(--pd);border:1px solid var(--p);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Rutas</button>
-        <button onclick="agregarCaminosDelPartidoAlReporte()" id="chip-btn-caminos-partido" class="chip-btn" style="display:none;padding:2px 8px;background:#faf0eb;color:#c25a2a;border:1px solid #c25a2a;border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Caminos</button>
+        <button onclick="agregarRutasDelPartidoAlReporte()" id="chip-btn-rutas-partido" class="chip-btn" style="display:none;padding:2px 8px;background:var(--w);color:var(--pd);border:1px solid var(--p);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Rutas</button>
+        <button onclick="agregarCaminosDelPartidoAlReporte()" id="chip-btn-caminos-partido" class="chip-btn" style="display:none;padding:2px 8px;background:var(--w);color:var(--pd);border:1px solid var(--p);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Caminos</button>
       </div>
 
       <!-- v8.51 · Info: solo selección manual entra al reporte (chips del mapa son solo visualización) -->
@@ -6033,17 +6033,20 @@ function _genRepCaminos(opts){
 // en cualquiera de los 3 templates de reporte (rutas, caminos, mixto).
 // Devuelve { css, panel, script } que se ensamblan en el template.
 function _buildPanelFiltrosInteractivo(){
+  // v8.70 · Panel con paleta institucional DVBA (turquesa #00aec3 + azul #1f3464)
+  // en lugar del amarillo/naranja previo · mantiene coherencia visual con el resto del portal
   const css = `<style>
-    #filtros-panel { position:sticky; top:0; z-index:100; background:#fef9e6; border:1px solid #f0c250; border-radius:6px; padding:10px 14px; margin-bottom:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; font-family:'Encode Sans','Segoe UI',sans-serif; font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,.08); }
-    #filtros-panel label { font-weight:600; color:#8a6d00; margin-right:4px; }
-    #filtros-panel input, #filtros-panel select { padding:5px 8px; border:1px solid #d0d4dc; border-radius:4px; font-size:13px; font-family:inherit; background:#fff; }
+    #filtros-panel { position:sticky; top:0; z-index:100; background:linear-gradient(90deg, #f0fafb 0%, #ffffff 100%); border:1px solid #b0dde0; border-left:4px solid #00aec3; border-radius:6px; padding:10px 14px; margin-bottom:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; font-family:'Encode Sans','Segoe UI',sans-serif; font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,.08); color:#1f3464; }
+    #filtros-panel label { font-weight:700; color:#007e8c; margin-right:4px; text-transform:uppercase; letter-spacing:.3px; font-size:11px; }
+    #filtros-panel input, #filtros-panel select { padding:5px 8px; border:1px solid #b0dde0; border-radius:4px; font-size:13px; font-family:inherit; background:#fff; color:#1f3464; }
+    #filtros-panel input:focus, #filtros-panel select:focus { outline:none; border-color:#00aec3; box-shadow:0 0 0 2px rgba(0,174,195,.15); }
     #filtros-panel input[type=text] { min-width:180px; }
-    #filtros-panel button { padding:6px 12px; border:none; border-radius:4px; cursor:pointer; font-weight:600; font-size:12px; font-family:inherit; }
-    #btn-limpiar-fil { background:#e0e0e0; color:#333; }
-    #btn-limpiar-fil:hover { background:#c8c8c8; }
+    #filtros-panel button { padding:6px 12px; border:none; border-radius:4px; cursor:pointer; font-weight:700; font-size:11px; font-family:inherit; text-transform:uppercase; letter-spacing:.3px; transition:background .15s; }
+    #btn-limpiar-fil { background:#e0e0e0; color:#555; }
+    #btn-limpiar-fil:hover { background:#c8c8c8; color:#333; }
     #btn-imprimir { background:#00aec3; color:#fff; }
     #btn-imprimir:hover { background:#007e8c; }
-    #contador-fil { margin-left:auto; font-size:11px; color:#666; font-style:italic; }
+    #contador-fil { margin-left:auto; font-size:11px; color:#5a6a7a; font-style:italic; font-weight:500; }
     tr.oculto-fil { display:none !important; }
     @media print {
       #filtros-panel { display:none !important; }
@@ -6081,10 +6084,16 @@ function _buildPanelFiltrosInteractivo(){
       allRows.forEach(tr => {
         const cells = tr.querySelectorAll('td');
         if (cells.length < 5) return;
+        // v8.70 · Saltear filas TOTAL/header · en esas cells[4] cae en km por colspan
+        const txt = tr.textContent.toLowerCase();
+        const esHeader = tr.querySelector('td[colspan="8"]') !== null;
+        const esTotal  = txt.includes('total');
+        if (esHeader || esTotal) return;
         const partido = (cells[0].textContent || '').trim();
         const clase   = (cells[4].textContent || '').trim();
-        if (partido && partido !== '—' && !partido.startsWith('TOTAL') && !partido.startsWith('▸')) partidosSet.add(partido);
-        if (clase && clase !== '—') clasesSet.add(clase);
+        // Clase válida: solo texto (Pavimentado, Tierra, etc.), NO números (km)
+        if (partido && partido !== '—') partidosSet.add(partido);
+        if (clase && clase !== '—' && !/^\d/.test(clase)) clasesSet.add(clase);
       });
       [...partidosSet].sort().forEach(p => {
         const o = document.createElement('option'); o.value = p; o.textContent = p; inputPartido.appendChild(o);
@@ -8986,7 +8995,8 @@ function agregarCaminosDelPartidoAlReporte(){
   let agregados = 0;
   _caminosGeoJSON_cache.features.forEach(f => {
     if (!f.properties) return;
-    const p = f.properties.PARTIDO || f.properties.partido;
+    // v8.70 · Propiedad correcta es PARTIDO_NOMBRE (no PARTIDO ni partido) según buildReporteCaminosData
+    const p = f.properties.PARTIDO_NOMBRE || f.properties.PARTIDO || f.properties.partido;
     if (p !== partido) return;
     const fid = _caminoFid(f);
     if (fid && !_selCaminos.has(fid)) { _selCaminos.add(fid); agregados++; }
