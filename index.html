@@ -751,26 +751,26 @@ body.modo-campo #campo-fab{display:flex}
       <!-- Columnas a incluir (aplican a ambos tipos) -->
       <div style="font-size:10px;color:var(--pd);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Columnas a incluir</div>
       <div id="rep-cols" style="display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;margin-bottom:8px">
-        <label class="rep-chk"><input type="checkbox" id="rc-long" checked> Long. GIS (km)</label>
-        <label class="rep-chk"><input type="checkbox" id="rc-loficial" checked> Long. oficial (km)</label>
-        <label class="rep-chk"><input type="checkbox" id="rc-sup" checked> Clase / Superficie</label>
-        <label class="rep-chk"><input type="checkbox" id="rc-prog" checked> Prog. inicio/fin</label>
-        <label class="rep-chk"><input type="checkbox" id="rc-coords"> Coords inicio/fin</label>
-        <label class="rep-chk"><input type="checkbox" id="rc-partido" checked> Partido</label>
-        <label class="rep-chk"><input type="checkbox" id="rc-regs" checked> Registros</label>
-        <label class="rep-chk"><input type="checkbox" id="rc-moj"> Mojones</label>
+        <label class="rep-chk" title="Longitud calculada por GIS (Haversine sobre la traza)"><input type="checkbox" id="rc-long" checked> Long. GIS (km)</label>
+        <label class="rep-chk" title="Longitud oficial del CSV SALADILLO_RED (DVBA)"><input type="checkbox" id="rc-loficial" checked> Long. oficial (km)</label>
+        <label class="rep-chk" title="Clase de camino o superficie de la ruta"><input type="checkbox" id="rc-sup" checked> Clase / Superficie</label>
+        <label class="rep-chk" title="Progresiva inicio y fin del tramo"><input type="checkbox" id="rc-prog" checked> Prog. inicio/fin</label>
+        <label class="rep-chk" title="Coordenadas GPS de los extremos del tramo"><input type="checkbox" id="rc-coords"> Coords inicio/fin</label>
+        <label class="rep-chk" title="Partido en el que se ubica el tramo"><input type="checkbox" id="rc-partido" checked> Partido</label>
+        <label class="rep-chk" title="Cuenta cuántas tareas ejecutadas hay en cada RP/camino (badge 📋 en fila TOTAL). NO lista cada tarea individual — para eso usá el 'Reporte interno con fotos' más abajo"><input type="checkbox" id="rc-regs" checked> Contar tareas ejec.</label>
+        <label class="rep-chk" title="Muestra los mojones (0, 10, 20…) al lado del tramo"><input type="checkbox" id="rc-moj"> Mojones</label>
       </div>
 
       <!-- v8.30 · Opciones extra del PDF -->
       <div style="font-size:10px;color:var(--pd);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Opciones del PDF</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;margin-bottom:8px">
-        <label class="rep-chk"><input type="checkbox" id="rc-mapa" checked> Incluir mapa SVG</label>
-        <label class="rep-chk"><input type="checkbox" id="rc-mapa-cap"> Captura real del mapa</label>
+        <label class="rep-chk" title="Genera un mapa SVG con las trazas y los pins de tareas (si está tildado 'Contar tareas ejec.')"><input type="checkbox" id="rc-mapa" checked> Incluir mapa SVG</label>
+        <label class="rep-chk" title="Captura real del mapa Leaflet del portal, incluye el basemap OSM"><input type="checkbox" id="rc-mapa-cap"> Captura real del mapa</label>
       </div>
 
-      <!-- Filtro por tipo de registro (aplica sólo si "Registros" está tildado) -->
+      <!-- Filtro por tipo de registro (aplica sólo si "Contar tareas ejec." está tildado) -->
       <div id="rep-filtro-tipos" style="margin-bottom:10px;padding-top:8px;border-top:1px solid var(--light)">
-        <div style="font-size:10px;color:var(--pd);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Filtrar registros por tipo</div>
+        <div style="font-size:10px;color:var(--pd);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">Filtrar tareas por tipo <span style="font-weight:400;color:var(--mut);text-transform:none;letter-spacing:0;font-size:9px">(afecta al conteo)</span></div>
         <div style="position:relative">
           <button onclick="toggleTipoDropdown()" id="tipo-dd-btn"
             style="width:100%;text-align:left;padding:6px 10px;background:var(--w);border:1px solid var(--light);color:var(--pd);font-size:11px;border-radius:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
@@ -807,11 +807,15 @@ body.modo-campo #campo-fab{display:flex}
       <div id="rep-tabla" style="margin-top:8px"></div>
 
       <!-- v8.29 · PDF interno con relevamientos + fotos (se mantiene aparte porque requiere login) -->
-      <div style="margin-top:12px;padding-top:8px;border-top:1px dashed var(--light)">
-        <div style="font-size:10px;color:var(--mut);margin-bottom:6px;line-height:1.45">
-          <b style="color:var(--pd)">Reporte interno con relevamientos + fotos</b> (uso técnico DVBA)
+      <!-- v8.70b · Mejor copy explicando qué hace este reporte vs el "Contar tareas ejec." -->
+      <div style="margin-top:12px;padding:10px;background:var(--p-xl);border:1px solid #b0dde0;border-left:4px solid var(--p);border-radius:4px">
+        <div style="font-size:10.5px;color:var(--pd);margin-bottom:6px;line-height:1.45;font-weight:600">
+          <b>📷 Reporte de Tareas Ejecutadas — con foto + GPS + sello</b>
         </div>
-        <button onclick="exportRegistrosPDF()" class="btn-side side-neutral" style="width:100%;padding:7px 10px;font-size:11px">↓ PDF de relevamientos con fotos</button>
+        <div style="font-size:9.5px;color:var(--mut);margin-bottom:8px;line-height:1.45">
+          Lista <b>cada tarea individual</b> (una por página) con su foto sellada, GPS, progresiva, ruta, partido, fecha y observaciones. Uso técnico interno DVBA · requiere login.
+        </div>
+        <button onclick="exportRegistrosPDF()" class="btn-side side-neutral" style="width:100%;padding:7px 10px;font-size:11px">↓ PDF de tareas ejecutadas con fotos</button>
       </div>
     </div>
 
