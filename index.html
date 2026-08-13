@@ -3662,6 +3662,10 @@ function exportCSV(){
 
 // PIN EN MAPA
 let pinMode=false, pinMarker=null, _pinFijado=false;
+// v8.70c · Set de partidos activos como filtro cuando el user usa el wizard
+// "Por partido" + "Sumar Rutas". Al generar el reporte, solo aparecen los
+// tramos que tocan estos partidos. Se limpia con "Limpiar todos".
+let _selPartidosFiltro = new Set();
 // v8.70c · _pinFijado=true significa que el user ya colocó un pin y está editando
 // datos en el sidebar. Bloquea que el mousemove sobre rutas/caminos sobreescriba
 // los campos del formulario mientras el user mueve el cursor hacia el panel lateral.
@@ -5364,17 +5368,29 @@ function buildReporteRutasTramos() {
   // v8.51 · SIMETRÍA con Caminos · usa SOLO _selRutas (selección manual).
   // Los chips del panel Mapa (selR) solo controlan visualización, no reporte.
   const ridsUsar = (_selRutas && _selRutas.size > 0) ? [..._selRutas] : [];
+  // v8.70c · Si el user agregó rutas via el wizard "Por partido", filtrar los tramos
+  //          para mostrar solo los que tocan ESOS partidos. Antes se agregaba la ruta
+  //          completa y aparecían tramos de partidos ajenos, ensuciando el reporte.
+  const partidosFiltro = (_selPartidosFiltro && _selPartidosFiltro.size > 0)
+    ? new Set([..._selPartidosFiltro].map(_normPartido))
+    : null;
   ridsUsar.sort((a,b)=>parseInt(a)-parseInt(b)).forEach(rid => {
     const meta   = RUTA_META[rid] || { color:'#888', label:'RP '+rid };
     const cvr    = (typeof CARACT_VIALES !== 'undefined') ? CARACT_VIALES[rid] : null;
     const longGisRuta = longitudRuta(rid);
     const longOfRuta  = cvr && cvr.longitud_oficial_km ? cvr.longitud_oficial_km : null;
-    // Contadores para fila-resumen
+    // v8.70c · Filtrar tramos si hay partidos en el filtro
+    const tramosFiltrados = (cvr && cvr.tramos && partidosFiltro)
+      ? cvr.tramos.filter(t => t.partido && partidosFiltro.has(_normPartido(t.partido)))
+      : (cvr ? cvr.tramos : null);
+    // Contadores para fila-resumen (solo cuenta lo del scope filtrado)
     const mojones = MOJONES_DATA.filter(m => m.ruta === rid).length;
-    const registros = regs.filter(r => r.ruta === rid).length;
+    const registros = regs.filter(r => r.ruta === rid && (
+      !partidosFiltro || (r.partido && partidosFiltro.has(_normPartido(r.partido)))
+    )).length;
 
-    if (cvr && cvr.tramos && cvr.tramos.length) {
-      cvr.tramos.forEach((t, i) => {
+    if (tramosFiltrados && tramosFiltrados.length) {
+      tramosFiltrados.forEach((t, i) => {
         // Km GIS por tramo estimado proporcional al total (marcado con *)
         const kmGisTramo = (longOfRuta && longOfRuta > 0 && longGisRuta > 0)
           ? (longGisRuta * t.longitud_km / longOfRuta)
@@ -6228,8 +6244,12 @@ function _buildPanelFiltrosInteractivo(){
         allRows.forEach(tr => {
           const cells = tr.querySelectorAll('td');
           const txt = tr.textContent.toLowerCase();
+          // v8.70c · Detección precisa de header/total · antes "total" en denominación
+          //         (ej. "Acc. total 5 km") falseaba positivo y no se filtraba
           const esHeader = tr.querySelector('td[colspan="8"]') !== null;
-          const esTotal  = txt.includes('total');
+          // Fila TOTAL: primera celda tiene colspan="4" (fila-resumen por RP)
+          const primerTd = cells[0];
+          const esTotal = primerTd && primerTd.getAttribute('colspan') === '4';
           if (esHeader || esTotal) { tr.classList.remove('oculto-fil'); return; }
           let mostrar = true;
           if (fP && cells.length >= 1) {
@@ -8981,11 +9001,25 @@ function toggleRutaSelActiva(){
 }
 
 function limpiarSelRutas(){
-  if (_selRutas.size === 0) return;
+  if (_selRutas.size === 0 && _selPartidosFiltro.size === 0) return;
   _selRutas.clear();
+  // v8.70c · Limpiar también el filtro por partido (usado en wizard "Por partido")
+  _selPartidosFiltro.clear();
   _actualizarBotonSelRP();
   _actualizarChipSelUnificado();
-  if (typeof drawRutas === 'function') drawRutas();  // v8.30 · quita halo
+  // v8.70c · Fix halo persistente: además de drawRutas, forzar remoción de
+  // TODAS las capas del map con color #ffb800 (por si drawRutas no alcanzó
+  // porque las capas quedaron huérfanas del diccionario capasR).
+  if (typeof map !== 'undefined' && map) {
+    map.eachLayer(l => {
+      try {
+        if (l.options && l.options.color === '#ffb800' && !(l instanceof L.Marker)) {
+          map.removeLayer(l);
+        }
+      } catch(e){}
+    });
+  }
+  if (typeof drawRutas === 'function') drawRutas();  // v8.30 · redibuja sin halo
   const tabla = document.getElementById('rep-tabla');
   if (tabla && tabla.innerHTML.trim() && _repTipo() === 'rutas') generarReporte();
 }
