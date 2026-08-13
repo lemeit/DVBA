@@ -1204,6 +1204,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v868-v871-v995-v9954-12-13-agosto-2026-rediseno-reportes-con-wizard-catalogo-colaborativo-de-alias-wiki-online-fixes-ux-masivos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.68 – v8.71 / v9.95 – v9.95.4 · 12-13 agosto 2026 — Rediseño Reportes con wizard + Catálogo colaborativo de alias + Wiki online + fixes UX masivos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v867-v994-12-agosto-2026-presets-tamano-sello-fix-doble-sello-version-reubicada" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2011,6 +2022,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v868-v871-v995-v9954-12-13-agosto-2026-rediseno-reportes-con-wizard-catalogo-colaborativo-de-alias-wiki-online-fixes-ux-masivos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.68 – v8.71 / v9.95 – v9.95.4 · 12-13 agosto 2026 — Rediseño Reportes con wizard + Catálogo colaborativo de alias + Wiki online + fixes UX masivos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v867-v994-12-agosto-2026-presets-tamano-sello-fix-doble-sello-version-reubicada" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2355,8 +2377,8 @@
 <p>═══════ HEADER ═══════</p>
 <h1 id="bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial">📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial<a class="headerlink" href="#bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial" title="Permanent link">¶</a></h1>
 <p>DVBA · Departamento Zona VI Saladillo</p>
-<p>Última actualización: 12 de agosto de 2026</p>
-<p>Versión bitácora: v5.1 — apps v9.94 / v8.67 · 12-ago-2026</p>
+<p>Última actualización: 13 de agosto de 2026</p>
+<p>Versión bitácora: v5.2 — apps v9.95.4 / v8.71 · 13-ago-2026</p>
 <p>Responsable: Ing. Luciano Lamaita</p>
 <p>Repositorio: <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a></p>
 <p>Estado general: 🟢 En desarrollo activo</p>
@@ -3483,6 +3505,14 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 </tr>
 </tbody>
 </table>
+<h3 id="v868-v871-v995-v9954-12-13-agosto-2026-rediseno-reportes-con-wizard-catalogo-colaborativo-de-alias-wiki-online-fixes-ux-masivos">v8.68 – v8.71 / v9.95 – v9.95.4 · 12-13 agosto 2026 — Rediseño Reportes con wizard + Catálogo colaborativo de alias + Wiki online + fixes UX masivos<a class="headerlink" href="#v868-v871-v995-v9954-12-13-agosto-2026-rediseno-reportes-con-wizard-catalogo-colaborativo-de-alias-wiki-online-fixes-ux-masivos" title="Permanent link">¶</a></h3>
+<p><strong>Cerramos una ronda de 4 días intensiva</strong> con 30 tareas resueltas repartidas en 3 frentes.</p>
+<p><strong>Frente 1 · Rediseño del panel de Reportes de Vías.</strong> El sidebar de reportes se convierte en un wizard de 3 pasos con 4 presets tipo tarjeta ("Red vial completa", "Por partido", "Solo Rutas", "Solo Caminos") + ajustes avanzados colapsados en <code>&lt;details&gt;</code>. La tab del reporte generado incluye un panel de filtros interactivo (partido, texto libre, clase) que oculta/muestra filas en tiempo real y respeta la paleta institucional DVBA turquesa. Contador de caminos únicos además de tramos. 15 fixes puntuales (Limpiar todos que sí anda, halo persistente que se quita, filtro por partido en tab que detecta filas TOTAL por <code>colspan</code> en vez de por texto, propiedad <code>PARTIDO_NOMBRE</code> correcta para caminos, match case-insensitive con normalización Unicode ASCII, <code>+ Todas rutas / caminos</code> de una sola vez).</p>
+<p><strong>Frente 2 · Catálogo colaborativo de alias de caminos (SQL_14).</strong> Nueva tabla <code>caminos_alias</code> en Supabase con <code>alias_locales TEXT[]</code>, <code>denominacion_local</code>, <code>observaciones</code> y RLS (lectura pública, escritura para técnicos por zona / gerencia / admin). Modal de edición en el portal con chips estilo tags para agregar nombres populares como <em>"Camino a Los Molles"</em> o <em>"Del Molino Viejo"</em>. Los alias se muestran automáticamente en el modal SIG Vial del camino (badge turquesa <code>🏷 Alias populares</code>) y son buscables desde el sidebar con un input <code>🔍 Buscar por código o alias</code>. Objetivo: que vecinos y personal técnico puedan identificar los caminos por sus nombres reales, no solo por códigos DVBA opacos como <code>093-08</code>.</p>
+<p><strong>Frente 3 · Wiki online con MkDocs Material + fixes cache SW.</strong> Guía de usuario publicada en <code>lemeit.github.io/DVBA/wiki/</code> con GitHub Actions que rebuildea automáticamente en cada push a <code>wiki-src/</code>. Rediseño de la wiki con nav aplanada (14 capítulos), paleta institucional DVBA (footer + colores unificados), logo DVBA en header, favicon, TOC integrado. Modales del portal (Cola pendientes, Sello, edición alias) unificados con la misma paleta turquesa. <strong>Bug histórico resuelto:</strong> <code>dvba_campo.html</code> nunca declaraba <code>APP_VER</code> como variable JS (solo tenía spans HTML) → el modal "Acerca de" mostraba versión vieja cacheada por el SW. Fix con <code>window.APP_VER</code> seteado directo antes de los defer scripts + <code>sello_v4.js</code> que lee window en runtime + SW con <code>skipWaiting()</code> automático. Cache-busters <code>?v=9.95.X</code> en <code>.js</code> críticos.</p>
+<p><strong>Frente 4 · Documento del concurso XLI DVBA.</strong> Sección 8.4 reescrita completa con propuesta de IA aplicada en 4 fases (Fase A implementada como demo, Fase B/C/D roadmap). Comparativa de 6 modelos (Gemini 2.5 Flash elegido por tier gratuito genuino + multimodalidad nativa + calidad en español). Presupuesto realista: Zona VI 100% gratis, escalado 12 zonas ~$10/mes vs software vial comercial USD 500-2000/mes. Header y sección 3 al día con snapshot v8.71/v9.95.4.</p>
+<p><strong>Frente 5 · Fixes UX puntuales.</strong> Pin que no sobreescribe campos del formulario cuando se mueve el cursor (flag <code>_pinFijado</code> + guarda en <code>mousemove</code> de hitLayer). Detección de partido en Modo Avanzado móvil que ahora sí escribe la RP detectada en el select del formulario (orden correcto + prefijo "RP N" para matchear options). Mapa del "Reporte con fotos" ahora muestra las trazas de las rutas y los pins de tareas (usa <code>L.circleMarker</code> temporal que sí soporta <code>leaflet-image</code>, con <code>fitBounds</code> automático antes de capturar).</p>
+<p>Archivos nuevos: <code>docs/SQL_14_caminos_alias.sql</code>, <code>docs/REFERENCIA_SIG_VIAL_ANTERIOR.md</code>. Bump completo <code>v8.66e → v8.71</code> (escritorio) y <code>v9.93.1 → v9.95.4</code> (móvil).</p>
 <h3 id="v867-v994-12-agosto-2026-presets-tamano-sello-fix-doble-sello-version-reubicada">v8.67 / v9.94 · 12 agosto 2026 — Presets tamaño sello + fix doble sello + versión reubicada<a class="headerlink" href="#v867-v994-12-agosto-2026-presets-tamano-sello-fix-doble-sello-version-reubicada" title="Permanent link">¶</a></h3>
 <p>Cierre de la serie <strong>v8.66f (7 hotfixes iterativos)</strong> sobre <code>datos/sello_v4.js</code> + portal + móvil. Origen: fotos donde el banner del sello tapa detalles críticos (puentes, defectos en el pie de la foto). Resuelto sin romper el diseño base para el resto de las fotos.</p>
 <p><strong>Presets de tamaño</strong> — el modal "🖋 Editar datos del sello" (aprobación) y el sidebar de edición ahora tienen 3 botones <strong>🖋 Normal (100%) / 🖋 Mediano (75%) / 🖋 Mínimo (50%)</strong>. Reemplazan al slider intermedio de v8.66f-f.2 que confundía al user (quedaba pegado en el último valor entre fotos). El preset se resetea a Normal al abrir cada foto.</p>
