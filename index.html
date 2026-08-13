@@ -184,7 +184,7 @@ input[type=file]{width:100%;color:var(--mut);font-size:10px;margin-bottom:4px}
 
 /* ═══ REPORTES ═══════════════════════════════════════════════ */
 .rep-chk{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--mut);cursor:pointer;padding:2px 0}
-/* v8.71b · Presets del wizard de reportes · botones tipo tarjeta */
+/* v8.72b · Presets del wizard de reportes · botones tipo tarjeta */
 .rep-preset-btn{display:flex;align-items:center;gap:8px;padding:10px 8px;background:var(--w);border:1.5px solid var(--light);border-radius:6px;cursor:pointer;text-align:left;font-family:inherit;transition:all .15s;color:var(--txt)}
 .rep-preset-btn:hover{border-color:var(--p);background:var(--p-xl);transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,174,195,.15)}
 .rep-preset-btn.active{border-color:var(--p);background:var(--p-xl);box-shadow:inset 0 0 0 1px var(--p)}
@@ -346,7 +346,7 @@ body.modo-campo #campo-fab{display:flex}
 @keyframes colaPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 
 /* v7.12 — Modal cola de pendientes */
-/* v8.71b · Modal Cola de pendientes con paleta institucional DVBA (turquesa) */
+/* v8.72b · Modal Cola de pendientes con paleta institucional DVBA (turquesa) */
 .mov-cola{position:fixed;inset:0;background:rgba(0,20,30,.55);z-index:9998;display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow-y:auto;backdrop-filter:blur(2px)}
 .mov-cola.on{display:flex}
 .modal-cola{width:100%;max-width:900px;background:var(--w);border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.3);display:flex;flex-direction:column;max-height:90vh}
@@ -391,7 +391,7 @@ body.modo-campo #campo-fab{display:flex}
 .cola-badge-urg{background:#e53935;color:#fff;font-size:.66rem;padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px;text-transform:uppercase}
 
 /* ── Modal "Editar datos del sello" v8.22 · Paleta oscura alineada al portal ── */
-/* v8.71b · Modal Sello con paleta institucional DVBA (claro) — antes fondo oscuro */
+/* v8.72b · Modal Sello con paleta institucional DVBA (claro) — antes fondo oscuro */
 .mov-sello{position:fixed;inset:0;background:rgba(0,20,30,.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;backdrop-filter:blur(2px)}
 .mov-sello.on{display:flex}
 .modal-sello{width:100%;max-width:540px;background:var(--w);border:1px solid var(--light);border-radius:12px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.2);animation:msFade .22s ease-out;color:var(--txt)}
@@ -464,7 +464,7 @@ body.modo-campo #campo-fab{display:flex}
     <button id="cola-badge" class="role-oculto" data-requiere-sesion="1" title="Registros pendientes de revisión" onclick="abrirColaPendientes()">
       🔔 <span id="cola-count">0</span> pendientes
     </button>
-    <!-- v8.71 · Wiki pública (todos los roles + modo público) -->
+    <!-- v8.72 · Wiki pública (todos los roles + modo público) -->
     <a class="nav-app" href="https://lemeit.github.io/DVBA/wiki/" target="_blank" rel="noopener" title="Guía de usuario del sistema (se abre en pestaña nueva)">
       📖 Guía
     </a>
@@ -499,7 +499,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.71</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.72</span></div>
   </div>
 </div>
 <div class="layout">
@@ -545,7 +545,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="sec-title">Caminos Secundarios <span id="cs-count" style="color:#7050b0;font-weight:600;font-size:9px"></span></div>
         <div style="font-size:9px;color:var(--mut);margin-bottom:4px">Filtros por clase:</div>
         <div id="cs-clases" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px"></div>
-        <!-- v8.71 · Buscador por código / denominación / alias popular -->
+        <!-- v8.72 · Buscador por código / denominación / alias popular -->
         <input type="text" id="cs-busq" placeholder="🔍 Buscar por código o alias..." oninput="csBuildTagList()"
                style="width:100%;padding:5px 8px;border:1px solid var(--light);border-radius:4px;font-size:10.5px;font-family:inherit;margin-bottom:4px;background:var(--w);color:var(--txt);box-sizing:border-box">
         <div id="cs-tags" style="max-height:120px;overflow-y:auto;padding:2px;border:1px solid var(--light);border-radius:4px;background:#fafbfc;font-size:9.5px"></div>
@@ -689,7 +689,7 @@ body.modo-campo #campo-fab{display:flex}
       <!-- El select queda oculto por retrocompatibilidad con _repTipo() legacy -->
       <select id="rep-tipo" style="display:none"><option value="mixto" selected>mixto</option></select>
 
-      <!-- v8.71b · WIZARD REPORTES · Paso 1: qué querés reportar -->
+      <!-- v8.72b · WIZARD REPORTES · Paso 1: qué querés reportar -->
       <div style="font-size:10px;color:var(--pd);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-family:'Encode Sans',sans-serif">
         <span style="background:var(--p);color:#fff;padding:1px 6px;border-radius:8px;font-size:9px;margin-right:4px">1</span>¿Qué querés reportar?
       </div>
@@ -810,7 +810,7 @@ body.modo-campo #campo-fab{display:flex}
       <div id="rep-tabla" style="margin-top:8px"></div>
 
       <!-- v8.29 · PDF interno con relevamientos + fotos (se mantiene aparte porque requiere login) -->
-      <!-- v8.71b · Mejor copy explicando qué hace este reporte vs el "Contar tareas ejec." -->
+      <!-- v8.72b · Mejor copy explicando qué hace este reporte vs el "Contar tareas ejec." -->
       <div style="margin-top:12px;padding:10px;background:var(--p-xl);border:1px solid #b0dde0;border-left:4px solid var(--p);border-radius:4px">
         <div style="font-size:10.5px;color:var(--pd);margin-bottom:6px;line-height:1.45;font-weight:600">
           <b>📷 Reporte de Tareas Ejecutadas — con foto + GPS + sello</b>
@@ -928,8 +928,8 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.71';
-window.APP_VERSION = APP_VERSION;  // v8.71 · expone a window para legales.js
+const APP_VERSION = 'v8.72';
+window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -2998,7 +2998,7 @@ async function guardar(){
     document.getElementById('flat').value = '';
     document.getElementById('flng').value = '';
     if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
-    _pinFijado = false;  // v8.71c
+    _pinFijado = false;  // v8.72c
     _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
     alert('Guardado: RP ' + ruta + ' ' + prog + (_supa ? ' ✓ nube' : ' (local)'));
   };
@@ -3665,11 +3665,11 @@ function exportCSV(){
 
 // PIN EN MAPA
 let pinMode=false, pinMarker=null, _pinFijado=false;
-// v8.71c · Set de partidos activos como filtro cuando el user usa el wizard
+// v8.72c · Set de partidos activos como filtro cuando el user usa el wizard
 // "Por partido" + "Sumar Rutas". Al generar el reporte, solo aparecen los
 // tramos que tocan estos partidos. Se limpia con "Limpiar todos".
 let _selPartidosFiltro = new Set();
-// v8.71c · _pinFijado=true significa que el user ya colocó un pin y está editando
+// v8.72c · _pinFijado=true significa que el user ya colocó un pin y está editando
 // datos en el sidebar. Bloquea que el mousemove sobre rutas/caminos sobreescriba
 // los campos del formulario mientras el user mueve el cursor hacia el panel lateral.
 function pip(pt,ring){
@@ -3687,7 +3687,7 @@ function togglePin(){
     btn.style.background='#1a4060';btn.style.borderColor='#5aaccc';btn.style.color='#8ad4f4';
     btn.textContent='Cancelar';
     map.getContainer().style.cursor='crosshair';
-    // v8.71c · Al entrar en modo pin, desbloquear el mousemove (por si venía de un pin previo fijado)
+    // v8.72c · Al entrar en modo pin, desbloquear el mousemove (por si venía de un pin previo fijado)
     _pinFijado = false;
     // En móvil: cerrar panel para poder ver y tocar el mapa
     if (window.innerWidth <= 700) closeSidebar();
@@ -3744,7 +3744,7 @@ map.on('click', function(e) {
   });
   pinMarker = L.marker([lat, lng], { icon: pinIcon, draggable: true })
     .addTo(map).bindPopup(popTxt).openPopup();
-  // v8.71c · Fijar el pin: bloquea el mousemove sobre rutas para no sobreescribir campos
+  // v8.72c · Fijar el pin: bloquea el mousemove sobre rutas para no sobreescribir campos
   _pinFijado = true;
 
   // Al arrastrar: actualizar coords y recalcular todo (con opts.desdePin para saltear el bloqueo)
@@ -3835,7 +3835,7 @@ function _reemplazarPartidos(nuevoGeo){
   PARTIDOS_GEO = nuevoGeo;
   // Recomputar lista de partidos activos
   PARTIDOS_LIST = nuevoGeo.features.map(f => f.properties.partido).filter(Boolean).sort();
-  // v8.71 · Repoblar el dropdown del filtro de reportes con la nueva zona
+  // v8.72 · Repoblar el dropdown del filtro de reportes con la nueva zona
   if (typeof _poblarFiltroPartidosReporte === 'function') _poblarFiltroPartidosReporte();
   // Reset selección (todos activos)
   selP = new Set(PARTIDOS_LIST);
@@ -4284,7 +4284,7 @@ function onCoordsManual() {
       autoDetectarCampos(pos.lat, pos.lng, { forzarAuto: true });  // v7.38
     });
   }
-  // v8.71c · Bloquear mousemove sobre rutas mientras hay pin colocado
+  // v8.72c · Bloquear mousemove sobre rutas mientras hay pin colocado
   _pinFijado = true;
 
   map.panTo([lat, lng]);
@@ -4593,7 +4593,7 @@ const TIPOS_TODOS = typeof DVBA_TIPOS !== 'undefined' ? DVBA_TIPOS.todos() : [];
 let selTipos = new Set(TIPOS_TODOS);
 
 function buildTipoFiltros() {
-  // v8.71 · Al abrir el tab Reportes, refrescar el dropdown de filtro por partido
+  // v8.72 · Al abrir el tab Reportes, refrescar el dropdown de filtro por partido
   if (typeof _poblarFiltroPartidosReporte === 'function') _poblarFiltroPartidosReporte();
   const div = document.getElementById('tipo-filtros');
   if (!div) return;
@@ -4807,7 +4807,7 @@ function generarMapaSVGRegistros(ridsArr, regsLista, W, H) {
 
 
 // Actualiza el panel "Posición sobre Ruta" — usado por mousemove Y por drag del pin
-// v8.71c · Si el pin ya está fijado (_pinFijado=true) solo actualiza el HTML informativo
+// v8.72c · Si el pin ya está fijado (_pinFijado=true) solo actualiza el HTML informativo
 //         del panel pero NO los campos del formulario. Evita que el cursor "robe" la
 //         progresiva mientras el user se mueve hacia el sidebar para editar.
 function actualizarPanelPos(rid, latlng, opts) {
@@ -4824,7 +4824,7 @@ function actualizarPanelPos(rid, latlng, opts) {
     <span class="lbl">Mojones (${mojs.length})</span><details style="font-size:10px;color:#5a8090"><summary style="cursor:pointer;color:#4d8ab0;font-size:9px;user-select:none">▸ ver lista</summary><div style="margin-top:3px;line-height:1.5">${mjStr}</div></details>
     <span class="lbl">Registros</span><div style="color:#4d8ab0;font-weight:700">${regsR.length}</div>
     <div style="color:#2a3a4a;font-size:9px;margin-top:4px">${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}</div>`;
-  // v8.71c · Solo tocar campos del form si NO hay pin fijado O si viene del drag del pin
+  // v8.72c · Solo tocar campos del form si NO hay pin fijado O si viene del drag del pin
   if (_pinFijado && !opts.desdePin) return;
   // Actualizar campos del formulario
   document.getElementById('fruta').value   = rid;
@@ -5030,7 +5030,7 @@ function ubicarPorProgresiva(){
   document.getElementById('flng').value = punto.lng.toFixed(6);
   // Mover/crear pin en el mapa
   if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
-    _pinFijado = false;  // v8.71c
+    _pinFijado = false;  // v8.72c
   const pinIcon = L.divIcon({
     className: 'pin-icon',
     html: '<div style="background:#c47a00;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>',
@@ -5039,7 +5039,7 @@ function ubicarPorProgresiva(){
   pinMarker = L.marker([punto.lat, punto.lng], { draggable: true, icon: pinIcon }).addTo(map);
   pinMarker.on('drag',    ev => { const p = ev.target.getLatLng(); autoDetectarCampos(p.lat, p.lng, { forzarAuto:true }); });
   pinMarker.on('dragend', ev => { const p = ev.target.getLatLng(); autoDetectarCampos(p.lat, p.lng, { forzarAuto:true }); });
-  _pinFijado = true;  // v8.71c · bloquear mousemove
+  _pinFijado = true;  // v8.72c · bloquear mousemove
   map.flyTo([punto.lat, punto.lng], Math.max(map.getZoom(), 14), { duration: 0.6 });
   toast('📍 Pin ubicado en ' + ruta + ' km ' + prog, 'ok');
   // Auto-detectar partido después (por si el user quiere refinar)
@@ -5371,7 +5371,7 @@ function buildReporteRutasTramos() {
   // v8.51 · SIMETRÍA con Caminos · usa SOLO _selRutas (selección manual).
   // Los chips del panel Mapa (selR) solo controlan visualización, no reporte.
   const ridsUsar = (_selRutas && _selRutas.size > 0) ? [..._selRutas] : [];
-  // v8.71c · Si el user agregó rutas via el wizard "Por partido", filtrar los tramos
+  // v8.72c · Si el user agregó rutas via el wizard "Por partido", filtrar los tramos
   //          para mostrar solo los que tocan ESOS partidos. Antes se agregaba la ruta
   //          completa y aparecían tramos de partidos ajenos, ensuciando el reporte.
   const partidosFiltro = (_selPartidosFiltro && _selPartidosFiltro.size > 0)
@@ -5382,7 +5382,7 @@ function buildReporteRutasTramos() {
     const cvr    = (typeof CARACT_VIALES !== 'undefined') ? CARACT_VIALES[rid] : null;
     const longGisRuta = longitudRuta(rid);
     const longOfRuta  = cvr && cvr.longitud_oficial_km ? cvr.longitud_oficial_km : null;
-    // v8.71c · Filtrar tramos si hay partidos en el filtro
+    // v8.72c · Filtrar tramos si hay partidos en el filtro
     const tramosFiltrados = (cvr && cvr.tramos && partidosFiltro)
       ? cvr.tramos.filter(t => t.partido && partidosFiltro.has(_normPartido(t.partido)))
       : (cvr ? cvr.tramos : null);
@@ -5491,7 +5491,7 @@ function _genRepRutas() {
     '<th>Partido</th><th>Nomencl.</th><th>Tramo</th><th>Denominación</th>' +
     '<th>Clase</th><th>Sentido</th><th>Km GIS</th><th>Km Oficial</th>' +
     '</tr></thead><tbody>';
-  // v8.71 · Separador visual claro entre RPs: insertar header al INICIO de cada RP
+  // v8.72 · Separador visual claro entre RPs: insertar header al INICIO de cada RP
   // + border grueso al cerrar cada bloque. Antes solo había una fila-resumen tenue
   // y las siguientes filas parecían continuación de la RP anterior.
   let _ridPrev = null;
@@ -5575,7 +5575,7 @@ function _expRepRutasCSV() {
 // v8.32 · Fix crítico: leaflet-image falla con divIcons custom (Cannot read 'match').
 // v8.51 · Acepta opts para ocultar contextualmente lo que no corresponde al reporte:
 //   { tipo: 'rutas'|'caminos', mostrarMojones: bool, mostrarRegistros: bool, regs: [...] }
-// v8.71c · Fix "mapa vacío en Reporte con fotos":
+// v8.72c · Fix "mapa vacío en Reporte con fotos":
 //   - fitBounds automático a las capas visibles ANTES de capturar
 //   - reemplazar divIcons de registros por L.circleMarker temporales (sí soporta leaflet-image)
 //   - restaurar TODO al terminar
@@ -5588,7 +5588,7 @@ function _capturarMapaComoImg(opts){
     const zoomPrevio   = map.getZoom();
     const centroPrevio = map.getCenter();
     // 1) Ocultar markers custom (divIcons rompen leaflet-image)
-    // v8.71c · Si mostrarRegistros=true, en vez de solo ocultar, reemplazar por
+    // v8.72c · Si mostrarRegistros=true, en vez de solo ocultar, reemplazar por
     //          L.circleMarker que sí funciona con leaflet-image.
     const regsParaPin = opts.mostrarRegistros && Array.isArray(opts.regs) ? opts.regs : null;
     map.eachLayer(l => {
@@ -5625,7 +5625,7 @@ function _capturarMapaComoImg(opts){
         capasM.forEach(l => { try { map.removeLayer(l); layersOcultados.push(l); } catch(e){} });
       }
     }
-    // 3) v8.71c · fitBounds a lo visible (rutas + pins) para que la captura tenga contenido
+    // 3) v8.72c · fitBounds a lo visible (rutas + pins) para que la captura tenga contenido
     try {
       const bounds = L.latLngBounds([]);
       map.eachLayer(l => {
@@ -5875,7 +5875,7 @@ async function exportRegistrosPDF() {
   const todosRegsLista = rutasOrden.flatMap(rid => (grupos[rid]||{lista:[]}).lista);
 
   // v8.30 · Captura del mapa si el user la pidió · v8.51 tipo=rutas + registros ON (este es el PDF de relevamientos)
-  // v8.71c · Pasar la lista de registros para dibujarlos como circleMarker (fix mapa vacío)
+  // v8.72c · Pasar la lista de registros para dibujarlos como circleMarker (fix mapa vacío)
   let mapaImgDataUrl_r = null;
   if (showMapa_r && usarCaptura_r) mapaImgDataUrl_r = await _capturarMapaComoImg({
     tipo: 'rutas', mostrarMojones: false, mostrarRegistros: true,
@@ -6133,7 +6133,7 @@ function _genRepCaminos(opts){
   });
   html += '</tbody></table>';
 
-  // v8.71b · Contar caminos únicos (por nomenclatura) además de tramos
+  // v8.72b · Contar caminos únicos (por nomenclatura) además de tramos
   const caminosUnicos = new Set(_repCaminosData.map(r => r.nomenclatura).filter(n => n && n !== '—')).size;
   // Totales + desglose por clase
   html += `<div class="rep-total">
@@ -6167,11 +6167,11 @@ function _genRepCaminos(opts){
    Ambos individuales retornan HTML (retornarHtml:true), acá se extraen
    los <body> y se combinan en un doc con salto de página entre secciones.
    Evita popup blocker que descartaba el segundo tab. */
-// v8.71 · Helper compartido para inyectar panel de filtros interactivo + CSS + JS
+// v8.72 · Helper compartido para inyectar panel de filtros interactivo + CSS + JS
 // en cualquiera de los 3 templates de reporte (rutas, caminos, mixto).
 // Devuelve { css, panel, script } que se ensamblan en el template.
 function _buildPanelFiltrosInteractivo(){
-  // v8.71 · Panel con paleta institucional DVBA (turquesa #00aec3 + azul #1f3464)
+  // v8.72 · Panel con paleta institucional DVBA (turquesa #00aec3 + azul #1f3464)
   // en lugar del amarillo/naranja previo · mantiene coherencia visual con el resto del portal
   const css = `<style>
     #filtros-panel { position:sticky; top:0; z-index:100; background:linear-gradient(90deg, #f0fafb 0%, #ffffff 100%); border:1px solid #b0dde0; border-left:4px solid #00aec3; border-radius:6px; padding:10px 14px; margin-bottom:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; font-family:'Encode Sans','Segoe UI',sans-serif; font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,.08); color:#1f3464; }
@@ -6222,7 +6222,7 @@ function _buildPanelFiltrosInteractivo(){
       allRows.forEach(tr => {
         const cells = tr.querySelectorAll('td');
         if (cells.length < 5) return;
-        // v8.71 · Saltear filas TOTAL/header · en esas cells[4] cae en km por colspan
+        // v8.72 · Saltear filas TOTAL/header · en esas cells[4] cae en km por colspan
         const txt = tr.textContent.toLowerCase();
         const esHeader = tr.querySelector('td[colspan="8"]') !== null;
         const esTotal  = txt.includes('total');
@@ -6247,7 +6247,7 @@ function _buildPanelFiltrosInteractivo(){
         allRows.forEach(tr => {
           const cells = tr.querySelectorAll('td');
           const txt = tr.textContent.toLowerCase();
-          // v8.71c · Detección precisa de header/total · antes "total" en denominación
+          // v8.72c · Detección precisa de header/total · antes "total" en denominación
           //         (ej. "Acc. total 5 km") falseaba positivo y no se filtraba
           const esHeader = tr.querySelector('td[colspan="8"]') !== null;
           // Fila TOTAL: primera celda tiene colspan="4" (fila-resumen por RP)
@@ -6300,12 +6300,12 @@ async function _expRepMixtoPDF(){
     const m = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
     return m ? m[1].replace(/<title[\s\S]*?<\/title>/i, '') : '';
   };
-  // v8.71 · CSS del panel de filtros interactivo + estilos de impresión que lo ocultan
+  // v8.72 · CSS del panel de filtros interactivo + estilos de impresión que lo ocultan
   const cssMixto = `<style>
     @page { size: A4 landscape; margin: 12mm; }
     .pagina-sec { page-break-after: always; }
     .pagina-sec:last-child { page-break-after: auto; }
-    /* Panel de filtros · v8.71 */
+    /* Panel de filtros · v8.72 */
     #filtros-panel { position:sticky; top:0; z-index:100; background:#fef9e6; border:1px solid #f0c250; border-radius:6px; padding:10px 14px; margin-bottom:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; font-family:'Encode Sans','Segoe UI',sans-serif; font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,.08); }
     #filtros-panel label { font-weight:600; color:#8a6d00; margin-right:4px; }
     #filtros-panel input, #filtros-panel select { padding:5px 8px; border:1px solid #d0d4dc; border-radius:4px; font-size:13px; font-family:inherit; background:#fff; }
@@ -6322,7 +6322,7 @@ async function _expRepMixtoPDF(){
     }
   </style>`;
   const bodies = htmls.map(h => `<div class="pagina-sec">${parseBody(h)}</div>`).join('');
-  // v8.71 · Usar el helper compartido para el panel de filtros interactivo
+  // v8.72 · Usar el helper compartido para el panel de filtros interactivo
   const filtros = _buildPanelFiltrosInteractivo();
   const combinado = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>DVBA Zona VI · Reporte Mixto de Red Vial</title>${parseHead(htmls[0])}${cssMixto}${filtros.css}</head><body>${bodies}${filtros.script}</body></html>`;
   const blob = new Blob([combinado], { type:'text/html;charset=utf-8' });
@@ -7235,7 +7235,7 @@ function editReg(id) {
   // Colocar pin en la posición actual del registro (arrastrable)
   if (reg.lat && reg.lng) {
     if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
-    _pinFijado = false;  // v8.71c
+    _pinFijado = false;  // v8.72c
     const pinIcon = L.divIcon({
       className: '',
       html: '<div style="width:22px;height:22px;border-radius:50%;background:#00aec3;border:3px solid #007e8c;box-shadow:0 2px 12px rgba(0,0,0,.8);cursor:grab"></div>',
@@ -7317,7 +7317,7 @@ function cancelarEdit() {
   const badgeBox = document.getElementById('edit-origen-badge');
   if (badgeBox) { badgeBox.innerHTML = ''; badgeBox.style.display = 'none'; }
   if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
-    _pinFijado = false;  // v8.71c
+    _pinFijado = false;  // v8.72c
 }
 
 
@@ -7487,7 +7487,7 @@ function csBuildTagList(){
   c.innerHTML = visibles.map(c => {
     const on = csSelKeys.has(c.key);
     const col = CS_COLOR_CLASE[c.clase] || '#7050b0';
-    // v8.71 · Tooltip enriquecido con alias populares (todos los tramos del código)
+    // v8.72 · Tooltip enriquecido con alias populares (todos los tramos del código)
     const aliasCamino = aliasDelCamino(c.key);
     const aliasLista = aliasCamino.length ? '\n🏷 Alias: ' + aliasCamino.join(' / ') : '';
     const tooltipRaw = (c.tooltip || '') + aliasLista;
@@ -7501,7 +7501,7 @@ function csBuildTagList(){
 }
 
 // Lista los caminos que pasan los filtros activos (partido + clase)
-// v8.71 · Además filtra por texto de búsqueda (código, denominación o alias popular)
+// v8.72 · Además filtra por texto de búsqueda (código, denominación o alias popular)
 function csListarVisibles(){
   if (typeof RED_VIAL === 'undefined' || !csSelClases) return [];
   const busqEl = document.getElementById('cs-busq');
@@ -7514,7 +7514,7 @@ function csListarVisibles(){
     // Coincidir con: código, tooltip (denominación), o cualquier alias popular / denominación local
     if (c.key.toLowerCase().includes(busq)) return true;
     if (c.tooltip && c.tooltip.toLowerCase().includes(busq)) return true;
-    // v8.71 · Buscar en TODOS los alias del código (a través de todos sus tramos)
+    // v8.72 · Buscar en TODOS los alias del código (a través de todos sus tramos)
     for (const key in aliasCache) {
       const row = aliasCache[key];
       if (row.nomenclatura !== c.key) continue;
@@ -7602,10 +7602,10 @@ function csRefrescarLayer(){
       .then(geo => {
         _caminosGeoJSON_cache = geo;
         csRefrescarLayer();
-        // v8.71b · Repoblar el dropdown de partidos del reporte cuando termina de cargar caminos
+        // v8.72b · Repoblar el dropdown de partidos del reporte cuando termina de cargar caminos
         // (fix bug: dropdown vacío al primer abrir del tab Reportes antes de que los caminos carguen)
         if (typeof _poblarFiltroPartidosReporte === 'function') _poblarFiltroPartidosReporte();
-        // v8.71 · Cargar cache de alias colaborativos de caminos secundarios
+        // v8.72 · Cargar cache de alias colaborativos de caminos secundarios
         if (typeof _cargarCacheAliasCaminos === 'function') _cargarCacheAliasCaminos();
       })
       .catch(err => {
@@ -8747,7 +8747,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
       <div style="margin-bottom:14px">
         <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
-        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.71</span> · Familia escritorio</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.72</span> · Familia escritorio</div>
         <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.91</b></div>
       </div>
 
@@ -8818,7 +8818,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
   </div>
 </div>
 
-<!-- v8.71 · Modal Edición Colaborativa de Alias de Camino Secundario · SQL_14 caminos_alias -->
+<!-- v8.72 · Modal Edición Colaborativa de Alias de Camino Secundario · SQL_14 caminos_alias -->
 <div class="mov-sello" id="modal-alias-cno-ov">
   <div class="modal-sello" style="max-width:560px">
     <div class="ms-h">
@@ -8833,7 +8833,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
           📍 <span id="alias-cno-partido">—</span>
         </div>
       </div>
-      <!-- v8.71 · Selector de alcance · aplicar el alias solo a este tramo o al camino completo -->
+      <!-- v8.72 · Selector de alcance · aplicar el alias solo a este tramo o al camino completo -->
       <div id="alias-cno-alcance-wrap" style="display:none;background:#fef9e6;border:1px solid #f0c250;border-left:4px solid var(--am);padding:8px 12px;border-radius:4px;margin-bottom:12px;font-size:11px">
         <b style="color:var(--am)">📍 ¿A qué se aplica este alias?</b>
         <div style="display:flex;gap:12px;margin-top:6px;flex-wrap:wrap">
@@ -9102,11 +9102,11 @@ function toggleRutaSelActiva(){
 function limpiarSelRutas(){
   if (_selRutas.size === 0 && _selPartidosFiltro.size === 0) return;
   _selRutas.clear();
-  // v8.71c · Limpiar también el filtro por partido (usado en wizard "Por partido")
+  // v8.72c · Limpiar también el filtro por partido (usado en wizard "Por partido")
   _selPartidosFiltro.clear();
   _actualizarBotonSelRP();
   _actualizarChipSelUnificado();
-  // v8.71c · Fix halo persistente: además de drawRutas, forzar remoción de
+  // v8.72c · Fix halo persistente: además de drawRutas, forzar remoción de
   // TODAS las capas del map con color #ffb800 (por si drawRutas no alcanzó
   // porque las capas quedaron huérfanas del diccionario capasR).
   if (typeof map !== 'undefined' && map) {
@@ -9123,7 +9123,7 @@ function limpiarSelRutas(){
   if (tabla && tabla.innerHTML.trim() && _repTipo() === 'rutas') generarReporte();
 }
 
-// v8.71 · Agregar TODAS las rutas de la zona activa al reporte de una sola
+// v8.72 · Agregar TODAS las rutas de la zona activa al reporte de una sola
 // Evita tener que hacer click ruta por ruta en el mapa. Toma RUTAS_LIST (que ya
 // refleja la zona activa gracias al loader dinámico multi-zona).
 function agregarTodasLasRutasAlReporte(){
@@ -9144,7 +9144,7 @@ function agregarTodasLasRutasAlReporte(){
   console.log(`[Reporte] +${agregadas} rutas agregadas · total ${_selRutas.size}`);
 }
 
-// v8.71 · Agregar TODOS los caminos secundarios visibles al reporte de una sola.
+// v8.72 · Agregar TODOS los caminos secundarios visibles al reporte de una sola.
 // Respeta los filtros de partido/clase activos en el panel Mapa (no agrega
 // caminos que ya están filtrados). Si el user quiere realmente TODOS, primero
 // destilda los filtros y después usa este botón.
@@ -9169,7 +9169,7 @@ function agregarTodosLosCaminosAlReporte(){
   console.log(`[Reporte] +${agregados} caminos agregados · total ${_selCaminos.size}`);
 }
 
-// v8.71b · PRESETS del wizard de reportes · shortcuts que agrupan las acciones más comunes
+// v8.72b · PRESETS del wizard de reportes · shortcuts que agrupan las acciones más comunes
 function _repPresetMarcar(btnFn){
   document.querySelectorAll('.rep-preset-btn').forEach(b => b.classList.remove('active'));
   if (btnFn && btnFn.currentTarget) btnFn.currentTarget.classList.add('active');
@@ -9216,8 +9216,8 @@ function repPresetSoloCaminos(event){
   if (typeof toast === 'function') toast('✓ Todos los Caminos Secundarios incluidos', 'ok');
 }
 
-// v8.71 · Poblar el dropdown de partidos del filtro del reporte con PARTIDOS_LIST
-// v8.71b · Fallback: si PARTIDOS_LIST está vacío, extraer partidos del geojson de caminos
+// v8.72 · Poblar el dropdown de partidos del filtro del reporte con PARTIDOS_LIST
+// v8.72b · Fallback: si PARTIDOS_LIST está vacío, extraer partidos del geojson de caminos
 //         (arregla bug: dropdown vacío al primer abrir del tab Reportes)
 function _poblarFiltroPartidosReporte(){
   const sel = document.getElementById('rep-partido-filter');
@@ -9241,7 +9241,7 @@ function _poblarFiltroPartidosReporte(){
   _actualizarBotonesPartidoReporte();
 }
 
-// v8.71c · Normaliza partido para matching tolerante (case + tildes + espacios).
+// v8.72c · Normaliza partido para matching tolerante (case + tildes + espacios).
 // Usa new RegExp con string ASCII (no regex literal) para evitar corrupción del
 // rango Unicode al guardar el archivo con encoding raro.
 var _RE_DIACRITICS = new RegExp('[\\u0300-\\u036F]', 'g');
@@ -9253,7 +9253,7 @@ function _normPartido(s){
     .replace(/\s+/g, ' ');        // colapsa espacios múltiples
 }
 
-// v8.71 · Actualizar la visibilidad y label de los botones "+ Rutas/Caminos del partido"
+// v8.72 · Actualizar la visibilidad y label de los botones "+ Rutas/Caminos del partido"
 function _actualizarBotonesPartidoReporte(){
   const sel = document.getElementById('rep-partido-filter');
   const partido = sel ? sel.value : '';
@@ -9268,7 +9268,7 @@ function _actualizarBotonesPartidoReporte(){
   }
 }
 
-// v8.71 · Agregar al reporte las Rutas Provinciales que atraviesan el partido elegido.
+// v8.72 · Agregar al reporte las Rutas Provinciales que atraviesan el partido elegido.
 // Método de detección:
 // 1. Si hay _rutasZonalesGeoCache (geojson zonal calibrado), usa properties.partido de las trazas
 // 2. Si hay CARACT_VIALES.tramos con partido, usa esa data
@@ -9283,7 +9283,7 @@ function agregarRutasDelPartidoAlReporte(){
   if (typeof _rutasZonalesGeoCache !== 'undefined' && _rutasZonalesGeoCache && _rutasZonalesGeoCache.features) {
     _rutasZonalesGeoCache.features.forEach(f => {
       const p = f.properties && (f.properties.partido || f.properties.PARTIDO || f.properties.PARTIDO_NOMBRE);
-      // v8.71b · match case-insensitive · antes fallaba si Mayús vs Título
+      // v8.72b · match case-insensitive · antes fallaba si Mayús vs Título
       if (p && _normPartido(p) === partidoNorm && f.properties.ruta) {
         rpsSet.add(String(f.properties.ruta).replace(/^RP\s*/i, ''));
       }
@@ -9315,7 +9315,7 @@ function agregarRutasDelPartidoAlReporte(){
   console.log(`[Reporte] +${agregadas} rutas de ${partido} agregadas (${[...rpsSet].join(', ')}) · total ${_selRutas.size}`);
 }
 
-// v8.71 · Agregar al reporte los Caminos Secundarios del partido elegido.
+// v8.72 · Agregar al reporte los Caminos Secundarios del partido elegido.
 function agregarCaminosDelPartidoAlReporte(){
   const sel = document.getElementById('rep-partido-filter');
   const partido = sel ? sel.value : '';
@@ -9328,8 +9328,8 @@ function agregarCaminosDelPartidoAlReporte(){
   const partidoNorm = _normPartido(partido);
   _caminosGeoJSON_cache.features.forEach(f => {
     if (!f.properties) return;
-    // v8.71 · Propiedad correcta es PARTIDO_NOMBRE (no PARTIDO ni partido)
-    // v8.71b · match case-insensitive · fix bug "General Alvear" vs "GENERAL ALVEAR"
+    // v8.72 · Propiedad correcta es PARTIDO_NOMBRE (no PARTIDO ni partido)
+    // v8.72b · match case-insensitive · fix bug "General Alvear" vs "GENERAL ALVEAR"
     const p = f.properties.PARTIDO_NOMBRE || f.properties.PARTIDO || f.properties.partido;
     if (!p || _normPartido(p) !== partidoNorm) return;
     const fid = _caminoFid(f);
@@ -9389,7 +9389,7 @@ function _actualizarChipSelUnificado(){
   const nC = _selCaminos ? _selCaminos.size : 0;
   const total = nR + nC;
   const txt = chip.querySelector('.chip-text');
-  // v8.71 · Usar id específico · antes .chip-btn agarraba el primero (que ahora
+  // v8.72 · Usar id específico · antes .chip-btn agarraba el primero (que ahora
   // es "+ Todas rutas" desde que agregamos shortcuts en v8.68), y el botón
   // "Limpiar todos" quedaba perpetuamente disabled.
   const btn = document.getElementById('chip-btn-limpiar');
@@ -9684,20 +9684,20 @@ function mostrarModalSIGVialCamino(feat, latlng){
   document.getElementById('modal-sigvial').style.display = 'flex';
 }
 
-// v8.71 · Edición colaborativa de alias de caminos secundarios POR TRAMO (SQL_14 + SQL_14b)
+// v8.72 · Edición colaborativa de alias de caminos secundarios POR TRAMO (SQL_14 + SQL_14b)
 // Estado local del modal
 let _aliasCnoState = { nomencl: null, tramoNum: null, alias: [], denomOficial: '', partido: '', denomLocal: '', obs: '', updatedAt: null };
-// v8.71 · Cache global de alias · key = "NOMENCLATURA#TRAMO_NUM" (ej. "093-13#1")
+// v8.72 · Cache global de alias · key = "NOMENCLATURA#TRAMO_NUM" (ej. "093-13#1")
 window._aliasCnoCache = window._aliasCnoCache || {};
 
-// v8.71 · Helper para armar key del cache de forma consistente
+// v8.72 · Helper para armar key del cache de forma consistente
 function _aliasCnoKey(nomencl, tramoNum){
   const t = (tramoNum != null && tramoNum !== '' && String(tramoNum) !== 'null' && String(tramoNum) !== '0')
     ? String(tramoNum) : 'ALL';
   return String(nomencl) + '#' + t;
 }
 
-// v8.71 · Cargar todos los alias en cache al arrancar la app (o después de cargar caminos)
+// v8.72 · Cargar todos los alias en cache al arrancar la app (o después de cargar caminos)
 async function _cargarCacheAliasCaminos(){
   if (typeof _supa === 'undefined' || !_supa) return;
   try {
@@ -9715,7 +9715,7 @@ async function _cargarCacheAliasCaminos(){
   } catch(e) { console.warn('[alias-cno cache]', e.message); }
 }
 
-// v8.71 · Helper para armar el HTML del bloque "Alias populares" del modal SIG Vial.
+// v8.72 · Helper para armar el HTML del bloque "Alias populares" del modal SIG Vial.
 //         Busca primero el alias específico del tramo, sino cae a 'ALL' (camino completo).
 function _renderBloqueAliasCamino(nomencl, tramoNum){
   const cache = window._aliasCnoCache || {};
@@ -9756,7 +9756,7 @@ function editarCaractCamino(){
     alert('Necesitás iniciar sesión para editar los alias de caminos.\n\nLos vecinos y personal técnico pueden sumar los nombres populares de los caminos una vez logueados.');
     return;
   }
-  // v8.71 · Pasar tramo_num del feat activo (si existe)
+  // v8.72 · Pasar tramo_num del feat activo (si existe)
   const tramoNum = (_sigFeatActivo && _sigFeatActivo.properties) ? _sigFeatActivo.properties.TRAMO_NUM : null;
   abrirModalAliasCamino(_sigCaminoActivo, tramoNum);
 }
@@ -9785,7 +9785,7 @@ async function abrirModalAliasCamino(nomencl, tramoNum){
   document.getElementById('alias-cno-denom-local').value = '';
   document.getElementById('alias-cno-obs').value = '';
   document.getElementById('alias-cno-updated').textContent = 'nuevo — todavía sin registro';
-  // v8.71 · Mostrar el selector de alcance SOLO si el camino tiene tramos numerados
+  // v8.72 · Mostrar el selector de alcance SOLO si el camino tiene tramos numerados
   const wrapAlcance = document.getElementById('alias-cno-alcance-wrap');
   const tramoTxt    = document.getElementById('alias-cno-tramo-txt');
   if (tramoNorm !== 'ALL' && wrapAlcance) {
@@ -9807,7 +9807,7 @@ async function abrirModalAliasCamino(nomencl, tramoNum){
   //         o cambiar el alcance a 'ALL' para actualizar el registro global.
   try {
     if (typeof _supa === 'undefined' || !_supa) return;
-    // v8.71b · Traer AMBAS filas (tramo específico + ALL) para no perder los ya guardados
+    // v8.72b · Traer AMBAS filas (tramo específico + ALL) para no perder los ya guardados
     const { data: filas, error } = await _supa
       .from('caminos_alias')
       .select('*')
@@ -9839,7 +9839,7 @@ async function abrirModalAliasCamino(nomencl, tramoNum){
   } catch(e) { console.warn('[alias-cno] fetch:', e.message); }
 }
 
-// v8.71 · Cuando el user cambia entre "este tramo" y "camino completo",
+// v8.72 · Cuando el user cambia entre "este tramo" y "camino completo",
 //         re-buscamos el alias correspondiente y refrescamos el modal.
 async function _aliasCnoOnAlcanceChange(){
   if (!_aliasCnoState.nomencl) return;
@@ -9916,7 +9916,7 @@ function _aliasCnoQuitarChip(idx){
 
 async function guardarAliasCamino(){
   if (!_aliasCnoState.nomencl) return;
-  // v8.71 · _supa es const del scope del script (no window._supa)
+  // v8.72 · _supa es const del scope del script (no window._supa)
   if (typeof _supa === 'undefined' || !_supa) { alert('No hay conexión con Supabase.'); return; }
   const btn = document.getElementById('alias-cno-btn-guardar');
   const orig = btn.textContent;
@@ -9925,7 +9925,7 @@ async function guardarAliasCamino(){
   const denomLocal = document.getElementById('alias-cno-denom-local').value.trim() || null;
   const obs = document.getElementById('alias-cno-obs').value.trim() || null;
   const zona = (typeof DVBA_PERFIL !== 'undefined' && DVBA_PERFIL.zonaActual) ? DVBA_PERFIL.zonaActual() : 'VI';
-  // v8.71 · Leer alcance elegido (si el selector está visible) · sino usar tramo del state
+  // v8.72 · Leer alcance elegido (si el selector está visible) · sino usar tramo del state
   const alcance = document.querySelector('input[name="alias-alcance"]:checked');
   const tramoFinal = alcance ? (alcance.value === 'ALL' ? 'ALL' : _aliasCnoState.tramoNum) : _aliasCnoState.tramoNum;
   const payload = {
@@ -9951,7 +9951,7 @@ async function guardarAliasCamino(){
     // Refrescar el cache local con key nomencl#tramo
     window._aliasCnoCache = window._aliasCnoCache || {};
     window._aliasCnoCache[_aliasCnoKey(_aliasCnoState.nomencl, tramoFinal)] = data;
-    // v8.71 · Si el modal SIG Vial estaba abierto sobre este mismo camino, re-renderizar
+    // v8.72 · Si el modal SIG Vial estaba abierto sobre este mismo camino, re-renderizar
     // para que aparezca el bloque de alias populares actualizado sin cerrar/reabrir
     if (_sigCaminoActivo === _aliasCnoState.nomencl && _sigFeatActivo && typeof mostrarModalSIGVialCamino === 'function') {
       try {
