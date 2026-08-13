@@ -26,7 +26,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.95.1';  // v9.95.1 · Fix APP_VER no declarada en dvba_campo.html (modal Acerca de mostraba versión vieja cacheada)
+const CACHE_NAME = 'dvba-campo-v9.95.2';  // v9.95.2 · SW skipWaiting automático + fix APP_VER Modo Avanzado
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -69,6 +69,11 @@ const CACHE_URLS = [
 ];
 
 self.addEventListener('install', e => {
+  // v9.95.2 · skipWaiting() automático: el nuevo SW toma control inmediatamente
+  // sin esperar a que todas las tabs se cierren. Combinado con clients.claim()
+  // del activate handler, garantiza que un bump de versión sea efectivo
+  // en el próximo reload del user, no requiere re-instalación de la PWA.
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then(c =>
       Promise.all(CACHE_URLS.map(url =>

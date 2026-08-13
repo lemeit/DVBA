@@ -453,7 +453,7 @@ body.modo-campo #campo-fab{display:flex}
     <button id="cola-badge" class="role-oculto" data-requiere-sesion="1" title="Registros pendientes de revisión" onclick="abrirColaPendientes()">
       🔔 <span id="cola-count">0</span> pendientes
     </button>
-    <!-- v8.69 · Wiki pública (todos los roles + modo público) -->
+    <!-- v8.70 · Wiki pública (todos los roles + modo público) -->
     <a class="nav-app" href="https://lemeit.github.io/DVBA/wiki/" target="_blank" rel="noopener" title="Guía de usuario del sistema (se abre en pestaña nueva)">
       📖 Guía
     </a>
@@ -488,7 +488,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.69</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.70</span></div>
   </div>
 </div>
 <div class="layout">
@@ -675,17 +675,27 @@ body.modo-campo #campo-fab{display:flex}
       <!-- El select queda oculto por retrocompatibilidad con _repTipo() legacy -->
       <select id="rep-tipo" style="display:none"><option value="mixto" selected>mixto</option></select>
 
-      <!-- v8.33 · Chip contador SIEMPRE visible con estado + v8.51 lista expandible + v8.69 shortcuts "+ Todas" -->
+      <!-- v8.33 · Chip contador SIEMPRE visible con estado + v8.51 lista expandible + v8.70 shortcuts "+ Todas" -->
       <div id="rep-selchip" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--light);color:var(--mut);padding:5px 8px;border-radius:4px;margin-bottom:6px;font-size:11px;flex-wrap:wrap">
         <b class="chip-text">Sin selección manual · usa las vías activas del mapa</b>
         <button onclick="_toggleSelList()" class="chip-toggle" style="display:none;padding:2px 6px;background:var(--w);color:var(--vd);border:1px solid var(--vd);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">▾ Ver</button>
-        <!-- v8.69 · Shortcuts para agregar toda la red de una sin ir click por click -->
+        <!-- v8.70 · Shortcuts para agregar toda la red de una sin ir click por click -->
         <button onclick="agregarTodasLasRutasAlReporte()" class="chip-btn" title="Agregar todas las Rutas Provinciales (Red Primaria) al reporte" style="margin-left:auto;padding:2px 8px;background:#f0f8fa;color:var(--pd);border:1px solid var(--p);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Todas rutas</button>
         <button onclick="agregarTodosLosCaminosAlReporte()" class="chip-btn" title="Agregar todos los Caminos Secundarios (Red Secundaria) al reporte" style="padding:2px 8px;background:#faf0eb;color:#c25a2a;border:1px solid #c25a2a;border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Todos caminos</button>
-        <button onclick="limpiarSelReporteActual()" class="chip-btn" style="padding:2px 8px;background:var(--w);color:var(--mut);border:1px solid var(--light);border-radius:3px;cursor:not-allowed;font-size:10px;font-weight:600" disabled>✕ Limpiar todos</button>
+        <button onclick="limpiarSelReporteActual()" id="chip-btn-limpiar" class="chip-btn" style="padding:2px 8px;background:var(--w);color:var(--mut);border:1px solid var(--light);border-radius:3px;cursor:not-allowed;font-size:10px;font-weight:600" disabled>✕ Limpiar todos</button>
         <div id="rep-sellist" style="display:none;width:100%;margin-top:4px;padding-top:6px;border-top:1px solid var(--vd);max-height:180px;overflow-y:auto;font-size:10px">
           <!-- Items dinámicos -->
         </div>
+      </div>
+
+      <!-- v8.70 · Filtro por partido: elegí un partido y aparecen 2 botones para agregar solo lo de ese partido -->
+      <div style="display:flex;align-items:center;gap:6px;background:#fef9e6;border:1px solid #f0c250;color:var(--txt);padding:5px 8px;border-radius:4px;margin-bottom:8px;font-size:11px;flex-wrap:wrap">
+        <b style="color:#8a6d00">📍 Por partido:</b>
+        <select id="rep-partido-filter" onchange="_actualizarBotonesPartidoReporte()" style="padding:2px 6px;border:1px solid #d0d4dc;background:var(--w);border-radius:3px;font-size:11px;font-family:inherit;flex:1;min-width:100px">
+          <option value="">— Elegí partido —</option>
+        </select>
+        <button onclick="agregarRutasDelPartidoAlReporte()" id="chip-btn-rutas-partido" class="chip-btn" style="display:none;padding:2px 8px;background:#f0f8fa;color:var(--pd);border:1px solid var(--p);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Rutas</button>
+        <button onclick="agregarCaminosDelPartidoAlReporte()" id="chip-btn-caminos-partido" class="chip-btn" style="display:none;padding:2px 8px;background:#faf0eb;color:#c25a2a;border:1px solid #c25a2a;border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Caminos</button>
       </div>
 
       <!-- v8.51 · Info: solo selección manual entra al reporte (chips del mapa son solo visualización) -->
@@ -864,8 +874,8 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.69';
-window.APP_VERSION = APP_VERSION;  // v8.69 · expone a window para legales.js
+const APP_VERSION = 'v8.70';
+window.APP_VERSION = APP_VERSION;  // v8.70 · expone a window para legales.js
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -3759,6 +3769,8 @@ function _reemplazarPartidos(nuevoGeo){
   PARTIDOS_GEO = nuevoGeo;
   // Recomputar lista de partidos activos
   PARTIDOS_LIST = nuevoGeo.features.map(f => f.properties.partido).filter(Boolean).sort();
+  // v8.70 · Repoblar el dropdown del filtro de reportes con la nueva zona
+  if (typeof _poblarFiltroPartidosReporte === 'function') _poblarFiltroPartidosReporte();
   // Reset selección (todos activos)
   selP = new Set(PARTIDOS_LIST);
   // v8.66f.2 · FIX bug persistencia sombreado VI: capasP guarda ARRAYS de layers
@@ -4513,6 +4525,8 @@ const TIPOS_TODOS = typeof DVBA_TIPOS !== 'undefined' ? DVBA_TIPOS.todos() : [];
 let selTipos = new Set(TIPOS_TODOS);
 
 function buildTipoFiltros() {
+  // v8.70 · Al abrir el tab Reportes, refrescar el dropdown de filtro por partido
+  if (typeof _poblarFiltroPartidosReporte === 'function') _poblarFiltroPartidosReporte();
   const div = document.getElementById('tipo-filtros');
   if (!div) return;
   // Normalizar tipos de registros para matching tolerante a tildes
@@ -5389,12 +5403,21 @@ function _genRepRutas() {
     '<th>Partido</th><th>Nomencl.</th><th>Tramo</th><th>Denominación</th>' +
     '<th>Clase</th><th>Sentido</th><th>Km GIS</th><th>Km Oficial</th>' +
     '</tr></thead><tbody>';
-  tramos.forEach(r => {
+  // v8.70 · Separador visual claro entre RPs: insertar header al INICIO de cada RP
+  // + border grueso al cerrar cada bloque. Antes solo había una fila-resumen tenue
+  // y las siguientes filas parecían continuación de la RP anterior.
+  let _ridPrev = null;
+  tramos.forEach((r, idx) => {
+    // Header de sección cuando arranca una RP nueva (o es la primera fila)
+    if (r.rid !== _ridPrev && !r.esResumen) {
+      html += `<tr class="rp-header-row"><td colspan="8" style="background:linear-gradient(90deg, ${r.color}40, ${r.color}12 60%, transparent);border-top:${_ridPrev==null?'0':'3px solid '+r.color};padding:8px 10px;font-family:'Encode Sans',sans-serif;font-size:12px;font-weight:800;color:${r.color};letter-spacing:.3px">▸ ${r.rutaLabel}</td></tr>`;
+      _ridPrev = r.rid;
+    }
     if (r.esResumen) {
-      // Fila-resumen · fondo destacado con color de la ruta
+      // Fila-resumen · fondo destacado con color de la ruta + cierre visual grueso
       const mojBadge = r.mojones != null ? ` &nbsp;·&nbsp; 🚧 ${r.mojones} mojón${r.mojones===1?'':'es'}` : '';
       const regBadge = r.registros != null ? ` &nbsp;·&nbsp; 📋 ${r.registros} reg.` : '';
-      html += `<tr style="background:${r.color}18;border-top:2px solid ${r.color}">` +
+      html += `<tr style="background:${r.color}22;border-top:2px solid ${r.color};border-bottom:4px double ${r.color}">` +
         `<td colspan="4" style="font-size:10px;color:${r.color};font-weight:700;font-family:'Encode Sans',sans-serif;padding:6px 8px">` +
           `${r.denominacion}<span style="color:var(--mut);font-weight:400;font-size:9px">${mojBadge}${regBadge}</span></td>` +
         `<td style="font-size:9px">${_csClaseChip ? _csClaseChip(r.clase.split(' / ')[0]) : r.clase}</td>` +
@@ -5402,10 +5425,11 @@ function _genRepRutas() {
         `<td style="text-align:right;font-family:'SF Mono',Menlo,monospace;font-weight:700">${r.longGis}</td>` +
         `<td style="text-align:right;font-family:'SF Mono',Menlo,monospace;font-weight:700;color:var(--p)">${r.longOf}</td>` +
         `</tr>`;
+      _ridPrev = r.rid;  // asegurar que la próxima iteración detecte cambio
     } else {
-      // Fila de tramo normal
+      // Fila de tramo normal · barra lateral coloreada en el partido para agrupar visualmente
       html += `<tr>` +
-        `<td style="font-size:9px">${r.partido}</td>` +
+        `<td style="font-size:9px;border-left:4px solid ${r.color}66;padding-left:6px">${r.partido}</td>` +
         `<td style="font-family:'SF Mono',Menlo,monospace;font-size:9px;color:var(--pd)"><b>${r.nomenclatura}</b></td>` +
         `<td style="text-align:center;font-size:9px;color:var(--mut)">${r.tramoIdx || '—'}</td>` +
         `<td style="font-size:10px">${r.denominacion}</td>` +
@@ -5651,7 +5675,7 @@ ${mapaBlockHtml}
   <span>Dirección de Vialidad de la Provincia de Buenos Aires</span>
 </div>
 
-<script>window.onload = function() { window.print(); }<\/script>
+${(function(){ const f = _buildPanelFiltrosInteractivo(); return f.css + f.script; })()}
 </body></html>`;
 
   // v8.51 · Modo mixto: devolver el HTML en lugar de abrir tab
@@ -5814,7 +5838,7 @@ ${seccionesHtml}
   <span>Dirección de Vialidad de la Provincia de Buenos Aires</span>
 </div>
 
-<script>window.onload = function() { window.print(); }<\/script>
+${(function(){ const f = _buildPanelFiltrosInteractivo(); return f.css + f.script; })()}
 </body></html>`;
 
   const blob = new Blob([pdfHtml], { type:'text/html;charset=utf-8' });
@@ -6005,6 +6029,112 @@ function _genRepCaminos(opts){
    Ambos individuales retornan HTML (retornarHtml:true), acá se extraen
    los <body> y se combinan en un doc con salto de página entre secciones.
    Evita popup blocker que descartaba el segundo tab. */
+// v8.70 · Helper compartido para inyectar panel de filtros interactivo + CSS + JS
+// en cualquiera de los 3 templates de reporte (rutas, caminos, mixto).
+// Devuelve { css, panel, script } que se ensamblan en el template.
+function _buildPanelFiltrosInteractivo(){
+  const css = `<style>
+    #filtros-panel { position:sticky; top:0; z-index:100; background:#fef9e6; border:1px solid #f0c250; border-radius:6px; padding:10px 14px; margin-bottom:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; font-family:'Encode Sans','Segoe UI',sans-serif; font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,.08); }
+    #filtros-panel label { font-weight:600; color:#8a6d00; margin-right:4px; }
+    #filtros-panel input, #filtros-panel select { padding:5px 8px; border:1px solid #d0d4dc; border-radius:4px; font-size:13px; font-family:inherit; background:#fff; }
+    #filtros-panel input[type=text] { min-width:180px; }
+    #filtros-panel button { padding:6px 12px; border:none; border-radius:4px; cursor:pointer; font-weight:600; font-size:12px; font-family:inherit; }
+    #btn-limpiar-fil { background:#e0e0e0; color:#333; }
+    #btn-limpiar-fil:hover { background:#c8c8c8; }
+    #btn-imprimir { background:#00aec3; color:#fff; }
+    #btn-imprimir:hover { background:#007e8c; }
+    #contador-fil { margin-left:auto; font-size:11px; color:#666; font-style:italic; }
+    tr.oculto-fil { display:none !important; }
+    @media print {
+      #filtros-panel { display:none !important; }
+    }
+  </style>`;
+  const panel = `<div id="filtros-panel">
+    <label>📍 Partido:</label>
+    <select id="fil-partido"><option value="">Todos</option></select>
+    <label>🔍 Buscar:</label>
+    <input type="text" id="fil-texto" placeholder="ruta, denominación, nomenclatura…">
+    <label>🎨 Clase:</label>
+    <select id="fil-clase"><option value="">Todas</option></select>
+    <button id="btn-limpiar-fil" onclick="limpiarFiltros()">✕ Limpiar</button>
+    <button id="btn-imprimir" onclick="window.print()">🖨 Imprimir / PDF</button>
+    <span id="contador-fil"></span>
+  </div>`;
+  // Panel se inyecta dinámicamente al top del body para funcionar en cualquier
+  // template (rutas, caminos, mixto) sin editar sus estructuras HTML.
+  const panelJS = panel.replace(/`/g, '\\`').replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '');
+  const script = `<script>
+    (function(){
+      // Inyectar CSS y panel al top del body
+      const panelHTML = ${JSON.stringify(panel)};
+      const div = document.createElement('div');
+      div.innerHTML = panelHTML;
+      document.body.insertBefore(div.firstElementChild, document.body.firstChild);
+      const inputPartido = document.getElementById('fil-partido');
+      const inputTexto   = document.getElementById('fil-texto');
+      const inputClase   = document.getElementById('fil-clase');
+      const contador     = document.getElementById('contador-fil');
+      if (!inputPartido || !inputTexto || !inputClase) return;
+      const allRows = Array.from(document.querySelectorAll('tbody tr'));
+      const partidosSet = new Set();
+      const clasesSet   = new Set();
+      allRows.forEach(tr => {
+        const cells = tr.querySelectorAll('td');
+        if (cells.length < 5) return;
+        const partido = (cells[0].textContent || '').trim();
+        const clase   = (cells[4].textContent || '').trim();
+        if (partido && partido !== '—' && !partido.startsWith('TOTAL') && !partido.startsWith('▸')) partidosSet.add(partido);
+        if (clase && clase !== '—') clasesSet.add(clase);
+      });
+      [...partidosSet].sort().forEach(p => {
+        const o = document.createElement('option'); o.value = p; o.textContent = p; inputPartido.appendChild(o);
+      });
+      [...clasesSet].sort().forEach(c => {
+        const o = document.createElement('option'); o.value = c; o.textContent = c; inputClase.appendChild(o);
+      });
+      function aplicarFiltros(){
+        const fP = inputPartido.value.trim().toLowerCase();
+        const fT = inputTexto.value.trim().toLowerCase();
+        const fC = inputClase.value.trim().toLowerCase();
+        let visibles = 0, ocultas = 0;
+        allRows.forEach(tr => {
+          const cells = tr.querySelectorAll('td');
+          const txt = tr.textContent.toLowerCase();
+          const esHeader = tr.querySelector('td[colspan="8"]') !== null;
+          const esTotal  = txt.includes('total');
+          if (esHeader || esTotal) { tr.classList.remove('oculto-fil'); return; }
+          let mostrar = true;
+          if (fP && cells.length >= 1) {
+            const partido = (cells[0].textContent || '').trim().toLowerCase();
+            if (partido !== fP) mostrar = false;
+          }
+          if (mostrar && fT) {
+            if (!txt.includes(fT)) mostrar = false;
+          }
+          if (mostrar && fC && cells.length >= 5) {
+            const clase = (cells[4].textContent || '').trim().toLowerCase();
+            if (!clase.includes(fC)) mostrar = false;
+          }
+          if (mostrar) { tr.classList.remove('oculto-fil'); visibles++; }
+          else         { tr.classList.add('oculto-fil'); ocultas++; }
+        });
+        contador.textContent = ocultas > 0
+          ? '👁 ' + visibles + ' filas visibles · ' + ocultas + ' ocultas por el filtro'
+          : '👁 ' + visibles + ' filas · sin filtros';
+      }
+      inputPartido.addEventListener('change', aplicarFiltros);
+      inputTexto.addEventListener('input', aplicarFiltros);
+      inputClase.addEventListener('change', aplicarFiltros);
+      window.limpiarFiltros = function(){
+        inputPartido.value = ''; inputTexto.value = ''; inputClase.value = '';
+        aplicarFiltros();
+      };
+      aplicarFiltros();
+    })();
+  <\/script>`;
+  return { css, panel, script };
+}
+
 async function _expRepMixtoPDF(){
   const sec = _repSecciones();
   const htmls = [];
@@ -6019,9 +6149,31 @@ async function _expRepMixtoPDF(){
     const m = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
     return m ? m[1].replace(/<title[\s\S]*?<\/title>/i, '') : '';
   };
-  const cssMixto = `<style>@page { size: A4 landscape; margin: 12mm; } .pagina-sec { page-break-after: always; } .pagina-sec:last-child { page-break-after: auto; }</style>`;
+  // v8.70 · CSS del panel de filtros interactivo + estilos de impresión que lo ocultan
+  const cssMixto = `<style>
+    @page { size: A4 landscape; margin: 12mm; }
+    .pagina-sec { page-break-after: always; }
+    .pagina-sec:last-child { page-break-after: auto; }
+    /* Panel de filtros · v8.70 */
+    #filtros-panel { position:sticky; top:0; z-index:100; background:#fef9e6; border:1px solid #f0c250; border-radius:6px; padding:10px 14px; margin-bottom:14px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; font-family:'Encode Sans','Segoe UI',sans-serif; font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,.08); }
+    #filtros-panel label { font-weight:600; color:#8a6d00; margin-right:4px; }
+    #filtros-panel input, #filtros-panel select { padding:5px 8px; border:1px solid #d0d4dc; border-radius:4px; font-size:13px; font-family:inherit; background:#fff; }
+    #filtros-panel input[type=text] { min-width:180px; }
+    #filtros-panel button { padding:6px 12px; border:none; border-radius:4px; cursor:pointer; font-weight:600; font-size:12px; font-family:inherit; }
+    #btn-limpiar-fil { background:#e0e0e0; color:#333; }
+    #btn-limpiar-fil:hover { background:#c8c8c8; }
+    #btn-imprimir { background:#00aec3; color:#fff; }
+    #btn-imprimir:hover { background:#007e8c; }
+    #contador-fil { margin-left:auto; font-size:11px; color:#666; font-style:italic; }
+    tr.oculto-fil { display:none !important; }
+    @media print {
+      #filtros-panel { display:none !important; }
+    }
+  </style>`;
   const bodies = htmls.map(h => `<div class="pagina-sec">${parseBody(h)}</div>`).join('');
-  const combinado = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>DVBA Zona VI · Reporte Mixto de Red Vial</title>${parseHead(htmls[0])}${cssMixto}</head><body>${bodies}<script>window.onload = function() { window.print(); }<\/script></body></html>`;
+  // v8.70 · Usar el helper compartido para el panel de filtros interactivo
+  const filtros = _buildPanelFiltrosInteractivo();
+  const combinado = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>DVBA Zona VI · Reporte Mixto de Red Vial</title>${parseHead(htmls[0])}${cssMixto}${filtros.css}</head><body>${bodies}${filtros.script}</body></html>`;
   const blob = new Blob([combinado], { type:'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -6156,7 +6308,7 @@ ${!showMapa_c ? '' : (mapaImgDataUrl_c
   <span>Sistema SIG Vial PBA · DVBA Zona VI · Ing. Luciano Lamaita</span>
   <span>Dirección de Vialidad de la Provincia de Buenos Aires</span>
 </div>
-<script>window.onload = function() { window.print(); }<\/script>
+${(function(){ const f = _buildPanelFiltrosInteractivo(); return f.css + f.script; })()}
 </body></html>`;
 
   // v8.51 · Modo mixto: devolver el HTML en lugar de abrir tab
@@ -8400,7 +8552,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
       <div style="margin-bottom:14px">
         <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
-        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.69</span> · Familia escritorio</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.70</span> · Familia escritorio</div>
         <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.91</b></div>
       </div>
 
@@ -8702,7 +8854,7 @@ function limpiarSelRutas(){
   if (tabla && tabla.innerHTML.trim() && _repTipo() === 'rutas') generarReporte();
 }
 
-// v8.69 · Agregar TODAS las rutas de la zona activa al reporte de una sola
+// v8.70 · Agregar TODAS las rutas de la zona activa al reporte de una sola
 // Evita tener que hacer click ruta por ruta en el mapa. Toma RUTAS_LIST (que ya
 // refleja la zona activa gracias al loader dinámico multi-zona).
 function agregarTodasLasRutasAlReporte(){
@@ -8723,7 +8875,7 @@ function agregarTodasLasRutasAlReporte(){
   console.log(`[Reporte] +${agregadas} rutas agregadas · total ${_selRutas.size}`);
 }
 
-// v8.69 · Agregar TODOS los caminos secundarios visibles al reporte de una sola.
+// v8.70 · Agregar TODOS los caminos secundarios visibles al reporte de una sola.
 // Respeta los filtros de partido/clase activos en el panel Mapa (no agrega
 // caminos que ya están filtrados). Si el user quiere realmente TODOS, primero
 // destilda los filtros y después usa este botón.
@@ -8746,6 +8898,108 @@ function agregarTodosLosCaminosAlReporte(){
   const tabla = document.getElementById('rep-tabla');
   if (tabla && tabla.innerHTML.trim()) generarReporte();
   console.log(`[Reporte] +${agregados} caminos agregados · total ${_selCaminos.size}`);
+}
+
+// v8.70 · Poblar el dropdown de partidos del filtro del reporte con PARTIDOS_LIST
+// Se llama al cargar la app y cada vez que cambia la zona activa.
+function _poblarFiltroPartidosReporte(){
+  const sel = document.getElementById('rep-partido-filter');
+  if (!sel) return;
+  const prev = sel.value;
+  const partidos = (Array.isArray(PARTIDOS_LIST) ? PARTIDOS_LIST : []).slice().sort();
+  sel.innerHTML = '<option value="">— Elegí partido —</option>' +
+    partidos.map(p => `<option value="${p}">${p}</option>`).join('');
+  // Restaurar selección previa si sigue siendo válida
+  if (prev && partidos.includes(prev)) sel.value = prev;
+  _actualizarBotonesPartidoReporte();
+}
+
+// v8.70 · Actualizar la visibilidad y label de los botones "+ Rutas/Caminos del partido"
+function _actualizarBotonesPartidoReporte(){
+  const sel = document.getElementById('rep-partido-filter');
+  const partido = sel ? sel.value : '';
+  const btnR = document.getElementById('chip-btn-rutas-partido');
+  const btnC = document.getElementById('chip-btn-caminos-partido');
+  if (partido) {
+    if (btnR) { btnR.style.display = ''; btnR.title = `Agregar Rutas Provinciales que atraviesan ${partido}`; }
+    if (btnC) { btnC.style.display = ''; btnC.title = `Agregar Caminos Secundarios del partido ${partido}`; }
+  } else {
+    if (btnR) btnR.style.display = 'none';
+    if (btnC) btnC.style.display = 'none';
+  }
+}
+
+// v8.70 · Agregar al reporte las Rutas Provinciales que atraviesan el partido elegido.
+// Método de detección:
+// 1. Si hay _rutasZonalesGeoCache (geojson zonal calibrado), usa properties.partido de las trazas
+// 2. Si hay CARACT_VIALES.tramos con partido, usa esa data
+// 3. Fallback: si no hay data → alert al user
+function agregarRutasDelPartidoAlReporte(){
+  const sel = document.getElementById('rep-partido-filter');
+  const partido = sel ? sel.value : '';
+  if (!partido) { alert('Elegí un partido del dropdown primero.'); return; }
+  const rpsSet = new Set();
+  // Método 1: geojson zonal (más preciso, ya clipeado a los polígonos)
+  if (typeof _rutasZonalesGeoCache !== 'undefined' && _rutasZonalesGeoCache && _rutasZonalesGeoCache.features) {
+    _rutasZonalesGeoCache.features.forEach(f => {
+      const p = f.properties && (f.properties.partido || f.properties.PARTIDO);
+      if (p === partido && f.properties.ruta) {
+        rpsSet.add(String(f.properties.ruta).replace(/^RP\s*/i, ''));
+      }
+    });
+  }
+  // Método 2: CARACT_VIALES por partidos declarados
+  if (rpsSet.size === 0 && typeof CARACT_VIALES !== 'undefined' && CARACT_VIALES) {
+    Object.entries(CARACT_VIALES).forEach(([rid, cvr]) => {
+      const enPartido = (cvr && (
+        (cvr.partidos && cvr.partidos.includes(partido)) ||
+        (cvr.tramos && cvr.tramos.some(t => t.partido === partido))
+      ));
+      if (enPartido) rpsSet.add(String(rid));
+    });
+  }
+  if (rpsSet.size === 0) {
+    alert(`No pude detectar qué Rutas atraviesan ${partido}. Usá "+ Todas rutas" y filtrá manualmente después.`);
+    return;
+  }
+  let agregadas = 0;
+  rpsSet.forEach(rid => {
+    if (!_selRutas.has(String(rid))) { _selRutas.add(String(rid)); agregadas++; }
+  });
+  _actualizarBotonSelRP();
+  _actualizarChipSelUnificado();
+  if (typeof drawRutas === 'function') drawRutas();
+  const tabla = document.getElementById('rep-tabla');
+  if (tabla && tabla.innerHTML.trim()) generarReporte();
+  console.log(`[Reporte] +${agregadas} rutas de ${partido} agregadas (${[...rpsSet].join(', ')}) · total ${_selRutas.size}`);
+}
+
+// v8.70 · Agregar al reporte los Caminos Secundarios del partido elegido.
+function agregarCaminosDelPartidoAlReporte(){
+  const sel = document.getElementById('rep-partido-filter');
+  const partido = sel ? sel.value : '';
+  if (!partido) { alert('Elegí un partido del dropdown primero.'); return; }
+  if (!_caminosGeoJSON_cache || !_caminosGeoJSON_cache.features) {
+    alert('Los caminos secundarios todavía no cargaron. Esperá unos segundos y probá de nuevo.');
+    return;
+  }
+  let agregados = 0;
+  _caminosGeoJSON_cache.features.forEach(f => {
+    if (!f.properties) return;
+    const p = f.properties.PARTIDO || f.properties.partido;
+    if (p !== partido) return;
+    const fid = _caminoFid(f);
+    if (fid && !_selCaminos.has(fid)) { _selCaminos.add(fid); agregados++; }
+  });
+  if (agregados === 0) {
+    alert(`No se encontraron caminos secundarios en ${partido}.`);
+    return;
+  }
+  _actualizarChipSelUnificado();
+  if (typeof csRefrescarLayer === 'function') csRefrescarLayer();
+  const tabla = document.getElementById('rep-tabla');
+  if (tabla && tabla.innerHTML.trim()) generarReporte();
+  console.log(`[Reporte] +${agregados} caminos de ${partido} agregados · total ${_selCaminos.size}`);
 }
 
 // Dispatch limpiar según tipo activo del panel
@@ -8791,7 +9045,10 @@ function _actualizarChipSelUnificado(){
   const nC = _selCaminos ? _selCaminos.size : 0;
   const total = nR + nC;
   const txt = chip.querySelector('.chip-text');
-  const btn = chip.querySelector('.chip-btn');
+  // v8.70 · Usar id específico · antes .chip-btn agarraba el primero (que ahora
+  // es "+ Todas rutas" desde que agregamos shortcuts en v8.68), y el botón
+  // "Limpiar todos" quedaba perpetuamente disabled.
+  const btn = document.getElementById('chip-btn-limpiar');
   const btnToggle = chip.querySelector('.chip-toggle');
   const list = document.getElementById('rep-sellist');
   if (total > 0) {
