@@ -9666,9 +9666,9 @@ async function abrirModalAliasCamino(nomencl){
 
   // Cargar alias existente si existe
   try {
-    const supa = window._supa || (typeof supabase !== 'undefined' && supabase.createClient ? null : null);
-    if (!window._supa) return;
-    const { data, error } = await window._supa
+    // v8.71 · _supa es const del scope global del script, NO window._supa
+    if (typeof _supa === 'undefined' || !_supa) return;
+    const { data, error } = await _supa
       .from('caminos_alias')
       .select('*')
       .eq('nomenclatura', nomencl)
@@ -9725,7 +9725,8 @@ function _aliasCnoQuitarChip(idx){
 
 async function guardarAliasCamino(){
   if (!_aliasCnoState.nomencl) return;
-  if (!window._supa) { alert('No hay conexión con Supabase.'); return; }
+  // v8.71 · _supa es const del scope del script (no window._supa)
+  if (typeof _supa === 'undefined' || !_supa) { alert('No hay conexión con Supabase.'); return; }
   const btn = document.getElementById('alias-cno-btn-guardar');
   const orig = btn.textContent;
   btn.disabled = true;
@@ -9743,7 +9744,7 @@ async function guardarAliasCamino(){
     observaciones: obs
   };
   try {
-    const { data, error } = await window._supa
+    const { data, error } = await _supa
       .from('caminos_alias')
       .upsert(payload, { onConflict: 'nomenclatura' })
       .select()
