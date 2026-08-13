@@ -792,10 +792,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#como-se-usa-en-el-proyecto" class="md-nav__link">
+  <a href="#como-se-usa-en-el-sistema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Cómo se usa en el proyecto
+        Cómo se usa en el sistema
       
     </span>
   </a>
@@ -803,21 +803,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#estado-de-digitalizacion" class="md-nav__link">
+  <a href="#portada" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Estado de digitalización
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#portada-para-referencia-visual" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Portada (para referencia visual)
+        Portada
       
     </span>
   </a>
@@ -979,10 +968,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#como-se-usa-en-el-proyecto" class="md-nav__link">
+  <a href="#como-se-usa-en-el-sistema" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Cómo se usa en el proyecto
+        Cómo se usa en el sistema
       
     </span>
   </a>
@@ -990,21 +979,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#estado-de-digitalizacion" class="md-nav__link">
+  <a href="#portada" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Estado de digitalización
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#portada-para-referencia-visual" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Portada (para referencia visual)
+        Portada
       
     </span>
   </a>
@@ -1061,28 +1039,17 @@ Copia física en poder de: División Técnica DVBA Zona VI.</p>
 <h3 id="por-que-es-importante">Por qué es importante<a class="headerlink" href="#por-que-es-importante" title="Permanent link">¶</a></h3>
 <ul>
 <li>Es la <strong>fuente autoritativa histórica</strong> de la traza y denominación de las rutas y caminos de la zona.</li>
-<li>Aunque los datos de <strong>estado</strong> (pavimento, transitabilidad, tráfico) están desactualizados (1989), la <strong>ubicación, sentido de progresiva, denominación oficial y jurisdicción no cambiaron</strong>.</li>
-<li>Sirve como cross-check contra:</li>
-<li>Datos IGN (capas oficiales del Instituto Geográfico Nacional).</li>
-<li>Datos ARBA (parcelas y límites de partido).</li>
-<li>GeoJSONs actuales del proyecto (<code>red_secundaria_zonaVI_final.geojson</code>, <code>caminos_secundarios_PBA.geojson</code>).</li>
-<li>Bundles procesados (<code>datos/rutas_rpXX.js</code>).</li>
-<li>Es una <strong>reliquia institucional</strong> — versión papel única, firmada por el jefe técnico de la zona en 1989. Vale digitalizarla progresivamente en la medida en que sirva para completar datos faltantes del sistema.</li>
+<li>Aunque los datos de <strong>estado</strong> (pavimento, transitabilidad, tráfico) están desactualizados a 1989, la <strong>ubicación, sentido de progresiva, denominación oficial y jurisdicción no cambiaron</strong>.</li>
+<li>Sirve como cotejo cruzado contra fuentes cartográficas actuales (IGN, ARBA, capas del sistema).</li>
 </ul>
-<h3 id="como-se-usa-en-el-proyecto">Cómo se usa en el proyecto<a class="headerlink" href="#como-se-usa-en-el-proyecto" title="Permanent link">¶</a></h3>
+<h3 id="como-se-usa-en-el-sistema">Cómo se usa en el sistema<a class="headerlink" href="#como-se-usa-en-el-sistema" title="Permanent link">¶</a></h3>
 <ul>
-<li><strong>Al verificar denominaciones</strong>: si un camino secundario aparece con nombre distinto en el geojson vs el nomenclador, prevalece el nomenclador (salvo que el geojson tenga fecha más reciente confirmada).</li>
-<li><strong>Al verificar sentido de progresiva</strong>: si una RP tiene progresiva con sentido dudoso, el nomenclador de 1989 confirma el origen histórico (mojón 0).</li>
-<li><strong>Al analizar tramos legacy</strong>: los tramos que el nomenclador lista pero el geojson no tiene indican caminos que perdieron jurisdicción provincial (pasaron a rural o desaparecieron).</li>
-<li><strong>Para completar datos faltantes del SIG Vial</strong> (<code>datos/caracteristicas_viales.js</code>): ancho de calzada, banquinas, etc. — los placeholders <code>null</code> pueden llenarse cross-checkeando con el nomenclador cuando corresponda (dejando marcado como "dato histórico 1989" para revisión de campo).</li>
+<li><strong>Al verificar denominaciones</strong>: si un camino secundario aparece con nombre distinto entre fuentes actuales y el nomenclador, prevalece la denominación oficial del nomenclador.</li>
+<li><strong>Al verificar sentido de progresiva</strong>: cuando una RP tiene progresiva con sentido dudoso, el nomenclador de 1989 confirma el origen histórico (mojón 0).</li>
+<li><strong>Al analizar tramos legacy</strong>: los tramos que aparecen en el nomenclador y ya no figuran en la cartografía actual indican caminos que perdieron jurisdicción provincial (pasaron a rural o desaparecieron).</li>
+<li><strong>Para completar datos faltantes</strong>: valores como ancho de calzada o banquinas pueden confirmarse contra el nomenclador cuando la cartografía actual no los registra.</li>
 </ul>
-<h3 id="estado-de-digitalizacion">Estado de digitalización<a class="headerlink" href="#estado-de-digitalizacion" title="Permanent link">¶</a></h3>
-<ul>
-<li><strong>Pendiente</strong>: escanear las páginas relevantes (Zona VI, RPs 6-91 + caminos 034/041/058/062/075/091/093/109) y guardarlas en <code>docs/nomenclador_1989/</code> como PNG/PDF.</li>
-<li><strong>Pendiente</strong>: transcribir tabla de datos a CSV (<code>docs/nomenclador_1989.csv</code>) con columnas: <code>RP|Camino, Tramo, Origen, Destino, LongitudKm, Superficie, Ancho, Partido, Notas1989</code>.</li>
-<li><strong>Bloqueado hasta</strong>: prioridad más baja que Reportes/Roles. Se puede hacer en paralelo por otro colaborador o cuando haya tiempo.</li>
-</ul>
-<h3 id="portada-para-referencia-visual">Portada (para referencia visual)<a class="headerlink" href="#portada-para-referencia-visual" title="Permanent link">¶</a></h3>
+<h3 id="portada">Portada<a class="headerlink" href="#portada" title="Permanent link">¶</a></h3>
 <p>La portada del cuadernillo muestra:
 - Escudo "Dirección de Vialidad" (DVBA logo institucional)
 - Título "NOMENCLADOR DE RUTAS"
@@ -1092,11 +1059,6 @@ Copia física en poder de: División Técnica DVBA Zona VI.</p>
 - Anotación manuscrita: "Saladillo"
 - Sellos institucionales de la Jefatura de División Técnica · Zona VI · Dirección de Vialidad Bs. As. (dos veces, uno rotado)
 - Marca de impresión con fecha 18 de septiembre de 1989</p>
-<p><em>Para agregar la foto de portada al repo:</em>
-1. Guardar la imagen en <code>docs/nomenclador_1989/portada.jpg</code> (o <code>.png</code>).
-2. Referenciarla acá con: <code>![Portada Nomenclador 1989](nomenclador_1989/portada.jpg)</code>.</p>
-<hr />
-<p><em>Doc creado: 2026-07-16 · v7.81</em></p>
 
 
 
