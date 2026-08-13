@@ -545,6 +545,9 @@ body.modo-campo #campo-fab{display:flex}
         <div class="sec-title">Caminos Secundarios <span id="cs-count" style="color:#7050b0;font-weight:600;font-size:9px"></span></div>
         <div style="font-size:9px;color:var(--mut);margin-bottom:4px">Filtros por clase:</div>
         <div id="cs-clases" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px"></div>
+        <!-- v8.71 · Buscador por código / denominación / alias popular -->
+        <input type="text" id="cs-busq" placeholder="🔍 Buscar por código o alias..." oninput="csBuildTagList()"
+               style="width:100%;padding:5px 8px;border:1px solid var(--light);border-radius:4px;font-size:10.5px;font-family:inherit;margin-bottom:4px;background:var(--w);color:var(--txt);box-sizing:border-box">
         <div id="cs-tags" style="max-height:120px;overflow-y:auto;padding:2px;border:1px solid var(--light);border-radius:4px;background:#fafbfc;font-size:9.5px"></div>
         <div style="display:flex;gap:4px;margin-top:6px;align-items:center">
           <button class="btn btn-xs btn-ghost" onclick="csAllOn()">Todos</button>
@@ -7470,22 +7473,46 @@ function csBuildTagList(){
     c.innerHTML = `<div style="padding:8px;color:#888;font-size:9px;text-align:center;line-height:1.5">${mot}<br><button onclick="csResetFiltros()" style="margin-top:4px;background:#7050b0;color:#fff;border:none;border-radius:3px;padding:3px 8px;font-size:9px;cursor:pointer">↻ Ver todos los caminos</button></div>`;
     return;
   }
+  const aliasCache = window._aliasCnoCache || {};
   c.innerHTML = visibles.map(c => {
     const on = csSelKeys.has(c.key);
     const col = CS_COLOR_CLASE[c.clase] || '#7050b0';
-    const ttl = c.tooltip ? ` title="${c.tooltip.replace(/"/g, '&quot;')}"` : '';
+    // v8.71 · Tooltip enriquecido con alias populares si existen
+    const aliasRow = aliasCache[c.key];
+    const aliasLista = aliasRow && aliasRow.alias_locales && aliasRow.alias_locales.length
+      ? '\n🏷 Alias: ' + aliasRow.alias_locales.join(' / ')
+      : '';
+    const tooltipRaw = (c.tooltip || '') + aliasLista;
+    const ttl = tooltipRaw ? ` title="${tooltipRaw.replace(/"/g, '&quot;')}"` : '';
+    // Badge 🏷 chico si el camino tiene alias registrados
+    const badgeAlias = aliasLista ? '<span style="opacity:.7;font-size:9px;margin-left:2px">🏷</span>' : '';
     return `<span class="regtag" onclick="csToggleKey('${c.key}')"${ttl}
        style="background:${on?col+'25':'transparent'};color:${on?col:'#777'};border:1px solid ${on?col:'var(--light)'};padding:1px 6px;font-size:9.5px;border-radius:8px;cursor:pointer;display:inline-block;margin:1px 1px;font-weight:600">
-       ${c.key}</span>`;
+       ${c.key}${badgeAlias}</span>`;
   }).join('');
 }
 
 // Lista los caminos que pasan los filtros activos (partido + clase)
+// v8.71 · Además filtra por texto de búsqueda (código, denominación o alias popular)
 function csListarVisibles(){
   if (typeof RED_VIAL === 'undefined' || !csSelClases) return [];
-  return RED_VIAL.listarCaminos().filter(c =>
-    csSelClases.has(c.clase) && (typeof selP !== 'undefined' ? selP.has(c.partido) : true)
-  );
+  const busqEl = document.getElementById('cs-busq');
+  const busq = (busqEl ? busqEl.value : '').trim().toLowerCase();
+  const aliasCache = window._aliasCnoCache || {};
+  return RED_VIAL.listarCaminos().filter(c => {
+    if (!csSelClases.has(c.clase)) return false;
+    if (typeof selP !== 'undefined' && !selP.has(c.partido)) return false;
+    if (!busq) return true;
+    // Coincidir con: código, tooltip (denominación), o cualquier alias popular / denominación local
+    if (c.key.toLowerCase().includes(busq)) return true;
+    if (c.tooltip && c.tooltip.toLowerCase().includes(busq)) return true;
+    const row = aliasCache[c.key];
+    if (row) {
+      if (row.denominacion_local && row.denominacion_local.toLowerCase().includes(busq)) return true;
+      if (Array.isArray(row.alias_locales) && row.alias_locales.some(a => String(a).toLowerCase().includes(busq))) return true;
+    }
+    return false;
+  });
 }
 
 function csToggleClase(cls){
@@ -7568,6 +7595,8 @@ function csRefrescarLayer(){
         // v8.71b · Repoblar el dropdown de partidos del reporte cuando termina de cargar caminos
         // (fix bug: dropdown vacío al primer abrir del tab Reportes antes de que los caminos carguen)
         if (typeof _poblarFiltroPartidosReporte === 'function') _poblarFiltroPartidosReporte();
+        // v8.71 · Cargar cache de alias colaborativos de caminos secundarios
+        if (typeof _cargarCacheAliasCaminos === 'function') _cargarCacheAliasCaminos();
       })
       .catch(err => {
         console.error('[Caminos Secundarios] Error cargando geojson:', err.message);
@@ -9576,6 +9605,7 @@ function mostrarModalSIGVialCamino(feat, latlng){
   const estGen = '<span style="color:#c48b4a">s/d</span>';
   document.getElementById('sig-b').innerHTML = `
     ${alerta ? `<div style="background:#fff3cd;border-left:3px solid #ff9800;padding:8px 10px;margin-bottom:12px;font-size:11px;color:#8a4b00">⚠ Este camino está marcado con <b>ALERTA: REVISAR</b> — la geometría GIS puede tener errores que requieren corrección en QGIS.</div>` : ''}
+    ${_renderBloqueAliasCamino(p.NOMEMCLATURA)}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
       <div style="background:#f0f4f8;padding:10px;border-radius:6px;border-left:3px solid ${colorCno}">
         <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px">Progresiva en punto</div>
@@ -9633,6 +9663,51 @@ function mostrarModalSIGVialCamino(feat, latlng){
 // v8.71 · Edición colaborativa de alias de caminos secundarios (SQL_14)
 // Estado local del modal
 let _aliasCnoState = { nomencl: null, alias: [], denomOficial: '', partido: '', denomLocal: '', obs: '', updatedAt: null };
+// v8.71 · Cache global de alias { nomenclatura → row de caminos_alias }
+window._aliasCnoCache = window._aliasCnoCache || {};
+
+// v8.71 · Cargar todos los alias en cache al arrancar la app (o después de cargar caminos)
+async function _cargarCacheAliasCaminos(){
+  if (typeof _supa === 'undefined' || !_supa) return;
+  try {
+    const zonaAct = (typeof DVBA_PERFIL !== 'undefined' && DVBA_PERFIL.zonaActual) ? DVBA_PERFIL.zonaActual() : 'VI';
+    const { data, error } = await _supa
+      .from('caminos_alias')
+      .select('nomenclatura, alias_locales, denominacion_local, observaciones, updated_at, partido')
+      .eq('zona', zonaAct);
+    if (error) { console.warn('[alias-cno cache]', error.message); return; }
+    (data || []).forEach(row => {
+      window._aliasCnoCache[row.nomenclatura] = row;
+    });
+    console.log(`[alias-cno cache] ${data ? data.length : 0} alias cargados de zona ${zonaAct}`);
+  } catch(e) { console.warn('[alias-cno cache]', e.message); }
+}
+
+// v8.71 · Helper para armar el HTML del bloque "Alias populares" del modal SIG Vial
+function _renderBloqueAliasCamino(nomencl){
+  const cache = window._aliasCnoCache || {};
+  const row = cache[nomencl];
+  if (!row || (!row.alias_locales || row.alias_locales.length === 0) && !row.denominacion_local && !row.observaciones) {
+    return '';
+  }
+  const chips = (row.alias_locales || []).map(a =>
+    `<span style="display:inline-block;background:var(--p-xl);color:var(--pd);border:1px solid var(--p);padding:2px 8px;border-radius:12px;font-size:10.5px;font-weight:600;margin:2px 3px 2px 0">${String(a).replace(/</g,'&lt;')}</span>`
+  ).join('');
+  const denomLocal = row.denominacion_local
+    ? `<div style="margin-top:6px;font-size:11px;color:var(--txt);line-height:1.4"><b style="color:var(--pd)">Nombre común propuesto:</b> ${String(row.denominacion_local).replace(/</g,'&lt;')}</div>`
+    : '';
+  const obs = row.observaciones
+    ? `<div style="margin-top:4px;font-size:10.5px;color:var(--mut);font-style:italic;line-height:1.4">📝 ${String(row.observaciones).replace(/</g,'&lt;')}</div>`
+    : '';
+  return `
+    <div style="background:linear-gradient(90deg, var(--p-xl) 0%, #ffffff 100%);border:1px solid var(--p);border-left:4px solid var(--p);padding:9px 12px;border-radius:6px;margin-bottom:12px">
+      <div style="font-size:9px;color:var(--pd);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:700">🏷 Alias populares (colaborativo)</div>
+      ${chips || '<span style="color:var(--mut);font-size:10.5px;font-style:italic">Sin alias registrados</span>'}
+      ${denomLocal}
+      ${obs}
+    </div>
+  `;
+}
 
 function editarCaractCamino(){
   if (!_sigCaminoActivo) return;
@@ -9756,6 +9831,15 @@ async function guardarAliasCamino(){
     // Refrescar el cache local de alias para que el modal SIG Vial los muestre próximamente
     window._aliasCnoCache = window._aliasCnoCache || {};
     window._aliasCnoCache[_aliasCnoState.nomencl] = data;
+    // v8.71 · Si el modal SIG Vial estaba abierto sobre este mismo camino, re-renderizar
+    // para que aparezca el bloque de alias populares actualizado sin cerrar/reabrir
+    if (_sigCaminoActivo === _aliasCnoState.nomencl && _sigFeatActivo && typeof mostrarModalSIGVialCamino === 'function') {
+      try {
+        const featBackup = _sigFeatActivo;
+        const centerBackup = map.getCenter();
+        mostrarModalSIGVialCamino(featBackup, centerBackup);
+      } catch(e){ /* no importa si falla el refresh */ }
+    }
     setTimeout(() => cerrarModalAliasCamino(), 800);
   } catch(e) {
     console.error('[alias-cno guardar]', e);

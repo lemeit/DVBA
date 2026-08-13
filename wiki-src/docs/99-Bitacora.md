@@ -4,9 +4,9 @@
 
 DVBA · Departamento Zona VI Saladillo
 
-Última actualización: 12 de agosto de 2026
+Última actualización: 13 de agosto de 2026
 
-Versión bitácora: v5.1 — apps v9.94 / v8.67 · 12-ago-2026
+Versión bitácora: v5.2 — apps v9.95.4 / v8.71 · 13-ago-2026
 
 Responsable: Ing. Luciano Lamaita
 
@@ -830,6 +830,22 @@ TAB 6 · PENDIENTES
 | **🖥 Familia escritorio** | v8.52 | `index.html`, `partes_diarios.html`, `reportes.html` + módulos `datos/` | Manual en `const APP_VERSION` + spans footer en los 3 |
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
+
+### v8.68 – v8.71 / v9.95 – v9.95.4 · 12-13 agosto 2026 — Rediseño Reportes con wizard + Catálogo colaborativo de alias + Wiki online + fixes UX masivos
+
+**Cerramos una ronda de 4 días intensiva** con 30 tareas resueltas repartidas en 3 frentes.
+
+**Frente 1 · Rediseño del panel de Reportes de Vías.** El sidebar de reportes se convierte en un wizard de 3 pasos con 4 presets tipo tarjeta ("Red vial completa", "Por partido", "Solo Rutas", "Solo Caminos") + ajustes avanzados colapsados en `<details>`. La tab del reporte generado incluye un panel de filtros interactivo (partido, texto libre, clase) que oculta/muestra filas en tiempo real y respeta la paleta institucional DVBA turquesa. Contador de caminos únicos además de tramos. 15 fixes puntuales (Limpiar todos que sí anda, halo persistente que se quita, filtro por partido en tab que detecta filas TOTAL por `colspan` en vez de por texto, propiedad `PARTIDO_NOMBRE` correcta para caminos, match case-insensitive con normalización Unicode ASCII, `+ Todas rutas / caminos` de una sola vez).
+
+**Frente 2 · Catálogo colaborativo de alias de caminos (SQL_14).** Nueva tabla `caminos_alias` en Supabase con `alias_locales TEXT[]`, `denominacion_local`, `observaciones` y RLS (lectura pública, escritura para técnicos por zona / gerencia / admin). Modal de edición en el portal con chips estilo tags para agregar nombres populares como *"Camino a Los Molles"* o *"Del Molino Viejo"*. Los alias se muestran automáticamente en el modal SIG Vial del camino (badge turquesa `🏷 Alias populares`) y son buscables desde el sidebar con un input `🔍 Buscar por código o alias`. Objetivo: que vecinos y personal técnico puedan identificar los caminos por sus nombres reales, no solo por códigos DVBA opacos como `093-08`.
+
+**Frente 3 · Wiki online con MkDocs Material + fixes cache SW.** Guía de usuario publicada en `lemeit.github.io/DVBA/wiki/` con GitHub Actions que rebuildea automáticamente en cada push a `wiki-src/`. Rediseño de la wiki con nav aplanada (14 capítulos), paleta institucional DVBA (footer + colores unificados), logo DVBA en header, favicon, TOC integrado. Modales del portal (Cola pendientes, Sello, edición alias) unificados con la misma paleta turquesa. **Bug histórico resuelto:** `dvba_campo.html` nunca declaraba `APP_VER` como variable JS (solo tenía spans HTML) → el modal "Acerca de" mostraba versión vieja cacheada por el SW. Fix con `window.APP_VER` seteado directo antes de los defer scripts + `sello_v4.js` que lee window en runtime + SW con `skipWaiting()` automático. Cache-busters `?v=9.95.X` en `.js` críticos.
+
+**Frente 4 · Documento del concurso XLI DVBA.** Sección 8.4 reescrita completa con propuesta de IA aplicada en 4 fases (Fase A implementada como demo, Fase B/C/D roadmap). Comparativa de 6 modelos (Gemini 2.5 Flash elegido por tier gratuito genuino + multimodalidad nativa + calidad en español). Presupuesto realista: Zona VI 100% gratis, escalado 12 zonas ~$10/mes vs software vial comercial USD 500-2000/mes. Header y sección 3 al día con snapshot v8.71/v9.95.4.
+
+**Frente 5 · Fixes UX puntuales.** Pin que no sobreescribe campos del formulario cuando se mueve el cursor (flag `_pinFijado` + guarda en `mousemove` de hitLayer). Detección de partido en Modo Avanzado móvil que ahora sí escribe la RP detectada en el select del formulario (orden correcto + prefijo "RP N" para matchear options). Mapa del "Reporte con fotos" ahora muestra las trazas de las rutas y los pins de tareas (usa `L.circleMarker` temporal que sí soporta `leaflet-image`, con `fitBounds` automático antes de capturar).
+
+Archivos nuevos: `docs/SQL_14_caminos_alias.sql`, `docs/REFERENCIA_SIG_VIAL_ANTERIOR.md`. Bump completo `v8.66e → v8.71` (escritorio) y `v9.93.1 → v9.95.4` (móvil).
 
 ### v8.67 / v9.94 · 12 agosto 2026 — Presets tamaño sello + fix doble sello + versión reubicada
 
