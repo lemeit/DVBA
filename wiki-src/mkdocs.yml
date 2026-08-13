@@ -48,6 +48,11 @@ theme:
     # → generaban jerarquía "Guía de Usuario > Índice > Capítulos > items"
     # → ahora el nav es plano: 1 nivel = 1 página
 
+# v8.71 · Plugins
+plugins:
+  - search
+  - include-markdown  # v8.71 · permite embeber README.md y otros .md del repo
+
 # v8.68 · Nav APLANADA · 1 entrada = 1 página, sin categorías anidadas
 nav:
   - Inicio: 00-Indice.md
@@ -66,7 +71,9 @@ nav:
   - Modo Offline: 13-Modo-Offline.md
   - FAQ: 14-FAQ.md
   - Guía Visual: Guia-Visual-Complementaria.md
+  - Antecedente SIG Vial: 98-Antecedente-SIG-Vial.md
   - Bitácora del proyecto: 99-Bitacora.md
+  - README técnico: 95-README-Tecnico.md
 
 markdown_extensions:
   - abbr
