@@ -342,9 +342,12 @@ function aplicar(base64, datos, opts){
         // v8.66f.5 · MOVIDA a la columna DERECHA (debajo del QR) para NO pisar
         // el texto principal cuando este ocupa muchas líneas (localidad larga
         // + ruta + tipo + coords + fecha llenan el bottom del banner).
-        // v8.14 · Portal usa APP_VERSION, móvil usa APP_VER → probar ambos
-        const appVer = (typeof APP_VER === 'string') ? APP_VER
-                     : (typeof APP_VERSION === 'string') ? APP_VERSION
+        // v9.95.4 · Leer directo de window.APP_VER / window.APP_VERSION para evitar
+        // problemas de scope. Antes usaba APP_VER como identificador global lo que
+        // requería que estuviera declarada como var, y causó SyntaxError por doble
+        // declaración en dvba_campo.html v9.95.3.
+        const appVer = (typeof window !== 'undefined' && typeof window.APP_VER === 'string' && window.APP_VER) ? window.APP_VER
+                     : (typeof window !== 'undefined' && typeof window.APP_VERSION === 'string' && window.APP_VERSION) ? window.APP_VERSION
                      : 'v?';
         const stampInfo = [
           appVer + '·' + origen,
