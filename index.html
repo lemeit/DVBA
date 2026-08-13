@@ -9800,27 +9800,41 @@ async function abrirModalAliasCamino(nomencl, tramoNum){
   _aliasCnoRenderChips();
   document.getElementById('modal-alias-cno-ov').classList.add('on');
 
-  // Cargar alias existente si existe (busca por nomenclatura + tramo específico)
+  // Cargar alias existente. Estrategia:
+  //   1. Buscar por tramo específico
+  //   2. Si no hay, buscar por 'ALL' (camino completo) para pre-cargar como "heredado"
+  //      → el user ve los alias existentes y puede: guardarlos como del tramo, editarlos,
+  //         o cambiar el alcance a 'ALL' para actualizar el registro global.
   try {
     if (typeof _supa === 'undefined' || !_supa) return;
-    const { data, error } = await _supa
+    // v8.71b · Traer AMBAS filas (tramo específico + ALL) para no perder los ya guardados
+    const { data: filas, error } = await _supa
       .from('caminos_alias')
       .select('*')
       .eq('nomenclatura', nomencl)
-      .eq('tramo_num', tramoNorm)
-      .maybeSingle();
+      .in('tramo_num', [tramoNorm, 'ALL']);
     if (error) { console.warn('[alias-cno] SELECT:', error.message); return; }
-    if (data) {
-      _aliasCnoState.alias = Array.isArray(data.alias_locales) ? data.alias_locales : [];
-      _aliasCnoState.denomLocal = data.denominacion_local || '';
-      _aliasCnoState.obs = data.observaciones || '';
-      _aliasCnoState.updatedAt = data.updated_at;
-      document.getElementById('alias-cno-denom-local').value = _aliasCnoState.denomLocal;
-      document.getElementById('alias-cno-obs').value = _aliasCnoState.obs;
-      document.getElementById('alias-cno-updated').textContent = data.updated_at
-        ? new Date(data.updated_at).toLocaleString('es-AR', { dateStyle:'short', timeStyle:'short' })
-        : '—';
-      _aliasCnoRenderChips();
+    if (!filas || filas.length === 0) return;
+    // Priorizar la fila del tramo específico si existe · sino usar la de 'ALL'
+    const dataTramo = filas.find(f => f.tramo_num === tramoNorm);
+    const dataAll   = filas.find(f => f.tramo_num === 'ALL');
+    const data = dataTramo || dataAll;
+    const heredado = !dataTramo && !!dataAll && tramoNorm !== 'ALL';
+    _aliasCnoState.alias = Array.isArray(data.alias_locales) ? data.alias_locales : [];
+    _aliasCnoState.denomLocal = data.denominacion_local || '';
+    _aliasCnoState.obs = data.observaciones || '';
+    _aliasCnoState.updatedAt = data.updated_at;
+    document.getElementById('alias-cno-denom-local').value = _aliasCnoState.denomLocal;
+    document.getElementById('alias-cno-obs').value = _aliasCnoState.obs;
+    document.getElementById('alias-cno-updated').textContent = heredado
+      ? '📎 heredado del camino completo · último cambio: ' + new Date(data.updated_at).toLocaleString('es-AR', { dateStyle:'short', timeStyle:'short' })
+      : (data.updated_at ? new Date(data.updated_at).toLocaleString('es-AR', { dateStyle:'short', timeStyle:'short' }) : '—');
+    _aliasCnoRenderChips();
+    // Si estamos heredando de 'ALL' pero seleccionamos "solo tramo", cambiar el radio a 'ALL'
+    // para que al guardar sin cambios NO se creen duplicados fantasma
+    if (heredado) {
+      const rAll = document.querySelector('input[name="alias-alcance"][value="ALL"]');
+      if (rAll) rAll.checked = true;
     }
   } catch(e) { console.warn('[alias-cno] fetch:', e.message); }
 }
