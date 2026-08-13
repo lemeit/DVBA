@@ -9041,12 +9041,16 @@ function _poblarFiltroPartidosReporte(){
   _actualizarBotonesPartidoReporte();
 }
 
-// v8.70b · Normaliza partido para matching tolerante (case + tildes + espacios)
-// Fix bug: "General Alvear" en el dropdown vs "GENERAL ALVEAR" en el geojson
+// v8.70c · Normaliza partido para matching tolerante (case + tildes + espacios).
+// Usa new RegExp con string ASCII (no regex literal) para evitar corrupción del
+// rango Unicode al guardar el archivo con encoding raro.
+var _RE_DIACRITICS = new RegExp('[\\u0300-\\u036F]', 'g');
 function _normPartido(s){
   if (!s) return '';
   return String(s).trim().toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '');
+    .normalize('NFD')
+    .replace(_RE_DIACRITICS, '')  // saca tildes/acentos
+    .replace(/\s+/g, ' ');        // colapsa espacios múltiples
 }
 
 // v8.70 · Actualizar la visibilidad y label de los botones "+ Rutas/Caminos del partido"
