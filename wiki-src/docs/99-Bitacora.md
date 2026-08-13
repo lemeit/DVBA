@@ -14,7 +14,53 @@ Repositorio: [github.com/lemeit/DVBA](https://github.com/lemeit/DVBA)
 
 Estado general: 🟢 En desarrollo activo
 
-═══════ TABS ═══════
+## Índice de la bitácora
+
+Documento extenso (~1450 líneas) organizado en 6 secciones temáticas. Podés saltar directo a la sección de interés:
+
+**Resumen del proyecto**
+
+- [Descripción del Proyecto](#descripcion-del-proyecto)
+- [Contexto Institucional](#contexto-institucional)
+- [Stack Técnico](#stack-tecnico)
+- [Estado por Ruta](#estado-por-ruta)
+
+**Rutas y trabajo con QGIS**
+
+- [Línea de Tiempo · Trabajo sobre RP 40](#linea-de-tiempo-trabajo-sobre-rp-40)
+- [Flujo de Trabajo por Ruta](#flujo-de-trabajo-por-ruta)
+- [Sistema de Progresivas](#sistema-de-progresivas)
+- [Notas Técnicas Importantes](#notas-tecnicas-importantes)
+
+**Aplicaciones e infraestructura**
+
+- [App Escritorio · `index.html`](#app-escritorio-indexhtml)
+- [App Móvil PWA · `dvba_campo.html`](#app-movil-pwa-dvba_campohtml)
+- [Backend · Supabase](#backend-supabase)
+- [Estructura del Repositorio](#estructura-del-repositorio)
+- [Carpetas Locales (FUERA del repo)](#carpetas-locales-fuera-del-repo)
+- [URLs de Acceso](#urls-de-acceso)
+- [Flujo de Releases](#flujo-de-releases)
+- [Histórico · Migración a GitHub Pages](#historico-migracion-a-github-pages)
+
+**Decisiones técnicas**
+
+- [Decisiones Técnicas Clave](#decisiones-tecnicas-clave)
+
+**Pendientes**
+
+- [🔴 Alta Prioridad](#alta-prioridad)
+- [🔵 Media Prioridad](#media-prioridad)
+- [⚪ Baja Prioridad / Futuro](#baja-prioridad-futuro)
+- [✅ Resueltos recientemente](#resueltos-recientemente-referencia)
+
+**Changelogs**
+
+- [📋 Changelog · Apps](#changelog-apps) — la sección más extensa: cada versión con qué se cambió
+- [🔧 Changelog · Service Worker](#changelog-service-worker)
+- [📦 Changelog · Infraestructura](#changelog-infraestructura)
+
+---
 
 TAB 1 · RESUMEN
 

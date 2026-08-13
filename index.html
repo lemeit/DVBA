@@ -453,7 +453,7 @@ body.modo-campo #campo-fab{display:flex}
     <button id="cola-badge" class="role-oculto" data-requiere-sesion="1" title="Registros pendientes de revisión" onclick="abrirColaPendientes()">
       🔔 <span id="cola-count">0</span> pendientes
     </button>
-    <!-- v8.68 · Wiki pública (todos los roles + modo público) -->
+    <!-- v8.69 · Wiki pública (todos los roles + modo público) -->
     <a class="nav-app" href="https://lemeit.github.io/DVBA/wiki/" target="_blank" rel="noopener" title="Guía de usuario del sistema (se abre en pestaña nueva)">
       📖 Guía
     </a>
@@ -488,7 +488,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.68</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.69</span></div>
   </div>
 </div>
 <div class="layout">
@@ -675,11 +675,14 @@ body.modo-campo #campo-fab{display:flex}
       <!-- El select queda oculto por retrocompatibilidad con _repTipo() legacy -->
       <select id="rep-tipo" style="display:none"><option value="mixto" selected>mixto</option></select>
 
-      <!-- v8.33 · Chip contador SIEMPRE visible con estado + v8.51 lista expandible -->
+      <!-- v8.33 · Chip contador SIEMPRE visible con estado + v8.51 lista expandible + v8.69 shortcuts "+ Todas" -->
       <div id="rep-selchip" style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--light);color:var(--mut);padding:5px 8px;border-radius:4px;margin-bottom:6px;font-size:11px;flex-wrap:wrap">
         <b class="chip-text">Sin selección manual · usa las vías activas del mapa</b>
         <button onclick="_toggleSelList()" class="chip-toggle" style="display:none;padding:2px 6px;background:var(--w);color:var(--vd);border:1px solid var(--vd);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">▾ Ver</button>
-        <button onclick="limpiarSelReporteActual()" class="chip-btn" style="margin-left:auto;padding:2px 8px;background:var(--w);color:var(--mut);border:1px solid var(--light);border-radius:3px;cursor:not-allowed;font-size:10px;font-weight:600" disabled>✕ Limpiar todos</button>
+        <!-- v8.69 · Shortcuts para agregar toda la red de una sin ir click por click -->
+        <button onclick="agregarTodasLasRutasAlReporte()" class="chip-btn" title="Agregar todas las Rutas Provinciales (Red Primaria) al reporte" style="margin-left:auto;padding:2px 8px;background:#f0f8fa;color:var(--pd);border:1px solid var(--p);border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Todas rutas</button>
+        <button onclick="agregarTodosLosCaminosAlReporte()" class="chip-btn" title="Agregar todos los Caminos Secundarios (Red Secundaria) al reporte" style="padding:2px 8px;background:#faf0eb;color:#c25a2a;border:1px solid #c25a2a;border-radius:3px;cursor:pointer;font-size:10px;font-weight:600">➕ Todos caminos</button>
+        <button onclick="limpiarSelReporteActual()" class="chip-btn" style="padding:2px 8px;background:var(--w);color:var(--mut);border:1px solid var(--light);border-radius:3px;cursor:not-allowed;font-size:10px;font-weight:600" disabled>✕ Limpiar todos</button>
         <div id="rep-sellist" style="display:none;width:100%;margin-top:4px;padding-top:6px;border-top:1px solid var(--vd);max-height:180px;overflow-y:auto;font-size:10px">
           <!-- Items dinámicos -->
         </div>
@@ -861,8 +864,8 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.68';
-window.APP_VERSION = APP_VERSION;  // v8.68 · expone a window para legales.js
+const APP_VERSION = 'v8.69';
+window.APP_VERSION = APP_VERSION;  // v8.69 · expone a window para legales.js
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
 // Se carga una sola vez al iniciar; si no llega a tiempo, agregarSello cae a
@@ -8397,7 +8400,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
       <div style="margin-bottom:14px">
         <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
-        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.68</span> · Familia escritorio</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.69</span> · Familia escritorio</div>
         <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.91</b></div>
       </div>
 
@@ -8697,6 +8700,52 @@ function limpiarSelRutas(){
   if (typeof drawRutas === 'function') drawRutas();  // v8.30 · quita halo
   const tabla = document.getElementById('rep-tabla');
   if (tabla && tabla.innerHTML.trim() && _repTipo() === 'rutas') generarReporte();
+}
+
+// v8.69 · Agregar TODAS las rutas de la zona activa al reporte de una sola
+// Evita tener que hacer click ruta por ruta en el mapa. Toma RUTAS_LIST (que ya
+// refleja la zona activa gracias al loader dinámico multi-zona).
+function agregarTodasLasRutasAlReporte(){
+  if (!Array.isArray(RUTAS_LIST) || RUTAS_LIST.length === 0) {
+    alert('No hay rutas cargadas en la zona activa.');
+    return;
+  }
+  let agregadas = 0;
+  RUTAS_LIST.forEach(rid => {
+    const s = String(rid);
+    if (!_selRutas.has(s)) { _selRutas.add(s); agregadas++; }
+  });
+  _actualizarBotonSelRP();
+  _actualizarChipSelUnificado();
+  if (typeof drawRutas === 'function') drawRutas();
+  const tabla = document.getElementById('rep-tabla');
+  if (tabla && tabla.innerHTML.trim()) generarReporte();
+  console.log(`[Reporte] +${agregadas} rutas agregadas · total ${_selRutas.size}`);
+}
+
+// v8.69 · Agregar TODOS los caminos secundarios visibles al reporte de una sola.
+// Respeta los filtros de partido/clase activos en el panel Mapa (no agrega
+// caminos que ya están filtrados). Si el user quiere realmente TODOS, primero
+// destilda los filtros y después usa este botón.
+function agregarTodosLosCaminosAlReporte(){
+  if (!_caminosGeoJSON_cache || !_caminosGeoJSON_cache.features) {
+    alert('Los caminos secundarios todavía no cargaron. Esperá unos segundos y probá de nuevo.');
+    return;
+  }
+  // Usa el mismo criterio de filtro que aplica el mapa (partido + clase)
+  const visibles = (typeof _caminosFiltrados === 'function')
+                   ? _caminosFiltrados()
+                   : _caminosGeoJSON_cache.features;
+  let agregados = 0;
+  visibles.forEach(f => {
+    const fid = _caminoFid(f);
+    if (fid && !_selCaminos.has(fid)) { _selCaminos.add(fid); agregados++; }
+  });
+  _actualizarChipSelUnificado();
+  if (typeof csRefrescarLayer === 'function') csRefrescarLayer();
+  const tabla = document.getElementById('rep-tabla');
+  if (tabla && tabla.innerHTML.trim()) generarReporte();
+  console.log(`[Reporte] +${agregados} caminos agregados · total ${_selCaminos.size}`);
 }
 
 // Dispatch limpiar según tipo activo del panel

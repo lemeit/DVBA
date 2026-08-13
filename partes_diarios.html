@@ -32,6 +32,10 @@
 <script src="datos/piexif.min.js" defer onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.js';s.defer=true;document.head.appendChild(s);"></script>
 <script src="datos/exif_writer.js" defer></script>
 <script src="datos/sello_v4.js" defer></script>
+<script src="datos/armonizador.js" defer></script>  <!-- v8.69 · para detectarPartido() desde GPS al subir foto -->
+<script src="datos/partidos_zona_vi.js" defer></script>  <!-- v8.69 · polígonos que usa el armonizador -->
+<script src="datos/rutas/CARACT_VIALES.js" defer></script>  <!-- v8.69 · caract si el armonizador lo requiere -->
+<script src="datos/zonas/zona_VI/partidos_zona_vi.geojson.js" defer onerror="this.remove()"></script>
 <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js" defer></script>
 <!-- v7.93 · loader de perfil (rol + zona) para Fase 2 Multi-zona -->
 <script src="datos/perfil.js" defer></script>
@@ -332,14 +336,14 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 </div>
 
 <!-- ═══════════ FOOTER INSTITUCIONAL ═══════════ -->
-<!-- v8.68 · Footer institucional unificado (mismo formato que reportes/admin/index) -->
+<!-- v8.69 · Footer institucional unificado (mismo formato que reportes/admin/index) -->
 <footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid #444;position:fixed;bottom:0;left:0;right:0;z-index:80">
   <div style="flex:1;min-width:260px">
     <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
     <span style="margin-left:8px">Plan de Seguridad en la Circulación · Uso interno institucional.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.68</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.69</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -1414,9 +1418,9 @@ function pdQuitarFoto(momento, i){
 // insertamos un relevamiento y vinculamos vía parte_fotos como "previa"
 // o "posterior" — así aparece en el mapa Y queda ligada al parte.
 // ═══════════════════════════════════════════════════════════════════
-const APP_VER = 'v8.68';
-window.APP_VER = APP_VER;  // v8.68 · expone a window para legales.js
-// v8.68 · Auto-update del span del footer para que nunca quede desactualizado
+const APP_VER = 'v8.69';
+window.APP_VER = APP_VER;  // v8.69 · expone a window para legales.js
+// v8.69 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VER; });
 const _subEstado = { momento:'previa', file:null, base64:null, gps:null };
 
@@ -1645,15 +1649,27 @@ async function pdConfirmarSubir(){
     statusEl.textContent = 'Subiendo foto…';
     btn.textContent = '⏳ Subiendo…';
     const blob = await (await fetch(b64Sellado)).blob();
-    const path = 'fotos/' + Date.now() + '_pd.jpg';
+    // v8.69 · Path con sufijo _sello.jpg para respetar convención v7.49
+    // (permite que esFotoSellada() del portal reconozca esta foto como sellada
+    // sin depender solo del sello_version en la BD)
+    const path = 'fotos/' + Date.now() + '_pd_sello.jpg';
     const { data: up, error: upErr } = await _supa.storage.from('relevamientos')
       .upload(path, blob, { contentType:'image/jpeg', upsert:true });
     if (upErr) throw new Error('Storage: ' + upErr.message);
     const fotoUrl = _supa.storage.from('relevamientos').getPublicUrl(path).data.publicUrl;
+    // v8.69 · Auto-detección de partido desde GPS (si hay coords).
+    // Antes se dejaba en null y había que completarlo manualmente después.
+    let partidoAuto = null;
+    if (g && typeof ARMONIZADOR !== 'undefined' && ARMONIZADOR.detectarPartido) {
+      try {
+        partidoAuto = ARMONIZADOR.detectarPartido(g.lat, g.lng);
+        if (partidoAuto) console.log('[pdConfirmarSubir] partido detectado:', partidoAuto);
+      } catch(e) { console.warn('[pdConfirmarSubir] detectarPartido falló:', e.message); }
+    }
     statusEl.textContent = 'Registrando en el sistema…';
     const reg = {
       ruta: ruta || '?',
-      partido: null,
+      partido: partidoAuto,
       progresiva: prog || '',
       tipo: tipo || 'sin_clasificar',
       estado: null,

@@ -2,6 +2,10 @@
 # .gitignore — Repo DVBA Zona VI Saladillo
 # ─────────────────────────────────────────────────────────────
 
+# PDFs de preview generados por Pandoc (se regeneran, no son fuente)
+docs/*_preview.pdf
+docs/CONCURSO_VIAL_2026_preview.pdf
+
 # OneDrive / Windows basura
 desktop.ini
 Thumbs.db

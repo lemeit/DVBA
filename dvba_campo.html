@@ -441,7 +441,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.94</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95</span></div>
   </div>
 </div>
 
@@ -654,7 +654,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:auto">
-  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.94</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
+  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
 </div>
 
 
@@ -1149,12 +1149,27 @@ function prefillDesdeArmonizacion(){
         lejos = !!rp;
       }
       if (via) {
-        elRuta.value = via.key;
-        // Marcar el toggle tipo_via (input hidden en el wizard)
+        // v9.95 · FIX bug: primero armar el select con las options correctas del tipo,
+        // DESPUÉS asignar el value. Antes se hacía al revés y m_setTipoVia() pisaba
+        // el value al reconstruir el <select>. Además el armonizador devuelve la RP
+        // como "40" pero las options son "RP 40" — hay que agregar el prefijo.
         const elTipoVia = document.getElementById('f-tipo-via');
         if (elTipoVia) elTipoVia.value = via.tipo;
-        // Si hay toggle visual RP/Camino, disparar su lógica
         if (typeof m_setTipoVia === 'function') m_setTipoVia(via.tipo);
+        // Ahora el select ya tiene las options correctas del tipo elegido
+        if (via.tipo === 'rp') {
+          // Formato options del select: "RP 40", "RP 51", etc.
+          const valorSelect = via.key.toString().startsWith('RP ') ? via.key : 'RP ' + via.key;
+          elRuta.value = valorSelect;
+          // Fallback: si aún no matchea (versión vieja de options), buscar por número suelto
+          if (elRuta.value !== valorSelect) {
+            const opt = Array.from(elRuta.options).find(o => o.value.replace(/\D/g,'') === String(via.key));
+            if (opt) elRuta.value = opt.value;
+          }
+        } else {
+          // Camino: el fid puede matchear directo o requerir refresh de caminos del partido
+          elRuta.value = via.key;
+        }
         const elProg = document.getElementById('f-prog');
         if (elProg && !elProg.value && isFinite(via.progKm)) {
           elProg.value = via.progKm.toFixed(2);
