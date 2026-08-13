@@ -6045,8 +6045,11 @@ function _genRepCaminos(opts){
   });
   html += '</tbody></table>';
 
+  // v8.70b · Contar caminos únicos (por nomenclatura) además de tramos
+  const caminosUnicos = new Set(_repCaminosData.map(r => r.nomenclatura).filter(n => n && n !== '—')).size;
   // Totales + desglose por clase
   html += `<div class="rep-total">
+    <span>Caminos: <b>${caminosUnicos}</b></span>
     <span>Tramos: <b>${_repCaminosData.length}</b></span>
     <span>GIS: <b>${totalKmGis.toFixed(2)} km</b></span>
     <span>Oficial: <b>${totalKmOf.toFixed(2)} km</b></span>
@@ -6353,7 +6356,7 @@ ${!showMapa_c ? '' : (mapaImgDataUrl_c
   <tbody>${filas}</tbody>
 </table>
 <div class="total">
-  <div><b>Tramos:</b> ${_repCaminosData.length} &nbsp;·&nbsp; <b>Total GIS:</b> ${totalKmGis.toFixed(2)} km &nbsp;·&nbsp; <b>Total Oficial:</b> ${totalKmOf.toFixed(2)} km</div>
+  <div><b>Caminos:</b> ${new Set(_repCaminosData.map(r => r.nomenclatura).filter(n => n && n !== '—')).size} &nbsp;·&nbsp; <b>Tramos:</b> ${_repCaminosData.length} &nbsp;·&nbsp; <b>Total GIS:</b> ${totalKmGis.toFixed(2)} km &nbsp;·&nbsp; <b>Total Oficial:</b> ${totalKmOf.toFixed(2)} km</div>
   <div style="margin-top:6px"><b style="color:#00aec3">Por clase:</b> ${claseHtml}</div>
   <div style="margin-top:2px"><b style="color:#00aec3">Por partido:</b> ${partHtml}</div>
 </div>
