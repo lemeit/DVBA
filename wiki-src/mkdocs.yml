@@ -104,6 +104,9 @@ extra_css:
   - stylesheets/mockups.css     # v1.0 · reproduce los mockups de UI de la guía visual
   - stylesheets/theme-dvba.css  # v8.68 · paleta institucional DVBA + footer portal
 
+extra_javascript:
+  - javascripts/auth-descarga-docs.js  # v8.72 · filtra descargas oficiales según sesión activa
+
 extra:
   social:
     - icon: fontawesome/brands/github
