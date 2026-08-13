@@ -346,21 +346,23 @@ body.modo-campo #campo-fab{display:flex}
 @keyframes colaPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 
 /* v7.12 — Modal cola de pendientes */
-.mov-cola{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow-y:auto}
+/* v8.70b · Modal Cola de pendientes con paleta institucional DVBA (turquesa) */
+.mov-cola{position:fixed;inset:0;background:rgba(0,20,30,.55);z-index:9998;display:none;align-items:flex-start;justify-content:center;padding:30px 20px;overflow-y:auto;backdrop-filter:blur(2px)}
 .mov-cola.on{display:flex}
-.modal-cola{width:100%;max-width:900px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.4);display:flex;flex-direction:column;max-height:90vh}
-.modal-cola .mc-h{padding:14px 20px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#f0a500,#f57c00);color:#fff;border-radius:12px 12px 0 0}
-.modal-cola .mc-h h2{margin:0;font-size:1.05rem;font-weight:700;flex:1}
-.modal-cola .mc-h button.mc-x{background:transparent;color:#fff;border:none;font-size:1.4rem;cursor:pointer;padding:0 6px;line-height:1}
-.modal-cola .mc-h button.mc-x:hover{opacity:.7}
-.modal-cola .mc-b{padding:14px 18px;overflow-y:auto;flex:1;background:#f4f6f9}
-.modal-cola .mc-b .mc-empty{text-align:center;padding:40px 20px;color:#888;font-size:.9rem}
-.modal-cola .mc-f{padding:12px 18px;border-top:1px solid #e0e0e0;display:flex;gap:10px;background:#fff;border-radius:0 0 12px 12px}
-.modal-cola .mc-f button{padding:10px 16px;border:none;border-radius:7px;font-size:.86rem;font-weight:700;cursor:pointer;font-family:inherit}
-.modal-cola .btn-aprob-batch{background:#28a745;color:#fff;flex:1}
-.modal-cola .btn-aprob-batch:hover{background:#218838}
-.modal-cola .btn-aprob-batch:disabled{background:#aaa;cursor:not-allowed}
-.modal-cola .btn-cerrar{background:#eee;color:#555}
+.modal-cola{width:100%;max-width:900px;background:var(--w);border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.3);display:flex;flex-direction:column;max-height:90vh}
+.modal-cola .mc-h{padding:14px 20px;border-bottom:1px solid var(--light);display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;border-radius:12px 12px 0 0}
+.modal-cola .mc-h h2{margin:0;font-size:1.05rem;font-weight:700;flex:1;font-family:'Encode Sans',sans-serif;letter-spacing:.2px}
+.modal-cola .mc-h button.mc-x{background:transparent;color:#fff;border:none;font-size:1.4rem;cursor:pointer;padding:0 6px;line-height:1;transition:opacity .15s}
+.modal-cola .mc-h button.mc-x:hover{opacity:.75}
+.modal-cola .mc-b{padding:14px 18px;overflow-y:auto;flex:1;background:var(--bg)}
+.modal-cola .mc-b .mc-empty{text-align:center;padding:40px 20px;color:var(--mut);font-size:.9rem}
+.modal-cola .mc-f{padding:12px 18px;border-top:1px solid var(--light);display:flex;gap:10px;background:var(--w);border-radius:0 0 12px 12px}
+.modal-cola .mc-f button{padding:10px 16px;border:none;border-radius:6px;font-size:.86rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s,box-shadow .15s}
+.modal-cola .btn-aprob-batch{background:var(--vd);color:#fff;flex:1;box-shadow:0 2px 6px rgba(34,169,84,.25)}
+.modal-cola .btn-aprob-batch:hover{background:#1a8a44;box-shadow:0 3px 10px rgba(34,169,84,.35)}
+.modal-cola .btn-aprob-batch:disabled{background:#b8b8b8;cursor:not-allowed;box-shadow:none}
+.modal-cola .btn-cerrar{background:var(--light);color:var(--txt)}
+.modal-cola .btn-cerrar:hover{background:#c8c8c8}
 
 /* Item de la cola */
 .cola-item{background:#fff;border:1px solid #d0d4dc;border-radius:8px;margin-bottom:10px;display:flex;overflow:hidden}
@@ -389,26 +391,27 @@ body.modo-campo #campo-fab{display:flex}
 .cola-badge-urg{background:#e53935;color:#fff;font-size:.66rem;padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px;text-transform:uppercase}
 
 /* ── Modal "Editar datos del sello" v8.22 · Paleta oscura alineada al portal ── */
-.mov-sello{position:fixed;inset:0;background:rgba(0,10,20,.75);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;backdrop-filter:blur(3px)}
+/* v8.70b · Modal Sello con paleta institucional DVBA (claro) — antes fondo oscuro */
+.mov-sello{position:fixed;inset:0;background:rgba(0,20,30,.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;backdrop-filter:blur(2px)}
 .mov-sello.on{display:flex}
-.modal-sello{width:100%;max-width:540px;background:#0a1620;border:1px solid #2a4050;border-radius:12px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:msFade .22s ease-out;color:#c4dae6}
+.modal-sello{width:100%;max-width:540px;background:var(--w);border:1px solid var(--light);border-radius:12px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.2);animation:msFade .22s ease-out;color:var(--txt)}
 @keyframes msFade{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
-.modal-sello .ms-h{padding:14px 20px 12px;border-bottom:1px solid #1a3040;font-weight:700;font-size:1.05rem;color:#8ac0d8;display:flex;align-items:center;gap:10px;font-family:inherit;background:#050d14;border-radius:12px 12px 0 0}
-.modal-sello .ms-h-icon{width:26px;height:26px;background:#d4a820;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:12px;font-family:Arial,sans-serif;letter-spacing:-.5px}
-.modal-sello .ms-b{padding:14px 20px 18px;overflow-y:auto;flex:1;font-family:inherit}
-.modal-sello .ms-b label{display:block;font-size:11px;font-weight:600;color:#8ac0d8;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.4px}
+.modal-sello .ms-h{padding:14px 20px 12px;border-bottom:1px solid var(--light);font-weight:700;font-size:1.05rem;color:#fff;display:flex;align-items:center;gap:10px;font-family:'Encode Sans',sans-serif;background:linear-gradient(135deg,var(--p),var(--pd));border-radius:12px 12px 0 0;letter-spacing:.2px}
+.modal-sello .ms-h-icon{width:26px;height:26px;background:var(--am);border-radius:5px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:12px;font-family:Arial,sans-serif;letter-spacing:-.5px;box-shadow:0 2px 4px rgba(0,0,0,.15)}
+.modal-sello .ms-b{padding:14px 20px 18px;overflow-y:auto;flex:1;font-family:inherit;background:var(--w)}
+.modal-sello .ms-b label{display:block;font-size:11px;font-weight:700;color:var(--pd);margin:10px 0 4px;text-transform:uppercase;letter-spacing:.4px;font-family:'Encode Sans',sans-serif}
 .modal-sello .ms-b label:first-of-type{margin-top:2px}
-.modal-sello .ms-b input,.modal-sello .ms-b select{width:100%;padding:9px 11px;border:1px solid #2a4050;border-radius:6px;font-size:14px;font-family:inherit;background:#0d2030;color:#c4dae6;box-sizing:border-box}
-.modal-sello .ms-b input:focus,.modal-sello .ms-b select:focus{outline:none;border-color:#d4a820;background:#0f2638;box-shadow:0 0 0 2px rgba(212,168,32,.15)}
-.modal-sello .ms-b input::placeholder{color:#5a7080}
+.modal-sello .ms-b input,.modal-sello .ms-b select{width:100%;padding:9px 11px;border:1px solid var(--light);border-radius:6px;font-size:14px;font-family:inherit;background:var(--w);color:var(--txt);box-sizing:border-box;transition:border-color .15s,box-shadow .15s}
+.modal-sello .ms-b input:focus,.modal-sello .ms-b select:focus{outline:none;border-color:var(--p);background:var(--w);box-shadow:0 0 0 2px rgba(0,174,195,.15)}
+.modal-sello .ms-b input::placeholder{color:var(--mut)}
 .modal-sello .ms-g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.modal-sello .ms-hint{font-size:11px;color:#7aacbc;margin-top:10px;font-style:italic;line-height:1.4}
-.modal-sello .ms-f{padding:12px 20px;border-top:1px solid #1a3040;display:flex;gap:10px;background:#050d14;border-radius:0 0 12px 12px}
-.modal-sello .ms-f button{flex:1;padding:11px 14px;border:none;border-radius:6px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
-.modal-sello .ms-canc{background:#1a2a35;color:#8ac0d8;border:1px solid #2a4050 !important}
-.modal-sello .ms-canc:hover{background:#243a48}
-.modal-sello .ms-ok{background:#22a954;color:#fff;flex:1.5;box-shadow:0 4px 12px rgba(26,138,74,.3)}
-.modal-sello .ms-ok:hover{background:#1a8544}
+.modal-sello .ms-hint{font-size:11px;color:var(--mut);margin-top:10px;font-style:italic;line-height:1.4}
+.modal-sello .ms-f{padding:12px 20px;border-top:1px solid var(--light);display:flex;gap:10px;background:var(--bg);border-radius:0 0 12px 12px}
+.modal-sello .ms-f button{flex:1;padding:11px 14px;border:none;border-radius:6px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s,box-shadow .15s}
+.modal-sello .ms-canc{background:var(--light);color:var(--txt);border:1px solid #c8c8c8 !important}
+.modal-sello .ms-canc:hover{background:#c8c8c8}
+.modal-sello .ms-ok{background:var(--vd);color:#fff;flex:1.5;box-shadow:0 2px 6px rgba(34,169,84,.25)}
+.modal-sello .ms-ok:hover{background:#1a8a44;box-shadow:0 3px 10px rgba(34,169,84,.35)}
 </style>
 <style>
 /* v7.99 · Fix FOUC · items marcados data-solo-gerencia arrancan ocultos
