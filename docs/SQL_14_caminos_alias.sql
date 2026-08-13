@@ -16,9 +16,12 @@
 -- consultar y filtrar en el portal.
 -- ═══════════════════════════════════════════════════════════════
 
+-- v8.71 · Alias POR TRAMO · un mismo NOMEMCLATURA (ej. 093-13) puede tener
+--         múltiples tramos con nombres populares distintos. UNIQUE compuesto.
 CREATE TABLE IF NOT EXISTS public.caminos_alias (
     id              BIGSERIAL PRIMARY KEY,
-    nomenclatura    TEXT      NOT NULL UNIQUE,   -- ej. "093-08" (una fila por camino)
+    nomenclatura    TEXT      NOT NULL,          -- ej. "093-08"
+    tramo_num       TEXT      NOT NULL DEFAULT 'ALL',  -- ej. "1", "2" o "ALL" (camino completo)
     zona            TEXT      NOT NULL DEFAULT 'VI',
     partido         TEXT,                        -- ej. "Saladillo" (redundante, para consulta rápida)
     denominacion_oficial TEXT,                   -- copia de la denom oficial al momento de crear el alias
@@ -28,10 +31,12 @@ CREATE TABLE IF NOT EXISTS public.caminos_alias (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_by      UUID REFERENCES auth.users(id),
-    updated_by      UUID REFERENCES auth.users(id)
+    updated_by      UUID REFERENCES auth.users(id),
+    CONSTRAINT caminos_alias_nom_tramo_uk UNIQUE (nomenclatura, tramo_num)
 );
 
 CREATE INDEX IF NOT EXISTS idx_caminos_alias_nomencl ON public.caminos_alias (nomenclatura);
+CREATE INDEX IF NOT EXISTS idx_caminos_alias_nomencl_tramo ON public.caminos_alias (nomenclatura, tramo_num);
 CREATE INDEX IF NOT EXISTS idx_caminos_alias_zona    ON public.caminos_alias (zona);
 CREATE INDEX IF NOT EXISTS idx_caminos_alias_partido ON public.caminos_alias (partido);
 

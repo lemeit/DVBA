@@ -7474,17 +7474,25 @@ function csBuildTagList(){
     return;
   }
   const aliasCache = window._aliasCnoCache || {};
+  // Helper local: junta TODOS los alias de un mismo NOMEMCLATURA (a través de todos sus tramos)
+  const aliasDelCamino = (nomencl) => {
+    const acc = [];
+    Object.entries(aliasCache).forEach(([k, row]) => {
+      if (row.nomenclatura === nomencl && Array.isArray(row.alias_locales)) {
+        row.alias_locales.forEach(a => { if (a && !acc.includes(a)) acc.push(a); });
+      }
+    });
+    return acc;
+  };
   c.innerHTML = visibles.map(c => {
     const on = csSelKeys.has(c.key);
     const col = CS_COLOR_CLASE[c.clase] || '#7050b0';
-    // v8.71 · Tooltip enriquecido con alias populares si existen
-    const aliasRow = aliasCache[c.key];
-    const aliasLista = aliasRow && aliasRow.alias_locales && aliasRow.alias_locales.length
-      ? '\n🏷 Alias: ' + aliasRow.alias_locales.join(' / ')
-      : '';
+    // v8.71 · Tooltip enriquecido con alias populares (todos los tramos del código)
+    const aliasCamino = aliasDelCamino(c.key);
+    const aliasLista = aliasCamino.length ? '\n🏷 Alias: ' + aliasCamino.join(' / ') : '';
     const tooltipRaw = (c.tooltip || '') + aliasLista;
     const ttl = tooltipRaw ? ` title="${tooltipRaw.replace(/"/g, '&quot;')}"` : '';
-    // Badge 🏷 chico si el camino tiene alias registrados
+    // Badge 🏷 chico si el camino tiene alias registrados en algún tramo
     const badgeAlias = aliasLista ? '<span style="opacity:.7;font-size:9px;margin-left:2px">🏷</span>' : '';
     return `<span class="regtag" onclick="csToggleKey('${c.key}')"${ttl}
        style="background:${on?col+'25':'transparent'};color:${on?col:'#777'};border:1px solid ${on?col:'var(--light)'};padding:1px 6px;font-size:9.5px;border-radius:8px;cursor:pointer;display:inline-block;margin:1px 1px;font-weight:600">
@@ -7506,8 +7514,10 @@ function csListarVisibles(){
     // Coincidir con: código, tooltip (denominación), o cualquier alias popular / denominación local
     if (c.key.toLowerCase().includes(busq)) return true;
     if (c.tooltip && c.tooltip.toLowerCase().includes(busq)) return true;
-    const row = aliasCache[c.key];
-    if (row) {
+    // v8.71 · Buscar en TODOS los alias del código (a través de todos sus tramos)
+    for (const key in aliasCache) {
+      const row = aliasCache[key];
+      if (row.nomenclatura !== c.key) continue;
       if (row.denominacion_local && row.denominacion_local.toLowerCase().includes(busq)) return true;
       if (Array.isArray(row.alias_locales) && row.alias_locales.some(a => String(a).toLowerCase().includes(busq))) return true;
     }
@@ -8813,7 +8823,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
   <div class="modal-sello" style="max-width:560px">
     <div class="ms-h">
       <span class="ms-h-icon">🏷</span>
-      <span>Alias del camino <span id="alias-cno-nomencl" style="opacity:.85">—</span></span>
+      <span>Alias del camino <span id="alias-cno-nomencl" style="opacity:.85">—</span><span id="alias-cno-tramo-label" style="opacity:.7;font-size:.85em"></span></span>
     </div>
     <div class="ms-b">
       <div style="background:var(--p-xl);border-left:3px solid var(--p);padding:8px 10px;border-radius:4px;margin-bottom:12px;font-size:11px;line-height:1.5;color:var(--txt)">
@@ -8821,6 +8831,20 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
         <span id="alias-cno-denom-oficial" style="font-size:12px;color:var(--txt);font-weight:600">—</span>
         <div style="margin-top:6px;font-size:10px;color:var(--mut)">
           📍 <span id="alias-cno-partido">—</span>
+        </div>
+      </div>
+      <!-- v8.71 · Selector de alcance · aplicar el alias solo a este tramo o al camino completo -->
+      <div id="alias-cno-alcance-wrap" style="display:none;background:#fef9e6;border:1px solid #f0c250;border-left:4px solid var(--am);padding:8px 12px;border-radius:4px;margin-bottom:12px;font-size:11px">
+        <b style="color:var(--am)">📍 ¿A qué se aplica este alias?</b>
+        <div style="display:flex;gap:12px;margin-top:6px;flex-wrap:wrap">
+          <label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer">
+            <input type="radio" name="alias-alcance" value="tramo" checked onchange="_aliasCnoOnAlcanceChange()">
+            <span>Solo a <b>este tramo</b> (<span id="alias-cno-tramo-txt">—</span>)</span>
+          </label>
+          <label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer">
+            <input type="radio" name="alias-alcance" value="ALL" onchange="_aliasCnoOnAlcanceChange()">
+            <span>Al <b>camino completo</b> (todos los tramos)</span>
+          </label>
         </div>
       </div>
       <p style="font-size:11px;color:var(--mut);margin-bottom:12px;line-height:1.5">
@@ -9605,7 +9629,7 @@ function mostrarModalSIGVialCamino(feat, latlng){
   const estGen = '<span style="color:#c48b4a">s/d</span>';
   document.getElementById('sig-b').innerHTML = `
     ${alerta ? `<div style="background:#fff3cd;border-left:3px solid #ff9800;padding:8px 10px;margin-bottom:12px;font-size:11px;color:#8a4b00">⚠ Este camino está marcado con <b>ALERTA: REVISAR</b> — la geometría GIS puede tener errores que requieren corrección en QGIS.</div>` : ''}
-    ${_renderBloqueAliasCamino(p.NOMEMCLATURA)}
+    ${_renderBloqueAliasCamino(p.NOMEMCLATURA, p.TRAMO_NUM)}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
       <div style="background:#f0f4f8;padding:10px;border-radius:6px;border-left:3px solid ${colorCno}">
         <div style="font-size:9px;color:#7a8a9a;text-transform:uppercase;letter-spacing:.5px">Progresiva en punto</div>
@@ -9660,11 +9684,18 @@ function mostrarModalSIGVialCamino(feat, latlng){
   document.getElementById('modal-sigvial').style.display = 'flex';
 }
 
-// v8.71 · Edición colaborativa de alias de caminos secundarios (SQL_14)
+// v8.71 · Edición colaborativa de alias de caminos secundarios POR TRAMO (SQL_14 + SQL_14b)
 // Estado local del modal
-let _aliasCnoState = { nomencl: null, alias: [], denomOficial: '', partido: '', denomLocal: '', obs: '', updatedAt: null };
-// v8.71 · Cache global de alias { nomenclatura → row de caminos_alias }
+let _aliasCnoState = { nomencl: null, tramoNum: null, alias: [], denomOficial: '', partido: '', denomLocal: '', obs: '', updatedAt: null };
+// v8.71 · Cache global de alias · key = "NOMENCLATURA#TRAMO_NUM" (ej. "093-13#1")
 window._aliasCnoCache = window._aliasCnoCache || {};
+
+// v8.71 · Helper para armar key del cache de forma consistente
+function _aliasCnoKey(nomencl, tramoNum){
+  const t = (tramoNum != null && tramoNum !== '' && String(tramoNum) !== 'null' && String(tramoNum) !== '0')
+    ? String(tramoNum) : 'ALL';
+  return String(nomencl) + '#' + t;
+}
 
 // v8.71 · Cargar todos los alias en cache al arrancar la app (o después de cargar caminos)
 async function _cargarCacheAliasCaminos(){
@@ -9673,23 +9704,28 @@ async function _cargarCacheAliasCaminos(){
     const zonaAct = (typeof DVBA_PERFIL !== 'undefined' && DVBA_PERFIL.zonaActual) ? DVBA_PERFIL.zonaActual() : 'VI';
     const { data, error } = await _supa
       .from('caminos_alias')
-      .select('nomenclatura, alias_locales, denominacion_local, observaciones, updated_at, partido')
+      .select('nomenclatura, tramo_num, alias_locales, denominacion_local, observaciones, updated_at, partido')
       .eq('zona', zonaAct);
     if (error) { console.warn('[alias-cno cache]', error.message); return; }
     (data || []).forEach(row => {
-      window._aliasCnoCache[row.nomenclatura] = row;
+      const key = _aliasCnoKey(row.nomenclatura, row.tramo_num);
+      window._aliasCnoCache[key] = row;
     });
     console.log(`[alias-cno cache] ${data ? data.length : 0} alias cargados de zona ${zonaAct}`);
   } catch(e) { console.warn('[alias-cno cache]', e.message); }
 }
 
-// v8.71 · Helper para armar el HTML del bloque "Alias populares" del modal SIG Vial
-function _renderBloqueAliasCamino(nomencl){
+// v8.71 · Helper para armar el HTML del bloque "Alias populares" del modal SIG Vial.
+//         Busca primero el alias específico del tramo, sino cae a 'ALL' (camino completo).
+function _renderBloqueAliasCamino(nomencl, tramoNum){
   const cache = window._aliasCnoCache || {};
-  const row = cache[nomencl];
+  const keyTramo = _aliasCnoKey(nomencl, tramoNum);
+  const keyAll   = _aliasCnoKey(nomencl, 'ALL');
+  const row = cache[keyTramo] || cache[keyAll];
   if (!row || (!row.alias_locales || row.alias_locales.length === 0) && !row.denominacion_local && !row.observaciones) {
     return '';
   }
+  const esGenerico = !cache[keyTramo] && !!cache[keyAll];
   const chips = (row.alias_locales || []).map(a =>
     `<span style="display:inline-block;background:var(--p-xl);color:var(--pd);border:1px solid var(--p);padding:2px 8px;border-radius:12px;font-size:10.5px;font-weight:600;margin:2px 3px 2px 0">${String(a).replace(/</g,'&lt;')}</span>`
   ).join('');
@@ -9699,12 +9735,16 @@ function _renderBloqueAliasCamino(nomencl){
   const obs = row.observaciones
     ? `<div style="margin-top:4px;font-size:10.5px;color:var(--mut);font-style:italic;line-height:1.4">📝 ${String(row.observaciones).replace(/</g,'&lt;')}</div>`
     : '';
+  const nota = esGenerico
+    ? '<div style="margin-top:6px;font-size:9.5px;color:var(--mut);font-style:italic">ℹ Alias aplicados al camino completo (no específicos de este tramo)</div>'
+    : '';
   return `
     <div style="background:linear-gradient(90deg, var(--p-xl) 0%, #ffffff 100%);border:1px solid var(--p);border-left:4px solid var(--p);padding:9px 12px;border-radius:6px;margin-bottom:12px">
       <div style="font-size:9px;color:var(--pd);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:700">🏷 Alias populares (colaborativo)</div>
       ${chips || '<span style="color:var(--mut);font-size:10.5px;font-style:italic">Sin alias registrados</span>'}
       ${denomLocal}
       ${obs}
+      ${nota}
     </div>
   `;
 }
@@ -9716,37 +9756,58 @@ function editarCaractCamino(){
     alert('Necesitás iniciar sesión para editar los alias de caminos.\n\nLos vecinos y personal técnico pueden sumar los nombres populares de los caminos una vez logueados.');
     return;
   }
-  abrirModalAliasCamino(_sigCaminoActivo);
+  // v8.71 · Pasar tramo_num del feat activo (si existe)
+  const tramoNum = (_sigFeatActivo && _sigFeatActivo.properties) ? _sigFeatActivo.properties.TRAMO_NUM : null;
+  abrirModalAliasCamino(_sigCaminoActivo, tramoNum);
 }
 
-async function abrirModalAliasCamino(nomencl){
+async function abrirModalAliasCamino(nomencl, tramoNum){
   if (!nomencl) return;
-  // Precargar datos del camino desde el geojson
+  // Normalizar tramo: si es null/0/'null'/vacío, marcar como 'ALL' (aplica al camino completo)
+  const tramoNorm = (tramoNum != null && tramoNum !== '' && String(tramoNum) !== 'null' && String(tramoNum) !== '0')
+    ? String(tramoNum) : 'ALL';
+  // Precargar datos del camino desde el geojson (feat del tramo específico si existe)
   const feat = (_caminosGeoJSON_cache && _caminosGeoJSON_cache.features)
-    ? _caminosGeoJSON_cache.features.find(f => f.properties && f.properties.NOMEMCLATURA === nomencl)
+    ? _caminosGeoJSON_cache.features.find(f =>
+        f.properties && f.properties.NOMEMCLATURA === nomencl &&
+        (tramoNorm === 'ALL' || String(f.properties.TRAMO_NUM) === tramoNorm))
     : null;
   const denomOficial = feat ? (feat.properties.DENOMINACION || '—') : '—';
   const partido      = feat ? (feat.properties.PARTIDO_NOMBRE || '—') : '—';
-  _aliasCnoState = { nomencl, alias: [], denomOficial, partido, denomLocal: '', obs: '', updatedAt: null };
+  _aliasCnoState = { nomencl, tramoNum: tramoNorm, alias: [], denomOficial, partido, denomLocal: '', obs: '', updatedAt: null };
 
   document.getElementById('alias-cno-nomencl').textContent = nomencl;
+  const tramoLabel = document.getElementById('alias-cno-tramo-label');
+  if (tramoLabel) tramoLabel.textContent = (tramoNorm !== 'ALL') ? ' · Tramo ' + tramoNorm : '';
   document.getElementById('alias-cno-denom-oficial').textContent = denomOficial;
   document.getElementById('alias-cno-partido').textContent = partido;
   document.getElementById('alias-cno-input-nuevo').value = '';
   document.getElementById('alias-cno-denom-local').value = '';
   document.getElementById('alias-cno-obs').value = '';
   document.getElementById('alias-cno-updated').textContent = 'nuevo — todavía sin registro';
+  // v8.71 · Mostrar el selector de alcance SOLO si el camino tiene tramos numerados
+  const wrapAlcance = document.getElementById('alias-cno-alcance-wrap');
+  const tramoTxt    = document.getElementById('alias-cno-tramo-txt');
+  if (tramoNorm !== 'ALL' && wrapAlcance) {
+    wrapAlcance.style.display = 'block';
+    if (tramoTxt) tramoTxt.textContent = 'Tramo ' + tramoNorm;
+    // Radio "tramo" checked por default
+    const rTramo = document.querySelector('input[name="alias-alcance"][value="tramo"]');
+    if (rTramo) rTramo.checked = true;
+  } else if (wrapAlcance) {
+    wrapAlcance.style.display = 'none';
+  }
   _aliasCnoRenderChips();
   document.getElementById('modal-alias-cno-ov').classList.add('on');
 
-  // Cargar alias existente si existe
+  // Cargar alias existente si existe (busca por nomenclatura + tramo específico)
   try {
-    // v8.71 · _supa es const del scope global del script, NO window._supa
     if (typeof _supa === 'undefined' || !_supa) return;
     const { data, error } = await _supa
       .from('caminos_alias')
       .select('*')
       .eq('nomenclatura', nomencl)
+      .eq('tramo_num', tramoNorm)
       .maybeSingle();
     if (error) { console.warn('[alias-cno] SELECT:', error.message); return; }
     if (data) {
@@ -9762,6 +9823,47 @@ async function abrirModalAliasCamino(nomencl){
       _aliasCnoRenderChips();
     }
   } catch(e) { console.warn('[alias-cno] fetch:', e.message); }
+}
+
+// v8.71 · Cuando el user cambia entre "este tramo" y "camino completo",
+//         re-buscamos el alias correspondiente y refrescamos el modal.
+async function _aliasCnoOnAlcanceChange(){
+  if (!_aliasCnoState.nomencl) return;
+  const alcance = document.querySelector('input[name="alias-alcance"]:checked');
+  if (!alcance) return;
+  const nuevoTramo = alcance.value === 'ALL' ? 'ALL' : _aliasCnoState.tramoNum;
+  // Si estaba viendo un tramo específico y ahora cambia a ALL (o viceversa), reload
+  if (nuevoTramo === _aliasCnoState.tramoNum) return;
+  const prev = _aliasCnoState.tramoNum;
+  _aliasCnoState.tramoNum = nuevoTramo;
+  // Reset campos + intentar cargar del backend
+  _aliasCnoState.alias = [];
+  _aliasCnoState.denomLocal = '';
+  _aliasCnoState.obs = '';
+  _aliasCnoState.updatedAt = null;
+  document.getElementById('alias-cno-denom-local').value = '';
+  document.getElementById('alias-cno-obs').value = '';
+  document.getElementById('alias-cno-updated').textContent = 'nuevo — sin registro para este alcance';
+  _aliasCnoRenderChips();
+  if (typeof _supa === 'undefined' || !_supa) return;
+  try {
+    const { data } = await _supa
+      .from('caminos_alias')
+      .select('*')
+      .eq('nomenclatura', _aliasCnoState.nomencl)
+      .eq('tramo_num', nuevoTramo)
+      .maybeSingle();
+    if (data) {
+      _aliasCnoState.alias = Array.isArray(data.alias_locales) ? data.alias_locales : [];
+      _aliasCnoState.denomLocal = data.denominacion_local || '';
+      _aliasCnoState.obs = data.observaciones || '';
+      _aliasCnoState.updatedAt = data.updated_at;
+      document.getElementById('alias-cno-denom-local').value = _aliasCnoState.denomLocal;
+      document.getElementById('alias-cno-obs').value = _aliasCnoState.obs;
+      document.getElementById('alias-cno-updated').textContent = new Date(data.updated_at).toLocaleString('es-AR', { dateStyle:'short', timeStyle:'short' });
+      _aliasCnoRenderChips();
+    }
+  } catch(e) { console.warn('[alias-cno onAlcanceChange]', e.message); }
 }
 
 function cerrarModalAliasCamino(){
@@ -9809,8 +9911,12 @@ async function guardarAliasCamino(){
   const denomLocal = document.getElementById('alias-cno-denom-local').value.trim() || null;
   const obs = document.getElementById('alias-cno-obs').value.trim() || null;
   const zona = (typeof DVBA_PERFIL !== 'undefined' && DVBA_PERFIL.zonaActual) ? DVBA_PERFIL.zonaActual() : 'VI';
+  // v8.71 · Leer alcance elegido (si el selector está visible) · sino usar tramo del state
+  const alcance = document.querySelector('input[name="alias-alcance"]:checked');
+  const tramoFinal = alcance ? (alcance.value === 'ALL' ? 'ALL' : _aliasCnoState.tramoNum) : _aliasCnoState.tramoNum;
   const payload = {
     nomenclatura: _aliasCnoState.nomencl,
+    tramo_num: tramoFinal,
     zona: zona,
     partido: _aliasCnoState.partido !== '—' ? _aliasCnoState.partido : null,
     denominacion_oficial: _aliasCnoState.denomOficial !== '—' ? _aliasCnoState.denomOficial : null,
@@ -9821,16 +9927,16 @@ async function guardarAliasCamino(){
   try {
     const { data, error } = await _supa
       .from('caminos_alias')
-      .upsert(payload, { onConflict: 'nomenclatura' })
+      .upsert(payload, { onConflict: 'nomenclatura,tramo_num' })
       .select()
       .single();
     if (error) throw error;
-    if (typeof toast === 'function') toast('✓ Alias del camino guardados', 'ok');
+    if (typeof toast === 'function') toast('✓ Alias del camino guardados' + (tramoFinal !== 'ALL' ? ' (tramo ' + tramoFinal + ')' : ' (camino completo)'), 'ok');
     _aliasCnoState.updatedAt = data.updated_at;
     document.getElementById('alias-cno-updated').textContent = new Date(data.updated_at).toLocaleString('es-AR', { dateStyle:'short', timeStyle:'short' });
-    // Refrescar el cache local de alias para que el modal SIG Vial los muestre próximamente
+    // Refrescar el cache local con key nomencl#tramo
     window._aliasCnoCache = window._aliasCnoCache || {};
-    window._aliasCnoCache[_aliasCnoState.nomencl] = data;
+    window._aliasCnoCache[_aliasCnoKey(_aliasCnoState.nomencl, tramoFinal)] = data;
     // v8.71 · Si el modal SIG Vial estaba abierto sobre este mismo camino, re-renderizar
     // para que aparezca el bloque de alias populares actualizado sin cerrar/reabrir
     if (_sigCaminoActivo === _aliasCnoState.nomencl && _sigFeatActivo && typeof mostrarModalSIGVialCamino === 'function') {
