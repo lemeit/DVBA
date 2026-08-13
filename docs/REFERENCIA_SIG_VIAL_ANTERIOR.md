@@ -6,12 +6,12 @@
 
 ## Contexto
 
-El sistema anterior (aquí llamado "SIG Vial 2" o "SIG Vial 2008" según los documentos disponibles) era una aplicación web utilizada históricamente por la Dirección de Vialidad de la Provincia de Buenos Aires para consulta cartográfica de la red vial. No está actualmente en funcionamiento operativo, pero **partes de su contenido (nomenclatura, catálogo de tramos, denominaciones)** sobrevivieron como referencia autoritativa y fueron incorporados al desarrollo actual.
+El sistema anterior (**Sistema SIG Vial 2008**) era una aplicación web utilizada históricamente por la Dirección de Vialidad de la Provincia de Buenos Aires para consulta cartográfica de la red vial. No está actualmente en funcionamiento operativo, pero **partes de su contenido (nomenclatura, catálogo de tramos, denominaciones)** sobrevivieron como referencia autoritativa y fueron incorporados al desarrollo actual.
 
-## Artefactos disponibles en `docs/`
+## Artefactos disponibles
 
-- **`Sistema SIG Vial 2008.pdf`** — documento oficial del sistema original de referencia. Incluye especificaciones y probablemente el manual/presentación institucional del sistema.
-- **`SIG Vial 2.pdf`** — captura de pantalla de una instancia del sistema. Muestra:
+- **`Sistema SIG Vial 2008.pdf`** — documento oficial del sistema original de referencia. Incluye especificaciones y el manual/presentación institucional del sistema.
+- **Captura de pantalla de referencia** de una instancia del sistema. Muestra:
   - Vista cartográfica centrada en la región Zona VI Saladillo (coordenadas −35.85, −59.34).
   - Traza visible de RP 5, RP 51, RP 40, RP 65, RP 205 y RP 91 con la nomenclatura oficial de escuditos DVBA.
   - Panel lateral **"Configuración de capas"** con dos capas activas: *Red Vial Nacional* y *Límites Político-administrativos (IGN)*.
