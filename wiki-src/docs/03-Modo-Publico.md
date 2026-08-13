@@ -2,9 +2,9 @@
 
 # Modo público (sin login)
 
-**Novedad v8.56/v8.58:** el portal principal se abre en *modo público* por defecto. Cualquier persona con la URL puede ver el mapa de la red vial provincial sin necesidad de credenciales.
+El portal principal se abre en *modo público* por defecto. Cualquier persona con la URL puede ver el mapa de la red vial provincial sin necesidad de credenciales.
 
-**Novedad v8.59-v8.64 · Portal multi-zona real:** el sistema pasó de piloto Zona VI a herramienta panorámica PBA con las **12 zonas viales** de la Dirección de Vialidad. Al abrir el portal público se ve toda la Provincia con los 135 partidos agrupados por su zona vial DVBA (paleta institucional de 12 tonos armónicos). Un técnico logueado se redirige automáticamente a su zona. Admin/Gerencia pueden cambiar de zona con el picker del header. Las trazas de las RPs se recortan automáticamente a los límites de los partidos de la zona activa. Sobre cada agrupación aparece el número romano (I..XII) de la zona.
+**Portal multi-zona:** el sistema cubre las **12 zonas viales** de la Dirección de Vialidad. Al abrir el portal público se ve toda la Provincia con los 135 partidos agrupados por su zona vial DVBA (paleta institucional de 12 tonos armónicos). Un técnico logueado se redirige automáticamente a su zona. Admin/Gerencia pueden cambiar de zona con el picker del header. Las trazas de las RPs se recortan automáticamente a los límites de los partidos de la zona activa. Sobre cada agrupación aparece el número romano (I..XII) de la zona.
 
 ### ¿Qué se ve sin login?
 

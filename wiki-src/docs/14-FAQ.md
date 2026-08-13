@@ -28,11 +28,11 @@ Verificar en la cola de pendientes (📤 Sin enviar). Si está ahí, es porque n
 
 ### El link "Modo Avanzado" en el login no hace nada.
 
-Corregido en **v9.73**. Si estás en una versión anterior, tocá *Actualizar* en el banner verde de arriba.
+Ya está corregido en las versiones recientes. Si el problema persiste, tocá *Actualizar* en el banner verde de arriba para traer la última versión.
 
 ### La app se llama "DVBA Campo Zona VI" en mi celular, no "SIG Vial PBA".
 
-Es cache de Android. La app se renombró institucionalmente en v8.2/v9.72. Al actualizar por el banner, Android va a proponer el nuevo nombre en un diálogo *"Revisar actualización del nombre"*. Aceptar. Si no aparece, desinstalar y reinstalar la PWA.
+Es cache de Android. La app se renombró institucionalmente. Al actualizar por el banner, Android va a proponer el nuevo nombre en un diálogo *"Revisar actualización del nombre"*. Aceptar. Si no aparece, desinstalar y reinstalar la PWA.
 
 ### ¿Puedo instalar la app en la notebook?
 

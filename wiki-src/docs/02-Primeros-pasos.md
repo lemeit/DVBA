@@ -30,7 +30,7 @@ El ícono se llama **"SIG Vial PBA"** y aparece con el logo institucional DVBA.
 
 ### Actualizaciones automáticas
 
-Cuando hay una versión nueva del sistema, al abrir la app aparece un banner verde arriba: **🔄 Hay una versión más nueva · De v9.90 → v9.91 · tocá Actualizar**.
+Cuando hay una versión nueva del sistema, al abrir la app aparece un banner verde arriba: **🔄 Hay una versión más nueva · tocá Actualizar**.
 
 #### Cómo actualizar
 

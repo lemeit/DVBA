@@ -47,7 +47,7 @@ Cuando hay una versión nueva del sistema, al abrir la app aparece un banner ver
     <div class="screen">
       <div class="pwa-update">
         <div class="ub-icon">🔄</div>
-        <div class="ub-text"><b>Hay una versión más nueva</b><small>De v9.93 → v9.94 · tocá Actualizar</small></div>
+        <div class="ub-text"><b>Hay una versión más nueva</b><small>Tocá Actualizar</small></div>
         <div class="ub-btn">Actualizar</div>
       </div>
       <div class="lite-hdr" style="margin-top:52px">
@@ -183,7 +183,7 @@ Es la app **por default** al instalar. Está pensada para operarios que necesita
 !!! tip "💡 ¿No tenés usuario?"
     Contactá al administrador del sistema: [lulamaita@vialidad.gba.gov.ar](mailto:lulamaita@vialidad.gba.gov.ar). Te van a dar de alta con tu correo institucional.
 
-!!! info "📱 Multi-zona (v9.91+)"
+!!! info "📱 Multi-zona"
     La app es la misma para todas las zonas DVBA (I a XII). Una vez logueado, el header muestra tu **rol** y **zona** real (ej. `👷 Técnico · Zona IV`). El sistema aplica automáticamente las políticas de la zona asignada — solo ves y cargás datos de tu área.
 
 ### Verificar el GPS antes de sacar fotos
@@ -330,7 +330,7 @@ Feedback visual
           <h3 style="margin-bottom:10px">Información</h3>
           <div style="text-align:left;font-size:10px;line-height:1.6;color:#333">
             <b>SIG Vial PBA · Modo Básico</b><br>
-            Versión <b>v9.93.1</b>
+            Versión <b>vX.YZ</b>
             <hr style="border:0;border-top:1px solid #e0e0e0;margin:8px 0">
             <b>Sesión</b><br>
             <span style="font-size:10px;color:#333"><b>👷 Técnico · Zona VI</b></span><br>
