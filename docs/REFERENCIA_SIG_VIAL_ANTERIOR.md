@@ -23,7 +23,7 @@ El sistema anterior (**Sistema SIG Vial 2008**) era una aplicación web utilizad
 ### Contenido (data)
 
 - **CSV oficial `SALADILLO_RED`** — catálogo de 96 tramos × 15 RPs con nomenclatura (`051-110-03A`, etc.), denominación, clase, longitud oficial y partido. Es el insumo autoritativo para la sección "Red Vial Provincial Primaria" del módulo Reportes y para las funcionalidades de auto-detección de partido por progresiva.
-- **Nomenclatura oficial DVBA de 1989** (Ing. Bertoni) — documentada aparte en `docs/REFERENCIA_NOMENCLADOR_1989.md`, es el corpus normativo con el que se cotejan todas las denominaciones de vías.
+- **Nomenclatura oficial DVBA de 1989** — documentada aparte en `docs/REFERENCIA_NOMENCLADOR_1989.md`, es el corpus normativo con el que se cotejan todas las denominaciones de vías.
 - **Convención de escuditos de rutas** (formato numérico dentro de un pentágono para RP, óvalo para RN) — replicado en la simbología del mapa actual y en los sellos institucionales.
 
 ### Diseño (UI)
@@ -47,7 +47,7 @@ El sistema anterior (**Sistema SIG Vial 2008**) era una aplicación web utilizad
 
 ## Cita y uso institucional
 
-Aunque el sistema anterior ya no está en producción, su existencia respalda el argumento de que **SIG Vial PBA es un desarrollo evolutivo** que retoma esfuerzos institucionales previos, no un producto foráneo. En el documento del concurso (`docs/CONCURSO_VIAL_2026.md`) se puede citar como antecedente en las secciones de contexto institucional y arquitectura.
+Aunque el sistema anterior ya no está en producción, su existencia respalda el argumento de que **SIG Vial PBA es un desarrollo evolutivo** que retoma esfuerzos institucionales previos, no un producto foráneo.
 
 ---
 

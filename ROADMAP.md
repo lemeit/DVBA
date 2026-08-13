@@ -5,9 +5,9 @@
 ## ⏭ Próximas prioridades (mañana en adelante)
 
 1. **Escalado multi-zona · empezar por 2 zonas piloto** (IV Junín, V 9 de Julio). Ver `docs/PLAN_ESCALADO_MULTIZONA.md`. Los assets QGIS (rutas, polígonos de partidos, mojones) ya están; falta el pipeline de carga estandarizado y calibración de bundles.
-2. **Informe para XLI Concurso Vial DVBA 2026** (deadline 16 septiembre). Empezar a redactar `docs/CONCURSO_VIAL_2026.md` con capturas actuales del portal, capturas del móvil en campo, screenshots de reportes, comparativa antes/después.
+2. **Documento institucional interno** (deadline mediados septiembre 2026). Preparar informe con capturas actuales del portal, capturas del móvil en campo, screenshots de reportes, comparativa antes/después. *(Se gestiona fuera del repo público.)*
 3. **Capturas y evidencia visual** del proyecto: sacar screenshots de cada portal, del flujo de campo, del panel admin, del sello v4 sobre foto, del reporte PDF, etc. Guardar en `docs/capturas/` para el informe.
-4. **Evaluación de infraestructura futura** (posterior al concurso):
+4. **Evaluación de infraestructura futura** (Q4 2026):
    - **Supabase**: monitorear consumo real cuando lleguen las zonas nuevas (storage fotos, egress, requests). Umbrales Free/Pro/Team documentados en `docs/PLAN_STORAGE.md`. Evaluar si el plan Pro alcanza o hay que migrar.
    - **Alternativas para escalar**: self-hosted PostgREST + PostGIS + MinIO en VPS, Firebase/Firestore, AWS Amplify, Cloudflare D1/R2. Comparar costo/complejidad frente a Supabase Pro.
    - **Dominio propio**: hoy `lemeit.github.io/DVBA/`. Evaluar registrar `sigvial.gba.gob.ar` o `sigvial.dvba.gob.ar` cuando la app deje de ser piloto y pase a oficial. Requiere gestión institucional y certificados.

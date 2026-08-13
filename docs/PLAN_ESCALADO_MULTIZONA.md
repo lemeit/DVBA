@@ -191,10 +191,10 @@ Este esfuerzo puede paralelizarse si se involucra a las divisiones técnicas de 
 
 ---
 
-## Roadmap sugerido post-concurso 2026
+## Roadmap sugerido 2026-2027
 
 **Trimestre 1 (Sept-Nov 2026)**
-- Presentar al concurso vial (16-sep)
+- Entrega institucional interna (mediados septiembre)
 - Si hay interés institucional, formalizar el proyecto
 - Habilitar Zona IV (Junín) como segunda zona piloto
 

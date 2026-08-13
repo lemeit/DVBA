@@ -3,8 +3,8 @@
 > **Cuadernillo original DVBA · Zona VI Saladillo**
 > Referencia: *NOMENCLADOR DE RUTAS — Red Vial Total de la Provincia de Buenos Aires (Provincial: Primaria y Secundaria) (Nacional: Primaria) — ZONA VI*
 > Emisor: Ministerio de Obras y Servicios Públicos · Dirección de Vialidad · Dirección Coordinación Técnica · Departamento Planificación Vial
-> Fecha del listado: **18 de septiembre de 1989** (JUANMA · 10:32:00 · PÁGINA 174)
-> Copia física en poder de: División Técnica DVBA Zona VI (Ing. Luis F. Bertoni — firma en portada)
+> Fecha del listado: **18 de septiembre de 1989**
+> Copia física en poder de: División Técnica DVBA Zona VI.
 
 ## Qué es
 
@@ -50,8 +50,8 @@ La portada del cuadernillo muestra:
 - "(Provincial: Primaria y Secundaria) (Nacional: Primaria)"
 - "ZONA VI"
 - Anotación manuscrita: "Saladillo"
-- Sellos de "Ing. LUIS F. BERTONI · Jefe Int. Div. Técnica · Zona VI - Dirección Vialidad Bs. As." (dos veces, uno rotado)
-- Marca de impresión: "JUANMA · SEP 18, 1989 · 10:32:00 · PÁGINA 174"
+- Sellos institucionales de la Jefatura de División Técnica · Zona VI · Dirección de Vialidad Bs. As. (dos veces, uno rotado)
+- Marca de impresión con fecha 18 de septiembre de 1989
 
 _Para agregar la foto de portada al repo:_
 1. Guardar la imagen en `docs/nomenclador_1989/portada.jpg` (o `.png`).

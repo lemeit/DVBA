@@ -19,10 +19,10 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 | ↳ `dvba_campo_lite.html` (interno) | Modo Básico | v9.91 | UI minimalista: foto + GPS + envío directo. Compresión 1200px/q=0.75 con `createImageBitmap` (low-memory). Inyección EXIF con GPS + fecha aunque la foto vaya cruda. Diseñado para operarios sin fluidez tecnológica. |
 | ↳ `dvba_campo.html` (interno) | Modo Avanzado | v9.91 | Wizard completo con selección de tipo/estado/subatributos, autocomplete de rutas y caminos, edición fina + sello v4 aplicado en móvil. |
 | https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte (subruta legacy — el portal principal ya cubre este flujo) |
-| https://lemeit.github.io/DVBA/docs/bitacora.html | bitácora unificada | v4.5 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
+| https://lemeit.github.io/DVBA/wiki/99-Bitacora/ | bitácora unificada | v4.5 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
 | https://lemeit.github.io/DVBA/docs/guia_sig_vial_pba.html | guía textual | v1.1 | Manual completo de las apps móviles |
 | https://lemeit.github.io/DVBA/docs/guia_visual_sig_vial_pba.html | guía visual | v1.1 | 10 láminas navegables (mockups smartphone) · imprimible como PDF |
-| https://lemeit.github.io/DVBA/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
+| https://github.com/lemeit/DVBA/blob/main/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
 
 ## Funcionalidades destacadas (v8.68-v8.71 · v9.94-v9.95.4 · 13-agosto-2026)
 
@@ -37,8 +37,6 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 **Fix SW cache Modo Avanzado (v9.95.4)** — Bug histórico donde `dvba_campo.html` nunca declaraba `APP_VER` como variable JS (solo spans HTML) y el modal "Acerca de" caía a un fallback cacheado por el Service Worker. Fix: `window.APP_VER` seteado directo antes de los defer scripts + `sello_v4.js` lee `window.APP_VER` en runtime + SW con `skipWaiting()` automático.
 
 **Reportes robustos con múltiples fixes (v8.71)** — 15 fixes puntuales del panel: botones "+ Todas rutas / caminos", filtros case-insensitive de partidos con normalización de tildes, propiedad `PARTIDO_NOMBRE` correcta, botón "Limpiar todos" que sí anda, halo dorado que se quita al limpiar, filtro por partido en tab del reporte que detecta filas TOTAL por `colspan` (no por texto), pin que no sobreescribe campos del formulario cuando se mueve el cursor, mapa del "Reporte con fotos" que ahora muestra las trazas y los pins de tareas (via `circleMarker` + `fitBounds`).
-
-**Documento del concurso XLI DVBA con capítulo IA (v8.68-v8.71)** — Sección 8.4 reescrita completa con propuesta de 4 fases: Fase A (clasificador de fotos con Gemini 2.5 Flash, tier gratuito) implementada como demo · Fase B (resumen semanal automático) · Fase C (detección de duplicados + búsqueda semántica) · Fase D (priorización asistida + optimización de recorridos con OR-Tools). Comparativa de 6 modelos (Gemini/DeepSeek/GPT-4o mini/Claude Haiku/Kimi/Ollama local). Presupuesto realista: Zona VI 100% gratis, escalado 12 zonas ~$10/mes.
 
 ## Funcionalidades destacadas (v8.65-v8.66e · v9.92a-v9.93.1 · agosto 2026)
 
@@ -120,7 +118,7 @@ Contenido único de Acerca de + Términos + Privacidad + Permisos PWA para todos
 La función `ubicarPorProgresiva` ahora funciona también para caminos secundarios (antes solo RPs). Algoritmo reusa `_offsetTramoCache` + `_haversineM` para calcular km→coord sobre la traza del camino, aprovechando la longitud oficial por tramo del CSV DVBA.
 
 ### Plan de escalado multi-zona
-Documento `docs/PLAN_ESCALADO_MULTIZONA.md` con estructura de carpetas por zona, checklist paso a paso para habilitar nuevas zonas, presupuesto de esfuerzo estimado, prioridades y roadmap post-concurso 2026.
+Documento `https://github.com/lemeit/DVBA/blob/main/docs/PLAN_ESCALADO_MULTIZONA.md` con estructura de carpetas por zona, checklist paso a paso para habilitar nuevas zonas, presupuesto de esfuerzo estimado, prioridades y roadmap 2026-2027.
 
 ## Funcionalidades destacadas (v8.29-v8.42 · agosto 2026)
 
@@ -200,13 +198,13 @@ Aparecen automáticamente según la categoría:
 - `datos/dvba_estados.js` — modelo de estados por categoría + sub-atributos
 - Función `onTipoChange(tipoStr)` en ambas apps que repuebla el `<select>` de estado y muestra/oculta los condicionales
 
-Para el detalle completo (matriz Tipo→Estados, guía de extensibilidad, flujo en cada app), ver **[`docs/MODELO_TIPOS_ESTADOS.md`](docs/MODELO_TIPOS_ESTADOS.md)**.
+Para el detalle completo (matriz Tipo→Estados, guía de extensibilidad, flujo en cada app), ver **[`https://github.com/lemeit/DVBA/blob/main/docs/MODELO_TIPOS_ESTADOS.md`](https://github.com/lemeit/DVBA/blob/main/docs/MODELO_TIPOS_ESTADOS.md)**.
 
 ---
 
 ## Novedades v7.62 → v7.79 (13 julio 2026)
 
-Sesión larga de 3 bloques que consolidó **el módulo "Plan de Seguridad en la Circulación"** (partes diarios oficiales), **la detección automática de partido**, y **la visualización de partes en el mapa del portal**. Detalle completo en la [bitácora tab Changelog](docs/bitacora.html).
+Sesión larga de 3 bloques que consolidó **el módulo "Plan de Seguridad en la Circulación"** (partes diarios oficiales), **la detección automática de partido**, y **la visualización de partes en el mapa del portal**. Detalle completo en la [bitácora tab Changelog](https://lemeit.github.io/DVBA/wiki/99-Bitacora/).
 
 ### Módulo Plan de Seguridad en la Circulación (`partes_diarios.html`)
 
@@ -246,7 +244,7 @@ Cierra el ciclo "cargo parte → aparece en el mapa":
 
 ### Doc de diseño
 
-Nuevo **[`docs/PLAN_ROLES_MULTIZONA.md`](docs/PLAN_ROLES_MULTIZONA.md)** con la visión de 4 niveles (público / técnico zona / gerencia PDF oficial / admin) y roadmap de 5 fases para escalar el sistema a las 12 zonas provinciales. Se puede trabajar en paralelo al roadmap actual. El layout del PDF Gerencia (Fase 5) ya está analizado en **[`docs/ANALISIS_INFORME_GERENCIAL_DVBA.md`](docs/ANALISIS_INFORME_GERENCIAL_DVBA.md)**.
+Nuevo **[`https://github.com/lemeit/DVBA/blob/main/docs/PLAN_ROLES_MULTIZONA.md`](https://github.com/lemeit/DVBA/blob/main/docs/PLAN_ROLES_MULTIZONA.md)** con la visión de 4 niveles (público / técnico zona / gerencia PDF oficial / admin) y roadmap de 5 fases para escalar el sistema a las 12 zonas provinciales. Se puede trabajar en paralelo al roadmap actual. El layout del PDF Gerencia (Fase 5) ya está analizado en **[`https://github.com/lemeit/DVBA/blob/main/docs/ANALISIS_INFORME_GERENCIAL_DVBA.md`](https://github.com/lemeit/DVBA/blob/main/docs/ANALISIS_INFORME_GERENCIAL_DVBA.md)**.
 
 ### Base SQL agregada
 
@@ -257,7 +255,7 @@ Nuevo **[`docs/PLAN_ROLES_MULTIZONA.md`](docs/PLAN_ROLES_MULTIZONA.md)** con la 
 
 ## Novedades v7.46 → v7.57 · v9.50 → v9.53 (7–13 julio 2026)
 
-**Sprint SIG Vial + gestión de fotos + rediseño UI**. Detalle completo en la [bitácora tab Changelog](docs/bitacora.html).
+**Sprint SIG Vial + gestión de fotos + rediseño UI**. Detalle completo en la [bitácora tab Changelog](https://lemeit.github.io/DVBA/wiki/99-Bitacora/).
 
 - **Modal SIG Vial tipo DNV** al click sobre una RP o camino en el mapa: progresiva del punto, longitud oficial vs GIS con diferencia %, características viales (clase, transitabilidad, placeholders `s/d` para ancho calzada / banquinas / TMDA / pavimento / estado), tabla colapsable de tramos oficiales. Adaptado para caminos con Denominación + Transitabilidad + banner `⚠ ALERTA: REVISAR` si corresponde.
 - **Bundle `datos/caracteristicas_viales.js`** generado desde `SALADILLO_RED.csv` — 15 RPs con 96 tramos oficiales. Los campos editables (ancho, TMDA, etc.) se completarán vía UI colaborativa contra Supabase en una próxima iteración.
@@ -503,7 +501,7 @@ Cada item muestra de un vistazo su estado en el workflow:
 - 📜 **HISTÓRICO** (gris) — registros viejos con sello v2 (no re-sellables)
 - ✕ **RECHAZADO** (rojo, tooltip con motivo)
 
-Para detalles técnicos completos (5 columnas BD agregadas, lógica de umbrales, fases de implementación), ver la **[bitácora — Tab Changelog](docs/bitacora.html)**.
+Para detalles técnicos completos (5 columnas BD agregadas, lógica de umbrales, fases de implementación), ver la **[bitácora — Tab Changelog](https://lemeit.github.io/DVBA/wiki/99-Bitacora/)**.
 
 ---
 

@@ -841,8 +841,6 @@ TAB 6 · PENDIENTES
 
 **Frente 3 · Wiki online con MkDocs Material + fixes cache SW.** Guía de usuario publicada en `lemeit.github.io/DVBA/wiki/` con GitHub Actions que rebuildea automáticamente en cada push a `wiki-src/`. Rediseño de la wiki con nav aplanada (14 capítulos), paleta institucional DVBA (footer + colores unificados), logo DVBA en header, favicon, TOC integrado. Modales del portal (Cola pendientes, Sello, edición alias) unificados con la misma paleta turquesa. **Bug histórico resuelto:** `dvba_campo.html` nunca declaraba `APP_VER` como variable JS (solo tenía spans HTML) → el modal "Acerca de" mostraba versión vieja cacheada por el SW. Fix con `window.APP_VER` seteado directo antes de los defer scripts + `sello_v4.js` que lee window en runtime + SW con `skipWaiting()` automático. Cache-busters `?v=9.95.X` en `.js` críticos.
 
-**Frente 4 · Documento del concurso XLI DVBA.** Sección 8.4 reescrita completa con propuesta de IA aplicada en 4 fases (Fase A implementada como demo, Fase B/C/D roadmap). Comparativa de 6 modelos (Gemini 2.5 Flash elegido por tier gratuito genuino + multimodalidad nativa + calidad en español). Presupuesto realista: Zona VI 100% gratis, escalado 12 zonas ~$10/mes vs software vial comercial USD 500-2000/mes. Header y sección 3 al día con snapshot v8.71/v9.95.4.
-
 **Frente 5 · Fixes UX puntuales.** Pin que no sobreescribe campos del formulario cuando se mueve el cursor (flag `_pinFijado` + guarda en `mousemove` de hitLayer). Detección de partido en Modo Avanzado móvil que ahora sí escribe la RP detectada en el select del formulario (orden correcto + prefijo "RP N" para matchear options). Mapa del "Reporte con fotos" ahora muestra las trazas de las rutas y los pins de tareas (usa `L.circleMarker` temporal que sí soporta `leaflet-image`, con `fitBounds` automático antes de capturar).
 
 Archivos nuevos: `docs/SQL_14_caminos_alias.sql`, `docs/REFERENCIA_SIG_VIAL_ANTERIOR.md`. Bump completo `v8.66e → v8.71` (escritorio) y `v9.93.1 → v9.95.4` (móvil).
@@ -951,7 +949,7 @@ Nuevo documento `docs/PLAN_ESCALADO_MULTIZONA.md` con:
 
 - Prioridades: IV Junín + V 9 de Julio primero (limítrofes con VI, más fáciles)
 
-- Roadmap post-concurso 2026 por trimestres
+- Roadmap 2026-2027 por trimestres
 
 ### v8.29 – v8.42 · 29–31 julio 2026 — Sistema de reportes unificado Red Vial Provincial + paleta minimalista PBA
 

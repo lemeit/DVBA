@@ -6,6 +6,9 @@
 docs/*_preview.pdf
 docs/CONCURSO_VIAL_2026_preview.pdf
 
+# Documentos privados — no publicar en repo público
+docs/CONCURSO_VIAL_2026.md
+
 # OneDrive / Windows basura
 desktop.ini
 Thumbs.db
