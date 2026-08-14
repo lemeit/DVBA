@@ -6,8 +6,9 @@
 
 La app se instala como cualquier otra del celular, pero **sin pasar por Play Store o App Store**. El proceso toma 30 segundos:
 
-<div class="demo" markdown="0">
-  <div class="phone">
+<div class="demo" markdown="1">
+
+<div class="phone" markdown="0">
     <div class="screen">
       <div style="background:#009aae;padding:26px 12px 10px;color:#fff;font-weight:800;font-size:11px">SIG Vial PBA</div>
       <div style="padding:16px;background:#f4f6f9;color:#1a2a3a;font-size:11px;height:calc(100% - 50px)">
@@ -22,8 +23,9 @@ La app se instala como cualquier otra del celular, pero **sin pasar por Play Sto
         </div>
       </div>
     </div>
-  </div>
-  <div class="step" markdown="1">
+</div>
+
+<div class="step" markdown="1">
 
 **Paso a paso**
 
@@ -35,15 +37,17 @@ La app se instala como cualquier otra del celular, pero **sin pasar por Play Sto
 
 <div class="box info" markdown="0"><strong>El ícono se llama "SIG Vial PBA"</strong> y aparece con el logo institucional DVBA.</div>
 
-  </div>
+</div>
+
 </div>
 
 ### Actualizaciones automáticas
 
 Cuando hay una versión nueva del sistema, al abrir la app aparece un banner verde arriba:
 
-<div class="demo" markdown="0">
-  <div class="phone">
+<div class="demo" markdown="1">
+
+<div class="phone" markdown="0">
     <div class="screen">
       <div class="pwa-update">
         <div class="ub-icon">🔄</div>
@@ -59,8 +63,9 @@ Cuando hay una versión nueva del sistema, al abrir la app aparece un banner ver
       </div>
       <div class="lite-main"><div class="big-btn"><div class="icon">📸</div><div class="lbl">Sacar foto</div><div class="sublbl">y guardar ubicación</div></div></div>
     </div>
-  </div>
-  <div class="step" markdown="1">
+</div>
+
+<div class="step" markdown="1">
 
 **Cómo actualizar**
 
@@ -70,7 +75,8 @@ Cuando hay una versión nueva del sistema, al abrir la app aparece un banner ver
 
 <div class="box warn" markdown="0"><strong>Importante</strong> · Si no tocás Actualizar, la app va a seguir funcionando con la versión vieja cacheada. No perdés nada, pero no tenés los últimos cambios.</div>
 
-  </div>
+</div>
+
 </div>
 
 ## Sincronización con la oficina
@@ -111,8 +117,9 @@ Desde escritorio, el personal responsable revisa, completa datos y aprueba. La f
 
 ## Navegador vs app instalada · WiFi/datos vs GPS
 
-<div class="grid2" markdown="0">
-  <div class="card" style="border-left:4px solid #f0a500" markdown="1">
+<div class="grid2" markdown="1">
+
+<div class="card" style="border-left:4px solid #f0a500" markdown="1">
 
 **🌐 Desde el navegador (sin instalar)**
 
@@ -124,8 +131,9 @@ Si abrís la URL directamente en Chrome sin instalar la app:
 
 **Uso recomendado**: prueba rápida, primera vez, o desde la computadora de oficina.
 
-  </div>
-  <div class="card" style="border-left:4px solid #28a745" markdown="1">
+</div>
+
+<div class="card" style="border-left:4px solid #28a745" markdown="1">
 
 **📱 Como app instalada (PWA)**
 
@@ -138,7 +146,8 @@ Una vez que instalaste la app y te logueaste al menos una vez con internet:
 
 **Uso recomendado**: campo, zonas rurales, cualquier situación operativa.
 
-  </div>
+</div>
+
 </div>
 
 <div class="box tip" markdown="0"><strong>💡 Regla práctica</strong> · Instalá la app la primera vez que tengas WiFi (en la oficina). Después usala en el campo sin importar si tenés señal — el GPS funciona en cualquier lado. Cuando volvés a la oficina o entrás en zona con señal, todo se sincroniza solo.</div>
@@ -360,7 +369,7 @@ Feedback visual
 
 ## Uso del Modo Avanzado
 
-Es la app tradicional con wizard completo. Se accede desde el link **⚙ App completa** del footer de la lite o directamente en `lemeit.github.io/DVBA/dvba_campo.html`. Se recomienda para operarios con fluidez técnica que quieren clasificar en el momento.
+Es la app tradicional con wizard completo. Se accede desde el link **⚙ App completa** del footer de la lite o directamente en `lemeit.github.io/DVBA/app.html`. Se recomienda para operarios con fluidez técnica que quieren clasificar en el momento.
 
 ### Paso 0 · Elegir naturaleza del registro
 
@@ -372,13 +381,13 @@ El primer paso del wizard es decidir **qué tipo de registro** estás cargando:
       <div class="full-hdr" style="padding-top:34px">SIG Vial PBA · Campo<span class="sub">👷 Técnico · Zona VI</span></div>
       <div style="background:#fff;color:#1a2a3a;padding:10px 12px 6px;font-size:10px;font-weight:700;color:#009aae">¿Qué vas a registrar?</div>
       <div style="background:#fff;padding:8px 12px;display:flex;flex-direction:column;gap:8px">
-        <div style="border:2px solid #009aae;background:#e6f7f9;border-radius:8px;padding:12px;display:flex;align-items:center;gap:10px">
+        <div style="border:2px solid #009aae;background:#e6f7f9;border-radius:8px;padding:12px;display:flex;align-items:center;gap:10px;color:#1a2a3a">
           <span style="font-size:22px">🔍</span>
-          <span><b style="font-size:12px">Relevamiento</b><br><span style="font-size:9.5px;color:#1a2a3a">Observo un elemento (bache, señal faltante, cuneta obstruida…)</span></span>
+          <span><b style="font-size:12px;color:#00707e">Relevamiento</b><br><span style="font-size:9.5px;color:#1a2a3a">Observo un elemento (bache, señal faltante, cuneta obstruida…)</span></span>
         </div>
-        <div style="border:2px solid #d0d4dc;background:#f4f7fa;border-radius:8px;padding:12px;display:flex;align-items:center;gap:10px">
+        <div style="border:2px solid #d0d4dc;background:#f4f7fa;border-radius:8px;padding:12px;display:flex;align-items:center;gap:10px;color:#1a2a3a">
           <span style="font-size:22px">🚜</span>
-          <span><b style="font-size:12px">Tarea de mantenimiento</b><br><span style="font-size:9.5px;color:#1a2a3a">Registro una acción ejecutada (bacheo, colocación de cebras…)</span></span>
+          <span><b style="font-size:12px;color:#1a2a3a">Tarea de mantenimiento</b><br><span style="font-size:9.5px;color:#1a2a3a">Registro una acción ejecutada (bacheo, colocación de cebras…)</span></span>
         </div>
       </div>
     </div>
