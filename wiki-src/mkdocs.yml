@@ -40,41 +40,41 @@ theme:
     - navigation.instant       # SPA-like sin recargas
     - navigation.tracking      # URL refleja sección visible
     - navigation.top           # botón "volver arriba"
+    - navigation.sections      # v8.72 · headers de grupo en sidebar (sin subniveles clicables)
     - toc.follow               # TOC scrollea con el contenido
     - search.suggest           # sugerencias en el buscador
     - search.highlight         # resalta términos buscados
     - content.code.copy        # botón copiar en bloques de código
-    # v8.68 · REMOVIDOS: tabs, sections, expand, toc.integrate
-    # → generaban jerarquía "Guía de Usuario > Índice > Capítulos > items"
-    # → ahora el nav es plano: 1 nivel = 1 página
 
 # v8.71 · Plugins
 plugins:
   - search
   - include-markdown  # v8.71 · permite embeber README.md y otros .md del repo
 
-# v8.68 · Nav APLANADA · 1 entrada = 1 página, sin categorías anidadas
+# v8.72 · Nav agrupada · 2 secciones tematicas (guia + historia)
 nav:
   - Inicio: 00-Indice.md
-  - Qué es el sistema: 01-Que-es-el-sistema.md
-  - Primeros pasos: 02-Primeros-pasos.md
-  - Modo Público: 03-Modo-Publico.md
-  - Roles y Accesos: 04-Roles-y-Accesos.md
-  - Portal Escritorio: 05-Portal-Escritorio.md
-  - Panel Administración: 06-Panel-Administracion.md
-  - App Móvil · Modo Básico: 07-App-Movil-Modo-Basico.md
-  - App Móvil · Modo Avanzado: 08-App-Movil-Modo-Avanzado.md
-  - Plan Seguridad Circulación: 09-Plan-Seguridad-Circulacion.md
-  - Reportes Red Vial: 10-Reportes-Red-Vial.md
-  - Reportes Dashboard Gerencial: 11-Reportes-Dashboard-Gerencial.md
-  - Sello Institucional: 12-Sello-Institucional.md
-  - Modo Offline: 13-Modo-Offline.md
-  - FAQ: 14-FAQ.md
-  - Guía Visual: Guia-Visual-Complementaria.md
-  - Nomenclador 1989 (fuente histórica): 97-Nomenclador-1989.md
-  - Antecedente SIG Vial: 98-Antecedente-SIG-Vial.md
-  - Bitácora del proyecto: 99-Bitacora.md
-  - README técnico: 95-README-Tecnico.md
+  - Guía de uso:
+      - Qué es el sistema: 01-Que-es-el-sistema.md
+      - Primeros pasos: 02-Primeros-pasos.md
+      - Modo Público: 03-Modo-Publico.md
+      - Roles y Accesos: 04-Roles-y-Accesos.md
+      - Portal Escritorio: 05-Portal-Escritorio.md
+      - Panel Administración: 06-Panel-Administracion.md
+      - App Móvil · Modo Básico: 07-App-Movil-Modo-Basico.md
+      - App Móvil · Modo Avanzado: 08-App-Movil-Modo-Avanzado.md
+      - Plan Seguridad Circulación: 09-Plan-Seguridad-Circulacion.md
+      - Reportes Red Vial: 10-Reportes-Red-Vial.md
+      - Reportes Dashboard Gerencial: 11-Reportes-Dashboard-Gerencial.md
+      - Sello Institucional: 12-Sello-Institucional.md
+      - Modo Offline: 13-Modo-Offline.md
+      - FAQ: 14-FAQ.md
+      - Guía Visual: Guia-Visual-Complementaria.md
+  - Historia y evolución:
+      - Antecedente SIG Vial 2008: 98-Antecedente-SIG-Vial.md
+      - Nomenclador 1989: 97-Nomenclador-1989.md
+      - Bitácora del proyecto: 99-Bitacora.md
+      - README técnico: 95-README-Tecnico.md
 
 markdown_extensions:
   - abbr
