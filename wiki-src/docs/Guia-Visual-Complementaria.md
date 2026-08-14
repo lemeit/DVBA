@@ -362,15 +362,47 @@ Feedback visual
 
 Es la app tradicional con wizard completo. Se accede desde el link **⚙ App completa** del footer de la lite o directamente en `lemeit.github.io/DVBA/dvba_campo.html`. Se recomienda para operarios con fluidez técnica que quieren clasificar en el momento.
 
-### Elegir categoría
+### Paso 0 · Elegir naturaleza del registro
 
-👷 Técnico · Zona VI
+El primer paso del wizard es decidir **qué tipo de registro** estás cargando:
 
 <div class="demo" markdown="0">
   <div class="phone">
     <div class="screen">
       <div class="full-hdr" style="padding-top:34px">SIG Vial PBA · Campo<span class="sub">👷 Técnico · Zona VI</span></div>
-      <div style="background:#fff;color:#1a2a3a;padding:10px 12px 6px;font-size:10px;font-weight:700;color:#009aae">¿Qué vas a relevar?</div>
+      <div style="background:#fff;color:#1a2a3a;padding:10px 12px 6px;font-size:10px;font-weight:700;color:#009aae">¿Qué vas a registrar?</div>
+      <div style="background:#fff;padding:8px 12px;display:flex;flex-direction:column;gap:8px">
+        <div style="border:2px solid #009aae;background:#e6f7f9;border-radius:8px;padding:12px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">🔍</span>
+          <span><b style="font-size:12px">Relevamiento</b><br><span style="font-size:9.5px;color:#5a7a8a">Observo un elemento (bache, señal faltante, cuneta obstruida…)</span></span>
+        </div>
+        <div style="border:2px solid #d0d4dc;background:#f4f7fa;border-radius:8px;padding:12px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">🚜</span>
+          <span><b style="font-size:12px">Tarea de mantenimiento</b><br><span style="font-size:9.5px;color:#5a7a8a">Registro una acción ejecutada (bacheo, colocación de cebras…)</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+#### Instrucciones
+
+1. Elegí una de las dos opciones:
+    - **🔍 Relevamiento**: cuando estás observando el estado de un elemento existente.
+    - **🚜 Tarea de mantenimiento**: cuando estás registrando una acción de mantenimiento que se hizo o se va a hacer.
+
+2. La elección es obligatoria y determina qué categorías y estados vas a ver en los siguientes pasos.
+
+3. Podés cambiar la elección en cualquier momento con el botón **← Cambiar**.
+
+### Paso 1 · Elegir categoría del elemento
+
+<div class="demo" markdown="0">
+  <div class="phone">
+    <div class="screen">
+      <div class="full-hdr" style="padding-top:34px">SIG Vial PBA · Campo<span class="sub">👷 Técnico · Zona VI</span></div>
+      <div style="background:#e6f7f9;border:1px solid #009aae;border-radius:6px;padding:6px 10px;margin:8px 12px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#1a2a3a"><span><b>🔍 Relevamiento</b></span><span style="color:#009aae;font-weight:700;font-size:10px">← Cambiar</span></div>
+      <div style="background:#fff;color:#1a2a3a;padding:0 12px 6px;font-size:10px;font-weight:700;color:#009aae">¿Sobre qué elemento?</div>
       <div class="full-cats">
         <div class="full-cat"><span class="ico">🛣️</span>Calzada</div>
         <div class="full-cat"><span class="ico">💧</span>Drenaje</div>
@@ -380,8 +412,6 @@ Es la app tradicional con wizard completo. Se accede desde el link **⚙ App com
         <div class="full-cat"><span class="ico">💡</span>Iluminación</div>
         <div class="full-cat"><span class="ico">🌿</span>Entorno</div>
         <div class="full-cat"><span class="ico">🚨</span>Seguridad</div>
-        <div class="full-cat"><span class="ico">🚜</span>Mantenimiento</div>
-        <div class="full-cat"><span class="ico">📝</span>Otro</div>
       </div>
     </div>
   </div>
@@ -389,15 +419,19 @@ Es la app tradicional con wizard completo. Se accede desde el link **⚙ App com
 
 #### Instrucciones
 
-1. Se muestra una grilla con **10 categorías** de relevamiento.
+1. Se muestra una grilla con las categorías disponibles según la naturaleza que elegiste.
 
-2. Tocá la que corresponde a lo que vas a relevar.
+2. Tocá la que corresponde al elemento que vas a registrar.
 
-3. Se abre la lista de tipos específicos dentro de esa categoría.
+3. Se abre la lista de ítems específicos dentro de esa categoría.
+
+!!! info "Filtrado automático de categorías"
+    Si elegiste **Tarea**, la categoría *Seguridad vial* no aparece — los siniestros y puntos negros solo se relevan, no se ejecutan como tareas.
+    Si elegiste **Relevamiento**, aparecen todas las categorías del elemento.
 
 La lista completa de tipos disponibles se detalla más abajo en esta misma guía.
 
-### Elegir tipo específico
+### Paso 2 · Elegir ítem específico
 
 <div class="demo" markdown="0">
   <div class="phone">
@@ -418,13 +452,17 @@ La lista completa de tipos disponibles se detalla más abajo en esta misma guía
 
 #### Instrucciones
 
-1. Buscá en la lista el tipo específico y tocalo.
+1. Los ítems mostrados dependen de la naturaleza + categoría elegida. Ejemplos:
+    - **Relevamiento + Calzada** → Bache, Bache crítico, Pavimento fisurado, Huellas, Anegamiento, Erosión, Calzada en buen estado…
+    - **Tarea + Calzada** → Mantenimiento de caminos rurales, Reconformado de tierra, Bacheo (frío/caliente/profundo), Sellado de fisuras, Repavimentación, Riego asfáltico, Mejoramiento con dolomita/suelo cal.
 
-2. El sistema activa los **estados válidos** para esa categoría.
+2. Tocá el ítem que corresponde. El sistema activa los **estados válidos** para esa combinación:
+    - Si es **relevamiento** → Bueno / Regular / Malo / Crítico (o equivalentes según categoría: OK/Dañada/Ilegible/Falta para señales, etc.).
+    - Si es **tarea** → Programado / En ejecución / Finalizado / Suspendido / Cancelado.
 
-3. Si el tipo aplica **sub-atributos** (superficie, modalidad), aparecen automáticamente.
+3. Si el ítem aplica **sub-atributos** (superficie, modalidad), aparecen automáticamente.
 
-4. Si el tipo ya incluye el sub-atributo en el nombre (ej. "Desmalezado *mecánico*"), el selector se oculta y el valor se guarda solo.
+4. Si el ítem ya incluye el sub-atributo en el nombre (ej. *"Desmalezado mecánico"*, *"Mantenimiento de caminos rurales"*), el selector se oculta y el valor se guarda solo.
 
 ### Completar datos, sacar foto y guardar
 
@@ -455,52 +493,73 @@ La lista completa de tipos disponibles se detalla más abajo en esta misma guía
 !!! info "Sellado en oficina"
     La foto se sube **sin sello**. El sello institucional v4 se aplica cuando alguien de oficina apruebe el registro con los datos definitivos.
 
-## Tipos de relevamiento disponibles
+## Categorías y ítems disponibles
 
-El sistema tiene **10 categorías** definidas en el catálogo `dvba_tipos.js`. Cada categoría agrupa ítems específicos con estados coherentes:
+El sistema organiza los registros en **8 categorías de elemento vial** (más una catch-all *Otro*). Cada categoría contiene dos listas de ítems:
+
+- **🔍 Relevamiento** — qué elementos se pueden observar dentro de esa categoría.
+- **🚜 Tarea** — qué acciones de mantenimiento se pueden ejecutar sobre esa categoría.
+
+La categoría *Seguridad vial* solo admite relevamiento por diseño.
 
 #### 🛣️ Calzada
 
-Bache · Bache crítico · Pavimento fisurado · Huellas (camino tierra) · Anegamiento · Erosión · Calzada en buen estado
+**Relevamiento:** Bache · Bache crítico · Pavimento fisurado · Pavimento ondulado · Pavimento descascarado · Borde deteriorado · Huellas (camino tierra) · Anegamiento · Erosión · Calzada en buen estado.
+**Tarea:** Mantenimiento de caminos rurales · Reconformado de tierra · Bacheo (frío/caliente/profundo) · Sellado de fisuras · Repavimentación · Riego asfáltico · Mejoramiento con dolomita/suelo cal.
 
 #### 💧 Banquinas y drenaje
 
-Banquina deteriorada · Cuneta obstruida/dañada · Alcantarilla tapada/dañada · Erosión de talud
+**Relevamiento:** Banquina deteriorada · Cuneta obstruida/dañada · Alcantarilla tapada/dañada · Erosión de talud.
+**Tarea:** Limpieza de cuneta/canal/alcantarilla · Reparación de cuneta/alcantarilla · Reconformado de banquina.
 
 #### 🌉 Puentes y estructuras
 
-Puente con fisura tablero/estribo · Junta deteriorada · Baranda dañada · Alcantarilla mayor · Muro de contención dañado
+**Relevamiento:** Puente con fisura tablero/estribo · Junta deteriorada · Baranda dañada · Deterioro tablero · Alcantarilla mayor · Muro de contención dañado.
+**Tarea:** Reparación de puente (tablero/estribo) · Reparación de junta · Reparación de baranda/guardarrail · Reparación de alcantarilla mayor · Reparación de muro de contención.
 
 #### 🚧 Señalización vertical
 
-Submenú extenso MSV 2017: P- (peligro), R- (reglamentario), I- (informativo), mojones, carteles de destino, guardarrails, delineadores
+**Relevamiento:** Submenú extenso MSV 2017 — P- (peligro), R- (reglamentario), I- (informativo), mojones kilométricos, carteles de destino, guardarrail, delineador, **cebras (cabezal de alcantarilla / puente)**.
+**Tarea:** Reposición de señal · Reposición de mojón · Colocación de guardarrail · Colocación de delineador · Colocación de cebras · Repintado de cebras.
 
 #### 🛑 Demarcación horizontal
 
-Eje borrado · Demarcación lateral borrada · Tachones faltantes · Demarcación inexistente · Línea de frenado · Senda peatonal
+**Relevamiento:** Eje borrado · Demarcación lateral borrada · Tachones faltantes · Demarcación inexistente · Línea de frenado borrada · Senda peatonal borrada.
+**Tarea:** Repintado de eje/lateral/senda peatonal/línea de frenado · Reposición de tachas.
 
 #### 💡 Iluminación
 
-Columna dañada/faltante · Lámpara fundida · Fallo eléctrico ramal · Tendido afectado
+**Relevamiento:** Columna dañada/faltante · Lámpara fundida · Fallo eléctrico ramal · Tendido afectado.
+**Tarea:** Reposición de columna/lámpara · Reparación de tendido eléctrico · Migración a LED.
 
 #### 🌿 Entorno
 
-Vegetación a desmalezar · Inundación · Derrumbe · Árbol caído · Tranquera dañada · Animal muerto
+**Relevamiento:** Vegetación a desmalezar · Inundación · Derrumbe · Árbol caído · Tranquera dañada · Animal muerto.
+**Tarea:** Desmalezado manual/mecánico · Poda de árboles · Limpieza general de ramal · Retiro de árbol/animal · Reparación de tranquera.
 
-#### 🚨 Seguridad vial
+#### 🚨 Seguridad vial *(solo relevamiento)*
 
-Siniestro vial · Punto negro · Zona peligrosa sin señalizar · Cámara de control · Radar de velocidad · Emergencia
-
-#### 🚜 Mantenimiento / Tarea
-
-Reconformado de tierra · Desmalezado manual/mecánico · Limpieza de cuneta · Bacheo (frío/caliente/profundo) · Sellado de fisuras · Repavimentación · Riego asfáltico · Repintado · Reposición señal/mojón · Mejoramiento (dolomita/suelo cal) · Poda
+Siniestro vial · Punto negro · Zona peligrosa sin señalizar · Zona de curva peligrosa · Emergencia vial · Cámara de control · Radar de velocidad.
 
 #### 📝 Otro
 
-Ítem catch-all para casos no cubiertos por las otras categorías.
+Catch-all para casos no cubiertos por las otras categorías, tanto en relevamiento como en tarea.
 
-!!! info "💡 Cada categoría tiene su propio set de estados coherentes. Ejemplo: Calzada usa"
-    Bueno / Regular / Malo / Crítico; Señalización vertical usa OK / Dañada / Ilegible / Falta / Mal ubicada / En reposición; Mantenimiento usa Programado / En ejecución / Finalizado / Suspendido / Cancelado.
+!!! info "Estados por naturaleza"
+    Cada naturaleza tiene su propio set de estados coherente:
+
+    - **Relevamiento** (condición del elemento) — Calzada/Drenaje/Estructura usan *Bueno / Regular / Malo / Crítico*; Señalización usa *OK / Dañada / Ilegible / Falta / Mal ubicada*; Iluminación usa *Funciona / Parcial / No funciona*; Demarcación usa *Visible / Borrada / Inexistente*.
+    - **Tarea** (ejecución del trabajo) — universal: *Programado / En ejecución / Finalizado / Suspendido / Cancelado*.
+
+## Codificación visual del mapa
+
+Los pins del mapa combinan tres códigos visuales para dar información en un solo vistazo:
+
+- **Forma** = categoría del elemento (círculo=calzada · rombo=drenaje · cuadrado=estructura · triángulo=señalización · pentágono=demarcación · cruz=iluminación · hexágono=entorno · estrella=seguridad).
+- **Color** = severidad del estado (🟢 verde: bueno/finalizado · 🟡 amarillo: regular/suspendido · 🟠 naranja: malo/en ejecución · 🔴 rojo: crítico/faltante · ⚪ gris: pendiente/cancelado · 🔵 azul: en obra/reparado · 🟣 violeta: programado).
+- **Borde** = naturaleza (línea sólida = relevamiento · línea punteada = tarea).
+
+Un pin cuadrado 🔴 con borde punteado, por ejemplo, indica *"Estructura · reparación programada de puente en condición crítica reportada"*.
 
 ## Preguntas frecuentes
 

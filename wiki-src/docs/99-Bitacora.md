@@ -6,7 +6,7 @@ DVBA · Departamento Zona VI Saladillo
 
 Última actualización: 13 de agosto de 2026
 
-Versión bitácora: v5.2 — apps v9.95.4 / v8.71 · 13-ago-2026
+Versión bitácora: v5.3 — apps v9.95.9 / v8.76 · 14-ago-2026
 
 Responsable: Ing. Luciano Lamaita
 
@@ -830,6 +830,46 @@ TAB 6 · PENDIENTES
 | **🖥 Familia escritorio** | v8.52 | `index.html`, `partes_diarios.html`, `reportes.html` + módulos `datos/` | Manual en `const APP_VERSION` + spans footer en los 3 |
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
+
+### v8.72 – v8.76 / v9.95.5 – v9.95.9 · 14 agosto 2026 — Modelo Tipos v2 (naturaleza × elemento × ítem) + colores del mapa Opción C + fix pin salta + limpieza wiki
+
+**Sesión intensiva con rediseño arquitectural del modelo de tipos** y ajustes de calidad en la wiki pública. 4 frentes.
+
+**Frente 1 · Modelo Tipos v2 · rediseño de dominio.** Se introduce el eje **NATURALEZA** ortogonal a la categoría del elemento:
+- 🔍 **Relevamiento** — se observa el estado de un elemento existente.
+- 🚜 **Tarea de mantenimiento** — se registra una acción ejecutada o programada.
+
+La categoría plana `mantenimiento` del modelo v1 desaparece; cada elemento (calzada, drenaje, estructura, señalización, demarcación, iluminación, entorno, seguridad, otro) ahora tiene DOS listas de ítems: `items_relev` e `items_tarea`. Ejemplo: sobre "Calzada" se puede relevar un bache o registrar un bacheo; sobre "Señalización" se puede relevar cebras faltantes o registrar la colocación de cebras.
+
+Cambios técnicos:
+
+- **Migración BD**: nueva columna `naturaleza TEXT NOT NULL DEFAULT 'relevamiento'` en `relevamientos` con constraint CHECK e índice (`docs/SQL_15_naturaleza_registros.sql`). Los registros previos quedan como `relevamiento` sin migración destructiva.
+- **`dvba_tipos.js` v3.0**: nueva estructura `ARBOL_V2` con `items_relev + items_tarea` por categoría. Helpers `categoriasV2 / itemsPorNaturaleza(cat, nat) / categoriaDeV2 / naturalezaDelItem`. API v1/v2 legacy intacta para no romper HTMLs viejos.
+- **`datos/dvba_estados.js` v2.0**: nueva API `getEstadosPorNaturaleza(cat, nat) / getEstadosRelev / getEstadosTarea` + `POR_CAT_RELEV` (condición sin universales) + `ESTADOS_TAREA` (5 estados de ejecución universales). Nuevos patrones implícitos: `motoniveladora` → mecánico, `caminos rurales` → superficie tierra. `POR_CAT` legacy sigue funcionando.
+- **`dvba_campo.html` (móvil v9.95.8)**: nuevo paso 0 del wizard con dos botones grandes de naturaleza. Grilla de categorías filtrada según `tieneRelev/tieneTarea` (Seguridad vial se oculta cuando naturaleza=tarea). Wizard filtra ítems por `itemsPorNaturaleza(cat, nat)`. `onTipoChange` usa API V2. `guardarRegistro` incluye `naturaleza` en INSERT.
+- **`index.html` (escritorio v8.76)**: tabs "Relevamiento / Tarea de mantenimiento" arriba del sidebar. Wizard refactorizado a `categoriasV2 / itemsPorNaturaleza`. `guardar()` incluye `naturaleza` + fallback localStorage. `regs.map()` desde Supabase trae `naturaleza` (default relevamiento).
+- **Documentación**: `docs/MODELO_TIPOS_ESTADOS.md` v1.3 reescrito con el modelo de 3 dimensiones ortogonales, tabla de destacados por naturaleza, sub-atributos con reglas V2, roadmap de colores del mapa Opción C.
+
+**Frente 2 · Colores del mapa · Opción C (forma × color × borde).** Refactor completo de `drawRegMarkers`. Cada pin es ahora un SVG inline de 16×16 con tres dimensiones visuales ortogonales:
+
+- **Forma** = categoría del elemento — círculo (calzada), rombo (drenaje), cuadrado (estructura), triángulo (señalización), pentágono (demarcación), cruz (iluminación), hexágono (entorno), estrella (seguridad), círculo default (otro).
+- **Color** = severidad del estado — verde bueno/finalizado, amarillo regular/suspendido, naranja malo/en ejecución, rojo crítico/faltante, gris pendiente/cancelado, azul en obra/reparado, violeta programado. `_colorPorEstadoV2` lee el color del estado desde `DVBA_ESTADOS`; registros legacy con string libre caen a heurística por normalización.
+- **Borde** = naturaleza — sólido en relevamiento, `stroke-dasharray="2,1.4"` en tarea.
+
+**Leyenda del portal actualizada** (`buildLeyenda`): nueva sección "📌 Registros del mapa" con 3 sub-tablas (forma, color, borde) que documenta la codificación al operador sin necesidad de abrir la guía externa.
+
+**Frente 3 · Reportes con filtro por naturaleza.** Nuevo select "Naturaleza" en el header de filtros de `reportes.html`: Todas / 🔍 Solo relevamientos / 🚜 Solo tareas. Filtra en BD la query de relevamientos huérfanos + excluye los partes reales (que son siempre tareas) cuando el usuario elige "Solo relevamientos". Los pseudo-partes propagan la columna `naturaleza`.
+
+**Frente 4 · Fixes puntuales y limpieza.**
+
+- **Pin salta lejos (v8.74)**: `guardar()` de `index.html` caía a un fallback random ("punto medio de la ruta + ruido ~1 km") si `flat/flng` eran `NaN`. Reemplazado por alerta explícita + log de diagnóstico. El bug hacía que el pin del registro apareciera a varios kilómetros del lugar donde el operador había hecho click.
+- **Sello sin sufijo origen (v9.95.9)**: `datos/sello_v4.js` ya no agrega `·campo` / `·escritorio` al lado de la versión en el pie del sello. Solo versión + `sello v4`.
+- **Wiki pública limpiada**: se quitaron menciones a versiones internas del cuerpo de las páginas de guía (sí quedan en bitácora + README técnico donde es el rol del documento). Se quitaron paths de repo (`docs/*.md`, `datos/*.geojson`, links a `github.com/lemeit/DVBA/blob/...`), tareas pendientes internas, opiniones de dev y detalles de digitalización. Nomenclador 1989 y Antecedente SIG Vial referenciados sin nombres personales (portada era manuscrita, no autoría). Wiki reorganizada con **navigation.sections** en dos grupos temáticos: *Guía de uso* (14 capítulos operativos) y *Historia y evolución* (Nomenclador 1989, Antecedente SIG Vial 2008, Bitácora, README técnico).
+- **Guía Visual actualizada**: sección del Modo Avanzado reescrita con los 3 pasos del wizard v2 (naturaleza → categoría → ítem). Tabla de "Categorías y ítems disponibles" reorganizada con listas separadas de relevamiento y tarea por categoría. Nueva sección "Codificación visual del mapa" que documenta el modelo Opción C.
+
+Archivos nuevos: `docs/SQL_15_naturaleza_registros.sql`. Bump completo `v8.71 → v8.76` (escritorio) y `v9.95.4 → v9.95.9` (móvil). Cache SW actualizado.
+
+---
 
 ### v8.68 – v8.71 / v9.95 – v9.95.4 · 12-13 agosto 2026 — Rediseño Reportes con wizard + Catálogo colaborativo de alias + Wiki online + fixes UX masivos
 

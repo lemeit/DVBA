@@ -2687,6 +2687,59 @@ function buildLeyenda(){
      </div>`
   );
 
+  // v3 (Modelo Tipos v2) · Registros del mapa · Codificación Opción C: forma×color×borde
+  addH('📌 Registros del mapa');
+  // Helper local: SVG chip 14x14 con forma + color de fondo + borde según naturaleza
+  const _chipSvg = (shape, fill, dashed) => {
+    const dashAttr = dashed ? 'stroke-dasharray="2,1.4"' : '';
+    let inner = '';
+    switch(shape){
+      case 'circle':   inner = `<circle cx="7" cy="7" r="5.5" fill="${fill}" stroke="#333" stroke-width="1.4" ${dashAttr}/>`; break;
+      case 'square':   inner = `<rect x="1.5" y="1.5" width="11" height="11" fill="${fill}" stroke="#333" stroke-width="1.4" ${dashAttr}/>`; break;
+      case 'diamond':  inner = `<polygon points="7,1 13,7 7,13 1,7" fill="${fill}" stroke="#333" stroke-width="1.4" ${dashAttr}/>`; break;
+      case 'triangle': inner = `<polygon points="7,1 13,12 1,12" fill="${fill}" stroke="#333" stroke-width="1.4" ${dashAttr}/>`; break;
+      case 'pentagon': inner = `<polygon points="7,1 13,6 11,13 3,13 1,6" fill="${fill}" stroke="#333" stroke-width="1.4" ${dashAttr}/>`; break;
+      case 'hexagon':  inner = `<polygon points="4,1 10,1 13,7 10,13 4,13 1,7" fill="${fill}" stroke="#333" stroke-width="1.4" ${dashAttr}/>`; break;
+      case 'star':     inner = `<polygon points="7,1 8.5,5.2 13,5.2 9.3,8 10.7,13 7,10.2 3.3,13 4.7,8 1,5.2 5.5,5.2" fill="${fill}" stroke="#333" stroke-width="1.4" ${dashAttr}/>`; break;
+      case 'cross':    inner = `<polygon points="5,1 9,1 9,5 13,5 13,9 9,9 9,13 5,13 5,9 1,9 1,5 5,5" fill="${fill}" stroke="#333" stroke-width="1.4" ${dashAttr}/>`; break;
+      default:         inner = `<circle cx="7" cy="7" r="3.5" fill="${fill}" stroke="#333" stroke-width="1"/>`;
+    }
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" style="flex-shrink:0;vertical-align:middle">${inner}</svg>`;
+  };
+  // Sub-título "Forma = elemento (categoría)"
+  addRow(`<div style="font-size:9px;color:var(--mut);font-weight:700;padding:2px 0">Forma = elemento</div>`);
+  const _formas = [
+    ['circle',   '#00aec3', 'Calzada'],
+    ['diamond',  '#00aec3', 'Drenaje'],
+    ['square',   '#00aec3', 'Estructura'],
+    ['triangle', '#00aec3', 'Señalización'],
+    ['pentagon', '#00aec3', 'Demarcación'],
+    ['cross',    '#00aec3', 'Iluminación'],
+    ['hexagon',  '#00aec3', 'Entorno'],
+    ['star',     '#00aec3', 'Seguridad vial'],
+  ];
+  _formas.forEach(([s, col, lbl]) => addRow(
+    `${_chipSvg(s, col, false)}<span style="color:var(--txt);font-size:10px">${lbl}</span>`
+  ));
+  // Sub-título "Color = severidad"
+  addRow(`<div style="font-size:9px;color:var(--mut);font-weight:700;padding:6px 0 2px">Color = severidad del estado</div>`);
+  const _colores = [
+    ['#28a745', 'Bueno · OK · Finalizado'],
+    ['#ffc107', 'Regular · Dañada · Suspendido'],
+    ['#fd7e14', 'Malo · Ilegible · En ejecución'],
+    ['#dc3545', 'Crítico · Falta · Inspección urgente'],
+    ['#6c757d', 'Pendiente · Cancelado'],
+    ['#2196f3', 'En obra · Reparado · En reposición'],
+    ['#9c27b0', 'Programado'],
+  ];
+  _colores.forEach(([col, lbl]) => addRow(
+    `${_chipSvg('circle', col, false)}<span style="color:var(--txt);font-size:10px">${lbl}</span>`
+  ));
+  // Sub-título "Borde = naturaleza"
+  addRow(`<div style="font-size:9px;color:var(--mut);font-weight:700;padding:6px 0 2px">Borde = naturaleza</div>`);
+  addRow(`${_chipSvg('circle', '#28a745', false)}<span style="color:var(--txt);font-size:10px">Sólido → 🔍 Relevamiento</span>`);
+  addRow(`${_chipSvg('circle', '#9c27b0', true)}<span style="color:var(--txt);font-size:10px">Punteado → 🚜 Tarea de mantenimiento</span>`);
+
   // 4. Partidos — v8.66f.2 · En PBA muestra las 12 zonas con su color; en zona específica lista partidos con color de zona.
   addH('Partidos');
   const enPBA_leyenda = (window.ZONA_ACTUAL === 'PBA');

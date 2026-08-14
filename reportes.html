@@ -172,6 +172,12 @@ table.rep td.center{text-align:center}
     <option value="rp">Solo RP</option>
     <option value="camino">Solo Caminos</option>
   </select>
+  <label title="Modelo Tipos v2 · separa registros según sean observación del estado (relevamiento) o acción de mantenimiento (tarea)">Naturaleza</label>
+  <select id="fNaturaleza" onchange="rpAutoRefresh()" title="Filtrar por naturaleza del registro. Los partes del Plan de Seguridad son siempre tareas; los registros del mapa pueden ser cualquiera de las dos.">
+    <option value="">Todas</option>
+    <option value="relevamiento">🔍 Solo relevamientos</option>
+    <option value="tarea">🚜 Solo tareas</option>
+  </select>
   <label>Ruta</label>
   <input type="text" id="fRuta" placeholder="Ej: RP 51 o 093-08" style="width:140px" oninput="rpAutoRefresh(400)">
   <button class="btn-ghost" onclick="rpReset()">↻ Reset</button>
@@ -477,14 +483,18 @@ async function rpGenerar(){
     partesReales.forEach(p => (p.parte_fotos||[]).forEach(f => f.relevamiento_id && relYaLinkeados.add(f.relevamiento_id)));
     // PostgREST no soporta subquery NOT IN → traemos todos los relevamientos del rango y
     // filtramos en cliente los que ya están linkeados. Solo los que tienen foto son válidos.
+    // v3 (Modelo Tipos v2) · traer también naturaleza para filtrar en cliente
     let qRel = _supa.from('relevamientos')
-      .select('id, fecha, tipo_via, tipo, ruta, partido, lat, lng, foto_url, observaciones, zona')
+      .select('id, fecha, tipo_via, tipo, ruta, partido, lat, lng, foto_url, observaciones, zona, naturaleza')
       .not('foto_url', 'is', null)
       .gte('fecha', desde).lte('fecha', hasta)
       .limit(2000);
     if (zonaActiva && zonaActiva !== 'PBA') qRel = qRel.eq('zona', zonaActiva);
     if (partido) qRel = qRel.ilike('partido', partido);
     if (via)     qRel = qRel.eq('tipo_via', via);
+    // v3 · Filtro por naturaleza a nivel BD si el user eligió una específica.
+    const natFilter = document.getElementById('fNaturaleza')?.value || '';
+    if (natFilter) qRel = qRel.eq('naturaleza', natFilter);
     const { data: relevs } = await qRel;
     const huerfanos = (relevs||[]).filter(r => !relYaLinkeados.has(r.id));
     // Convertir cada huérfano a pseudo-parte con shape compatible con partesReales
@@ -501,14 +511,21 @@ async function rpGenerar(){
       observaciones: r.observaciones || r.tipo || '',
       parte_maquinarias: [],         // no hay equipos asociados
       parte_fotos: [{momento: r.fecha, relevamiento_id: r.id}],
-      _es_relevamiento: true         // flag para eventual distinción en UI
+      _es_relevamiento: true,        // flag para eventual distinción en UI
+      naturaleza: r.naturaleza || 'relevamiento'  // v3 Modelo Tipos v2
     }));
     if (pseudoPartes.length) {
       console.log(`[rep] +${pseudoPartes.length} relevamientos huérfanos agregados al reporte (pins del mapa sin parte_diario)`);
     }
   } catch(e){ console.warn('[rep] error trayendo relevamientos huérfanos:', e.message); }
 
-  _partesCache = [...partesReales, ...pseudoPartes];
+  // v3 (Modelo Tipos v2) · Filtrar por naturaleza si el user eligió una específica.
+  // Los partes reales del Plan de Seguridad son siempre "tarea" (trabajo ejecutado);
+  // los pseudo-partes de relevamientos huérfanos ya vienen filtrados por BD.
+  const natSel = document.getElementById('fNaturaleza')?.value || '';
+  let filtradosReales = partesReales;
+  if (natSel === 'relevamiento') filtradosReales = [];  // partes reales son tareas → excluir
+  _partesCache = [...filtradosReales, ...pseudoPartes];
   const tareasMap = Object.fromEntries(_tareas.map(t => [t.id, t.nombre]));
   rpRenderKPIs(_partesCache, tareasMap);
   rpRenderCharts(_partesCache, tareasMap);
