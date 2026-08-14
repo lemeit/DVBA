@@ -12,7 +12,7 @@ Las 2 apps móviles (lite y completa) están diseñadas para funcionar **sin int
 
 - Cola local con IndexedDB / localStorage.
 
-- Cartografía cacheada: bundles de RPs, geojson de partidos, red secundaria.
+- Cartografía cacheada: rutas provinciales, límites de partidos y red vial secundaria.
 
 - Todas las capas visuales del mapa (excepto los tiles satelitales, que sí requieren internet).
 

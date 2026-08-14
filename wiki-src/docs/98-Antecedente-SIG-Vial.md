@@ -1,7 +1,6 @@
 # Antecedente · Sistema SIG Vial interno 2008
 
-> Esta página incluye el contenido de `docs/REFERENCIA_SIG_VIAL_ANTERIOR.md` del repositorio,
-> que documenta el sistema histórico que inspiró parcialmente a SIG Vial PBA.
+> Referencia histórica del sistema SIG Vial anterior que sirvió como inspiración parcial para SIG Vial PBA.
 
 **📎 [Descargar Sistema SIG Vial 2008.pdf](assets/Sistema-SIG-Vial-2008.pdf){:target="_blank" .doc-oficial}** — documento oficial del sistema original (903 KB).
 

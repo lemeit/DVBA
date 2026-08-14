@@ -40,7 +40,7 @@ Sí. Chrome/Edge muestran un botón "Instalar" en la barra de direcciones cuando
 
 ### ¿Los reportes generan un PDF idéntico al Informe Mensual de Gerencia?
 
-El módulo Reportes genera un PDF con charts + tabla, con la paleta oficial de 8 colores. El PDF oficial Gerencia completo (portada institucional + 2 hojas por zona + luminarias LED + anexo fotográfico) está previsto para la **Fase 5 del Plan de Roles** — ver [PLAN_ROLES_MULTIZONA.md](https://github.com/lemeit/DVBA/blob/main/docs/PLAN_ROLES_MULTIZONA.md) en el repositorio.
+El módulo Reportes genera un PDF con charts + tabla, con la paleta oficial de 8 colores. El PDF oficial Gerencia completo (portada institucional + 2 hojas por zona + luminarias LED + anexo fotográfico) está previsto para una fase posterior del roadmap.
 
 Guía · SIG Vial PBA · v1.3 · 2 de agosto de 2026
 

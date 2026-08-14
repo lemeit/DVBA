@@ -395,7 +395,7 @@ Es la app tradicional con wizard completo. Se accede desde el link **⚙ App com
 
 3. Se abre la lista de tipos específicos dentro de esa categoría.
 
-Ver la lista completa de tipos disponibles en la sección [MODELO_TIPOS_ESTADOS.md](https://github.com/lemeit/DVBA/blob/main/docs/MODELO_TIPOS_ESTADOS.md) del repositorio.
+La lista completa de tipos disponibles se detalla más abajo en esta misma guía.
 
 ### Elegir tipo específico
 
@@ -500,7 +500,7 @@ Reconformado de tierra · Desmalezado manual/mecánico · Limpieza de cuneta · 
 Ítem catch-all para casos no cubiertos por las otras categorías.
 
 !!! info "💡 Cada categoría tiene su propio set de estados coherentes. Ejemplo: Calzada usa"
-    Bueno / Regular / Malo / Crítico; Señalización vertical usa OK / Dañada / Ilegible / Falta / Mal ubicada / En reposición; Mantenimiento usa Programado / En ejecución / Finalizado / Suspendido / Cancelado. Ver el detalle completo del modelo Tipo↔Estado en [docs/MODELO_TIPOS_ESTADOS.md](https://github.com/lemeit/DVBA/blob/main/docs/MODELO_TIPOS_ESTADOS.md) del repositorio.
+    Bueno / Regular / Malo / Crítico; Señalización vertical usa OK / Dañada / Ilegible / Falta / Mal ubicada / En reposición; Mantenimiento usa Programado / En ejecución / Finalizado / Suspendido / Cancelado.
 
 ## Preguntas frecuentes
 
