@@ -124,6 +124,7 @@ const DVBA_TIPOS = (() => {
         // Elementos auxiliares
         'Guardarrail',
         'Delineador',
+        'Cebras (cabezal alcantarilla / puente)',
       ]
     },
 
@@ -185,7 +186,8 @@ const DVBA_TIPOS = (() => {
       icon: '🚜',
       label: 'Mantenimiento / Tarea',
       items: [
-        // Caminos de tierra (motoniveladora)
+        // Caminos rurales (motoniveladora / mantenimiento general)
+        'Mantenimiento de caminos rurales',
         'Reconformado de tierra',
         // Limpieza vegetal
         'Desmalezado manual',

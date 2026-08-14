@@ -928,7 +928,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.72';
+const APP_VERSION = 'v8.74';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
@@ -2751,16 +2751,21 @@ async function guardar(){
   const manualLng = parseFloat(document.getElementById('flng').value);
 
   const procesarYGuardar = async (fotoBase64) => {
-    const lines = RUTAS_DATA[ruta] || [];
-    let lat = null, lng = null;
-    if (!isNaN(manualLat) && !isNaN(manualLng)) {
-      lat = manualLat; lng = manualLng;
-    } else if (lines.length) {
-      const all = lines.flat();
-      const mid = all[Math.floor(all.length / 2)];
-      lng = mid[0] + (Math.random() - .5) * .01;
-      lat = mid[1] + (Math.random() - .5) * .01;
+    // v8.74 · Guard rail: si flat/flng no son válidos, NO caer a fallback random
+    // (el fallback previo tomaba punto medio de la ruta + ruido ~1 km, causando
+    // que el pin apareciera desplazado varios km del lugar donde el user hizo click).
+    // Ahora el user tiene que colocar el pin explícitamente antes de guardar.
+    if (isNaN(manualLat) || isNaN(manualLng)) {
+      const flatVal = document.getElementById('flat').value;
+      const flngVal = document.getElementById('flng').value;
+      console.warn('[GUARDAR] Coordenadas inválidas al guardar', {
+        manualLat, manualLng, flatVal, flngVal,
+        pinFijado: _pinFijado, pinMode
+      });
+      alert('No hay coordenadas cargadas.\n\nColocá el pin en el mapa apretando 📍 Pin mapa y haciendo click en la posición correcta, después guardá de nuevo.');
+      return;
     }
+    const lat = manualLat, lng = manualLng;
 
     let foto_url = null;
 

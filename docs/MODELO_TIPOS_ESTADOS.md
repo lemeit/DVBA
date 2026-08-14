@@ -1,6 +1,6 @@
 # Modelo de Tipos ↔ Estados — DVBA Zona VI
 
-**Versión:** v1.1 (2026-07-18) · `dvba_campo` v9.70 · `index` v8.0.1
+**Versión:** v1.2 (2026-08-14) · `dvba_campo` v9.95.5 · `index` v8.73
 
 Este documento es la **referencia única** para entender cómo se relacionan las categorías de relevamiento, los ítems específicos, los estados válidos y los sub-atributos condicionales en el sistema. Sirve para desarrolladores, operadores de campo y para integraciones futuras con QGIS / Supabase / reportes.
 
@@ -31,7 +31,7 @@ Definido en `dvba_tipos.js → DVBA_TIPOS.ARBOL`
 | `calzada` | 🛣️ Calzada | Bache · Bache crítico · Pavimento fisurado · Huellas (camino tierra) · Anegamiento por mala conformación · Erosión de calzada · Calzada en buen estado |
 | `drenaje` | 💧 Banquinas y drenaje | Banquina deteriorada · Cuneta obstruida/dañada · Alcantarilla tapada/dañada · Erosión de talud |
 | `estructura` | 🌉 Puentes y estructuras | Puente — fisura tablero/estribo · Junta deteriorada · Baranda dañada · Alcantarilla mayor · Muro de contención dañado |
-| `senial_vertical` | 🚧 Señalización vertical | Submenú extenso MSV 2017: P-, R-, I-, mojones, carteles destino, guardarrails, delineadores |
+| `senial_vertical` | 🚧 Señalización vertical | Submenú extenso MSV 2017: P-, R-, I-, mojones, carteles destino, guardarrails, delineadores, **cebras (cabezal alcantarilla / puente)** |
 | `demarcacion` | 🛑 Demarcación horizontal | Eje borrado · Demarcación lateral borrada · Tachones faltantes · Demarcación inexistente · Línea de frenado · Senda peatonal |
 | `iluminacion` | 💡 Iluminación | Columna dañada/faltante · Lámpara fundida · Fallo eléctrico ramal · Tendido afectado |
 | `entorno` | 🌿 Entorno | Vegetación a desmalezar · Inundación · Derrumbe · Árbol caído · Tranquera dañada · Animal muerto |
@@ -41,7 +41,7 @@ Definido en `dvba_tipos.js → DVBA_TIPOS.ARBOL`
 
 | Cat key | Label | Ítems destacados |
 |---|---|---|
-| `mantenimiento` | 🚜 Mantenimiento / Tarea | Reconformado de tierra · Desmalezado manual/mecánico · Limpieza de cuneta/canal · Bacheo en frío/caliente/profundo · Sellado de fisuras · Repavimentación · Riego asfáltico · Repintado · Reposición señal/mojón · Mejoramiento dolomita/suelo cal · Poda |
+| `mantenimiento` | 🚜 Mantenimiento / Tarea | **Mantenimiento de caminos rurales** · Reconformado de tierra · Desmalezado manual/mecánico · Limpieza de cuneta/canal · Bacheo en frío/caliente/profundo · Sellado de fisuras · Repavimentación · Riego asfáltico · Repintado · Reposición señal/mojón · Mejoramiento dolomita/suelo cal · Poda |
 
 ### C. Catch-all
 
@@ -151,6 +151,7 @@ DVBA_ESTADOS.superficieImplicita('Mejoramiento con dolomita')// → 'dolomita'
 | Reconformado camino tierra | oculto | (no aplica) | oculto | `tierra` |
 | Mejoramiento con dolomita | oculto | (no aplica) | oculto | `dolomita` |
 | Repavimentación | oculto | (no aplica) | visible | usuario elige |
+| Mantenimiento de caminos rurales | visible | usuario elige | visible | usuario elige (tierra/estabilizado/dolomita/suelo cal) |
 
 **Cómo extender:** agregar el patrón regex a la función correspondiente en `dvba_estados.js` (sin tocar HTML ni JS de las apps).
 
@@ -257,4 +258,9 @@ Editar `dvba_estados.js` → `POR_CAT.<cat>` y agregar `{ key, label, color }`. 
 
 ---
 
-**Última actualización:** 2026-07-18 · Ing. Luciano Lamaita · versión app referencia: v9.70 / v8.0.1
+**Última actualización:** 2026-08-14 · Ing. Luciano Lamaita · versión app referencia: v9.95.5 / v8.73
+
+### Cambios v1.2 (2026-08-14)
+
+- **Nuevo ítem `senial_vertical` · "Cebras (cabezal alcantarilla / puente)"** — balizamiento pintado sobre cabezales de alcantarillas y accesos a puentes. Se relevan con estados de señalización vertical (`ok`/`danada`/`ilegible`/`falta`).
+- **Nuevo ítem `mantenimiento` · "Mantenimiento de caminos rurales"** — tarea genérica para pasada de motoniveladora / conservación rutinaria sobre red rural. Deja modalidad y superficie abiertas para que el operador registre el caso puntual (mecánico / mixto · tierra / estabilizado / dolomita / suelo cal).
