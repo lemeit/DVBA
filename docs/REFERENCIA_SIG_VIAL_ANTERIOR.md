@@ -51,6 +51,6 @@ Aunque el sistema anterior ya no está en producción, su existencia respalda el
 
 ---
 
-**Preparado por:** Ing. Luciano Lamaita · División Técnica DVBA · Zona VI Saladillo
+<!-- **Preparado por:** Ing. Luciano Lamaita · División Técnica DVBA · Zona VI Saladillo
 **Fecha:** 12 de agosto de 2026
-**Estado del documento:** referencia histórica · consultable
+**Estado del documento:** referencia histórica · consultable -->
