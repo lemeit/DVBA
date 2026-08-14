@@ -226,7 +226,7 @@ body.modo-campo #campo-fab{display:flex}
 .campo-drag{width:36px;height:4px;background:var(--light);border-radius:2px;margin:0 auto 12px}
 
 /* ═══ LEYENDA POPUP ═════════════════════════════════════════ */
-#leyenda-popup{display:none;position:absolute;top:50px;right:10px;z-index:2000;background:var(--w);border:1px solid var(--light);border-radius:var(--r);min-width:160px;padding:10px 12px;box-shadow:0 4px 24px rgba(0,0,0,.12)}
+#leyenda-popup{display:none;position:absolute;top:50px;right:10px;z-index:2000;background:var(--w);border:1px solid var(--light);border-radius:var(--r);min-width:160px;padding:10px 12px;box-shadow:0 4px 24px rgba(0,0,0,.12);max-height:calc(100vh - 80px);overflow-y:auto}
 .litem{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:10px;cursor:pointer;padding:2px 3px;border-radius:3px;color:var(--mut)}
 .litem:hover{background:var(--bg)}
 .lline{width:22px;height:3px;border-radius:2px;flex-shrink:0}
