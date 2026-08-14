@@ -94,7 +94,7 @@
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:12px 0}
 
 /* Callouts .box (tip/warn/info/ok) */
-.box{padding:12px 14px;border-radius:6px;margin:10px 0;border-left:4px solid var(--azul);background:#fff;font-size:.92rem;color:#1a2a3a}
+.box{padding:12px 14px;border-radius:6px;margin:10px 0;border-left:4px solid var(--azul);background:#080808;font-size:.92rem;color:#1a2a3a}
 .box strong{color:var(--azul)}
 .box.ok{background:#f0fff4;border-color:var(--good)}
 .box.warn{background:#fff8e6;border-color:var(--warn)}
