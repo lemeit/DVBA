@@ -23,19 +23,20 @@ La app se instala como cualquier otra del celular, pero **sin pasar por Play Sto
       </div>
     </div>
   </div>
-  <div class="step" markdown="1">
+</div>
+
+<div class="step" markdown="1">
 
 **Paso a paso**
 
 1. Abrir **Chrome** en el celular.
 2. Ir a `lemeit.github.io/DVBA/app.html` (importante: el `/app.html` al final, sino se abre el portal escritorio).
-3. Al abrir aparece un banner, o el menú `⋮` muestra la opción **"Instalar aplicación"**.
+3. Al abrir aparece un banner, o el menú `⋮` muestra la opción **Instalar aplicación**.
 4. Tocarla y aceptar. Se agrega el ícono al launcher del celular.
 5. A partir de ahí, abrís la app tocando el ícono como cualquier otra.
 
 <div class="box info" markdown="0"><strong>El ícono se llama "SIG Vial PBA"</strong> y aparece con el logo institucional DVBA.</div>
 
-  </div>
 </div>
 
 ### Actualizaciones automáticas
@@ -60,7 +61,9 @@ Cuando hay una versión nueva del sistema, al abrir la app aparece un banner ver
       <div class="lite-main"><div class="big-btn"><div class="icon">📸</div><div class="lbl">Sacar foto</div><div class="sublbl">y guardar ubicación</div></div></div>
     </div>
   </div>
-  <div class="step" markdown="1">
+</div>
+
+<div class="step" markdown="1">
 
 **Cómo actualizar**
 
@@ -70,7 +73,6 @@ Cuando hay una versión nueva del sistema, al abrir la app aparece un banner ver
 
 <div class="box warn" markdown="0"><strong>Importante</strong> · Si no tocás Actualizar, la app va a seguir funcionando con la versión vieja cacheada. No perdés nada, pero no tenés los últimos cambios.</div>
 
-  </div>
 </div>
 
 ## Sincronización con la oficina
