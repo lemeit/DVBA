@@ -349,8 +349,10 @@ function aplicar(base64, datos, opts){
         const appVer = (typeof window !== 'undefined' && typeof window.APP_VER === 'string' && window.APP_VER) ? window.APP_VER
                      : (typeof window !== 'undefined' && typeof window.APP_VERSION === 'string' && window.APP_VERSION) ? window.APP_VERSION
                      : 'v?';
+        // v3 · Solo versión + sello. Sin sufijo de origen (campo/oficina/escritorio)
+        // que ensuciaba el pie del sello sin aportar valor al operador.
         const stampInfo = [
-          appVer + '·' + origen,
+          appVer,
           (datos.esResellado ? '↻ re-sello' : 'sello ' + SELLO_VER)
         ].join(' · ');
         ctx.textBaseline = 'bottom';

@@ -284,6 +284,12 @@ body.modo-campo #campo-fab{display:flex}
 }
 
 /* ── Selector jerárquico de tipo — desktop ── */
+/* Modelo Tipos v2 · tabs de naturaleza en el sidebar */
+.nat-tabs{display:flex;gap:4px;margin-bottom:4px}
+.nat-tab{flex:1;padding:6px 4px;font-size:10px;font-weight:700;border:1px solid var(--light);border-radius:4px;background:var(--bg);color:var(--mut);cursor:pointer;font-family:inherit;text-align:center;transition:all .15s;line-height:1.2}
+.nat-tab:hover{border-color:var(--p)}
+.nat-tab.sel{background:var(--p);color:#fff;border-color:var(--p)}
+.nat-tab .nat-tab-ico{font-size:12px;margin-right:2px}
 .z6-tipo-sel{position:relative;margin-bottom:4px}
 .z6-tipo-display{display:flex;align-items:center;gap:4px;width:100%;padding:5px 7px;border-radius:4px;border:1px solid var(--light);background:var(--bg);color:var(--txt);font-size:11px;cursor:pointer;user-select:none;transition:border-color .15s}
 .z6-tipo-display:hover,.z6-tipo-display.open{border-color:var(--p);background:var(--w)}
@@ -590,6 +596,12 @@ body.modo-campo #campo-fab{display:flex}
       <input type="text" id="fprog" placeholder="Progresiva (ej: 45+500)" style="flex:1">
       <button type="button" onclick="ubicarPorProgresiva()" class="btn-side side-neutral" title="Ubicar pin en el mapa usando la ruta + progresiva que cargaste. Ej: RP 30 + km 274+935 → pin se ubica solo.">🎯 Ubicar</button>
     </div>
+    <!-- v3 Modelo Tipos v2 · Tabs de naturaleza (obligatorio antes de elegir tipo) -->
+    <div class="nat-tabs" id="nat-tabs">
+      <button type="button" class="nat-tab sel" data-nat="relevamiento" onclick="naturalezaSet('relevamiento')" title="Registro un elemento observado (bache, señal faltante, cuneta obstruida…)"><span class="nat-tab-ico">🔍</span>Relevamiento</button>
+      <button type="button" class="nat-tab" data-nat="tarea" onclick="naturalezaSet('tarea')" title="Registro una acción ejecutada o programada (bacheo, colocación de cebras, desmalezado…)"><span class="nat-tab-ico">🚜</span>Tarea de mantenimiento</button>
+    </div>
+    <input type="hidden" id="fnaturaleza" value="relevamiento">
     <!-- Selector jerárquico de tipo — desktop -->
     <div id="z6-tipo-selector" class="z6-tipo-sel">
       <div id="z6-tipo-display" class="z6-tipo-display" onclick="z6TipoToggle()">
@@ -928,7 +940,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.75';
+const APP_VERSION = 'v8.76';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
@@ -1758,6 +1770,8 @@ async function cargarRegs() {
       motivo_rechazo:  r.motivo_rechazo  || null,
       // v7.15 — tipo de vía (RP o camino secundario)
       tipo_via:        r.tipo_via        || 'rp',
+      // v3 Modelo Tipos v2 (SQL_15) — naturaleza del registro
+      naturaleza:      r.naturaleza      || 'relevamiento',
     }));
     setModoIndicador(true);
     actualizarBadgeCola();  // v7.12 — refresca badge "X pendientes"
@@ -2828,6 +2842,8 @@ async function guardar(){
     } else {
       fechaFinal = fechaOriginal || new Date().toISOString();
     }
+    // v3 (Modelo Tipos v2) · naturaleza (relevamiento | tarea) — fallback 'relevamiento'
+    const naturaleza = document.getElementById('fnaturaleza')?.value || 'relevamiento';
     const registro = {
       ruta, partido,
       progresiva:    prog,
@@ -2836,7 +2852,8 @@ async function guardar(){
       foto_url:      fotoFinal,
       lat, lng,
       fecha:         fechaFinal,
-      tipo_via:      tipoVia,  // v7.15 — 'rp' | 'camino'
+      tipo_via:      tipoVia,     // v7.15 — 'rp' | 'camino'
+      naturaleza:    naturaleza,  // v3 Modelo Tipos v2 (SQL_15)
     };
 
     if (_supa) {
@@ -2964,6 +2981,8 @@ async function guardar(){
         sello_version:   data.sello_version   || null,
         prioridad:       data.prioridad       || 'normal',
         motivo_rechazo:  data.motivo_rechazo  || null,
+        // v3 Modelo Tipos v2 · naturaleza (persistir para render de pin Opción C)
+        naturaleza:      data.naturaleza || naturaleza || 'relevamiento',
       };
       if (_editandoId) {
         const idx = regs.findIndex(r => r.id === _editandoId);
@@ -2979,13 +2998,14 @@ async function guardar(){
         const idx = regs.findIndex(r => r.id === _editandoId);
         if (idx >= 0) {
           regs[idx] = { ...regs[idx], ruta, partido, prog, tipo, estado,
-            obs: obsFinal || '', lat, lng,
+            obs: obsFinal || '', lat, lng, naturaleza,   // v3 Modelo Tipos v2
             foto: fotoBase64 || regs[idx].foto };
         }
       } else {
         const reg = { id: Date.now(), ruta, partido, prog, tipo, estado,
                       obs: obsFinal || '', foto: fotoBase64 || null,
-                      fecha: new Date().toLocaleString('es-AR'), lat, lng };
+                      fecha: new Date().toLocaleString('es-AR'), lat, lng,
+                      naturaleza };  // v3 Modelo Tipos v2
         regs.unshift(reg);
       }
       try { localStorage.setItem('dvba_z6v6', JSON.stringify(regs)); } catch(e) {}
@@ -3181,6 +3201,77 @@ function togReg(id) {
 function allRegs()  { regs.forEach(r => selRegs.add(String(r.id))); buildRegTags(); drawRegMarkers(); }
 function noneRegs() { selRegs.clear(); buildRegTags(); drawRegMarkers(); }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// v3 Modelo Tipos v2 · Codificación visual del pin (Opción C):
+//   Forma = elemento (categoría)  ·  Color = severidad (estado)  ·  Borde = naturaleza
+// ═══════════════════════════════════════════════════════════════════════════
+const SHAPE_POR_CAT = {
+  calzada:         'circle',
+  drenaje:         'diamond',
+  estructura:      'square',
+  senial_vertical: 'triangle',
+  demarcacion:     'pentagon',
+  iluminacion:     'cross',
+  entorno:         'hexagon',
+  seguridad:       'star',
+  otro:            'circle',
+};
+function _colorPorEstadoV2(estadoKey, cat, nat){
+  if (!estadoKey) return '#00aec3';  // turquesa DVBA (registros viejos sin estado)
+  if (typeof DVBA_ESTADOS === 'undefined') return '#00aec3';
+  // naturaleza='tarea' → estados universales de ejecución
+  if (nat === 'tarea' && DVBA_ESTADOS.ESTADOS_TAREA){
+    const e = DVBA_ESTADOS.ESTADOS_TAREA.find(x => x.key === estadoKey);
+    if (e) return e.color;
+  }
+  // relevamiento → set específico de la categoría
+  const arr = (DVBA_ESTADOS.POR_CAT_RELEV && DVBA_ESTADOS.POR_CAT_RELEV[cat])
+              || (DVBA_ESTADOS.POR_CAT && DVBA_ESTADOS.POR_CAT[cat]) || [];
+  const e = arr.find(x => x.key === estadoKey);
+  if (e) return e.color;
+  // Registros legacy con estado en string libre ("Bueno", "Crítico" del modelo v1) →
+  // mapear al equivalente actual por normalización.
+  const norm = (estadoKey || '').toString().toLowerCase();
+  if (/bueno|ok|visible|funciona|resuelto|finalizad/.test(norm)) return '#28a745';
+  if (/regular|dañad|borrad|parcial|monitor|suspendid/.test(norm)) return '#ffc107';
+  if (/malo|ilegible|en ejecu/.test(norm)) return '#fd7e14';
+  if (/critic|falt|inexistente|no funciona|urgente|activ/.test(norm)) return '#dc3545';
+  if (/pendiente|cancelad|mal ubic|sin/.test(norm)) return '#6c757d';
+  if (/en obra|reparac|reparad|repintado|reemplazad|reposicion|limpieza/.test(norm)) return '#2196f3';
+  if (/programad/.test(norm)) return '#9c27b0';
+  return '#00aec3';
+}
+function _svgPin(shape, fill, dashed){
+  const stroke = '#ffffff';
+  const strokeW = 1.8;
+  const dashAttr = dashed ? 'stroke-dasharray="2,1.4"' : '';
+  let inner = '';
+  switch(shape){
+    case 'circle':   inner = `<circle cx="8" cy="8" r="6" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}" ${dashAttr}/>`; break;
+    case 'square':   inner = `<rect x="2" y="2" width="12" height="12" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}" ${dashAttr}/>`; break;
+    case 'diamond':  inner = `<polygon points="8,1 15,8 8,15 1,8" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}" ${dashAttr}/>`; break;
+    case 'triangle': inner = `<polygon points="8,1 15,14 1,14" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}" ${dashAttr}/>`; break;
+    case 'pentagon': inner = `<polygon points="8,1 15,7 12.5,15 3.5,15 1,7" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}" ${dashAttr}/>`; break;
+    case 'hexagon':  inner = `<polygon points="4.5,1 11.5,1 15,8 11.5,15 4.5,15 1,8" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}" ${dashAttr}/>`; break;
+    case 'star':     inner = `<polygon points="8,1 9.7,5.9 15,5.9 10.7,9 12.4,14 8,10.9 3.6,14 5.3,9 1,5.9 6.3,5.9" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}" ${dashAttr}/>`; break;
+    case 'cross':    inner = `<polygon points="5.5,1 10.5,1 10.5,5.5 15,5.5 15,10.5 10.5,10.5 10.5,15 5.5,15 5.5,10.5 1,10.5 1,5.5 5.5,5.5" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}" ${dashAttr}/>`; break;
+    default:         inner = `<circle cx="8" cy="8" r="4" fill="${fill}" stroke="${stroke}" stroke-width="1.2" ${dashAttr}/>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" style="filter:drop-shadow(0 1px 2.5px rgba(0,0,0,.55))">${inner}</svg>`;
+}
+function _pinIconV2(reg){
+  const nat = (reg && reg.naturaleza) || 'relevamiento';
+  const catV2 = (typeof DVBA_TIPOS !== 'undefined' && typeof DVBA_TIPOS.categoriaDeV2 === 'function')
+    ? DVBA_TIPOS.categoriaDeV2(reg && reg.tipo || '')
+    : ((typeof DVBA_TIPOS !== 'undefined' && DVBA_TIPOS.categoriaDe) ? DVBA_TIPOS.categoriaDe(reg && reg.tipo || '') : null);
+  const cat = catV2 || 'otro';
+  const shape = SHAPE_POR_CAT[cat] || 'circle';
+  const fill  = _colorPorEstadoV2(reg && reg.estado, cat, nat);
+  const dashed = nat === 'tarea';
+  const html = _svgPin(shape, fill, dashed);
+  return L.divIcon({ className:'', html, iconAnchor:[8, 8] });
+}
+
 // REGISTROS
 function drawRegMarkers(){
   capasReg.forEach(m=>map.removeLayer(m)); capasReg=[];
@@ -3190,7 +3281,8 @@ function drawRegMarkers(){
     if(!selRegs.has(String(reg.id))) return;
     // Mostrar aunque la ruta no esté activa en el mapa (registro explícitamente activado)
     const meta=RUTA_META[(reg.ruta||'').replace(/^RP\s*/i,'')]||RUTA_META[reg.ruta]||{color:'#00aec3'};
-    const ico=L.divIcon({className:'',html:`<div style="background:${meta.color};border:2px solid rgba(255,255,255,.4);width:10px;height:10px;border-radius:50%;box-shadow:0 1px 5px rgba(0,0,0,.6)"></div>`,iconAnchor:[5,5]});
+    // v3 Modelo Tipos v2 · pin con forma×color×borde según categoría/estado/naturaleza
+    const ico = _pinIconV2(reg);
     const mk=L.marker([reg.lat,reg.lng],{icon:ico}).addTo(map)
       .bindPopup(`<div style="margin-bottom:5px">${_badgeOrigenRegistro(reg)}</div>
         <b style="color:${meta.color}">${reg.ruta}</b>${reg.prog?` &middot; <b>Km</b> ${reg.prog}`:''}${reg.partido?` &middot; ${reg.partido}`:''}<br>
@@ -8481,12 +8573,43 @@ async function aprobarBatch(){
   });
 })();
 
+/* v3 Modelo Tipos v2 · Setter de naturaleza (tabs) */
+function naturalezaSet(nat) {
+  const valNat = (nat === 'tarea') ? 'tarea' : 'relevamiento';
+  const hid = document.getElementById('fnaturaleza');
+  if (hid) hid.value = valNat;
+  // Marcar tab activa
+  document.querySelectorAll('#nat-tabs .nat-tab').forEach(b => {
+    b.classList.toggle('sel', b.dataset.nat === valNat);
+  });
+  // Reset del selector de tipo dependiente
+  const ftipo = document.getElementById('ftipo');
+  if (ftipo) ftipo.value = '';
+  const txt = document.getElementById('z6-tipo-txt');
+  if (txt) txt.textContent = '— Seleccioná el tipo —';
+  const disp = document.getElementById('z6-tipo-display');
+  if (disp) disp.classList.remove('elegido');
+  // Re-renderizar categorías filtradas + reset sub-atributos
+  z6TipoInit();
+  document.getElementById('z6-tipo-cats').style.display = 'grid';
+  document.getElementById('z6-tipo-items-wrap').style.display = 'none';
+  const selE = document.getElementById('festado'); if (selE) selE.value = '';
+  const selS = document.getElementById('fsuperficie'); if (selS) { selS.style.display = 'none'; selS.value = ''; }
+  const selM = document.getElementById('fmodalidad'); if (selM) { selM.style.display = 'none'; selM.value = ''; }
+}
+
 function z6TipoInit() {
   if (typeof DVBA_TIPOS === 'undefined') return;
   const div = document.getElementById('z6-tipo-cats');
   if (!div) return;
   div.innerHTML = '';
-  DVBA_TIPOS.categorias.forEach(c => {
+  // v3 (Modelo Tipos v2): filtrar categorías por naturaleza actual
+  const nat = document.getElementById('fnaturaleza')?.value || 'relevamiento';
+  const cats = (DVBA_TIPOS.categoriasV2 || DVBA_TIPOS.categorias).filter(c => {
+    if (typeof c.tieneRelev === 'undefined' && typeof c.tieneTarea === 'undefined') return true;
+    return nat === 'tarea' ? c.tieneTarea : c.tieneRelev;
+  });
+  cats.forEach(c => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'z6-cat-btn';
@@ -8519,16 +8642,21 @@ function z6TipoCerrar() {
 
 function z6TipoMostrarItems(catKey) {
   if (typeof DVBA_TIPOS === 'undefined') return;
-  const cat = DVBA_TIPOS.ARBOL[catKey];
-  // v7.13 — Si la categoría tiene un solo ítem (caso "Otro"), auto-seleccionarlo
-  if (cat.items.length === 1) {
-    z6TipoSeleccionar(cat.items[0]);
+  // v3 (Modelo Tipos v2): items filtrados por naturaleza actual
+  const nat = document.getElementById('fnaturaleza')?.value || 'relevamiento';
+  const items = (typeof DVBA_TIPOS.itemsPorNaturaleza === 'function')
+    ? DVBA_TIPOS.itemsPorNaturaleza(catKey, nat)
+    : (DVBA_TIPOS.ARBOL[catKey]?.items || []);
+  const cat = (DVBA_TIPOS.ARBOL_V2 && DVBA_TIPOS.ARBOL_V2[catKey]) || DVBA_TIPOS.ARBOL[catKey] || { icon:'', label:catKey };
+  // v7.13 — Si hay un solo ítem, auto-seleccionarlo (caso "Otro" o categorías chicas de tarea)
+  if (items.length === 1) {
+    z6TipoSeleccionar(items[0]);
     return;
   }
-  document.getElementById('z6-tipo-cat-lbl').textContent = cat.icon + ' ' + cat.label;
+  document.getElementById('z6-tipo-cat-lbl').textContent = (cat.icon||'') + ' ' + (cat.label||catKey);
   const iDiv = document.getElementById('z6-tipo-items');
   iDiv.innerHTML = '';
-  cat.items.forEach(it => {
+  items.forEach(it => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'z6-item-btn';
@@ -8564,27 +8692,38 @@ function z6TipoSetValor(valor) {
   onTipoChange(valor);
 }
 
-/* ── v7.10 — Hook al cambio de tipo: repuebla estado, superficie y modalidad ── */
+/* ── v3 (Modelo Tipos v2) — Hook al cambio de tipo: repuebla estado, superficie y modalidad
+ * usando naturaleza × categoría. Fallback a API v1 si helpers V2 no están disponibles.
+ */
 function onTipoChange(tipoStr) {
   if (typeof DVBA_TIPOS === 'undefined' || typeof DVBA_ESTADOS === 'undefined') return;
-  const cat = DVBA_TIPOS.categoriaDe(tipoStr) || 'otro';
-  // 1) Estados
+  const nat = document.getElementById('fnaturaleza')?.value || 'relevamiento';
+  const cat = (typeof DVBA_TIPOS.categoriaDeV2 === 'function'
+                ? DVBA_TIPOS.categoriaDeV2(tipoStr)
+                : DVBA_TIPOS.categoriaDe(tipoStr)) || 'otro';
+  // 1) Estados según naturaleza + categoría
   const selE = document.getElementById('festado');
   if (selE) {
     const valActual = selE.value;
     selE.innerHTML = '<option value="">-- Estado --</option>';
-    DVBA_ESTADOS.getEstados(cat).forEach(e => {
+    const estados = (typeof DVBA_ESTADOS.getEstadosPorNaturaleza === 'function')
+      ? DVBA_ESTADOS.getEstadosPorNaturaleza(cat, nat)
+      : DVBA_ESTADOS.getEstados(cat);
+    estados.forEach(e => {
       const o = document.createElement('option');
       o.value = e.key; o.textContent = e.label;
       selE.appendChild(o);
     });
     if (valActual && Array.from(selE.options).some(o => o.value === valActual)) selE.value = valActual;
   }
-  // 2) Tipo de superficie — oculto si está implícito en el nombre del tipo
+  // 2) Tipo de superficie — reglas V2 (cat + naturaleza) — oculta si implícita
   const selS = document.getElementById('fsuperficie');
   const supImpl = DVBA_ESTADOS.superficieImplicita(tipoStr);
+  const aplicaSup = (typeof DVBA_ESTADOS.aplicaSuperficieV2 === 'function')
+    ? DVBA_ESTADOS.aplicaSuperficieV2(cat, nat)
+    : DVBA_ESTADOS.aplicaSuperficie(cat);
   if (selS) {
-    if (DVBA_ESTADOS.aplicaSuperficie(cat) && !supImpl) {
+    if (aplicaSup && !supImpl) {
       if (selS.options.length <= 1) {
         DVBA_ESTADOS.getSuperficies().forEach(s => {
           const o = document.createElement('option');
@@ -8598,11 +8737,14 @@ function onTipoChange(tipoStr) {
       selS.value = supImpl || '';
     }
   }
-  // 3) Modalidad — oculta si está implícita en el nombre del tipo
+  // 3) Modalidad — solo aplica en naturaleza='tarea' (V2) — oculta si implícita
   const selM = document.getElementById('fmodalidad');
   const modImpl = DVBA_ESTADOS.modalidadImplicita(tipoStr);
+  const aplicaMod = (typeof DVBA_ESTADOS.aplicaModalidadV2 === 'function')
+    ? DVBA_ESTADOS.aplicaModalidadV2(cat, nat)
+    : DVBA_ESTADOS.aplicaModalidad(cat);
   if (selM) {
-    if (DVBA_ESTADOS.aplicaModalidad(cat) && !modImpl) {
+    if (aplicaMod && !modImpl) {
       if (selM.options.length <= 1) {
         DVBA_ESTADOS.getModalidades().forEach(m => {
           const o = document.createElement('option');
