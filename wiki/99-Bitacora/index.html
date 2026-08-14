@@ -1390,6 +1390,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v877-v99510-14-agosto-2026-tarde-ux-portal-leyenda-scrolleable-spans-movil-sincronizados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.77 / v9.95.10 · 14 agosto 2026 (tarde) — UX portal: leyenda scrolleable + spans móvil sincronizados
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v872-v876-v9955-v9959-14-agosto-2026-modelo-tipos-v2-naturaleza-elemento-item-colores-del-mapa-opcion-c-fix-pin-salta-limpieza-wiki" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2255,6 +2266,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v877-v99510-14-agosto-2026-tarde-ux-portal-leyenda-scrolleable-spans-movil-sincronizados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.77 / v9.95.10 · 14 agosto 2026 (tarde) — UX portal: leyenda scrolleable + spans móvil sincronizados
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v872-v876-v9955-v9959-14-agosto-2026-modelo-tipos-v2-naturaleza-elemento-item-colores-del-mapa-opcion-c-fix-pin-salta-limpieza-wiki" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2622,7 +2644,7 @@
 <h1 id="bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial">📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial<a class="headerlink" href="#bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial" title="Permanent link">¶</a></h1>
 <p>DVBA · Departamento Zona VI Saladillo</p>
 <p>Última actualización: 13 de agosto de 2026</p>
-<p>Versión bitácora: v5.3 — apps v9.95.9 / v8.76 · 14-ago-2026</p>
+<p>Versión bitácora: v5.4 — apps v9.95.10 / v8.77 · 14-ago-2026</p>
 <p>Responsable: Ing. Luciano Lamaita</p>
 <p>Repositorio: <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a></p>
 <p>Estado general: 🟢 En desarrollo activo</p>
@@ -3749,6 +3771,20 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 </tr>
 </tbody>
 </table>
+<h3 id="v877-v99510-14-agosto-2026-tarde-ux-portal-leyenda-scrolleable-spans-movil-sincronizados">v8.77 / v9.95.10 · 14 agosto 2026 (tarde) — UX portal: leyenda scrolleable + spans móvil sincronizados<a class="headerlink" href="#v877-v99510-14-agosto-2026-tarde-ux-portal-leyenda-scrolleable-spans-movil-sincronizados" title="Permanent link">¶</a></h3>
+<p>Ronda corta de mejoras de calidad después del cierre del bloque grande.</p>
+<p><strong>Portal · leyenda del mapa scrolleable con scrollbar cómodo.</strong> La nueva sección "📌 Registros del mapa" agregada al popup de leyenda hizo crecer el contenido más allá del alto de pantalla. Fixes acumulados:</p>
+<ol>
+<li><code>#leyenda-popup</code> con <code>max-height: calc(100vh - 80px)</code> + <code>overflow-y:auto</code> para permitir scroll cuando desborda.</li>
+<li>Scrollbar rediseñado con dos escalas:</li>
+<li><strong>Global</strong> (todos los scrolls del portal): 4px → 8px, thumb <code>#b8c2ce</code> con hover turquesa DVBA.</li>
+<li><strong>Específico</strong> para <code>#leyenda-popup</code> y <code>.pane</code> del sidebar (tabs Mapa/Registros/Reportes): 12px de ancho, thumb en "pastilla" separado del track por borde de 2px, hover turquesa.</li>
+<li>Firefox alineado con <code>scrollbar-width: auto</code> + <code>scrollbar-color</code>.</li>
+<li><strong>Rueda del mouse en la leyenda</strong>: bug latente resuelto con <code>L.DomEvent.disableScrollPropagation</code> + <code>disableClickPropagation</code> en el popup. Antes Leaflet interceptaba <code>wheel</code> antes del scrollbar y hacía zoom del mapa en vez de scrollear la leyenda. Guard con flag para aplicar una sola vez al primer toggle.</li>
+</ol>
+<p><strong>Móvil · spans hardcodeados sincronizados.</strong> Bug reportado por el user: el footer del Modo Avanzado mostraba <code>v9.95.4</code> mientras el resto del sistema y el modal "Acerca de" ya iban en <code>v9.95.9</code>. Causa: los spans <code>&lt;span id="loginVer"&gt;</code> (footer del login) y <code>&lt;span id='app-ver'&gt;</code> (footer del panel principal) están hardcodeados en HTML y NO los pisa el JS de <code>APP_VER</code>. Además los cache-busters <code>?v=9.95.X</code> de <code>datos/auth.js</code>, <code>perfil.js</code>, <code>legales.js</code> habían quedado desactualizados. Bumpeados los 5 puntos al mismo valor. Regla ampliada en memoria interna: al bumpear versión hay que chequear 3 capas por HTML (constante JS, spans literales, cache-busters).</p>
+<p>Bump <code>v8.76 → v8.77</code> (escritorio) y <code>v9.95.9 → v9.95.10</code> (móvil). CACHE_NAME actualizado.</p>
+<hr />
 <h3 id="v872-v876-v9955-v9959-14-agosto-2026-modelo-tipos-v2-naturaleza-elemento-item-colores-del-mapa-opcion-c-fix-pin-salta-limpieza-wiki">v8.72 – v8.76 / v9.95.5 – v9.95.9 · 14 agosto 2026 — Modelo Tipos v2 (naturaleza × elemento × ítem) + colores del mapa Opción C + fix pin salta + limpieza wiki<a class="headerlink" href="#v872-v876-v9955-v9959-14-agosto-2026-modelo-tipos-v2-naturaleza-elemento-item-colores-del-mapa-opcion-c-fix-pin-salta-limpieza-wiki" title="Permanent link">¶</a></h3>
 <p><strong>Sesión intensiva con rediseño arquitectural del modelo de tipos</strong> y ajustes de calidad en la wiki pública. 4 frentes.</p>
 <p><strong>Frente 1 · Modelo Tipos v2 · rediseño de dominio.</strong> Se introduce el eje <strong>NATURALEZA</strong> ortogonal a la categoría del elemento:
