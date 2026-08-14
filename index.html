@@ -246,9 +246,23 @@ body.modo-campo #campo-fab{display:flex}
 .foto-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999;cursor:pointer}
 
 /* ═══ SCROLLBAR ═════════════════════════════════════════════ */
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--light);border-radius:2px}
-::-webkit-scrollbar-thumb:hover{background:#c0c0c0}
+/* v8.76 · Global de 8px (antes 4px era muy fino para arrastrar con mouse) */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg);border-radius:4px}
+::-webkit-scrollbar-thumb{background:#b8c2ce;border-radius:4px;border:1px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--p);background-clip:padding-box}
+/* Scrollbar específico para paneles con lista larga (leyenda + tabs sidebar).
+ * Más ancho (12px), thumb más contrastado, con "pastilla" separada del borde. */
+#leyenda-popup::-webkit-scrollbar,
+.pane::-webkit-scrollbar{width:12px;height:12px}
+#leyenda-popup::-webkit-scrollbar-track,
+.pane::-webkit-scrollbar-track{background:#f0f3f7;border-radius:6px}
+#leyenda-popup::-webkit-scrollbar-thumb,
+.pane::-webkit-scrollbar-thumb{background:#a3b0be;border-radius:6px;border:2px solid #f0f3f7;background-clip:padding-box;min-height:40px}
+#leyenda-popup::-webkit-scrollbar-thumb:hover,
+.pane::-webkit-scrollbar-thumb:hover{background:var(--p);background-clip:padding-box}
+/* Firefox */
+#leyenda-popup,.pane{scrollbar-width:auto;scrollbar-color:#a3b0be #f0f3f7}
 
 /* ═══ CONTROLES MAPA ════════════════════════════════════════ */
 /* v7.33 — Botones sueltos de fondo/leyenda + mini-panel plegable de visualización */
@@ -7471,9 +7485,17 @@ function cancelarEdit() {
 }
 
 
+// v8.76 · Aplicar una sola vez: bloquear que la rueda del mouse sobre la leyenda
+// dispare zoom en el mapa Leaflet + evitar que click en el scrollbar cierre el popup.
+let _leyendaScrollFixDone = false;
 function toggleLeyendaPopup(){
   const p = document.getElementById('leyenda-popup');
   const btn = document.getElementById('btn-ley');
+  if (!_leyendaScrollFixDone && p && typeof L !== 'undefined' && L.DomEvent){
+    L.DomEvent.disableScrollPropagation(p);
+    L.DomEvent.disableClickPropagation(p);
+    _leyendaScrollFixDone = true;
+  }
   if(p.style.display==='none'){
     buildLeyenda();
     p.style.display='block';
