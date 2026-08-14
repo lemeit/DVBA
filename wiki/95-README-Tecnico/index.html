@@ -979,6 +979,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#funcionalidades-destacadas-v872-v876-v9955-v9959-14-agosto-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Funcionalidades destacadas (v8.72-v8.76 · v9.95.5-v9.95.9 · 14-agosto-2026)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#funcionalidades-destacadas-v868-v871-v994-v9954-13-agosto-2026" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1663,6 +1674,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#funcionalidades-destacadas-v872-v876-v9955-v9959-14-agosto-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Funcionalidades destacadas (v8.72-v8.76 · v9.95.5-v9.95.9 · 14-agosto-2026)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#funcionalidades-destacadas-v868-v871-v994-v9954-13-agosto-2026" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2335,25 +2357,25 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 <tr>
 <td>https://lemeit.github.io/DVBA/</td>
 <td><code>index.html</code></td>
-<td><strong>v8.71</strong></td>
+<td><strong>v8.76</strong></td>
 <td>Portal principal: mapa Leaflet + <strong>sidebar drawer colapsable</strong> (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. <strong>Botón <code>🎯 Ubicar</code></strong> (flujo inverso ruta+km → posición). <strong>Sistema de reportes mixto</strong> (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. <strong>Sello v4 overlay</strong> semitransparente sobre la foto con QR + logo DVBA. <strong>EXIF metadata</strong> completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III).</td>
 </tr>
 <tr>
 <td>https://lemeit.github.io/DVBA/partes_diarios.html</td>
 <td><code>partes_diarios.html</code></td>
-<td><strong>v8.71</strong></td>
+<td><strong>v8.76</strong></td>
 <td>App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo <code>sello_v4.js</code> con el portal.</td>
 </tr>
 <tr>
 <td>https://lemeit.github.io/DVBA/reportes.html</td>
 <td><code>reportes.html</code></td>
-<td><strong>v8.71</strong></td>
+<td><strong>v8.76</strong></td>
 <td>Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia.</td>
 </tr>
 <tr>
 <td>https://lemeit.github.io/DVBA/app.html</td>
 <td><code>app.html</code> → router</td>
-<td><strong>v9.95.4</strong></td>
+<td><strong>v9.95.9</strong></td>
 <td><strong>App móvil PWA (URL canónica)</strong> — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia. Instalado en el celu queda como <code>SIG Vial PBA</code> (un solo ícono). URL legacy <code>campo.html</code> sigue como redirect.</td>
 </tr>
 <tr>
@@ -2400,6 +2422,14 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 </tr>
 </tbody>
 </table>
+<h2 id="funcionalidades-destacadas-v872-v876-v9955-v9959-14-agosto-2026">Funcionalidades destacadas (v8.72-v8.76 · v9.95.5-v9.95.9 · 14-agosto-2026)<a class="headerlink" href="#funcionalidades-destacadas-v872-v876-v9955-v9959-14-agosto-2026" title="Permanent link">¶</a></h2>
+<p><strong>Modelo Tipos v2 · naturaleza × elemento × ítem (v8.76 · v9.95.9 · SQL_15)</strong> — Rediseño arquitectural del modelo de tipos. Se introduce el eje <strong>naturaleza</strong> ortogonal a la categoría del elemento: 🔍 <strong>Relevamiento</strong> (observación del estado) vs 🚜 <strong>Tarea de mantenimiento</strong> (acción ejecutada o programada). La categoría plana <code>mantenimiento</code> desaparece; cada elemento (calzada, drenaje, estructura, señalización, demarcación, iluminación, entorno, seguridad) tiene ahora dos listas: <code>items_relev</code> e <code>items_tarea</code>. Ejemplo: sobre Señalización se puede relevar cebras faltantes o registrar la colocación de cebras. Nueva columna <code>naturaleza</code> en Supabase (DEFAULT <code>'relevamiento'</code> retroactivo). API vieja intacta para no romper HTMLs viejos. Detalle completo en la <a href="https://lemeit.github.io/DVBA/wiki/99-Bitacora/">bitácora tab Changelog</a> y en <code>docs/MODELO_TIPOS_ESTADOS.md</code> v1.3.</p>
+<p><strong>Wizard de captura con paso 0 de naturaleza (v9.95.8 móvil · v8.76 escritorio)</strong> — En el móvil, el wizard arranca con dos botones grandes de naturaleza (obligatorio). En el escritorio hay tabs "Relevamiento / Tarea de mantenimiento" sobre el sidebar. La grilla de categorías se filtra automáticamente (Seguridad vial solo aparece en relevamiento). Los ítems se filtran por <code>itemsPorNaturaleza(cat, nat)</code>. Los estados en el <code>&lt;select&gt;</code> se repueblan según <code>getEstadosPorNaturaleza</code>: si es tarea → programado/en_ejecución/finalizado/suspendido/cancelado; si es relevamiento → bueno/regular/malo/crítico (o los específicos de señalización, iluminación, etc.). Sub-atributos de superficie y modalidad respetan las reglas V2.</p>
+<p><strong>Colores del mapa · Opción C (v8.76 · forma × color × borde)</strong> — Refactor completo de <code>drawRegMarkers</code>. Cada pin es un SVG inline de 16×16 con tres dimensiones visuales ortogonales: <strong>forma</strong> codifica la categoría del elemento (círculo=calzada, rombo=drenaje, cuadrado=estructura, triángulo=señalización, pentágono=demarcación, cruz=iluminación, hexágono=entorno, estrella=seguridad); <strong>color</strong> codifica la severidad del estado (verde/amarillo/naranja/rojo/gris/azul/violeta leído directo de <code>DVBA_ESTADOS</code>, con heurística de fallback para registros legacy con estado en string libre); <strong>borde</strong> codifica la naturaleza (sólido = relevamiento, punteado = tarea). Nueva sección "📌 Registros del mapa" en la leyenda del portal con las 3 sub-tablas para consulta rápida sin abrir la guía.</p>
+<p><strong>Filtro por naturaleza en Reportes (v8.76)</strong> — Nuevo select en el header de filtros de <code>reportes.html</code>: Todas / 🔍 Solo relevamientos / 🚜 Solo tareas. Filtra a nivel BD la query de relevamientos huérfanos y excluye los partes reales (que son siempre tareas) cuando se elige "Solo relevamientos". Permite separar reportes de estado observado vs reportes de trabajo ejecutado.</p>
+<p><strong>Fix pin salta lejos (v8.74)</strong> — <code>guardar()</code> de <code>index.html</code> caía a un fallback silencioso ("punto medio de la ruta + ruido random ~1 km") cuando <code>flat/flng</code> eran <code>NaN</code>. Resultado: el pin se guardaba a varios kilómetros del lugar donde el operador había hecho click. Reemplazado por alerta explícita + log de diagnóstico. Ahora si por alguna razón las coordenadas no se cargan al guardar, el sistema avisa en vez de inventar una posición.</p>
+<p><strong>Sello sin sufijo origen (v9.95.9)</strong> — <code>datos/sello_v4.js</code> ya no agrega <code>·campo</code> / <code>·escritorio</code> al lado de la versión en el pie del sello. Solo versión + <code>sello v4</code>. Aplica a móvil y escritorio (comparten el módulo).</p>
+<p><strong>Wiki reorganizada en 2 secciones + limpieza de detalles internos</strong> — La wiki se dividió en dos secciones temáticas usando <code>navigation.sections</code> de MkDocs Material: <strong>Guía de uso</strong> (14 capítulos operativos + Guía Visual) y <strong>Historia y evolución</strong> (Antecedente SIG Vial 2008, Nomenclador 1989, Bitácora del proyecto, README técnico). Nueva página dedicada al Nomenclador 1989 con PDF descargable filtrado por sesión activa. Limpieza de detalles internos en el cuerpo de las páginas de guía: quitados los números de versión (<code>v8.72</code>, <code>v9.95.4</code>) que ensuciaban el copy, paths de repo, links a <code>github.com/lemeit/DVBA/blob/...</code>, pendientes internos, opiniones de dev.</p>
 <h2 id="funcionalidades-destacadas-v868-v871-v994-v9954-13-agosto-2026">Funcionalidades destacadas (v8.68-v8.71 · v9.94-v9.95.4 · 13-agosto-2026)<a class="headerlink" href="#funcionalidades-destacadas-v868-v871-v994-v9954-13-agosto-2026" title="Permanent link">¶</a></h2>
 <p><strong>Catálogo colaborativo de alias de caminos (v8.71 · SQL_14)</strong> — Nueva tabla <code>caminos_alias</code> en Supabase donde técnicos y personal DVBA registran los nombres populares con que se conoce cada camino secundario (ej. <code>093-08</code> → <em>"Camino a Los Molles"</em>, <em>"Del Molino Viejo"</em>). Modal de edición en el portal (<code>✏ Editar datos viales</code> sobre cualquier camino) con chips estilo tags, denominación local sugerida y observaciones libres. Los alias se muestran automáticamente en el modal SIG Vial del camino y son buscables desde el sidebar (<code>🔍 Buscar por código o alias</code>). RLS: lectura pública, escritura de técnicos por zona / gerencia / admin.</p>
 <p><strong>Wizard de Reportes con presets (v8.71)</strong> — Rediseño del panel Reportes de Vías con 4 presets tipo tarjeta: <strong>Red vial completa</strong> / <strong>Por partido</strong> / <strong>Solo Rutas</strong> / <strong>Solo Caminos</strong>. Ajustes avanzados (columnas, filtros de tipos, opciones PDF) en <code>&lt;details&gt;</code> colapsable. Sub-panel dinámico "Por partido" con dropdown + botones <code>+ Rutas</code> y <code>+ Caminos</code> del partido elegido. Tab del reporte generado con panel de filtros interactivo (partido, texto libre, clase) que oculta/muestra filas en tiempo real. Contador de caminos únicos además de tramos.</p>

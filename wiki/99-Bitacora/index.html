@@ -1390,6 +1390,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v872-v876-v9955-v9959-14-agosto-2026-modelo-tipos-v2-naturaleza-elemento-item-colores-del-mapa-opcion-c-fix-pin-salta-limpieza-wiki" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.72 – v8.76 / v9.95.5 – v9.95.9 · 14 agosto 2026 — Modelo Tipos v2 (naturaleza × elemento × ítem) + colores del mapa Opción C + fix pin salta + limpieza wiki
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v868-v871-v995-v9954-12-13-agosto-2026-rediseno-reportes-con-wizard-catalogo-colaborativo-de-alias-wiki-online-fixes-ux-masivos" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2244,6 +2255,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v872-v876-v9955-v9959-14-agosto-2026-modelo-tipos-v2-naturaleza-elemento-item-colores-del-mapa-opcion-c-fix-pin-salta-limpieza-wiki" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.72 – v8.76 / v9.95.5 – v9.95.9 · 14 agosto 2026 — Modelo Tipos v2 (naturaleza × elemento × ítem) + colores del mapa Opción C + fix pin salta + limpieza wiki
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v868-v871-v995-v9954-12-13-agosto-2026-rediseno-reportes-con-wizard-catalogo-colaborativo-de-alias-wiki-online-fixes-ux-masivos" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2600,7 +2622,7 @@
 <h1 id="bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial">📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial<a class="headerlink" href="#bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial" title="Permanent link">¶</a></h1>
 <p>DVBA · Departamento Zona VI Saladillo</p>
 <p>Última actualización: 13 de agosto de 2026</p>
-<p>Versión bitácora: v5.2 — apps v9.95.4 / v8.71 · 13-ago-2026</p>
+<p>Versión bitácora: v5.3 — apps v9.95.9 / v8.76 · 14-ago-2026</p>
 <p>Responsable: Ing. Luciano Lamaita</p>
 <p>Repositorio: <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a></p>
 <p>Estado general: 🟢 En desarrollo activo</p>
@@ -3727,6 +3749,38 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 </tr>
 </tbody>
 </table>
+<h3 id="v872-v876-v9955-v9959-14-agosto-2026-modelo-tipos-v2-naturaleza-elemento-item-colores-del-mapa-opcion-c-fix-pin-salta-limpieza-wiki">v8.72 – v8.76 / v9.95.5 – v9.95.9 · 14 agosto 2026 — Modelo Tipos v2 (naturaleza × elemento × ítem) + colores del mapa Opción C + fix pin salta + limpieza wiki<a class="headerlink" href="#v872-v876-v9955-v9959-14-agosto-2026-modelo-tipos-v2-naturaleza-elemento-item-colores-del-mapa-opcion-c-fix-pin-salta-limpieza-wiki" title="Permanent link">¶</a></h3>
+<p><strong>Sesión intensiva con rediseño arquitectural del modelo de tipos</strong> y ajustes de calidad en la wiki pública. 4 frentes.</p>
+<p><strong>Frente 1 · Modelo Tipos v2 · rediseño de dominio.</strong> Se introduce el eje <strong>NATURALEZA</strong> ortogonal a la categoría del elemento:
+- 🔍 <strong>Relevamiento</strong> — se observa el estado de un elemento existente.
+- 🚜 <strong>Tarea de mantenimiento</strong> — se registra una acción ejecutada o programada.</p>
+<p>La categoría plana <code>mantenimiento</code> del modelo v1 desaparece; cada elemento (calzada, drenaje, estructura, señalización, demarcación, iluminación, entorno, seguridad, otro) ahora tiene DOS listas de ítems: <code>items_relev</code> e <code>items_tarea</code>. Ejemplo: sobre "Calzada" se puede relevar un bache o registrar un bacheo; sobre "Señalización" se puede relevar cebras faltantes o registrar la colocación de cebras.</p>
+<p>Cambios técnicos:</p>
+<ul>
+<li><strong>Migración BD</strong>: nueva columna <code>naturaleza TEXT NOT NULL DEFAULT 'relevamiento'</code> en <code>relevamientos</code> con constraint CHECK e índice (<code>docs/SQL_15_naturaleza_registros.sql</code>). Los registros previos quedan como <code>relevamiento</code> sin migración destructiva.</li>
+<li><strong><code>dvba_tipos.js</code> v3.0</strong>: nueva estructura <code>ARBOL_V2</code> con <code>items_relev + items_tarea</code> por categoría. Helpers <code>categoriasV2 / itemsPorNaturaleza(cat, nat) / categoriaDeV2 / naturalezaDelItem</code>. API v1/v2 legacy intacta para no romper HTMLs viejos.</li>
+<li><strong><code>datos/dvba_estados.js</code> v2.0</strong>: nueva API <code>getEstadosPorNaturaleza(cat, nat) / getEstadosRelev / getEstadosTarea</code> + <code>POR_CAT_RELEV</code> (condición sin universales) + <code>ESTADOS_TAREA</code> (5 estados de ejecución universales). Nuevos patrones implícitos: <code>motoniveladora</code> → mecánico, <code>caminos rurales</code> → superficie tierra. <code>POR_CAT</code> legacy sigue funcionando.</li>
+<li><strong><code>dvba_campo.html</code> (móvil v9.95.8)</strong>: nuevo paso 0 del wizard con dos botones grandes de naturaleza. Grilla de categorías filtrada según <code>tieneRelev/tieneTarea</code> (Seguridad vial se oculta cuando naturaleza=tarea). Wizard filtra ítems por <code>itemsPorNaturaleza(cat, nat)</code>. <code>onTipoChange</code> usa API V2. <code>guardarRegistro</code> incluye <code>naturaleza</code> en INSERT.</li>
+<li><strong><code>index.html</code> (escritorio v8.76)</strong>: tabs "Relevamiento / Tarea de mantenimiento" arriba del sidebar. Wizard refactorizado a <code>categoriasV2 / itemsPorNaturaleza</code>. <code>guardar()</code> incluye <code>naturaleza</code> + fallback localStorage. <code>regs.map()</code> desde Supabase trae <code>naturaleza</code> (default relevamiento).</li>
+<li><strong>Documentación</strong>: <code>docs/MODELO_TIPOS_ESTADOS.md</code> v1.3 reescrito con el modelo de 3 dimensiones ortogonales, tabla de destacados por naturaleza, sub-atributos con reglas V2, roadmap de colores del mapa Opción C.</li>
+</ul>
+<p><strong>Frente 2 · Colores del mapa · Opción C (forma × color × borde).</strong> Refactor completo de <code>drawRegMarkers</code>. Cada pin es ahora un SVG inline de 16×16 con tres dimensiones visuales ortogonales:</p>
+<ul>
+<li><strong>Forma</strong> = categoría del elemento — círculo (calzada), rombo (drenaje), cuadrado (estructura), triángulo (señalización), pentágono (demarcación), cruz (iluminación), hexágono (entorno), estrella (seguridad), círculo default (otro).</li>
+<li><strong>Color</strong> = severidad del estado — verde bueno/finalizado, amarillo regular/suspendido, naranja malo/en ejecución, rojo crítico/faltante, gris pendiente/cancelado, azul en obra/reparado, violeta programado. <code>_colorPorEstadoV2</code> lee el color del estado desde <code>DVBA_ESTADOS</code>; registros legacy con string libre caen a heurística por normalización.</li>
+<li><strong>Borde</strong> = naturaleza — sólido en relevamiento, <code>stroke-dasharray="2,1.4"</code> en tarea.</li>
+</ul>
+<p><strong>Leyenda del portal actualizada</strong> (<code>buildLeyenda</code>): nueva sección "📌 Registros del mapa" con 3 sub-tablas (forma, color, borde) que documenta la codificación al operador sin necesidad de abrir la guía externa.</p>
+<p><strong>Frente 3 · Reportes con filtro por naturaleza.</strong> Nuevo select "Naturaleza" en el header de filtros de <code>reportes.html</code>: Todas / 🔍 Solo relevamientos / 🚜 Solo tareas. Filtra en BD la query de relevamientos huérfanos + excluye los partes reales (que son siempre tareas) cuando el usuario elige "Solo relevamientos". Los pseudo-partes propagan la columna <code>naturaleza</code>.</p>
+<p><strong>Frente 4 · Fixes puntuales y limpieza.</strong></p>
+<ul>
+<li><strong>Pin salta lejos (v8.74)</strong>: <code>guardar()</code> de <code>index.html</code> caía a un fallback random ("punto medio de la ruta + ruido ~1 km") si <code>flat/flng</code> eran <code>NaN</code>. Reemplazado por alerta explícita + log de diagnóstico. El bug hacía que el pin del registro apareciera a varios kilómetros del lugar donde el operador había hecho click.</li>
+<li><strong>Sello sin sufijo origen (v9.95.9)</strong>: <code>datos/sello_v4.js</code> ya no agrega <code>·campo</code> / <code>·escritorio</code> al lado de la versión en el pie del sello. Solo versión + <code>sello v4</code>.</li>
+<li><strong>Wiki pública limpiada</strong>: se quitaron menciones a versiones internas del cuerpo de las páginas de guía (sí quedan en bitácora + README técnico donde es el rol del documento). Se quitaron paths de repo (<code>docs/*.md</code>, <code>datos/*.geojson</code>, links a <code>github.com/lemeit/DVBA/blob/...</code>), tareas pendientes internas, opiniones de dev y detalles de digitalización. Nomenclador 1989 y Antecedente SIG Vial referenciados sin nombres personales (portada era manuscrita, no autoría). Wiki reorganizada con <strong>navigation.sections</strong> en dos grupos temáticos: <em>Guía de uso</em> (14 capítulos operativos) y <em>Historia y evolución</em> (Nomenclador 1989, Antecedente SIG Vial 2008, Bitácora, README técnico).</li>
+<li><strong>Guía Visual actualizada</strong>: sección del Modo Avanzado reescrita con los 3 pasos del wizard v2 (naturaleza → categoría → ítem). Tabla de "Categorías y ítems disponibles" reorganizada con listas separadas de relevamiento y tarea por categoría. Nueva sección "Codificación visual del mapa" que documenta el modelo Opción C.</li>
+</ul>
+<p>Archivos nuevos: <code>docs/SQL_15_naturaleza_registros.sql</code>. Bump completo <code>v8.71 → v8.76</code> (escritorio) y <code>v9.95.4 → v9.95.9</code> (móvil). Cache SW actualizado.</p>
+<hr />
 <h3 id="v868-v871-v995-v9954-12-13-agosto-2026-rediseno-reportes-con-wizard-catalogo-colaborativo-de-alias-wiki-online-fixes-ux-masivos">v8.68 – v8.71 / v9.95 – v9.95.4 · 12-13 agosto 2026 — Rediseño Reportes con wizard + Catálogo colaborativo de alias + Wiki online + fixes UX masivos<a class="headerlink" href="#v868-v871-v995-v9954-12-13-agosto-2026-rediseno-reportes-con-wizard-catalogo-colaborativo-de-alias-wiki-online-fixes-ux-masivos" title="Permanent link">¶</a></h3>
 <p><strong>Cerramos una ronda de 4 días intensiva</strong> con 30 tareas resueltas repartidas en 3 frentes.</p>
 <p><strong>Frente 1 · Rediseño del panel de Reportes de Vías.</strong> El sidebar de reportes se convierte en un wizard de 3 pasos con 4 presets tipo tarjeta ("Red vial completa", "Por partido", "Solo Rutas", "Solo Caminos") + ajustes avanzados colapsados en <code>&lt;details&gt;</code>. La tab del reporte generado incluye un panel de filtros interactivo (partido, texto libre, clase) que oculta/muestra filas en tiempo real y respeta la paleta institucional DVBA turquesa. Contador de caminos únicos además de tramos. 15 fixes puntuales (Limpiar todos que sí anda, halo persistente que se quita, filtro por partido en tab que detecta filas TOTAL por <code>colspan</code> en vez de por texto, propiedad <code>PARTIDO_NOMBRE</code> correcta para caminos, match case-insensitive con normalización Unicode ASCII, <code>+ Todas rutas / caminos</code> de una sola vez).</p>
