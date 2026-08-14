@@ -6,7 +6,7 @@ DVBA · Departamento Zona VI Saladillo
 
 Última actualización: 13 de agosto de 2026
 
-Versión bitácora: v5.3 — apps v9.95.9 / v8.76 · 14-ago-2026
+Versión bitácora: v5.4 — apps v9.95.10 / v8.77 · 14-ago-2026
 
 Responsable: Ing. Luciano Lamaita
 
@@ -830,6 +830,25 @@ TAB 6 · PENDIENTES
 | **🖥 Familia escritorio** | v8.52 | `index.html`, `partes_diarios.html`, `reportes.html` + módulos `datos/` | Manual en `const APP_VERSION` + spans footer en los 3 |
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
+
+### v8.77 / v9.95.10 · 14 agosto 2026 (tarde) — UX portal: leyenda scrolleable + spans móvil sincronizados
+
+Ronda corta de mejoras de calidad después del cierre del bloque grande.
+
+**Portal · leyenda del mapa scrolleable con scrollbar cómodo.** La nueva sección "📌 Registros del mapa" agregada al popup de leyenda hizo crecer el contenido más allá del alto de pantalla. Fixes acumulados:
+
+1. `#leyenda-popup` con `max-height: calc(100vh - 80px)` + `overflow-y:auto` para permitir scroll cuando desborda.
+2. Scrollbar rediseñado con dos escalas:
+   - **Global** (todos los scrolls del portal): 4px → 8px, thumb `#b8c2ce` con hover turquesa DVBA.
+   - **Específico** para `#leyenda-popup` y `.pane` del sidebar (tabs Mapa/Registros/Reportes): 12px de ancho, thumb en "pastilla" separado del track por borde de 2px, hover turquesa.
+   - Firefox alineado con `scrollbar-width: auto` + `scrollbar-color`.
+3. **Rueda del mouse en la leyenda**: bug latente resuelto con `L.DomEvent.disableScrollPropagation` + `disableClickPropagation` en el popup. Antes Leaflet interceptaba `wheel` antes del scrollbar y hacía zoom del mapa en vez de scrollear la leyenda. Guard con flag para aplicar una sola vez al primer toggle.
+
+**Móvil · spans hardcodeados sincronizados.** Bug reportado por el user: el footer del Modo Avanzado mostraba `v9.95.4` mientras el resto del sistema y el modal "Acerca de" ya iban en `v9.95.9`. Causa: los spans `<span id="loginVer">` (footer del login) y `<span id='app-ver'>` (footer del panel principal) están hardcodeados en HTML y NO los pisa el JS de `APP_VER`. Además los cache-busters `?v=9.95.X` de `datos/auth.js`, `perfil.js`, `legales.js` habían quedado desactualizados. Bumpeados los 5 puntos al mismo valor. Regla ampliada en memoria interna: al bumpear versión hay que chequear 3 capas por HTML (constante JS, spans literales, cache-busters).
+
+Bump `v8.76 → v8.77` (escritorio) y `v9.95.9 → v9.95.10` (móvil). CACHE_NAME actualizado.
+
+---
 
 ### v8.72 – v8.76 / v9.95.5 – v9.95.9 · 14 agosto 2026 — Modelo Tipos v2 (naturaleza × elemento × ítem) + colores del mapa Opción C + fix pin salta + limpieza wiki
 
