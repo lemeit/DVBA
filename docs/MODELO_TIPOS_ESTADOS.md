@@ -1,266 +1,266 @@
 # Modelo de Tipos ↔ Estados — DVBA Zona VI
 
-**Versión:** v1.2 (2026-08-14) · `dvba_campo` v9.95.5 · `index` v8.73
+**Versión:** v1.3 (2026-08-14) · `dvba_campo` v9.95.7 · `index` v8.75
+**Modelo Tipos v2** con eje NATURALEZA (Relevamiento vs Tarea).
 
-Este documento es la **referencia única** para entender cómo se relacionan las categorías de relevamiento, los ítems específicos, los estados válidos y los sub-atributos condicionales en el sistema. Sirve para desarrolladores, operadores de campo y para integraciones futuras con QGIS / Supabase / reportes.
-
----
-
-## 1. Conceptos
-
-El sistema separa el registro vial en **3 dimensiones**:
-
-| Dimensión | Definición | Ejemplo |
-|---|---|---|
-| **Elemento** | Qué objeto físico se está relevando | Calzada, señal, puente, banquina, luminaria |
-| **Condición** | Cómo está ese elemento | Bueno / Regular / Malo / Crítico |
-| **Acción** | Qué tarea se hizo o hay que hacer | Reconformado, desmalezado, bacheo |
-
-Antes de v9.18 estas 3 dimensiones estaban mezcladas en el dropdown único de "Tipo" + un dropdown de Estado universal. Ahora cada categoría tiene su propio set de estados coherentes.
+Este documento es la **referencia única** para entender cómo se relacionan las categorías, ítems, estados y sub-atributos condicionales en el sistema. Sirve para desarrolladores, operadores de campo e integraciones futuras con QGIS / Supabase / reportes.
 
 ---
 
-## 2. Árbol de categorías (10 categorías)
+## 1. Concepto central — Modelo Tipos v2
 
-Definido en `dvba_tipos.js → DVBA_TIPOS.ARBOL`
+Un registro sobre la red vial tiene tres dimensiones ortogonales:
 
-### A. Relevamiento (estado de algo físico)
-
-| Cat key | Label | Ítems destacados |
+| Dimensión | Preguntas | Ejemplos |
 |---|---|---|
-| `calzada` | 🛣️ Calzada | Bache · Bache crítico · Pavimento fisurado · Huellas (camino tierra) · Anegamiento por mala conformación · Erosión de calzada · Calzada en buen estado |
-| `drenaje` | 💧 Banquinas y drenaje | Banquina deteriorada · Cuneta obstruida/dañada · Alcantarilla tapada/dañada · Erosión de talud |
-| `estructura` | 🌉 Puentes y estructuras | Puente — fisura tablero/estribo · Junta deteriorada · Baranda dañada · Alcantarilla mayor · Muro de contención dañado |
-| `senial_vertical` | 🚧 Señalización vertical | Submenú extenso MSV 2017: P-, R-, I-, mojones, carteles destino, guardarrails, delineadores, **cebras (cabezal alcantarilla / puente)** |
-| `demarcacion` | 🛑 Demarcación horizontal | Eje borrado · Demarcación lateral borrada · Tachones faltantes · Demarcación inexistente · Línea de frenado · Senda peatonal |
-| `iluminacion` | 💡 Iluminación | Columna dañada/faltante · Lámpara fundida · Fallo eléctrico ramal · Tendido afectado |
-| `entorno` | 🌿 Entorno | Vegetación a desmalezar · Inundación · Derrumbe · Árbol caído · Tranquera dañada · Animal muerto |
-| `seguridad` | 🚨 Seguridad vial | Siniestro vial · Punto negro · Zona peligrosa sin señalizar · Cámara de control · Radar de velocidad · Emergencia |
+| **Naturaleza** | ¿Es una observación o una acción? | Relevamiento · Tarea |
+| **Elemento** | ¿Sobre qué elemento vial? | Calzada · Puentes · Señalización · Drenaje |
+| **Ítem específico** | ¿Qué específicamente? | Bache · Cebras · Mojón · Cuneta obstruida |
 
-### B. Tarea / Acción
+El modelo anterior (v1) tenía la naturaleza mezclada con la categoría: había una categoría plana `mantenimiento` que agrupaba tareas de cualquier elemento (bacheo, colocación de cebras, desmalezado, etc.). Eso mezclaba dos ejes distintos y hacía difícil responder preguntas como *"¿cuánto trabajo hicimos sobre señalización este mes vs cuánto tenemos por relevar?"*.
 
-| Cat key | Label | Ítems destacados |
-|---|---|---|
-| `mantenimiento` | 🚜 Mantenimiento / Tarea | **Mantenimiento de caminos rurales** · Reconformado de tierra · Desmalezado manual/mecánico · Limpieza de cuneta/canal · Bacheo en frío/caliente/profundo · Sellado de fisuras · Repavimentación · Riego asfáltico · Repintado · Reposición señal/mojón · Mejoramiento dolomita/suelo cal · Poda |
-
-### C. Catch-all
-
-| Cat key | Label | Ítems |
-|---|---|---|
-| `otro` | 📝 Otro | Otro |
+En v2, la categoría `mantenimiento` **desaparece como categoría separada** y pasa a ser una naturaleza que se combina con cada elemento.
 
 ---
 
-## 3. Estados válidos por categoría
+## 2. Naturaleza
 
-Definido en `datos/dvba_estados.js → DVBA_ESTADOS.POR_CAT`
+| Key | Label | Cuándo se usa |
+|---|---|---|
+| `relevamiento` | 🔍 **Relevamiento** | Se observa el estado de un elemento vial existente. Ejemplos: *"Este bache está crítico"*, *"Este mojón falta"*, *"Cuneta obstruida"*, *"Puente con fisura en tablero"*. |
+| `tarea` | 🚜 **Tarea de mantenimiento** | Se registra una acción ejecutada o programada sobre el elemento. Ejemplos: *"Bacheé este tramo"*, *"Coloqué cebras en este cabezal"*, *"Repuse este mojón"*, *"Desmalezado mecánico"*. |
 
-Cada estado tiene `{ key, label, color }`. La `key` es el valor que se guarda en la BD (string corto). El `label` es lo que se ve en el `<select>`.
+La naturaleza se guarda en la BD en la columna `naturaleza` (ver §7 · Migración BD).
 
-| Categoría | Estados (key → label) |
+---
+
+## 3. Elemento (categorías) — 8 categorías
+
+Definido en `dvba_tipos.js → DVBA_TIPOS.ARBOL_V2`. Todas las categorías admiten AMBAS naturalezas excepto `seguridad`, que solo admite relevamiento (los siniestros y puntos negros son observaciones, no tareas).
+
+| Cat key | Label | 🔍 Ítems relev (destacados) | 🚜 Ítems tarea (destacados) |
+|---|---|---|---|
+| `calzada` | 🛣️ Calzada | Bache · Bache crítico · Pavimento fisurado/ondulado/descascarado · Huellas (camino tierra) · Anegamiento · Erosión · Calzada en buen estado | **Mantenimiento de caminos rurales** · Reconformado de tierra · Bacheo frío/caliente/profundo · Sellado de fisuras · Repavimentación · Riego asfáltico · Mejoramiento dolomita/suelo cal |
+| `drenaje` | 💧 Banquinas y drenaje | Banquina deteriorada · Cuneta obstruida/dañada · Alcantarilla tapada/dañada · Erosión de talud | Limpieza cuneta/canal/alcantarilla · Reparación cuneta/alcantarilla · Reconformado de banquina |
+| `estructura` | 🌉 Puentes y estructuras | Puente — fisura tablero/estribo · Junta deteriorada · Baranda dañada · Deterioro tablero · Alcantarilla mayor · Muro contención dañado | Reparación puente (tablero/estribo) · Reparación junta · Reparación baranda/guardarrail · Reparación alcantarilla mayor · Reparación muro contención |
+| `senial_vertical` | 🚧 Señalización vertical | MSV 2017 completo (P-, R-, I-) · Mojones · Guardarrail · Delineadores · **Cebras (cabezal alcantarilla / puente)** | Reposición señal · Reposición mojón · Colocación guardarrail/delineador/cebras · Repintado de cebras |
+| `demarcacion` | 🛑 Demarcación horizontal | Eje borrado · Demarcación lateral borrada · Tachones faltantes · Demarcación inexistente · Línea de frenado · Senda peatonal borrada | Repintado eje/lateral/senda/línea frenado · Reposición de tachas |
+| `iluminacion` | 💡 Iluminación | Columna dañada/faltante · Lámpara fundida · Fallo eléctrico ramal · Tendido afectado | Reposición columna/lámpara · Reparación tendido eléctrico · Migración a LED |
+| `entorno` | 🌿 Entorno | Vegetación a desmalezar · Inundación · Derrumbe · Árbol caído · Tranquera dañada · Animal muerto | Desmalezado manual/mecánico · Poda · Limpieza general de ramal · Retiro árbol/animal · Reparación tranquera |
+| `seguridad` | 🚨 Seguridad vial *(solo relev)* | Siniestro vial · Punto negro · Zona peligrosa sin señalizar · Zona de curva peligrosa · Emergencia · Cámara/Radar | — |
+| `otro` | 📝 Otro | Otro | Otra tarea de mantenimiento |
+
+---
+
+## 4. Estados por naturaleza
+
+Definidos en `datos/dvba_estados.js`. Cada estado tiene `{ key, label, color }`.
+
+### 🔍 Estados de RELEVAMIENTO (condición del elemento)
+
+| Categoría | Estados (key → label · color) |
 |---|---|
-| **calzada / drenaje** | `bueno` Bueno · `regular` Regular · `malo` Malo · `critico` Crítico · `pendiente` Pendiente · `en_obra` En obra · `reparado` Reparado |
-| **estructura** | Igual que calzada **+** `inspeccion_urg` Inspección urgente |
-| **senial_vertical** | `ok` OK/Visible · `danada` Dañada · `ilegible` Ilegible · `falta` Falta · `mal_ubic` Mal ubicada · `pendiente` Pendiente · `en_reposicion` En reposición · `reemplazada` Reemplazada |
-| **demarcacion** | `visible` Visible · `borrada` Borrada · `inexistente` Inexistente · `pendiente` Pendiente · `en_ejec` En ejecución · `repintado` Repintado |
-| **iluminacion** | `funciona` Funciona · `parcial` Funciona parcial · `no_funciona` No funciona · `pendiente` Pendiente · `en_reparacion` En reparación · `reparado` Reparado |
-| **entorno** | `activo` Activo · `monitoreo` Bajo monitoreo · `pendiente` Pendiente · `en_limpieza` En limpieza · `resuelto` Resuelto |
-| **seguridad** | `activo` Activo · `monitoreo` Bajo monitoreo · `resuelto` Resuelto |
-| **mantenimiento** | `programado` Programado · `en_ejecucion` En ejecución · `finalizado` Finalizado · `suspendido` Suspendido · `cancelado` Cancelado |
-| **otro** | `sin_esp` Sin especificar · `pendiente` Pendiente · `en_obra` En obra · `reparado` Reparado |
+| **calzada / drenaje** | `bueno` verde · `regular` amarillo · `malo` naranja · `critico` rojo |
+| **estructura** | Igual a calzada **+** `inspeccion_urg` rojo oscuro |
+| **senial_vertical** | `ok` verde · `danada` amarillo · `ilegible` naranja · `falta` rojo · `mal_ubic` gris |
+| **demarcacion** | `visible` verde · `borrada` amarillo · `inexistente` rojo |
+| **iluminacion** | `funciona` verde · `parcial` amarillo · `no_funciona` rojo |
+| **entorno / seguridad** | `activo` rojo · `monitoreo` amarillo · `resuelto` verde |
+| **otro** | `sin_esp` gris |
 
-### Estados universales (UNIVERSALES)
+### 🚜 Estados de TAREA (ejecución) — únicos, comunes a todas las categorías
 
-```js
-pendiente · en_obra · reparado
-```
+| Key | Label | Color |
+|---|---|---|
+| `programado` | Programado | violeta `#9c27b0` |
+| `en_ejecucion` | En ejecución | ámbar `#f0a500` |
+| `finalizado` | Finalizado | verde `#28a745` |
+| `suspendido` | Suspendido | amarillo `#ffc107` |
+| `cancelado` | Cancelado | gris `#6c757d` |
 
-Aparecen al final del dropdown en la mayoría de las categorías, para que siempre se pueda marcar el seguimiento operativo independiente de la condición específica del elemento.
+**Regla:** el set de estados que aparece en el `<select>` depende de `naturaleza`:
+- `naturaleza='relevamiento'` → `DVBA_ESTADOS.getEstadosRelev(cat)`
+- `naturaleza='tarea'`        → `DVBA_ESTADOS.getEstadosTarea()`
+- Orquestador: `DVBA_ESTADOS.getEstadosPorNaturaleza(cat, naturaleza)`
 
 ---
 
-## 4. Sub-atributos condicionales
-
-Aparecen en la UI **solo cuando la categoría del tipo elegido los soporta**.
+## 5. Sub-atributos condicionales
 
 ### Tipo de superficie
 
-Aplica en: `calzada`, `mantenimiento`
+Aplica cuando el elemento tiene superficie física visible: **calzada** (siempre) y en **tareas** sobre calzada/entorno.
 
-Definido en `DVBA_ESTADOS.SUPERFICIES`:
-
-| key | label |
-|---|---|
-| `asfalto` | Asfalto (pav. flexible) |
-| `hormigon` | Hormigón (pav. rígido) |
-| `tierra` | Tierra |
-| `estabilizado` | Estabilizado |
-| `dolomita` | Mejorado con dolomita |
-| `suelo_cal` | Mejorado con suelo cal |
+Opciones (`DVBA_ESTADOS.SUPERFICIES`): asfalto · hormigón · tierra · estabilizado · mejorado con dolomita · mejorado con suelo cal.
 
 ### Modalidad de tarea
 
-Aplica en: `mantenimiento`
+Aplica **solo cuando naturaleza = 'tarea'**. Un elemento no tiene modalidad; una tarea sí (se ejecuta manual, mecánica o mixta).
 
-Definido en `DVBA_ESTADOS.MODALIDADES`:
+Opciones (`DVBA_ESTADOS.MODALIDADES`): manual · mecánico · mixto.
 
-| key | label |
+### Sub-atributos implícitos
+
+Si el nombre del ítem ya incluye la modalidad o superficie, el selector se oculta y el valor se setea automáticamente:
+
+| Patrón detectado | Sub-atributo → valor implícito |
 |---|---|
-| `manual` | Manual |
-| `mecanico` | Mecánico |
-| `mixto` | Mixto |
+| `manual` | modalidad → `manual` |
+| `mecánica?` | modalidad → `mecanico` |
+| `mixt[oa]` | modalidad → `mixto` |
+| `motoniveladora` | modalidad → `mecanico` |
+| `dolomita` | superficie → `dolomita` |
+| `suelo cal` | superficie → `suelo_cal` |
+| `tierra` + `reconformado` | superficie → `tierra` |
+| `camino tierra` | superficie → `tierra` |
+| `camino rural` / `caminos rurales` | superficie → `tierra` |
+| `hormigón` | superficie → `hormigon` |
+| `asfáltico` o `riego asf` | superficie → `asfalto` |
 
-### Sub-atributos implícitos (v9.18a · 2026-06-24)
+**Ejemplos:**
 
-Algunos tipos ya incluyen la modalidad o el tipo de superficie en el propio nombre. Ej: "Desmalezado mecánico" ya dice "mecánico"; mostrar además un selector de Modalidad con Manual/Mecánico/Mixto sería redundante y permitiría contradicciones.
+| Ítem elegido | Naturaleza | Modalidad selector | Modalidad implícita | Superficie selector | Superficie implícita |
+|---|---|---|---|---|---|
+| Bache crítico | relevamiento | oculto | (no aplica) | visible | usuario elige |
+| Bacheo con material en frío | tarea | visible | usuario elige | visible | usuario elige |
+| Bacheo asfáltico | tarea | visible | usuario elige | oculto | `asfalto` |
+| Desmalezado manual | tarea | oculto | `manual` | oculto | (no aplica) |
+| Desmalezado mecánico | tarea | oculto | `mecanico` | oculto | (no aplica) |
+| Mantenimiento de caminos rurales | tarea | visible | usuario elige | oculto | `tierra` |
+| Reconformado de tierra | tarea | visible | usuario elige | oculto | `tierra` |
+| Mejoramiento con dolomita | tarea | visible | usuario elige | oculto | `dolomita` |
+| Cebras (cabezal alcantarilla / puente) | relevamiento | oculto | (no aplica) | oculto | (no aplica) |
+| Colocación de cebras | tarea | visible | usuario elige | oculto | (no aplica) |
 
-Para estos casos hay dos funciones nuevas en `dvba_estados.js` que detectan la modalidad o superficie a partir del nombre del tipo:
+---
 
-```js
-DVBA_ESTADOS.modalidadImplicita('Desmalezado mecánico')     // → 'mecanico'
-DVBA_ESTADOS.superficieImplicita('Mejoramiento con dolomita')// → 'dolomita'
-```
+## 6. Codificación visual en el mapa (Opción C)
 
-**Patrones matcheados:**
+Roadmap de rediseño de pins en el mapa para reflejar el modelo v2. Tres dimensiones visuales ortogonales:
 
-| Función | Patrones (regex `\b...\b`) | Devuelve |
+**Forma** — codifica el **elemento**:
+
+| Categoría | Forma |
+|---|---|
+| calzada | círculo |
+| drenaje | rombo |
+| estructura | cuadrado |
+| senial_vertical | triángulo |
+| demarcacion | pentágono |
+| iluminacion | cruz |
+| entorno | hexágono |
+| seguridad | estrella |
+| otro | círculo pequeño |
+
+**Color** — codifica la **severidad del estado**:
+
+- 🟢 verde: bueno / ok / visible / funciona / resuelto / finalizado
+- 🟡 amarillo: regular / danada / borrada / parcial / monitoreo / suspendido
+- 🟠 naranja: malo / ilegible / en_ejecucion
+- 🔴 rojo: crítico / falta / inexistente / no_funciona / inspeccion_urg / activo
+- ⚪ gris: pendiente / cancelado / mal_ubic / sin_esp
+- 🔵 azul: en_obra / en_reparacion / reparado
+- 🟣 violeta: programado
+
+**Borde** — codifica la **naturaleza**:
+
+- **Línea sólida** = relevamiento
+- **Línea doble o punteada** = tarea
+
+Ejemplo: pin cuadrado 🔴 con borde punteado = "Estructura · Reparación programada de puente (aún no ejecutada) · condición crítica reportada" (tarea + severidad + forma).
+
+**Estado:** roadmap — implementación en Fase C (sesión próxima).
+
+---
+
+## 7. Migración BD — columna `naturaleza`
+
+Script: **`docs/SQL_15_naturaleza_registros.sql`**
+
+Agrega columna `naturaleza TEXT NOT NULL DEFAULT 'relevamiento'` a la tabla `relevamientos`, más constraint CHECK e índice para filtros.
+
+**Comportamiento con registros existentes:**
+- Todos los registros previos a la migración quedan como `naturaleza = 'relevamiento'` (aplicación retroactiva del DEFAULT).
+- Los registros que estaban con categoría `mantenimiento` en el modelo v1 **NO se remapean automáticamente a `naturaleza = 'tarea'`** — quedan como `relevamiento` salvo que el usuario los reclasifique manualmente al editarlos.
+- Los INSERT nuevos desde el frontend v2 escriben `naturaleza` explícita.
+
+Cero migración destructiva. Cero downtime.
+
+---
+
+## 8. Flujo en la app móvil (`dvba_campo.html`) · v2
+
+1. Usuario elige **naturaleza** (relevamiento / tarea) — primer paso del wizard, obligatorio.
+2. Usuario elige **categoría** (grilla de 8 iconos).
+3. Usuario elige **ítem** dentro de la categoría, filtrado por naturaleza:
+   `DVBA_TIPOS.itemsPorNaturaleza(cat, naturaleza)`.
+4. Se dispara `tipoSeleccionar(valor)` → `onTipoChange(valor)`.
+5. `onTipoChange`:
+   - Setea la categoría con `DVBA_TIPOS.categoriaDeV2(valor)`.
+   - Repuebla `<select id="f-estado">` con `DVBA_ESTADOS.getEstadosPorNaturaleza(cat, naturaleza)`.
+   - Muestra `f-superficie-wrap` si `DVBA_ESTADOS.aplicaSuperficieV2(cat, naturaleza)`.
+   - Muestra `f-modalidad-wrap` si `DVBA_ESTADOS.aplicaModalidadV2(cat, naturaleza)`.
+6. Usuario completa estado + (opcional) superficie + (opcional) modalidad + observaciones + foto.
+7. `guardarRegistro()` incluye `naturaleza` en el `INSERT`.
+
+## 9. Flujo en la app de escritorio (`index.html`) · v2
+
+1. Tabs superiores del form: **Relevamiento** | **Tarea de mantenimiento**.
+2. Al elegir tab → `_naturalezaActual = 'relevamiento' | 'tarea'`.
+3. Selector de tipo (cards con buscador) muestra `DVBA_TIPOS.todosPorNaturaleza(_naturalezaActual)`.
+4. Al elegir tipo → `onTipoChange()` con misma lógica que móvil.
+5. `guardar()` incluye `naturaleza: _naturalezaActual` en el `registro`.
+
+---
+
+## 10. Archivos involucrados
+
+| Archivo | Rol | v2 |
 |---|---|---|
-| `modalidadImplicita` | `manual` | `'manual'` |
-| | `mecánica?` | `'mecanico'` |
-| | `mixt[oa]` | `'mixto'` |
-| `superficieImplicita` | `dolomita` | `'dolomita'` |
-| | `suelo cal` | `'suelo_cal'` |
-| | `camino tierra` + `reconformado` | `'tierra'` |
-| | `hormigón` | `'hormigon'` |
-| | `asfáltic[oa]` o `riego asf` | `'asfalto'` |
-
-**Comportamiento en la UI (`onTipoChange`):**
-
-- Si la categoría aplica el sub-atributo Y el nombre del tipo lo tiene implícito → **oculta** el selector pero **setea** el valor en el `<select>` para que la metadata serializada lo capture igual.
-- Si la categoría aplica el sub-atributo pero NO está implícito → muestra el selector para que el usuario elija.
-- Si la categoría no aplica el sub-atributo → selector oculto (comportamiento previo).
-
-**Ejemplos concretos:**
-
-| Tipo elegido | Modalidad selector | Modalidad guardada | Superficie selector | Superficie guardada |
-|---|---|---|---|---|
-| Bacheo en frío | oculto | (vacío) | visible | usuario elige |
-| Bacheo asfáltico | oculto | (vacío) | oculto | `asfalto` |
-| Desmalezado manual | oculto | `manual` | oculto | (no aplica) |
-| Desmalezado mecánico | oculto | `mecanico` | oculto | (no aplica) |
-| Reconformado camino tierra | oculto | (no aplica) | oculto | `tierra` |
-| Mejoramiento con dolomita | oculto | (no aplica) | oculto | `dolomita` |
-| Repavimentación | oculto | (no aplica) | visible | usuario elige |
-| Mantenimiento de caminos rurales | visible | usuario elige | visible | usuario elige (tierra/estabilizado/dolomita/suelo cal) |
-
-**Cómo extender:** agregar el patrón regex a la función correspondiente en `dvba_estados.js` (sin tocar HTML ni JS de las apps).
+| `dvba_tipos.js` | Árbol de categorías + ítems | ARBOL_V2 con items_relev/items_tarea |
+| `datos/dvba_estados.js` | Estados por categoría + sub-atributos | POR_CAT_RELEV + ESTADOS_TAREA + helpers V2 |
+| `dvba_campo.html` | App móvil | Wizard con paso naturaleza (Fase B) |
+| `index.html` | Portal escritorio | Tabs de naturaleza + colores mapa Opción C (Fase C) |
+| `admin_usuarios.html`, `reportes.html`, `partes_diarios.html` | Portales | Filtros y visualización por naturaleza (Fase C) |
+| `sw.js` | Service Worker | Cachea dvba_estados.js + dvba_tipos.js actualizados |
+| `docs/SQL_15_naturaleza_registros.sql` | Migración BD | Columna `naturaleza` + constraint + índice |
 
 ---
 
-## 5. Decisión de NO migrar la BD (Opción B)
-
-Los registros antiguos en Supabase (que tienen `estado` = "Bueno", "Crítico", "Regular", "En obra", etc. — strings del modelo viejo) **se mantienen tal cual**. No se ejecuta script de migración.
-
-**Comportamiento:**
-- Al **listar** registros viejos en escritorio o móvil: se muestran tal como están (string libre).
-- Al **editar** un registro viejo: el dropdown se inicializa **vacío** porque el string viejo no matchea con las nuevas `key`. El usuario elige nuevo estado del modelo actual y al guardar se sobrescribe.
-- Al **insertar nuevos** registros: se usan las `key` del nuevo modelo (`bueno`, `regular`, `critico`, etc.).
-
-Ventaja: cero riesgo de corrupción de datos. Cero downtime. Cero complejidad de scripts SQL.
-
----
-
-## 6. Serialización de sub-atributos en `observaciones`
-
-Como Supabase tiene una sola columna `observaciones` y no quisimos agregar columnas nuevas, **`superficie` y `modalidad` se serializan al final del campo observaciones** con este formato:
-
-```
-<observaciones del usuario>
-
-[superficie:asfalto · modalidad:mecanico]
-```
-
-El parseo en reportes futuros puede hacerse con un regex simple:
-
-```js
-const match = obs.match(/\[(?:superficie:(\w+))?\s*·?\s*(?:modalidad:(\w+))?\]\s*$/);
-const superficie = match?.[1] || null;
-const modalidad  = match?.[2] || null;
-```
-
-Esto se puede revisar para una migración futura a columnas dedicadas si crece el uso.
-
----
-
-## 7. Flujo en la app móvil (`dvba_campo.html`)
-
-1. Usuario elige **categoría** en wizard (grilla de iconos)
-2. Usuario elige **ítem** dentro de la categoría
-3. Se dispara `tipoSeleccionar(valor)` → `onTipoChange(valor)`
-4. `onTipoChange`:
-   - Infiere categoría con `DVBA_TIPOS.categoriaDe(valor)`
-   - Repuebla `<select id="f-estado">` con `DVBA_ESTADOS.getEstados(cat)`
-   - Muestra `f-superficie-wrap` si `DVBA_ESTADOS.aplicaSuperficie(cat)`
-   - Muestra `f-modalidad-wrap` si `DVBA_ESTADOS.aplicaModalidad(cat)`
-5. Usuario completa estado + (opcional) superficie + (opcional) modalidad + observaciones + foto
-6. `guardarRegistro()` concatena `superficie/modalidad` al final de `observaciones`
-
-## 8. Flujo en la app de escritorio (`index.html`)
-
-1. Usuario elige tipo desde `z6-tipo-display` (cards con buscador)
-2. Se dispara `z6TipoSeleccionar(valor)` → `onTipoChange(valor)` (versión de index.html)
-3. Misma lógica: select de estado se repuebla, `fsuperficie` y `fmodalidad` se muestran/ocultan
-4. `guardar()` concatena los metadatos en `observaciones` antes de mandar a Supabase
-
----
-
-## 9. Archivos involucrados
-
-| Archivo | Rol |
-|---|---|
-| `dvba_tipos.js` | Árbol de 10 categorías + ítems + helper `categoriaDe()` |
-| `datos/dvba_estados.js` | Modelo de estados por categoría + superficies + modalidades + flags `aplicaSuperficie/aplicaModalidad` |
-| `dvba_campo.html` | Implementa onTipoChange + HTML del wizard con campos condicionales |
-| `index.html` | Implementa onTipoChange + sidebar con campos condicionales |
-| `sw.js` | Cachea `dvba_estados.js` en CACHE_URLS |
-
----
-
-## 10. Extensibilidad
+## 11. Extensibilidad
 
 ### Para agregar un nuevo ítem a una categoría existente
-Editar `dvba_tipos.js` → `ARBOL.<cat>.items` y agregar el string. Listo, aparece en ambas apps automáticamente.
+Editar `dvba_tipos.js` → `ARBOL_V2.<cat>.items_relev` o `items_tarea` según corresponda. Aparece automáticamente en ambas apps.
 
 ### Para agregar un nuevo estado a una categoría existente
-Editar `dvba_estados.js` → `POR_CAT.<cat>` y agregar `{ key, label, color }`. Aparece en el dropdown automáticamente.
+- Si es de condición (relevamiento): editar `POR_CAT_RELEV.<cat>` en `dvba_estados.js`.
+- Si es de ejecución (tarea): editar `ESTADOS_TAREA` en `dvba_estados.js`.
 
-### Para agregar una nueva categoría
-1. `dvba_tipos.js` → agregar entrada a `ARBOL` con `{ icon, label, items }`
-2. `dvba_estados.js` → agregar entrada a `POR_CAT` con sus estados específicos
-3. Si necesita sub-atributos nuevos: agregar a `SUPERFICIES` / `MODALIDADES` y a los Sets `CAT_CON_SUPERFICIE` / `CAT_CON_MODALIDAD`
-4. Bump versión
-
-### Para agregar un nuevo sub-atributo (ej. "Equipo usado")
-1. `dvba_estados.js`: definir el array de opciones, función `getEquipos()`, función `aplicaEquipo(cat)` y Set `CAT_CON_EQUIPO`
-2. Agregar `<select id="f-equipo">` (móvil) y `<select id="fequipo">` (escritorio) con `style="display:none"`
-3. Extender `onTipoChange` con la lógica de mostrar/ocultar
-4. Extender el handler de guardado para serializar `equipo:` en observaciones
+### Para agregar una nueva categoría de elemento
+1. `dvba_tipos.js` → agregar entrada a `ARBOL_V2` con `{ icon, label, items_relev, items_tarea }`.
+2. `dvba_estados.js` → agregar entrada a `POR_CAT_RELEV` con sus estados de condición específicos.
+3. Si necesita superficie/modalidad: extender `aplicaSuperficieV2` y `aplicaModalidadV2`.
+4. Bump versión y CACHE_NAME en sw.js.
 
 ---
 
-## 11. Roadmap futuro
+## 12. Cambios v1.3 (2026-08-14) — **rediseño Modelo Tipos v2**
 
-- [ ] Migrar `superficie` y `modalidad` de observaciones serializadas a **columnas dedicadas en Supabase** cuando se quieran cruzar en reportes.
-- [ ] Filtros en lista de registros por **categoría** + **estado** (no solo por ruta).
-- [ ] Dashboard agregado: "% Bueno vs Malo vs Crítico" por ruta y por categoría.
-- [ ] Integración con la app de **caminos secundarios** para que use el mismo modelo Tipo↔Estado.
-- [ ] Mapeo de estados viejos del modelo legacy (`Bueno`→`bueno`, `Crítico`→`critico`, etc.) al editar registros antiguos.
+- **Nueva dimensión NATURALEZA** (`relevamiento` | `tarea`) ortogonal a la categoría.
+- **Categoría plana `mantenimiento` eliminada** del árbol conceptual — cada elemento tiene ahora dos listas de ítems.
+- **Nueva estructura `ARBOL_V2`** en `dvba_tipos.js` con `items_relev` + `items_tarea` por categoría.
+- **Nuevos helpers en `dvba_tipos.js`:** `categoriasV2`, `itemsPorNaturaleza(cat, nat)`, `todosPorNaturaleza(nat)`, `categoriaDeV2(tipoStr)`, `naturalezaDelItem(tipoStr)`.
+- **Nueva API en `dvba_estados.js`:** `POR_CAT_RELEV` (estados de condición limpios), `ESTADOS_TAREA` (estados de ejecución), `getEstadosPorNaturaleza(cat, nat)`, `getEstadosRelev(cat)`, `getEstadosTarea()`, `aplicaSuperficieV2(cat, nat)`, `aplicaModalidadV2(cat, nat)`.
+- **Migración BD** — nueva columna `naturaleza` en `relevamientos` (`SQL_15`).
+- **Retrocompatibilidad total** — API v1/v2 legacy sigue funcionando; los HTMLs viejos no se rompen. La migración de UIs se hace por fases (móvil, escritorio, reportes) sin big bang.
+- **Nuevos patrones de detección implícita:** `motoniveladora` → mecánico; `caminos rurales` → superficie tierra.
+- **Roadmap de colores en el mapa (Opción C)** documentado: forma×color×borde para representar elemento×estado×naturaleza.
+
+### Cambios v1.2 (2026-08-14) — previos a v2
+
+- Nuevo ítem `senial_vertical` · "Cebras (cabezal alcantarilla / puente)".
+- Nuevo ítem `mantenimiento` · "Mantenimiento de caminos rurales" (en v2 pasa a `calzada.items_tarea`).
 
 ---
 
-**Última actualización:** 2026-08-14 · Ing. Luciano Lamaita · versión app referencia: v9.95.5 / v8.73
-
-### Cambios v1.2 (2026-08-14)
-
-- **Nuevo ítem `senial_vertical` · "Cebras (cabezal alcantarilla / puente)"** — balizamiento pintado sobre cabezales de alcantarillas y accesos a puentes. Se relevan con estados de señalización vertical (`ok`/`danada`/`ilegible`/`falta`).
-- **Nuevo ítem `mantenimiento` · "Mantenimiento de caminos rurales"** — tarea genérica para pasada de motoniveladora / conservación rutinaria sobre red rural. Deja modalidad y superficie abiertas para que el operador registre el caso puntual (mecánico / mixto · tierra / estabilizado / dolomita / suelo cal).
+**Última actualización:** 2026-08-14 · Ing. Luciano Lamaita · versión app referencia: v9.95.7 / v8.75
