@@ -108,6 +108,16 @@ textarea{resize:none;min-height:80px}
 .pinfo{flex:1}.ptit{font-size:13px;font-weight:700}.psub{font-size:10px;color:var(--mut);margin-top:2px;line-height:1.4}
 .btn-m{flex:1;padding:13px;border-radius:var(--r);font-size:13px;font-weight:800;border:none;cursor:pointer;font-family:'Encode Sans',sans-serif}
 .btn-ms{background:var(--vd);color:#fff}.btn-mc{background:var(--bg);color:var(--mut);border:1.5px solid var(--light)!important}
+/* ── Modelo Tipos v2 · Paso 0 · Selector de naturaleza ── */
+.nat-wrap{display:flex;flex-direction:column;gap:10px;margin-bottom:4px}
+.nat-btn{display:flex;align-items:center;gap:12px;padding:16px 14px;background:#f4f7fa;border:2px solid var(--light);border-radius:10px;font-family:'Encode Sans',sans-serif;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
+.nat-btn:active,.nat-btn.sel{border-color:var(--p);background:#e6f7f9}
+.nat-btn-ico{font-size:28px;flex-shrink:0}
+.nat-btn-txt{display:flex;flex-direction:column;gap:2px}
+.nat-btn-lbl{font-size:15px;font-weight:800;color:var(--txt)}
+.nat-btn-sub{font-size:11px;color:var(--mut);line-height:1.3}
+.nat-elegida{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#e6f7f9;border:1.5px solid var(--p);border-radius:8px;font-size:13px;font-weight:700;color:var(--txt);margin-bottom:8px}
+.nat-elegida button{background:none;border:none;color:var(--p);font-size:12px;font-weight:700;cursor:pointer;padding:2px 4px;font-family:'Encode Sans',sans-serif}
 /* ── Selector jerárquico de tipo ── */
 .tipo-cats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tipo-cat-btn{display:flex;align-items:center;gap:8px;padding:10px 11px;background:#f4f7fa;border:1.5px solid var(--light);border-radius:8px;font-size:13px;font-weight:600;color:var(--txt);cursor:pointer;text-align:left;font-family:'Encode Sans',sans-serif;transition:border-color .15s,background .15s}
@@ -574,9 +584,31 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
     <div class="card-body">
       <div class="field">
         <div class="flbl">Tipo</div>
-        <!-- Selector jerárquico 2 pasos -->
+        <!-- Selector jerárquico 3 pasos: naturaleza → categoría → ítem (v2) -->
         <div id="tipo-selector">
-          <div id="tipo-cats" class="tipo-cats"></div>
+          <!-- Paso 0 · Naturaleza (Modelo Tipos v2) -->
+          <div id="nat-picker" class="nat-wrap">
+            <button type="button" class="nat-btn" onclick="naturalezaElegir('relevamiento')">
+              <span class="nat-btn-ico">🔍</span>
+              <span class="nat-btn-txt">
+                <span class="nat-btn-lbl">Relevamiento</span>
+                <span class="nat-btn-sub">Registro un elemento observado (bache, señal faltante, cuneta obstruida…)</span>
+              </span>
+            </button>
+            <button type="button" class="nat-btn" onclick="naturalezaElegir('tarea')">
+              <span class="nat-btn-ico">🚜</span>
+              <span class="nat-btn-txt">
+                <span class="nat-btn-lbl">Tarea de mantenimiento</span>
+                <span class="nat-btn-sub">Registro una acción ejecutada o programada (bacheo, colocación de cebras, desmalezado…)</span>
+              </span>
+            </button>
+          </div>
+          <!-- Chip informativa arriba de la grilla, con botón para volver a elegir naturaleza -->
+          <div id="nat-elegida" class="nat-elegida" style="display:none">
+            <span id="nat-elegida-txt"></span>
+            <button type="button" onclick="naturalezaVolver()">← Cambiar</button>
+          </div>
+          <div id="tipo-cats" class="tipo-cats" style="display:none"></div>
           <div id="tipo-items-wrap" style="display:none">
             <div id="tipo-cat-label" class="tipo-cat-label"></div>
             <div id="tipo-items" class="tipo-items"></div>
@@ -587,8 +619,9 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
             <button type="button" onclick="tipoVolverItems()">✎</button>
           </div>
         </div>
-        <!-- Campo oculto para mantener compatibilidad con el resto del código -->
+        <!-- Campos ocultos: f-tipo y f-naturaleza (v2) -->
         <input type="hidden" id="f-tipo" value="">
+        <input type="hidden" id="f-naturaleza" value="">
       </div>
       <!-- Tipo de superficie — visible solo si categoría = Calzada o Mantenimiento (v9.18) -->
       <div class="field" id="f-superficie-wrap" style="display:none">
@@ -1726,6 +1759,9 @@ async function guardarRegistro(){
   } else if (tipoVia === 'camino') {
     validadoGeo = 'pendiente';  // caminos requieren validación manual en oficina (futuro: armonizar contra red secundaria)
   }
+  // v3 (Modelo Tipos v2) · Naturaleza (relevamiento | tarea) — fallback a 'relevamiento'
+  // si el user no eligió (registros legacy sin el nuevo wizard).
+  const naturaleza = document.getElementById('f-naturaleza')?.value || 'relevamiento';
   const reg={
     ruta, partido:partido||null, progresiva:prog||'', tipo,
     estado:estado||null, observaciones:obsCompletas||null,
@@ -1735,6 +1771,7 @@ async function guardarRegistro(){
     sello_version:   null,
     prioridad:       'normal',
     tipo_via:        tipoVia,     // ← v9.20 RP o camino secundario
+    naturaleza:      naturaleza,  // ← v3 Modelo Tipos v2 (SQL_15)
     zona:            (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.zonaActual() : 'VI'   // v9.69 Fase 2
   };
   if(navigator.onLine) showOv('Verificando conexión…');
@@ -1961,11 +1998,53 @@ function onSWMsg(e){
    SELECTOR JERÁRQUICO DE TIPO
    Requiere dvba_tipos.js cargado antes de este script
    ══════════════════════════════════════════════════ */
+/* ── Modelo Tipos v2 · Paso 0: naturaleza (Relevamiento / Tarea) ── */
+function naturalezaElegir(nat){
+  const valNat = (nat === 'tarea') ? 'tarea' : 'relevamiento';
+  document.getElementById('f-naturaleza').value = valNat;
+  const label = (valNat === 'tarea') ? '🚜 Tarea de mantenimiento' : '🔍 Relevamiento';
+  const chip = document.getElementById('nat-elegida');
+  const chipTxt = document.getElementById('nat-elegida-txt');
+  if (chipTxt) chipTxt.textContent = label;
+  if (chip) chip.style.display = 'flex';
+  // Ocultar paso 0, mostrar grilla de categorías filtradas por naturaleza
+  const picker = document.getElementById('nat-picker');
+  if (picker) picker.style.display = 'none';
+  // Renderiza categorías (v2) filtradas + resetea el resto del wizard
+  tipoInit();
+  document.getElementById('tipo-cats').style.display = 'grid';
+  document.getElementById('tipo-items-wrap').style.display = 'none';
+  document.getElementById('tipo-elegido').style.display = 'none';
+  document.getElementById('f-tipo').value = '';
+}
+function naturalezaVolver(){
+  // Volver al paso 0: limpiar naturaleza + tipo + estado + sub-atributos, mostrar picker
+  document.getElementById('f-naturaleza').value = '';
+  document.getElementById('f-tipo').value = '';
+  const chip = document.getElementById('nat-elegida');
+  if (chip) chip.style.display = 'none';
+  const picker = document.getElementById('nat-picker');
+  if (picker) picker.style.display = '';
+  document.getElementById('tipo-cats').style.display = 'none';
+  document.getElementById('tipo-items-wrap').style.display = 'none';
+  document.getElementById('tipo-elegido').style.display = 'none';
+  // Reset selects dependientes
+  const selE = document.getElementById('f-estado');    if (selE) selE.value = '';
+  const wSup = document.getElementById('f-superficie-wrap'); if (wSup) wSup.style.display = 'none';
+  const wMod = document.getElementById('f-modalidad-wrap');  if (wMod) wMod.style.display = 'none';
+}
 function tipoInit(){
   const cDiv=document.getElementById('tipo-cats');
   if(!cDiv||typeof DVBA_TIPOS==='undefined') return;
   cDiv.innerHTML='';
-  DVBA_TIPOS.categorias.forEach(c=>{
+  // v3 (Modelo Tipos v2): categoriasV2 + filtrado por naturaleza — solo mostrar
+  // categorías que tienen ítems para la naturaleza seleccionada.
+  const nat = document.getElementById('f-naturaleza')?.value || 'relevamiento';
+  const cats = (DVBA_TIPOS.categoriasV2 || DVBA_TIPOS.categorias).filter(c => {
+    if (!c.tieneRelev && !c.tieneTarea) return true;  // v2 legacy fallback
+    return nat === 'tarea' ? c.tieneTarea : c.tieneRelev;
+  });
+  cats.forEach(c=>{
     const b=document.createElement('button');
     b.type='button'; b.className='tipo-cat-btn';
     b.innerHTML=`<span class="tipo-cat-ico">${c.icon}</span><span class="tipo-cat-lbl">${c.label}</span>`;
@@ -1974,19 +2053,22 @@ function tipoInit(){
   });
 }
 function tipoMostrarItems(catKey){
-  const cat=DVBA_TIPOS.ARBOL[catKey];
-  // v9.19f — Si la categoría tiene un solo ítem (caso "Otro"), auto-seleccionarlo
-  // (evita el caso confuso donde el operador toca la categoría y cree que ya
-  // está seleccionado el tipo, sin tocar el único botón de la lista)
-  if (cat.items.length === 1) {
-    tipoSeleccionar(cat.items[0]);
+  // v3 (Modelo Tipos v2): items filtrados por naturaleza actual
+  const nat = document.getElementById('f-naturaleza')?.value || 'relevamiento';
+  const items = (typeof DVBA_TIPOS.itemsPorNaturaleza === 'function')
+    ? DVBA_TIPOS.itemsPorNaturaleza(catKey, nat)
+    : (DVBA_TIPOS.ARBOL[catKey]?.items || []);
+  const cat = (DVBA_TIPOS.ARBOL_V2 && DVBA_TIPOS.ARBOL_V2[catKey]) || DVBA_TIPOS.ARBOL[catKey] || { icon:'', label:catKey };
+  // v9.19f — Si hay un solo ítem, auto-seleccionarlo (caso "Otro" o categorías chicas de tarea)
+  if (items.length === 1) {
+    tipoSeleccionar(items[0]);
     return;
   }
   document.getElementById('tipo-cats').parentElement.querySelectorAll('.tipo-cat-btn').forEach(b=>b.classList.remove('sel'));
-  document.getElementById('tipo-cat-label').textContent=cat.icon+' '+cat.label;
+  document.getElementById('tipo-cat-label').textContent=(cat.icon||'')+' '+(cat.label||catKey);
   const iDiv=document.getElementById('tipo-items');
   iDiv.innerHTML='';
-  cat.items.forEach(it=>{
+  items.forEach(it=>{
     const b=document.createElement('button');
     b.type='button'; b.className='tipo-item-btn';
     b.textContent=it;
@@ -2007,28 +2089,39 @@ function tipoSeleccionar(valor){
   onTipoChange(valor);
 }
 
-/* ── v9.18 — Hook al cambio de tipo: repuebla estado, superficie y modalidad ── */
+/* ── v3 (Modelo Tipos v2) — Hook al cambio de tipo: repuebla estado, superficie y modalidad
+ * según naturaleza × categoría. Fallback a API v1 si los helpers V2 no están disponibles.
+ */
 function onTipoChange(tipoStr){
   if (typeof DVBA_TIPOS === 'undefined' || typeof DVBA_ESTADOS === 'undefined') return;
-  const cat = DVBA_TIPOS.categoriaDe(tipoStr) || 'otro';
-  // 1) Repuebla el <select id="f-estado"> con los estados de la categoría
+  const nat = document.getElementById('f-naturaleza')?.value || 'relevamiento';
+  const cat = (typeof DVBA_TIPOS.categoriaDeV2 === 'function'
+                ? DVBA_TIPOS.categoriaDeV2(tipoStr)
+                : DVBA_TIPOS.categoriaDe(tipoStr)) || 'otro';
+  // 1) Repuebla el <select id="f-estado"> con estados según naturaleza + categoría
   const selE = document.getElementById('f-estado');
   if (selE){
     const valActual = selE.value;
     selE.innerHTML = '<option value="">— Estado —</option>';
-    DVBA_ESTADOS.getEstados(cat).forEach(e => {
+    const estados = (typeof DVBA_ESTADOS.getEstadosPorNaturaleza === 'function')
+      ? DVBA_ESTADOS.getEstadosPorNaturaleza(cat, nat)
+      : DVBA_ESTADOS.getEstados(cat);
+    estados.forEach(e => {
       const o = document.createElement('option');
       o.value = e.key; o.textContent = e.label;
       selE.appendChild(o);
     });
     if (valActual && Array.from(selE.options).some(o => o.value === valActual)) selE.value = valActual;
   }
-  // 2) Muestra/oculta Tipo de superficie según categoría — y oculta si está implícita en el nombre del tipo
+  // 2) Muestra/oculta Tipo de superficie según reglas V2 (cat + naturaleza) — oculta si implícita
   const wSup = document.getElementById('f-superficie-wrap');
   const selS = document.getElementById('f-superficie');
   const supImpl = DVBA_ESTADOS.superficieImplicita(tipoStr);
+  const aplicaSup = (typeof DVBA_ESTADOS.aplicaSuperficieV2 === 'function')
+    ? DVBA_ESTADOS.aplicaSuperficieV2(cat, nat)
+    : DVBA_ESTADOS.aplicaSuperficie(cat);
   if (wSup && selS){
-    if (DVBA_ESTADOS.aplicaSuperficie(cat) && !supImpl){
+    if (aplicaSup && !supImpl){
       wSup.style.display = '';
       if (selS.options.length <= 1){
         DVBA_ESTADOS.getSuperficies().forEach(s => {
@@ -2042,12 +2135,15 @@ function onTipoChange(tipoStr){
       selS.value = supImpl || '';  // si está implícita, la guardamos igual
     }
   }
-  // 3) Muestra/oculta Modalidad según categoría — y oculta si está implícita en el nombre del tipo
+  // 3) Muestra/oculta Modalidad — solo aplica en naturaleza='tarea' (V2)
   const wMod = document.getElementById('f-modalidad-wrap');
   const selM = document.getElementById('f-modalidad');
   const modImpl = DVBA_ESTADOS.modalidadImplicita(tipoStr);
+  const aplicaMod = (typeof DVBA_ESTADOS.aplicaModalidadV2 === 'function')
+    ? DVBA_ESTADOS.aplicaModalidadV2(cat, nat)
+    : DVBA_ESTADOS.aplicaModalidad(cat);
   if (wMod && selM){
-    if (DVBA_ESTADOS.aplicaModalidad(cat) && !modImpl){
+    if (aplicaMod && !modImpl){
       wMod.style.display = '';
       if (selM.options.length <= 1){
         DVBA_ESTADOS.getModalidades().forEach(m => {
@@ -2073,7 +2169,13 @@ function tipoVolverItems(){
 }
 function tipoReset(){
   document.getElementById('f-tipo').value='';
-  document.getElementById('tipo-cats').style.display='grid';
+  // v3 (Modelo Tipos v2): reset completo — volver al paso 0 (naturaleza)
+  document.getElementById('f-naturaleza').value='';
+  const chip = document.getElementById('nat-elegida');
+  if (chip) chip.style.display='none';
+  const picker = document.getElementById('nat-picker');
+  if (picker) picker.style.display='';
+  document.getElementById('tipo-cats').style.display='none';
   document.getElementById('tipo-items-wrap').style.display='none';
   document.getElementById('tipo-elegido').style.display='none';
 }
@@ -2105,7 +2207,7 @@ function hacerThumb(b64){
   // (v9.95.4 tenía "var APP_VER = window.APP_VER" que causaba SyntaxError por doble
   // declaración con otro script, abortando la asignación y dejando el modal Acerca
   // de mostrando versión vieja cacheada).
-  window.APP_VER = 'v9.95.7';
+  window.APP_VER = 'v9.95.8';
   console.log('[dvba_campo] window.APP_VER inicializado a', window.APP_VER);
 </script>
 <!-- v9.95.4 · Cache-busters en los .js críticos para forzar reload aunque el SW cachee -->
