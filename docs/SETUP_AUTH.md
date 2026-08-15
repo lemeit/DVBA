@@ -28,7 +28,7 @@ deja de poder escribir hasta que esté el código en producción.
 3. Menú izquierdo: **Authentication → Users**
 4. Botón **Add user → Create new user**
 5. Llenar:
-   - **Email:** ej. `tecnica.dvba.z6@gmail.com`
+   - **Email:** ej. `admin.zonavi@vialidad.gba.gov.ar`
    - **Password:** clave fuerte (anotala en un gestor)
    - **Auto Confirm User:** ✓ tildado (sin esto el usuario tiene que
      confirmar el email antes de poder loguearse)

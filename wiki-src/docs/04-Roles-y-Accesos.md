@@ -13,7 +13,7 @@ SIG Vial PBA maneja 4 niveles de usuario. La UI se adapta automáticamente al ro
 
 💡 Cómo pedir tu usuario
 
-Contactá al administrador del sistema (lulamaita@vialidad.gba.gov.ar
+Contactá al administrador del sistema (admin.zonavi@vialidad.gba.gov.ar
 
 ) con tu correo institucional. Te van a asignar rol y zona en la tabla usuarios_perfil
 

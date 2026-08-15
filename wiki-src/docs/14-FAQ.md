@@ -4,7 +4,7 @@
 
 ### ¿Cómo pido un usuario?
 
-Contactá al administrador del sistema ([lulamaita@vialidad.gba.gov.ar](mailto:lulamaita@vialidad.gba.gov.ar)). Te dará de alta en Supabase Auth y te asignará rol y zona.
+Contactá al administrador del sistema ([admin.zonavi@vialidad.gba.gov.ar](mailto:admin.zonavi@vialidad.gba.gov.ar)). Te dará de alta en Supabase Auth y te asignará rol y zona.
 
 ### Me olvidé la contraseña. ¿Cómo la recupero?
 
@@ -44,7 +44,7 @@ El módulo Reportes genera un PDF con charts + tabla, con la paleta oficial de 8
 
 Guía · SIG Vial PBA · v1.3 · 2 de agosto de 2026
 
-División Técnica DVBA · Departamento Zona VI Saladillo · Contacto: lulamaita@vialidad.gba.gov.ar lemeit.github.io/DVBA/
+División Técnica DVBA · Departamento Zona VI Saladillo · Contacto: admin.zonavi@vialidad.gba.gov.ar lemeit.github.io/DVBA/
 
 · github.com/lemeit/DVBA
 

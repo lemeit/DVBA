@@ -240,7 +240,7 @@ Stack técnico probable: **jsPDF + jsPDF-autotable** (client-side, ya usamos van
 3. ⏳ **Correr los dos SQLs en Supabase** (SQL Editor con service_role — bypasea RLS). Verificar con los `SELECT` de cada archivo.
 4. ⏳ **Bootstrap admin**: dentro de `SQL_7` hay un bloque comentado con el INSERT del primer perfil. Sacar el UID con:
    ```sql
-   SELECT id, email FROM auth.users WHERE email = 'tecnica.dvba.z6@gmail.com';
+   SELECT id, email FROM auth.users WHERE email = 'admin.zonavi@vialidad.gba.gov.ar';
    ```
    Descomentar y ejecutar el `INSERT INTO usuarios_perfil (user_id, nombre, rol, zona) VALUES ('<UID>', 'Luciano Lamaita', 'admin', 'VI');`
 5. ⏳ Verificación final: todos los partes tienen `zona='VI'`, tu perfil existe con `rol='admin'`.

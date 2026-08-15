@@ -964,7 +964,7 @@ Cierre de la infraestructura para escalar a las 12 zonas viales de la DVBA. Con 
 
 - Sección Permisos PWA explica claramente cámara, ubicación, storage, conexión — tranquilidad para el usuario móvil
 
-- Contactos: `lulamaita@vialidad.gba.gov.ar` (institucional) + `lucianolamaita@gmail.com` (personal)
+- Contacto institucional: `admin.zonavi@vialidad.gba.gov.ar`
 
 #### 🗺 Progresiva inversa para caminos (v8.47)
 

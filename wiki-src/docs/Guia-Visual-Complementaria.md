@@ -114,7 +114,7 @@ Desde escritorio, el personal responsable revisa, completa datos y aprueba. La f
 ## Navegador vs app instalada · WiFi/datos vs GPS
 
 <div class="grid2" markdown="0">
-  <div class="card" style="border-left:4px solid #f0a500" markdown="1">
+<div class="card" style="border-left:4px solid #f0a500" markdown="1">
 
 **🌐 Desde el navegador (sin instalar)**
 
@@ -126,8 +126,8 @@ Si abrís la URL directamente en Chrome sin instalar la app:
 
 **Uso recomendado**: prueba rápida, primera vez, o desde la computadora de oficina.
 
-  </div>
-  <div class="card" style="border-left:4px solid #28a745" markdown="1">
+</div>
+<div class="card" style="border-left:4px solid #28a745" markdown="1">
 
 **📱 Como app instalada (PWA)**
 
@@ -140,7 +140,7 @@ Una vez que instalaste la app y te logueaste al menos una vez con internet:
 
 **Uso recomendado**: campo, zonas rurales, cualquier situación operativa.
 
-  </div>
+</div>
 </div>
 
 <div class="box tip" markdown="0"><strong>💡 Regla práctica</strong> · Instalá la app la primera vez que tengas WiFi (en la oficina). Después usala en el campo sin importar si tenés señal — el GPS funciona en cualquier lado. Cuando volvés a la oficina o entrás en zona con señal, todo se sincroniza solo.</div>
@@ -183,7 +183,7 @@ Es la app **por default** al instalar. Está pensada para operarios que necesita
 3. Una vez logueado, la app te recuerda por tiempo indefinido. Podés cerrar y abrir sin volver a poner clave.
 
 !!! tip "💡 ¿No tenés usuario?"
-    Contactá al administrador del sistema: [lulamaita@vialidad.gba.gov.ar](mailto:lulamaita@vialidad.gba.gov.ar). Te van a dar de alta con tu correo institucional.
+    Contactá al administrador del sistema: [admin.zonavi@vialidad.gba.gov.ar](mailto:admin.zonavi@vialidad.gba.gov.ar). Te van a dar de alta con tu correo institucional.
 
 !!! info "📱 Multi-zona"
     La app es la misma para todas las zonas DVBA (I a XII). Una vez logueado, el header muestra tu **rol** y **zona** real (ej. `👷 Técnico · Zona IV`). El sistema aplica automáticamente las políticas de la zona asignada — solo ves y cargás datos de tu área.
@@ -336,7 +336,7 @@ Feedback visual
             <hr style="border:0;border-top:1px solid #e0e0e0;margin:8px 0">
             <b>Sesión</b><br>
             <span style="font-size:10px;color:#333"><b>👷 Técnico · Zona VI</b></span><br>
-            <span style="font-size:9px;color:#888">tecnica.dvba.z6@vialidad.gba.gov.ar</span><br>
+            <span style="font-size:9px;color:#888">tecnico.zonavi@vialidad.gba.gov.ar</span><br>
             <span style="font-size:9.5px;color:#555">🟢 Con internet</span><br>
             <span style="font-size:9.5px;color:#555">📤 Sin enviar: <b>0</b></span>
           </div>
