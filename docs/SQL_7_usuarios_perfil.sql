@@ -113,7 +113,7 @@ WHERE routine_name IN ('current_user_zona', 'current_user_rol', '_touch_updated_
 -- Supabase (que usa service_role y bypasea RLS). Reemplazar '<UID>'
 -- por tu user_id real, que sacás con:
 --
---   SELECT id, email FROM auth.users WHERE email = 'tecnica.dvba.z6@gmail.com';
+--   SELECT id, email FROM auth.users WHERE email = 'admin.zonavi@vialidad.gba.gov.ar';
 --
 -- Después de este INSERT, cualquier cambio en usuarios_perfil requiere
 -- estar logueado como admin.

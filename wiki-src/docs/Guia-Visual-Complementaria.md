@@ -113,33 +113,27 @@ Desde escritorio, el personal responsable revisa, completa datos y aprueba. La f
 
 ## Navegador vs app instalada · WiFi/datos vs GPS
 
-<div class="grid2" markdown="0">
-<div class="card" style="border-left:4px solid #f0a500" markdown="1">
-
-**🌐 Desde el navegador (sin instalar)**
-
-Si abrís la URL directamente en Chrome sin instalar la app:
-
-- Necesitás **obligatoriamente** WiFi o datos móviles para que la app cargue.
-- Si se corta la conexión, se pierde todo lo que estabas haciendo.
-- No hay cola offline: cada foto necesita internet en el momento.
-
-**Uso recomendado**: prueba rápida, primera vez, o desde la computadora de oficina.
-
+<div class="grid2">
+<div class="card" style="border-left:4px solid #f0a500">
+<p><strong>🌐 Desde el navegador (sin instalar)</strong></p>
+<p>Si abrís la URL directamente en Chrome sin instalar la app:</p>
+<ul>
+<li>Necesitás <strong>obligatoriamente</strong> WiFi o datos móviles para que la app cargue.</li>
+<li>Si se corta la conexión, se pierde todo lo que estabas haciendo.</li>
+<li>No hay cola offline: cada foto necesita internet en el momento.</li>
+</ul>
+<p><strong>Uso recomendado:</strong> prueba rápida, primera vez, o desde la computadora de oficina.</p>
 </div>
-<div class="card" style="border-left:4px solid #28a745" markdown="1">
-
-**📱 Como app instalada (PWA)**
-
-Una vez que instalaste la app y te logueaste al menos una vez con internet:
-
-- **NO requiere WiFi ni datos** para funcionar.
-- Solo necesita **señal de GPS** del celular (que funciona incluso sin internet).
-- Guarda las fotos en una cola local.
-- Sincroniza automáticamente cuando vuelva la conexión.
-
-**Uso recomendado**: campo, zonas rurales, cualquier situación operativa.
-
+<div class="card" style="border-left:4px solid #28a745">
+<p><strong>📱 Como app instalada (PWA)</strong></p>
+<p>Una vez que instalaste la app y te logueaste al menos una vez con internet:</p>
+<ul>
+<li><strong>NO requiere WiFi ni datos</strong> para funcionar.</li>
+<li>Solo necesita <strong>señal de GPS</strong> del celular (que funciona incluso sin internet).</li>
+<li>Guarda las fotos en una cola local.</li>
+<li>Sincroniza automáticamente cuando vuelva la conexión.</li>
+</ul>
+<p><strong>Uso recomendado:</strong> campo, zonas rurales, cualquier situación operativa.</p>
 </div>
 </div>
 
