@@ -1,6 +1,6 @@
 # DVBA Zona VI · Roadmap consolidado
 
-**Estado al 2 de agosto de 2026** · Familia escritorio en **v8.58** (index, plan_seguridad, reportes, admin_usuarios), familia móvil PWA en **v9.91** (avanzado + básico), SW `dvba-campo-v9.91`. Snapshot anterior: v7.83 / v9.58 (16 julio 2026).
+**Estado al 18 de agosto de 2026** · Familia escritorio en **v8.78** (index, partes_diarios, reportes, admin_usuarios), familia móvil PWA en **v9.95.14** (avanzado + básico + SW). Snapshot anterior: v8.58 / v9.91 (2 agosto). Ver §Actualización 18-ago al final para el detalle del sprint más reciente.
 
 ## ⏭ Próximas prioridades (mañana en adelante)
 
@@ -284,5 +284,90 @@ Regenerar RP30/RP46 y las 7 RPs restantes (ítems 3 y 7) se pueden hacer en para
 
 ---
 
-_Última revisión: 16 de julio de 2026 · v7.83 desplegada._
+_Última revisión (cuerpo del roadmap): 2 de agosto de 2026 · v8.58 / v9.91._
+_Última actualización (bloque §Actualización 18-ago): 18 de agosto de 2026 · v8.78 / v9.95.14._
 _Responsable: Ing. Luciano Lamaita — División Técnica DVBA Zona VI Saladillo._
+
+---
+
+## 📌 Actualización · 18 de agosto de 2026 (sprint 12-18 agosto)
+
+Este bloque documenta el progreso desde el snapshot v8.58/v9.91 hasta la versión actual **v8.78/v9.95.14**. Consolida lo completado esta semana y reprioriza el roadmap original. No reemplaza al cuerpo de arriba — es un delta.
+
+### ✅ Completado en este sprint
+
+**Rediseño arquitectural del modelo de datos:**
+
+- **Modelo Tipos v2** con eje NATURALEZA (Relevamiento vs Tarea) ortogonal a la categoría del elemento. Categoría plana `mantenimiento` eliminada; cada elemento tiene ahora dos listas (`items_relev` + `items_tarea`). Nueva columna `naturaleza` en Supabase (SQL_15). API legacy preservada.
+- **Migración #4** — `superficie` y `modalidad` pasan de estar serializadas en `observaciones` a columnas dedicadas (SQL_16). Backfill automático desde el texto existente + limpieza del sufijo. Ahora se pueden cruzar en reportes agregados sin parseos.
+- **`docs/MODELO_TIPOS_ESTADOS.md` v1.3** reescrito con el modelo v2 completo.
+
+**Codificación visual del mapa (Opción C):**
+
+- Refactor completo del renderer de pins con SVG inline. Tres dimensiones visuales ortogonales: **forma** = categoría, **color** = severidad, **borde** = naturaleza.
+- Sección "📌 Registros del mapa" agregada a la leyenda del portal con las 3 sub-tablas de códigos.
+- Leyenda scrolleable con `L.DomEvent.disableScrollPropagation` y scrollbar 12px "en pastilla" para navegación cómoda con mouse.
+
+**UI y wizard:**
+
+- Wizard móvil rediseñado con paso 0 obligatorio de naturaleza + filtrado automático de categorías/ítems.
+- Wizard escritorio con tabs "Relevamiento / Tarea" arriba del selector.
+- Nuevo filtro por naturaleza en Reportes (`reportes.html`).
+
+**Fixes estructurales:**
+
+- **Pin salta lejos** — eliminado el fallback random (`punto medio ruta + ruido ~1 km`) que hacía saltar el pin del registro cuando `flat/flng` eran inválidos. Ahora alerta explícita.
+- **Modo Básico crash al abrir cámara** — portada la cámara in-app con `getUserMedia` desde el Modo Avanzado. `<input capture>` nativo queda como fallback. Elimina el ciclo PWA→background→Android-mata-proceso.
+- **Modo Básico sin internet** — extendido el fallback offline del Service Worker para cubrir `/app.html` + `/dvba_campo_lite.html`; antes solo cubría `/dvba_campo/`. Con `caches.match` tolerante a query params.
+- **Cache ruta perdida al enviar** — cache defensivo `_ultimaRutaCargada` con 3 capas (`change` + `input` + poll 2s) para capturar TODOS los sets programáticos, no solo los manuales.
+- **Sello sin sufijo origen** — se sacó `·campo` / `·escritorio` del pie del sello. Solo versión + `sello v4`.
+- **Sincronización de spans hardcodeados** de versión en el footer del móvil (regla ampliada de 3 capas por HTML documentada).
+
+**Wiki e infraestructura:**
+
+- Wiki reorganizada en 2 secciones temáticas (`navigation.sections`): Guía de uso + Historia y evolución.
+- Nueva página Nomenclador 1989 con PDF descargable filtrado por sesión activa.
+- Guía Visual actualizada con los 3 pasos del wizard v2 + tabla completa por naturaleza + sección "Codificación visual del mapa".
+- Limpieza de emails privados en wiki + portales + docs públicos (reemplazados por institucional genérico).
+- Bloques `<div markdown="1">` de la Guía Visual reescritos con HTML puro para evitar el bug de `md_in_html` con hijos anidados en Python-Markdown 3.10.
+
+**Infraestructura de versionado:**
+
+- Setup dual remote: `origin` (GitHub público) + `gitlab` (GitLab privado como backup completo).
+- Rama `concurso-privado` en GitLab con el `.md` del concurso versionado sin exponerlo a GitHub. Reglas de anti-fuga documentadas.
+- **Recuperación del archivo `docs/CONCURSO_VIAL_2026.md`** que se había borrado accidentalmente (recuperado desde el historial git del commit c758ff1).
+
+### 🎯 Ítems del roadmap original que quedaron completados
+
+Del listado 🟠 Prioridad ALTA / 🟡 MEDIA / 🔵 BAJA original, este sprint cerró:
+
+- Módulo Reportes (ítem 1) — ya con panel Wizard + presets, filtros dinámicos, contador de caminos únicos, PDF Gerencia con layout oficial, filtro por naturaleza.
+- Etapa 2 partes_diarios (ítem 2) — subida directa de fotos con sello desde `partes_diarios.html`.
+- Fase 1 Plan de Roles (ítem 4) — SQL_7/SQL_8 aplicados hace tiempo.
+- Fase 2 Plan de Roles (ítem 5) — frontend zone-aware con picker de zona en header.
+- Detección de partido en app móvil (ítem 8) — implementada en `dvba_campo.html` con armonizador.
+- Backfill columna `partido` (ítem 9) — ejecutado.
+- Ajustar compresión de fotos (ítem 10) — aplicado en móvil (1200px/q=0.75 en v9.88 y siguientes).
+- Catálogo caminos editable (ítem 19) — implementado (SQL_14 + SQL_14b alias por tramo).
+- Progresiva → coord (ítem 22) — implementado como botón "🎯 Ubicar".
+
+### 🔴 Máxima prioridad ahora (post-sprint)
+
+1. **RPs con bundle faltante o roto** — 7 RPs nunca generadas (RP6/20/24/42/43/44/48) + RP47/51/91 con anchors no-monotónicos + RP40 con desvío >10 km después del km 100. Sin ellas la detección automática de partido/progresiva queda con huecos. Flujo estándar: QGIS → renumerar fid por orden geográfico → `gen_ruta_bundle.py` → registrar en 3 HTMLs + `datos/rutas.js`.
+2. **Fase 3 · RLS zonal activo en Supabase** — hoy el sistema es funcional pero monolítico Zona VI (cualquier login authenticated hace todo). Es el paso que habilita otras zonas piloto sin que se pisen los datos.
+3. **Emails restantes en `datos/legales.js`** — el modal Acerca de del portal aún expone emails personales. Cambio de 5 minutos.
+
+### 🟡 Media prioridad (siguientes lotes)
+
+4. **Fase 5 · PDF Gerencia con layout oficial completo** — hoy hay una versión funcional; falta portada institucional completa + luminarias LED + anexo fotográfico + índice.
+5. **Otras zonas piloto** — habilitar IV Junín o V 9 de Julio como segundo piloto para validar la generalización multi-zona.
+6. **Capturas reales en la Guía Visual** — reemplazar los mockups CSS por screenshots del móvil v9.95.14 en producción.
+7. **Documentar gap changelog mayo-junio 2026** en la bitácora (5 iteraciones sin registrar en su momento).
+
+### 🔵 Baja prioridad / roadmap más largo
+
+- **IA Fase A** (clasificador de fotos con Gemini) — mencionado en el documento del concurso (sección 8.4).
+- **Dashboards agregados** — "% Bueno vs Malo vs Crítico" por ruta y categoría; filtros de lista por categoría+estado.
+- **Otras líneas de investigación aplicada** — TMD con cámara, IRI-lite con acelerómetro, V85 con LIDAR, modelo de deterioro con series temporales, QR de sello con verificador público (todo detallado en sección 8.5 del documento del concurso).
+
+Todo lo demás del cuerpo del roadmap sigue vigente. Este bloque es solo el delta que introduce el sprint del 12-18 agosto.
