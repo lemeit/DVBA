@@ -71,6 +71,16 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
 
 /* Input file oculto */
 #foto-input{position:absolute;top:-9999px;opacity:0}
+/* v9.95.13 · Cámara in-app (getUserMedia) para evitar crash de Android cuando
+   la PWA va a background al abrir la cámara nativa (<input capture>). */
+#camara-modal{display:none;position:fixed;inset:0;z-index:500;background:#000;flex-direction:column}
+#camara-modal.show{display:flex}
+#video-stream{width:100%;flex:1;object-fit:cover;background:#000}
+.cam-ctrl{background:#000;padding:16px 20px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0}
+#btn-cam-shot{width:70px;height:70px;border-radius:50%;background:#fff;border:4px solid #00aec3;cursor:pointer;flex-shrink:0;transition:transform .1s}
+#btn-cam-shot:active{transform:scale(.88)}
+.btn-cam-sec{padding:10px 16px;background:transparent;border:1.5px solid rgba(255,255,255,.3);border-radius:6px;color:rgba(255,255,255,.9);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+#canvas-oculto{display:none}
 
 /* PREVIEW MODAL */
 .preview-ov{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;display:none;flex-direction:column}
@@ -280,6 +290,18 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
   </div>
 
   <input type="file" id="foto-input" accept="image/*" capture="environment">
+
+<!-- v9.95.13 · Modal cámara in-app (getUserMedia) — evita crash Android que mata
+     la PWA cuando se abre la cámara nativa. -->
+<div id="camara-modal">
+  <video id="video-stream" autoplay playsinline muted></video>
+  <div class="cam-ctrl">
+    <button class="btn-cam-sec" onclick="cerrarCamara()">✕ Cancelar</button>
+    <button id="btn-cam-shot" onclick="capturarFrame()" title="Capturar"></button>
+    <button class="btn-cam-sec" onclick="flipCamara()">🔄 Girar</button>
+  </div>
+</div>
+<canvas id="canvas-oculto"></canvas>
 </main>
 
 <!-- VISTA PREVIA · confirmar antes de enviar -->
@@ -367,7 +389,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.95.11';
+const APP_VER = 'v9.95.13';
 window.APP_VER = APP_VER;
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -600,6 +622,62 @@ document.addEventListener('visibilitychange', () => {
 // sin promises esperando, sin nada que pueda quedar colgado.
 // Si el badge NO está verde, mostrar modal explicativo y bloquear.
 // El GPS se mantiene actualizado por el watchPosition en segundo plano.
+/* v9.95.13 · Cámara in-app con getUserMedia (evita crash Android por PWA en
+   background al usar <input capture>). Fallback a input nativo si getUserMedia
+   falla (permiso denegado, no hay cámara, o browser sin soporte). */
+let _streamActivo = null;
+let _camaraFrontal = false;
+async function abrirCamara(){
+  try {
+    _streamActivo = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: _camaraFrontal ? 'user' : 'environment',
+        width:  { ideal: 1600, max: 1920 },
+        height: { ideal: 1200, max: 1440 }
+      },
+      audio: false
+    });
+    const v = $('video-stream');
+    v.srcObject = _streamActivo;
+    await v.play();
+    $('camara-modal').classList.add('show');
+  } catch(e) {
+    console.warn('[camara]', e.name, e.message);
+    if (e.name === 'NotAllowedError') {
+      toast('Permiso cámara denegado — usá cámara del sistema', 'warn');
+    } else if (e.name === 'NotFoundError') {
+      toast('No se encontró cámara — usá galería', 'err');
+    } else {
+      toast('Cámara no disponible — abriendo cámara del sistema', 'warn');
+    }
+    // Fallback: cámara nativa (con riesgo de crash Android pero al menos anda)
+    $('foto-input').click();
+  }
+}
+function cerrarStream(){
+  if (_streamActivo) { _streamActivo.getTracks().forEach(t => t.stop()); _streamActivo = null; }
+  $('video-stream').srcObject = null;
+}
+function cerrarCamara(){ cerrarStream(); $('camara-modal').classList.remove('show'); }
+async function flipCamara(){ _camaraFrontal = !_camaraFrontal; cerrarStream(); await abrirCamara(); }
+async function capturarFrame(){
+  const v = $('video-stream');
+  if (!v.videoWidth) { toast('Stream no listo', 'warn'); return; }
+  const c = $('canvas-oculto');
+  c.width = v.videoWidth; c.height = v.videoHeight;
+  c.getContext('2d').drawImage(v, 0, 0);
+  cerrarCamara();
+  // Convertir a blob-like File para reusar el flow del listener foto-input
+  const blob = await new Promise(res => c.toBlob(res, 'image/jpeg', 0.85));
+  if (!blob) { toast('Error capturando frame', 'err'); return; }
+  const file = new File([blob], 'captura_' + Date.now() + '.jpg', { type: 'image/jpeg' });
+  // Simular el evento change del input para reusar TODA la lógica de compresión + EXIF + preview
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  $('foto-input').files = dt.files;
+  $('foto-input').dispatchEvent(new Event('change', { bubbles: true }));
+}
+
 function iniciarCaptura(){
   $('btnCapturar').addEventListener('click', () => {
     const btn = $('btnCapturar');
@@ -609,7 +687,13 @@ function iniciarCaptura(){
     if (cls.contains('on') && _gpsLat != null && _gpsLng != null){
       _gpsCuandoSaco = { lat:_gpsLat, lng:_gpsLng, acc:_gpsAcc, alt:_gpsAlt, ts:Date.now() };
       console.log('[capturar] GPS snap:', _gpsCuandoSaco);
-      $('foto-input').click();
+      // v9.95.13 · Preferir cámara in-app (getUserMedia) para evitar crash Android.
+      // Si el browser no soporta getUserMedia, abrirCamara() cae al fallback nativo.
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        abrirCamara();
+      } else {
+        $('foto-input').click();
+      }
       return;
     }
     // Si el badge no está verde, mostrar modal

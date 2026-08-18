@@ -451,7 +451,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.11</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.13</span></div>
   </div>
 </div>
 
@@ -687,7 +687,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:auto">
-  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.11</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
+  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.13</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
 </div>
 
 
@@ -1695,19 +1695,40 @@ function comprimir(b64,maxPx,q){
   });
 }
 
-/* v9.83 · Cache defensivo del último valor válido de f-ruta.
-   El user reporta que al llegar a Enviar la ruta/camino aparece vacío.
-   Si eso ocurre, restauramos del cache en memoria en vez de bloquear. */
+/* v9.95.13 · Cache defensivo del último valor válido de f-ruta.
+   v9.83 solo capturaba 'change' (interacción manual). Cuando el código setea
+   .value programáticamente (actualizarCaminosDelPartido, prefill GPS, restauración
+   desde partido) el evento NO se dispara → cache queda vacío → al enviar sale
+   toast "Seleccioná la ruta/camino" aunque el select tiene valor.
+
+   Fix: 3 capas de captura + helper para sets programáticos.
+   1. 'change' + 'input' events (manual + programático moderno).
+   2. setInterval defensivo cada 2s que lee value actual.
+   3. Helper window._setRutaCached(val) para llamadas explícitas del código. */
 let _ultimaRutaCargada = '';
+function _actualizarCacheRuta(fuente){
+  const el = document.getElementById('f-ruta');
+  if (!el) return;
+  const v = (el.value || '').trim();
+  if (v && v !== _ultimaRutaCargada) {
+    _ultimaRutaCargada = v;
+    console.log('[f-ruta cache]', fuente, '→', v);
+  }
+}
+window._setRutaCached = function(val){
+  const el = document.getElementById('f-ruta');
+  if (el) el.value = val;
+  const v = (val || '').trim();
+  if (v) { _ultimaRutaCargada = v; console.log('[f-ruta cache] helper →', v); }
+};
 document.addEventListener('DOMContentLoaded', () => {
   const el = document.getElementById('f-ruta');
   if (el) {
-    el.addEventListener('change', function(){
-      if (this.value && this.value.trim()) {
-        _ultimaRutaCargada = this.value.trim();
-        console.log('[f-ruta] cache actualizado:', _ultimaRutaCargada);
-      }
-    });
+    el.addEventListener('change', () => _actualizarCacheRuta('change'));
+    el.addEventListener('input',  () => _actualizarCacheRuta('input'));
+    // Defensivo: cada 2s, si el select tiene un value válido, cachearlo.
+    // Cubre casos raros donde el código setea .value sin disparar eventos.
+    setInterval(() => _actualizarCacheRuta('poll'), 2000);
   }
 });
 
@@ -2207,7 +2228,7 @@ function hacerThumb(b64){
   // (v9.95.4 tenía "var APP_VER = window.APP_VER" que causaba SyntaxError por doble
   // declaración con otro script, abortando la asignación y dejando el modal Acerca
   // de mostrando versión vieja cacheada).
-  window.APP_VER = 'v9.95.11';
+  window.APP_VER = 'v9.95.13';
   console.log('[dvba_campo] window.APP_VER inicializado a', window.APP_VER);
 </script>
 <!-- v9.95.4 · Cache-busters en los .js críticos para forzar reload aunque el SW cachee -->
