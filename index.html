@@ -491,8 +491,11 @@ body.modo-campo #campo-fab{display:flex}
     <a class="nav-app plan role-oculto" data-requiere-sesion="1" href="partes_diarios.html?v=8.60" title="Plan de Seguridad en la Circulación · Cargar tareas">
       🛡️ Plan de Seguridad
     </a>
-    <a class="nav-app rep role-oculto" data-solo-gerencia="1" href="reportes.html?v=8.60" title="Reportes de tareas ejecutadas · solo Gerencia y Admin">
+    <a class="nav-app rep role-oculto" data-requiere-sesion="1" href="reportes.html?v=8.60" title="Reportes de tareas ejecutadas · solo Gerencia y Admin">
       📊 Reportes
+    </a>
+    <a class="nav-app role-oculto" data-requiere-sesion="1" href="plan_operativo.html" title="Plan Operativo · Asignaciones para capataces">
+      🚜 Plan Operativo
     </a>
     <a class="nav-app role-oculto" data-solo-admin="1" href="admin_usuarios.html?v=8.60" title="Panel de Administración · gestión de usuarios · solo Admin">
       🛡 Admin
@@ -954,7 +957,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.78';
+const APP_VERSION = 'v8.79';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────

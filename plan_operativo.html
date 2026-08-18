@@ -10,6 +10,8 @@
 <link rel="icon" href="datos/img/favicon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;600;700;800&family=Roboto:wght@400;500;700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="dvba_tipos.js"></script>
+<script src="datos/dvba_estados.js"></script>
 <script src="datos/legales.js" defer></script>
 <style>
 :root{
@@ -50,7 +52,7 @@ header .nav a:hover, header .nav button:hover{background:rgba(255,255,255,.28)}
 .vtab.active{color:var(--pd);border-bottom-color:var(--p);background:var(--p-xl)}
 
 /* Main */
-main{padding:20px;max-width:1500px;margin:0 auto}
+main{padding:20px;max-width:1500px;margin:0 auto;padding-bottom:56px}
 
 /* Métricas */
 .mets{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:16px}
@@ -370,12 +372,28 @@ table.bandeja tbody tr.tiene-asig{opacity:.55;background:#f8f9fa}
 
 <div id="toast"></div>
 
+<!-- Footer institucional (mismo estilo que admin_usuarios / reportes) -->
+<footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid #444;position:fixed;bottom:0;left:0;right:0;z-index:80">
+  <div style="flex:1;min-width:260px">
+    <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
+    <span style="margin-left:8px">Plan Operativo · Módulo de gestión de tareas para Jefes de Zona.</span>
+  </div>
+  <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v?</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+  </div>
+</footer>
+
 <script>
 /* ═══════════════════════════════════════════════════════════════
    Plan Operativo · Portal escritorio para Jefe de Zona / Operativa
    ═══════════════════════════════════════════════════════════════ */
 const APP_VERSION = 'v8.79';
 window.APP_VERSION = APP_VERSION;
+// Auto-update del span de versión al DOMContentLoaded (idem admin/reportes)
+document.addEventListener('DOMContentLoaded', () => {
+  const s = document.getElementById('app-ver');
+  if (s) s.textContent = APP_VERSION;
+});
 
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -536,6 +554,13 @@ async function cargarBandeja(){
 }
 
 function inferCategoria(tipoStr){
+  // v8.79 · Usar DVBA_TIPOS.categoriaDeV2 (modelo v2 · SQL_15) que consulta el
+  // árbol oficial de categorías × ítems. Fallback heurístico solo si el módulo
+  // no está cargado (edge case durante init).
+  if (typeof DVBA_TIPOS !== 'undefined' && typeof DVBA_TIPOS.categoriaDeV2 === 'function'){
+    const cat = DVBA_TIPOS.categoriaDeV2(tipoStr);
+    if (cat) return cat;
+  }
   const s = (tipoStr||'').toLowerCase();
   if (/bache|pavimento|calzada|huella|erosion|anegam/.test(s)) return 'calzada';
   if (/banquina|cuneta|alcantarilla tapa|alcantarilla dañ|talud/.test(s)) return 'drenaje';
@@ -633,19 +658,14 @@ function cerrarModalGen(){
   _selRelevamiento = null;
 }
 function poblarTiposTarea(cat){
-  // Sugerencias por categoría · texto libre pero pre-cargado
-  const sug = {
-    calzada: ['Mantenimiento de caminos rurales','Reconformado de tierra','Bacheo con material en frío','Bacheo con material en caliente','Bacheo profundo','Sellado de fisuras','Repavimentación','Riego asfáltico','Mejoramiento con dolomita','Mejoramiento con suelo cal'],
-    drenaje: ['Limpieza de cuneta','Limpieza de canal','Limpieza de alcantarilla','Reparación de cuneta','Reparación de alcantarilla','Reconformado de banquina'],
-    estructura: ['Reparación de puente (tablero)','Reparación de puente (estribo)','Reparación de junta','Reparación de baranda / guardarrail','Reparación de alcantarilla mayor','Reparación de muro de contención'],
-    senial_vertical: ['Reposición de señal','Reposición de mojón','Colocación de guardarrail','Colocación de delineador','Colocación de cebras (cabezal alcantarilla / puente)','Repintado de cebras'],
-    demarcacion: ['Repintado de eje','Repintado de demarcación lateral','Repintado de senda peatonal','Repintado de línea de frenado','Reposición de tachas'],
-    iluminacion: ['Reposición de columna','Reposición de lámpara','Reparación de tendido eléctrico','Migración a LED'],
-    entorno: ['Desmalezado manual','Desmalezado mecánico','Poda de árboles','Limpieza general de ramal','Retiro de árbol caído','Retiro de animal','Reparación de tranquera'],
-    seguridad: [],
-    otro: ['Otra tarea de mantenimiento']
-  };
-  const items = sug[cat] || sug.otro;
+  // v8.79 · Usar los ítems reales de dvba_tipos.js (ARBOL_V2 · SQL_15).
+  // itemsPorNaturaleza(cat, 'tarea') devuelve la lista oficial de tareas de
+  // mantenimiento para esa categoría · mismos ítems que ven móvil y portal.
+  let items = [];
+  if (typeof DVBA_TIPOS !== 'undefined' && typeof DVBA_TIPOS.itemsPorNaturaleza === 'function'){
+    items = DVBA_TIPOS.itemsPorNaturaleza(cat, 'tarea');
+  }
+  if (!items.length) items = ['Otra tarea de mantenimiento'];
   const sel = $('mg-tipo');
   sel.innerHTML = '<option value="">— Elegí tipo —</option>' +
     items.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
