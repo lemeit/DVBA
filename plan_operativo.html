@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="expires" content="0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SIG Vial PBA · Plan Operativo</title>
+<link rel="icon" href="datos/img/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;600;700;800&family=Roboto:wght@400;500;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="datos/legales.js" defer></script>
+<style>
+:root{
+  --p:#00aec3; --pd:#007e8c; --pl:#74c9e3; --p-xl:#cae7ea;
+  --vd:#22a954; --ro:#BE1717; --am:#c47a00;
+  --txt:#000; --mut:#838383; --light:#e0e0e0; --bg:#f0f0f0; --w:#fff;
+  --r:8px;
+  /* Colores de prioridad */
+  --pri-urg:#dc3545; --pri-alta:#fd7e14; --pri-media:#ffc107; --pri-baja:#6c757d;
+  /* Colores de estado */
+  --est-pend:#6c757d; --est-cur:#f0a500; --est-comp:#28a745;
+  --est-pos:#ffc107; --est-canc:#adb5bd;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Encode Sans','Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-weight:400}
+h1,h2,h3{font-family:'Encode Sans','Segoe UI',Arial,sans-serif;font-weight:700}
+
+/* Header institucional */
+header{background:var(--p);padding:12px 20px;display:flex;align-items:center;gap:14px;border-bottom:2px solid var(--pd);color:#fff;flex-wrap:wrap}
+header h1{font-size:16px;color:#fff;line-height:1.2}
+header h1 span{color:#ffd060}
+header .hbadge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:9px;margin-left:6px;letter-spacing:.5px}
+header .nav{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+header .nav a, header .nav button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit}
+header .nav a:hover, header .nav button:hover{background:rgba(255,255,255,.28)}
+
+/* Guard */
+#guard{position:fixed;inset:0;background:#f0f0f0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+#guard .box{background:#fff;border:1px solid var(--light);border-radius:10px;padding:30px;max-width:480px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.1)}
+#guard h2{color:var(--pd);margin-bottom:10px;font-size:18px}
+#guard p{color:var(--mut);font-size:13px;line-height:1.5;margin-bottom:16px}
+#guard .btn{padding:8px 16px;background:var(--p);color:#fff;border:0;border-radius:6px;font-weight:700;cursor:pointer;font-family:inherit;font-size:12px}
+
+/* Tabs de vista principal */
+.vtabs{display:flex;gap:2px;background:#fff;border-bottom:2px solid var(--light);padding:0 20px}
+.vtab{padding:12px 22px;background:transparent;border:0;border-bottom:3px solid transparent;color:var(--mut);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.5px;transition:all .15s}
+.vtab:hover{color:var(--pd);background:var(--bg)}
+.vtab.active{color:var(--pd);border-bottom-color:var(--p);background:var(--p-xl)}
+
+/* Main */
+main{padding:20px;max-width:1500px;margin:0 auto}
+
+/* Métricas */
+.mets{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.mets .card{background:#fff;border:1px solid var(--light);border-radius:6px;padding:11px 14px;border-left:4px solid var(--p)}
+.mets .card.urg{border-left-color:var(--pri-urg)}
+.mets .card.alta{border-left-color:var(--pri-alta)}
+.mets .card.media{border-left-color:var(--pri-media)}
+.mets .card.baja{border-left-color:var(--pri-baja)}
+.mets .card .lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.mets .card .val{font-size:24px;color:var(--pd);font-weight:800;margin-top:2px;font-family:'Encode Sans',sans-serif}
+.mets .card .sub{font-size:10px;color:var(--mut);margin-top:2px}
+
+/* Toolbar */
+.toolbar{background:#fff;border:1px solid var(--light);border-radius:6px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toolbar label{font-size:10px;color:var(--pd);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.toolbar select,.toolbar input[type=text],.toolbar input[type=date],.toolbar input[type=week]{padding:6px 10px;font-size:12px;font-family:inherit;border:1px solid var(--light);border-radius:4px;background:#fff;color:var(--txt);min-width:100px}
+.toolbar select:focus,.toolbar input:focus{outline:none;border-color:var(--p)}
+.toolbar .btn{padding:6px 12px;font-size:11px;font-family:inherit;font-weight:600;border:1px solid var(--pd);background:var(--p);color:#fff;border-radius:4px;cursor:pointer}
+.toolbar .btn:hover{background:var(--pd)}
+.toolbar .btn.ghost{background:#fff;color:var(--pd)}
+.toolbar .btn.ghost:hover{background:var(--p-xl)}
+
+/* Tabla de bandeja */
+.tabla-wrap{background:#fff;border:1px solid var(--light);border-radius:6px;overflow:auto;max-height:calc(100vh - 340px)}
+table.bandeja{width:100%;border-collapse:collapse;font-size:12px}
+table.bandeja thead{background:var(--p);color:#fff;position:sticky;top:0;z-index:2}
+table.bandeja thead th{padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;font-family:'Encode Sans',sans-serif;white-space:nowrap}
+table.bandeja tbody td{padding:7px 10px;border-bottom:1px solid #eef2f5;vertical-align:middle}
+table.bandeja tbody tr{cursor:pointer}
+table.bandeja tbody tr:hover{background:#f7fbfc}
+table.bandeja tbody tr.tiene-asig{opacity:.55;background:#f8f9fa}
+.chip-pri{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#fff}
+.chip-pri.urgente{background:var(--pri-urg)}
+.chip-pri.alta{background:var(--pri-alta)}
+.chip-pri.media{background:var(--pri-media);color:#333}
+.chip-pri.baja{background:var(--pri-baja)}
+.chip-cat{display:inline-block;padding:2px 6px;border-radius:4px;background:var(--p-xl);color:var(--pd);font-size:10px;font-weight:700;letter-spacing:.3px}
+.chip-est{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.chip-est.critico,.chip-est.falta,.chip-est.inspeccion_urg,.chip-est.no_funciona,.chip-est.activo{background:#fce4e5;color:#7a1a1a}
+.chip-est.malo,.chip-est.ilegible{background:#feead2;color:#7a3f00}
+.chip-est.regular,.chip-est.danada,.chip-est.borrada,.chip-est.parcial,.chip-est.monitoreo{background:#fff8dc;color:#7a5a00}
+.chip-est.inexistente{background:#eee;color:#555}
+.foto-tiny{width:32px;height:32px;object-fit:cover;border-radius:4px;border:1px solid var(--light);cursor:zoom-in}
+.acciones{display:flex;gap:4px;flex-wrap:wrap}
+.btn-a{padding:5px 10px;background:var(--vd);color:#fff;border:0;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px}
+.btn-a:hover{background:#1a8a44}
+.btn-a.sec{background:var(--am)}
+.btn-a.sec:hover{background:#a56600}
+.mut{color:var(--mut);font-size:10px}
+
+/* Kanban semanal */
+.kanban{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding:4px 0}
+.kanban .col{background:#fff;border:1px solid var(--light);border-radius:6px;padding:8px;min-height:400px;max-height:calc(100vh - 300px);overflow-y:auto}
+.kanban .col-head{font-size:11px;color:var(--pd);font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:4px 6px;border-bottom:2px solid var(--p);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.kanban .col-head .fecha{color:var(--mut);font-size:10px;font-weight:600}
+.kanban .col.hoy .col-head{color:var(--am);border-bottom-color:var(--am)}
+.tarjeta{background:#fdfefe;border:1px solid var(--light);border-left:4px solid var(--p);border-radius:5px;padding:8px 10px;margin-bottom:6px;font-size:11px;position:relative;cursor:pointer;transition:all .15s}
+.tarjeta:hover{border-color:var(--pd);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.tarjeta.pri-urgente{border-left-color:var(--pri-urg)}
+.tarjeta.pri-alta{border-left-color:var(--pri-alta)}
+.tarjeta.pri-media{border-left-color:var(--pri-media)}
+.tarjeta.pri-baja{border-left-color:var(--pri-baja)}
+.tarjeta.est-completada{opacity:.5;border-left-color:var(--est-comp)}
+.tarjeta.est-en_curso{border-left-color:var(--est-cur);background:#fff8e8}
+.tarjeta.est-cancelada{opacity:.4;text-decoration:line-through}
+.tarjeta .t-tipo{font-weight:800;color:var(--txt);margin-bottom:3px;font-size:11.5px;line-height:1.2}
+.tarjeta .t-ruta{color:var(--pd);font-weight:700;font-size:10.5px}
+.tarjeta .t-cap{color:var(--mut);font-size:10px;margin-top:3px}
+.tarjeta .t-badge{position:absolute;top:6px;right:8px;font-size:9px;padding:1px 5px;border-radius:8px;background:var(--est-pend);color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:.3px}
+.tarjeta.est-pendiente .t-badge{background:var(--est-pend)}
+.tarjeta.est-en_curso .t-badge{background:var(--est-cur)}
+.tarjeta.est-completada .t-badge{background:var(--est-comp)}
+.tarjeta.est-pospuesta .t-badge{background:var(--est-pos);color:#333}
+.tarjeta.est-cancelada .t-badge{background:var(--est-canc)}
+
+/* Modal Generar tarea */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;padding:20px}
+.modal-ov.on{display:flex}
+.modal{background:#fff;border-radius:10px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.modal-head{padding:14px 20px;border-bottom:2px solid var(--p);background:var(--p-xl);border-radius:10px 10px 0 0;display:flex;justify-content:space-between;align-items:center}
+.modal-head h3{color:var(--pd);font-size:15px}
+.modal-head .close{background:none;border:0;color:var(--pd);font-size:22px;cursor:pointer;line-height:1;padding:2px 8px;font-family:inherit}
+.modal-body{padding:20px}
+.modal-body .row{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:center;margin-bottom:11px;font-size:12px}
+.modal-body .row label{color:var(--mut);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+.modal-body .row input,.modal-body .row select,.modal-body .row textarea{padding:8px 10px;font-size:12px;font-family:inherit;border:1px solid var(--light);border-radius:4px;background:#fff;color:var(--txt);width:100%}
+.modal-body .row input:focus,.modal-body .row select:focus,.modal-body .row textarea:focus{outline:none;border-color:var(--p)}
+.modal-body .row textarea{min-height:60px;resize:vertical}
+.modal-body .row.origin{background:#f7fbfc;padding:10px;border-radius:5px;border:1px dashed var(--light);grid-template-columns:1fr;gap:5px;margin-bottom:15px}
+.modal-body .row.origin b{color:var(--pd);font-size:11px}
+.modal-body .row.origin img{max-width:100px;border-radius:4px;border:1px solid var(--light);margin-top:5px}
+.modal-foot{padding:12px 20px;border-top:1px solid var(--light);display:flex;justify-content:flex-end;gap:8px;background:#fafbfc;border-radius:0 0 10px 10px}
+.modal-foot .btn{padding:8px 16px;font-size:12px;font-weight:700;font-family:inherit;border:1px solid var(--pd);border-radius:4px;cursor:pointer}
+.modal-foot .btn.primary{background:var(--p);color:#fff}
+.modal-foot .btn.primary:hover{background:var(--pd)}
+.modal-foot .btn.ghost{background:#fff;color:var(--pd)}
+.modal-foot .btn.ghost:hover{background:var(--p-xl)}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--vd);color:#fff;padding:12px 20px;border-radius:6px;font-size:12px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:5000;display:none;font-family:inherit}
+#toast.on{display:block}
+#toast.err{background:var(--ro)}
+#toast.warn{background:var(--am)}
+
+/* Empty state */
+.empty{background:#fff;border:1px dashed var(--light);border-radius:6px;padding:40px 20px;text-align:center;color:var(--mut);font-size:13px}
+.empty .ico{font-size:36px;margin-bottom:8px}
+
+/* Responsive */
+@media (max-width: 900px){
+  .kanban{grid-template-columns:1fr;max-height:none}
+  .kanban .col{max-height:none;min-height:auto}
+  header .nav{width:100%;justify-content:flex-start;margin-top:6px}
+}
+</style>
+</head>
+<body>
+
+<!-- Guard de autorización -->
+<div id="guard">
+  <div class="box">
+    <div style="font-size:36px;margin-bottom:8px">🔒</div>
+    <h2 id="guard-title">Verificando permisos...</h2>
+    <p id="guard-msg">Estamos comprobando tu rol en el sistema. Un momento.</p>
+    <button class="btn" id="guard-btn" onclick="location.href='index.html'" style="display:none">Volver al portal</button>
+  </div>
+</div>
+
+<!-- Header institucional -->
+<header style="display:none" id="hdr">
+  <h1>🚜 <span>Plan Operativo</span> · SIG Vial PBA</h1>
+  <span class="hbadge" id="hdr-rol">rol</span>
+  <span class="hbadge" id="hdr-zona">zona</span>
+  <div class="nav">
+    <a href="index.html">🗺 Portal</a>
+    <a href="reportes.html">📊 Reportes</a>
+    <a href="partes_diarios.html">📋 Partes</a>
+    <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')">ℹ Acerca</a>
+    <button onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+  </div>
+</header>
+
+<!-- Nav de vistas -->
+<nav class="vtabs" style="display:none" id="vtabs">
+  <button class="vtab active" data-view="bandeja" onclick="cambiarVista('bandeja')">🔥 Bandeja de entrada</button>
+  <button class="vtab" data-view="plan" onclick="cambiarVista('plan')">📅 Plan semanal</button>
+</nav>
+
+<main style="display:none" id="mn">
+
+  <!-- ═══════════════════════ VISTA BANDEJA ═══════════════════════ -->
+  <div id="view-bandeja">
+    <div class="mets" id="mets-bandeja"></div>
+
+    <div class="toolbar">
+      <label>Partido</label>
+      <select id="f-partido">
+        <option value="">Todos</option>
+      </select>
+      <label>Categoría</label>
+      <select id="f-categoria">
+        <option value="">Todas</option>
+        <option value="calzada">🛣️ Calzada</option>
+        <option value="drenaje">💧 Drenaje</option>
+        <option value="estructura">🌉 Estructura</option>
+        <option value="senial_vertical">🚧 Señalización</option>
+        <option value="demarcacion">🛑 Demarcación</option>
+        <option value="iluminacion">💡 Iluminación</option>
+        <option value="entorno">🌿 Entorno</option>
+        <option value="seguridad">🚨 Seguridad vial</option>
+      </select>
+      <label>Prioridad</label>
+      <select id="f-prioridad">
+        <option value="">Todas</option>
+        <option value="urgente">🔴 Urgente</option>
+        <option value="alta">🟠 Alta</option>
+        <option value="media">🟡 Media</option>
+        <option value="baja">⚪ Baja</option>
+      </select>
+      <label>
+        <input type="checkbox" id="f-ocultar-asig" checked style="min-width:auto;vertical-align:middle">
+        Ocultar con asignación abierta
+      </label>
+      <button class="btn ghost" onclick="cargarBandeja()">↻ Refrescar</button>
+    </div>
+
+    <div class="tabla-wrap">
+      <table class="bandeja">
+        <thead>
+          <tr>
+            <th style="width:52px"></th>
+            <th style="width:70px">Prior.</th>
+            <th style="width:100px">Categoría</th>
+            <th>Tipo · Estado</th>
+            <th style="width:120px">Ruta · Prog.</th>
+            <th style="width:120px">Partido</th>
+            <th style="width:90px">Fecha</th>
+            <th style="width:100px"></th>
+          </tr>
+        </thead>
+        <tbody id="tb-bandeja"></tbody>
+      </table>
+    </div>
+    <div id="empty-bandeja" class="empty" style="display:none">
+      <div class="ico">✅</div>
+      <div><strong>Bandeja vacía</strong></div>
+      <div style="margin-top:4px">No hay relevamientos pendientes de asignar con los filtros actuales.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ VISTA PLAN SEMANAL ═══════════════════════ -->
+  <div id="view-plan" style="display:none">
+    <div class="mets" id="mets-plan"></div>
+
+    <div class="toolbar">
+      <label>Semana</label>
+      <input type="week" id="f-semana">
+      <button class="btn ghost" onclick="cambiarSemana(-1)">◀</button>
+      <button class="btn ghost" onclick="cambiarSemana(0)">Esta semana</button>
+      <button class="btn ghost" onclick="cambiarSemana(1)">▶</button>
+      <label>Capataz</label>
+      <select id="f-capataz">
+        <option value="">Todos</option>
+      </select>
+      <label>
+        <input type="checkbox" id="f-completadas" style="min-width:auto;vertical-align:middle">
+        Mostrar completadas
+      </label>
+      <button class="btn ghost" onclick="cargarPlan()">↻ Refrescar</button>
+    </div>
+
+    <div class="kanban" id="kanban"></div>
+  </div>
+
+</main>
+
+<!-- Modal Generar tarea -->
+<div class="modal-ov" id="modal-gen">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>🚜 Generar tarea de mantenimiento</h3>
+      <button class="close" onclick="cerrarModalGen()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="row origin" id="mg-origen"></div>
+      <div class="row">
+        <label>Tipo de tarea</label>
+        <select id="mg-tipo">
+          <option value="">— Elegí primero categoría —</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>Capataz</label>
+        <select id="mg-capataz"><option value="">— Sin asignar aún —</option></select>
+      </div>
+      <div class="row">
+        <label>Cuadrilla</label>
+        <input type="text" id="mg-cuadrilla" placeholder="Ej: Cuadrilla Norte">
+      </div>
+      <div class="row">
+        <label>Fecha prevista</label>
+        <input type="date" id="mg-fecha">
+      </div>
+      <div class="row">
+        <label>Prioridad</label>
+        <select id="mg-prioridad">
+          <option value="baja">⚪ Baja</option>
+          <option value="media" selected>🟡 Media</option>
+          <option value="alta">🟠 Alta</option>
+          <option value="urgente">🔴 Urgente</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>Superficie</label>
+        <select id="mg-superficie">
+          <option value="">—</option>
+          <option value="asfalto">Asfalto</option>
+          <option value="hormigon">Hormigón</option>
+          <option value="tierra">Tierra</option>
+          <option value="estabilizado">Estabilizado</option>
+          <option value="dolomita">Dolomita</option>
+          <option value="suelo_cal">Suelo cal</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>Modalidad</label>
+        <select id="mg-modalidad">
+          <option value="">—</option>
+          <option value="manual">Manual</option>
+          <option value="mecanico">Mecánico</option>
+          <option value="mixto">Mixto</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>Notas</label>
+        <textarea id="mg-notas" placeholder="Instrucciones específicas para el capataz..."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="cerrarModalGen()">Cancelar</button>
+      <button class="btn primary" onclick="guardarAsignacion()">🚜 Asignar tarea</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle de tarjeta -->
+<div class="modal-ov" id="modal-det">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="md-title">Detalle de asignación</h3>
+      <button class="close" onclick="cerrarModalDet()">×</button>
+    </div>
+    <div class="modal-body" id="md-body"></div>
+    <div class="modal-foot" id="md-foot"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   Plan Operativo · Portal escritorio para Jefe de Zona / Operativa
+   ═══════════════════════════════════════════════════════════════ */
+const APP_VERSION = 'v8.79';
+window.APP_VERSION = APP_VERSION;
+
+const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
+const _supa = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
+  auth: { persistSession:true, storageKey:'dvba_session', storage:window.localStorage }
+});
+
+let _user = null;
+let _perfil = null;   // { rol, zona, nombre }
+let _capataces = [];  // array de {user_id, nombre}
+let _backlog = [];    // relevamientos pendientes
+let _asignaciones = []; // asignaciones de la semana visible
+let _selRelevamiento = null; // relevamiento elegido en el modal Generar
+let _semanaActual = null;    // Date del lunes de la semana visible
+
+/* ── Utils ── */
+function $(id){ return document.getElementById(id); }
+function toast(msg, tipo){
+  const t = $('toast'); t.className = 'on ' + (tipo||''); t.textContent = msg;
+  setTimeout(() => t.classList.remove('on'), 3500);
+}
+function esc(s){ return String(s||'').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtFecha(iso){
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'2-digit' });
+}
+function lunesDe(fecha){
+  const d = new Date(fecha);
+  const day = d.getDay(); // 0=dom, 1=lun...
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+function toISODate(d){
+  const pad = n => String(n).padStart(2,'0');
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+function semanaISO(d){
+  // Formato "YYYY-Www" para input type=week
+  const target = new Date(d.valueOf());
+  const dayNr = (d.getDay() + 6) % 7;
+  target.setDate(target.getDate() - dayNr + 3);
+  const firstThursday = target.valueOf();
+  target.setMonth(0, 1);
+  if (target.getDay() !== 4) target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+  const week = 1 + Math.ceil((firstThursday - target) / (7*24*3600*1000));
+  return d.getFullYear() + '-W' + String(week).padStart(2,'0');
+}
+
+/* ── Auth guard ── */
+async function iniciar(){
+  const { data:{ session } } = await _supa.auth.getSession();
+  if (!session){
+    $('guard-title').textContent = 'Se requiere login';
+    $('guard-msg').textContent = 'Iniciá sesión en el portal para acceder al Plan Operativo.';
+    $('guard-btn').style.display = 'inline-block';
+    return;
+  }
+  _user = session.user;
+  // Cargar perfil (rol + zona)
+  const { data: perfil, error } = await _supa.from('usuarios_perfil')
+    .select('rol, zona, nombre').eq('user_id', _user.id).maybeSingle();
+  if (error || !perfil){
+    $('guard-title').textContent = 'Sin perfil configurado';
+    $('guard-msg').innerHTML = 'Tu usuario no tiene perfil operativo asignado. Contactá al administrador para que te asigne rol y zona en la tabla <code>usuarios_perfil</code>.';
+    $('guard-btn').style.display = 'inline-block';
+    return;
+  }
+  _perfil = perfil;
+  const rolesOK = ['jefe_zona','jefe_operativa','jefe_tecnica','gerencia','admin'];
+  if (!rolesOK.includes(perfil.rol)){
+    $('guard-title').textContent = 'No autorizado';
+    $('guard-msg').innerHTML = 'El Plan Operativo es solo para <b>Jefe de Zona</b>, <b>Jefe de Operativa</b>, <b>Jefe Técnica</b>, <b>Gerencia</b> o <b>Admin</b>.<br><br>Tu rol actual: <code>' + esc(perfil.rol) + '</code>';
+    $('guard-btn').style.display = 'inline-block';
+    return;
+  }
+  // Autorizado · mostrar UI
+  $('guard').style.display = 'none';
+  $('hdr').style.display = 'flex';
+  $('vtabs').style.display = 'flex';
+  $('mn').style.display = 'block';
+  $('hdr-rol').textContent = perfil.rol;
+  $('hdr-zona').textContent = 'Zona ' + (perfil.zona || 'PBA');
+
+  await cargarCapataces();
+  // Setear semana actual = esta semana
+  _semanaActual = lunesDe(new Date());
+  $('f-semana').value = semanaISO(_semanaActual);
+  // Setear fecha default del modal = hoy
+  $('mg-fecha').value = toISODate(new Date());
+
+  // Wire de filtros
+  $('f-partido').addEventListener('change', cargarBandeja);
+  $('f-categoria').addEventListener('change', cargarBandeja);
+  $('f-prioridad').addEventListener('change', cargarBandeja);
+  $('f-ocultar-asig').addEventListener('change', cargarBandeja);
+  $('f-capataz').addEventListener('change', cargarPlan);
+  $('f-completadas').addEventListener('change', cargarPlan);
+  $('f-semana').addEventListener('change', () => {
+    const w = $('f-semana').value;
+    if (!w) return;
+    const [y, ww] = w.split('-W').map(Number);
+    // Aproximación: usar 4-ene de ese año como ancla y buscar el lunes
+    const jan4 = new Date(y, 0, 4);
+    const target = new Date(jan4);
+    target.setDate(jan4.getDate() + (ww - 1) * 7);
+    _semanaActual = lunesDe(target);
+    cargarPlan();
+  });
+
+  await cargarBandeja();
+  await cargarPlan();
+}
+
+async function cargarCapataces(){
+  const { data, error } = await _supa.from('usuarios_perfil')
+    .select('user_id, nombre')
+    .eq('rol', 'capataz')
+    .eq('zona', _perfil.zona || 'VI');
+  if (error){ console.warn('capataces', error); return; }
+  _capataces = data || [];
+  const selBandeja = $('f-capataz');
+  const selModal = $('mg-capataz');
+  const opts = _capataces.map(c => `<option value="${esc(c.user_id)}">${esc(c.nombre)}</option>`).join('');
+  selBandeja.innerHTML = '<option value="">Todos</option>' + opts;
+  selModal.innerHTML = '<option value="">— Sin asignar aún —</option>' + opts;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISTA 1 · BANDEJA DE ENTRADA
+   ═══════════════════════════════════════════════════════════════ */
+async function cargarBandeja(){
+  const partido    = $('f-partido').value;
+  const categoria  = $('f-categoria').value;
+  const prioridad  = $('f-prioridad').value;
+  const ocultarAsig = $('f-ocultar-asig').checked;
+
+  let q = _supa.from('v_backlog_jefe_zona').select('*').limit(500);
+  if (partido)   q = q.eq('partido', partido);
+  if (prioridad) q = q.eq('prioridad_sugerida', prioridad);
+  if (ocultarAsig) q = q.eq('asignaciones_abiertas', 0);
+  const { data, error } = await q;
+  if (error){
+    console.error('backlog', error);
+    toast('Error cargando backlog: ' + error.message, 'err');
+    return;
+  }
+  _backlog = data || [];
+  // Filtro categoría en cliente (usa DVBA_TIPOS.categoriaDeV2 si estuviera, sino comparar contra lista)
+  if (categoria){
+    _backlog = _backlog.filter(r => inferCategoria(r.tipo) === categoria);
+  }
+  renderBandeja();
+  renderMetsBandeja();
+  poblarPartidos();
+}
+
+function inferCategoria(tipoStr){
+  const s = (tipoStr||'').toLowerCase();
+  if (/bache|pavimento|calzada|huella|erosion|anegam/.test(s)) return 'calzada';
+  if (/banquina|cuneta|alcantarilla tapa|alcantarilla dañ|talud/.test(s)) return 'drenaje';
+  if (/puente|junta|baranda|alcantarilla mayor|muro/.test(s)) return 'estructura';
+  if (/señal|mojon|guardarrail|delineador|cebras|\(p-|\(r-|\(i-/.test(s)) return 'senial_vertical';
+  if (/demarcaci|eje|tachones|senda|frenado/.test(s)) return 'demarcacion';
+  if (/columna|lampara|electric|tendido/.test(s)) return 'iluminacion';
+  if (/vegetacion|inundacion|derrumbe|arbol|tranquera|animal/.test(s)) return 'entorno';
+  if (/siniestro|punto negro|peligrosa|emergencia|camara|radar/.test(s)) return 'seguridad';
+  return 'otro';
+}
+
+function poblarPartidos(){
+  const partidos = [...new Set(_backlog.map(r => r.partido).filter(Boolean))].sort();
+  const sel = $('f-partido');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Todos</option>' +
+    partidos.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+  if (partidos.includes(cur)) sel.value = cur;
+}
+
+function renderMetsBandeja(){
+  const c = { urgente:0, alta:0, media:0, baja:0 };
+  _backlog.forEach(r => c[r.prioridad_sugerida] = (c[r.prioridad_sugerida]||0) + 1);
+  $('mets-bandeja').innerHTML = `
+    <div class="card urg"><div class="lbl">🔴 Urgentes</div><div class="val">${c.urgente}</div><div class="sub">candidatos</div></div>
+    <div class="card alta"><div class="lbl">🟠 Alta</div><div class="val">${c.alta}</div><div class="sub">candidatos</div></div>
+    <div class="card media"><div class="lbl">🟡 Media</div><div class="val">${c.media}</div><div class="sub">candidatos</div></div>
+    <div class="card baja"><div class="lbl">⚪ Baja</div><div class="val">${c.baja}</div><div class="sub">candidatos</div></div>
+    <div class="card"><div class="lbl">Total</div><div class="val">${_backlog.length}</div><div class="sub">relevamientos</div></div>
+  `;
+}
+
+function renderBandeja(){
+  const tb = $('tb-bandeja');
+  if (!_backlog.length){
+    tb.innerHTML = '';
+    $('empty-bandeja').style.display = 'block';
+    return;
+  }
+  $('empty-bandeja').style.display = 'none';
+  // Ordenar por prioridad → fecha desc
+  const pri = { urgente:0, alta:1, media:2, baja:3 };
+  const sorted = [..._backlog].sort((a,b) =>
+    (pri[a.prioridad_sugerida] - pri[b.prioridad_sugerida]) ||
+    (new Date(b.fecha_relevamiento) - new Date(a.fecha_relevamiento))
+  );
+  tb.innerHTML = sorted.map(r => {
+    const tieneAsig = r.asignaciones_abiertas > 0;
+    const cat = inferCategoria(r.tipo);
+    return `<tr class="${tieneAsig?'tiene-asig':''}" data-id="${r.relevamiento_id}">
+      <td>${r.foto_url ? `<img class="foto-tiny" src="${esc(r.foto_url)}" onclick="verFoto('${esc(r.foto_url)}')" alt="">` : '<span class="mut">—</span>'}</td>
+      <td><span class="chip-pri ${r.prioridad_sugerida}">${r.prioridad_sugerida}</span></td>
+      <td><span class="chip-cat">${cat}</span></td>
+      <td>
+        <div style="font-weight:600">${esc(r.tipo||'—')}</div>
+        ${r.estado ? `<span class="chip-est ${r.estado}">${esc(r.estado)}</span>` : ''}
+        ${tieneAsig ? '<span class="mut" style="margin-left:5px">· con asignación abierta</span>' : ''}
+      </td>
+      <td><b style="color:var(--pd)">${esc(r.ruta||'—')}</b><br><span class="mut">km ${esc(r.progresiva||'—')}</span></td>
+      <td>${esc(r.partido||'—')}</td>
+      <td>${fmtFecha(r.fecha_relevamiento)}</td>
+      <td><button class="btn-a" onclick="abrirModalGen(${r.relevamiento_id})">🚜 Generar</button></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODAL · Generar tarea desde relevamiento
+   ═══════════════════════════════════════════════════════════════ */
+function abrirModalGen(relevId){
+  const r = _backlog.find(x => x.relevamiento_id === relevId);
+  if (!r){ toast('Relevamiento no encontrado', 'err'); return; }
+  _selRelevamiento = r;
+  // Origen: mostrar info del relevamiento
+  $('mg-origen').innerHTML = `
+    <b>📍 Desde relevamiento #${r.relevamiento_id}</b>
+    <div>${esc(r.tipo)} · ${esc(r.ruta)} km ${esc(r.progresiva||'—')} · ${esc(r.partido||'—')}</div>
+    ${r.observaciones ? `<div style="color:var(--mut);font-size:11px;margin-top:3px">${esc(r.observaciones)}</div>` : ''}
+    ${r.foto_url ? `<img src="${esc(r.foto_url)}" alt="">` : ''}
+  `;
+  // Sugerir tipo de tarea equivalente + prioridad
+  $('mg-prioridad').value = r.prioridad_sugerida;
+  poblarTiposTarea(inferCategoria(r.tipo));
+  $('mg-notas').value = '';
+  $('mg-superficie').value = '';
+  $('mg-modalidad').value = '';
+  $('mg-cuadrilla').value = '';
+  $('mg-capataz').value = '';
+  $('mg-fecha').value = toISODate(new Date());
+  $('modal-gen').classList.add('on');
+}
+function cerrarModalGen(){
+  $('modal-gen').classList.remove('on');
+  _selRelevamiento = null;
+}
+function poblarTiposTarea(cat){
+  // Sugerencias por categoría · texto libre pero pre-cargado
+  const sug = {
+    calzada: ['Mantenimiento de caminos rurales','Reconformado de tierra','Bacheo con material en frío','Bacheo con material en caliente','Bacheo profundo','Sellado de fisuras','Repavimentación','Riego asfáltico','Mejoramiento con dolomita','Mejoramiento con suelo cal'],
+    drenaje: ['Limpieza de cuneta','Limpieza de canal','Limpieza de alcantarilla','Reparación de cuneta','Reparación de alcantarilla','Reconformado de banquina'],
+    estructura: ['Reparación de puente (tablero)','Reparación de puente (estribo)','Reparación de junta','Reparación de baranda / guardarrail','Reparación de alcantarilla mayor','Reparación de muro de contención'],
+    senial_vertical: ['Reposición de señal','Reposición de mojón','Colocación de guardarrail','Colocación de delineador','Colocación de cebras (cabezal alcantarilla / puente)','Repintado de cebras'],
+    demarcacion: ['Repintado de eje','Repintado de demarcación lateral','Repintado de senda peatonal','Repintado de línea de frenado','Reposición de tachas'],
+    iluminacion: ['Reposición de columna','Reposición de lámpara','Reparación de tendido eléctrico','Migración a LED'],
+    entorno: ['Desmalezado manual','Desmalezado mecánico','Poda de árboles','Limpieza general de ramal','Retiro de árbol caído','Retiro de animal','Reparación de tranquera'],
+    seguridad: [],
+    otro: ['Otra tarea de mantenimiento']
+  };
+  const items = sug[cat] || sug.otro;
+  const sel = $('mg-tipo');
+  sel.innerHTML = '<option value="">— Elegí tipo —</option>' +
+    items.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+  if (items.length) sel.value = items[0];
+}
+
+async function guardarAsignacion(){
+  const r = _selRelevamiento;
+  if (!r){ toast('No hay relevamiento seleccionado', 'err'); return; }
+  const tipo = $('mg-tipo').value.trim();
+  const fecha = $('mg-fecha').value;
+  if (!tipo){ toast('Elegí un tipo de tarea', 'warn'); return; }
+  if (!fecha){ toast('Elegí una fecha prevista', 'warn'); return; }
+  const cat = inferCategoria(tipo) || inferCategoria(r.tipo) || 'otro';
+  const payload = {
+    relevamiento_origen_id: r.relevamiento_id,
+    categoria: cat,
+    tipo,
+    ruta: r.ruta,
+    progresiva: r.progresiva || null,
+    partido: r.partido || null,
+    tipo_via: r.tipo_via || 'rp',
+    superficie: $('mg-superficie').value || null,
+    modalidad: $('mg-modalidad').value || null,
+    lat: r.lat || null,
+    lng: r.lng || null,
+    zona: _perfil.zona,
+    asignado_por: _user.id,
+    capataz_id: $('mg-capataz').value || null,
+    cuadrilla_nombre: $('mg-cuadrilla').value.trim() || null,
+    fecha_prevista: fecha,
+    prioridad: $('mg-prioridad').value,
+    notas_asignacion: $('mg-notas').value.trim() || null,
+    estado_asignacion: 'pendiente'
+  };
+  const { error } = await _supa.from('asignaciones_tarea').insert([payload]);
+  if (error){
+    console.error(error);
+    toast('Error: ' + error.message, 'err');
+    return;
+  }
+  toast('✓ Tarea asignada correctamente');
+  cerrarModalGen();
+  cargarBandeja();
+  cargarPlan();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISTA 2 · PLAN SEMANAL (KANBAN)
+   ═══════════════════════════════════════════════════════════════ */
+async function cargarPlan(){
+  if (!_semanaActual) return;
+  const desde = toISODate(_semanaActual);
+  const hasta = new Date(_semanaActual);
+  hasta.setDate(hasta.getDate() + 6);
+  const hastaS = toISODate(hasta);
+  const capataz = $('f-capataz').value;
+  const mostrarComp = $('f-completadas').checked;
+
+  let q = _supa.from('v_agenda_capataz').select('*')
+    .gte('fecha_prevista', desde)
+    .lte('fecha_prevista', hastaS)
+    .order('prioridad', { ascending: true });
+  if (capataz) q = q.eq('capataz_id', capataz);
+  if (!mostrarComp) q = q.neq('estado_asignacion', 'completada');
+  const { data, error } = await q;
+  if (error){
+    console.error('agenda', error);
+    toast('Error cargando plan: ' + error.message, 'err');
+    return;
+  }
+  _asignaciones = data || [];
+  renderKanban();
+  renderMetsPlan();
+}
+
+function renderMetsPlan(){
+  const c = { pendiente:0, en_curso:0, completada:0, pospuesta:0, cancelada:0 };
+  _asignaciones.forEach(a => c[a.estado_asignacion] = (c[a.estado_asignacion]||0) + 1);
+  const total = _asignaciones.length;
+  const efect = total - c.cancelada;
+  const pctCumpl = efect > 0 ? Math.round(100 * c.completada / efect) : 0;
+  $('mets-plan').innerHTML = `
+    <div class="card"><div class="lbl">Total semana</div><div class="val">${total}</div><div class="sub">asignaciones</div></div>
+    <div class="card"><div class="lbl">⏳ Pendientes</div><div class="val">${c.pendiente}</div><div class="sub">a ejecutar</div></div>
+    <div class="card alta"><div class="lbl">🚜 En curso</div><div class="val">${c.en_curso}</div><div class="sub">en ejecución</div></div>
+    <div class="card"><div class="lbl">✅ Completadas</div><div class="val">${c.completada}</div><div class="sub">cerradas</div></div>
+    <div class="card media"><div class="lbl">% Cumplimiento</div><div class="val">${pctCumpl}%</div><div class="sub">completadas / efect.</div></div>
+  `;
+}
+
+function renderKanban(){
+  const kanban = $('kanban');
+  const dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  const hoyStr = toISODate(new Date());
+  let html = '';
+  for (let i = 0; i < 7; i++){
+    const d = new Date(_semanaActual);
+    d.setDate(d.getDate() + i);
+    const iso = toISODate(d);
+    const esHoy = iso === hoyStr;
+    const asigs = _asignaciones.filter(a => a.fecha_prevista === iso);
+    const fechaCorta = d.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit' });
+    html += `<div class="col${esHoy?' hoy':''}">
+      <div class="col-head">
+        <span>${dias[i]}${esHoy?' · HOY':''}</span>
+        <span class="fecha">${fechaCorta} · ${asigs.length}</span>
+      </div>
+      ${asigs.map(a => tarjetaHtml(a)).join('') || '<div class="mut" style="font-size:10.5px;text-align:center;padding:20px 0">— sin tareas —</div>'}
+    </div>`;
+  }
+  kanban.innerHTML = html;
+}
+
+function tarjetaHtml(a){
+  const cap = _capataces.find(c => c.user_id === a.capataz_id);
+  const capName = cap ? cap.nombre : (a.capataz_id ? '(otro)' : '(sin asignar)');
+  const atraso = a.dias_atraso > 0 ? `<div style="color:var(--ro);font-size:9.5px;font-weight:700">⚠ ${a.dias_atraso}d atraso</div>` : '';
+  return `<div class="tarjeta pri-${a.prioridad} est-${a.estado_asignacion}" onclick="verDetalle('${a.id}')">
+    <div class="t-badge">${a.estado_asignacion}</div>
+    <div class="t-tipo">${esc(a.tipo)}</div>
+    <div class="t-ruta">${esc(a.ruta)} ${a.progresiva?'km '+esc(a.progresiva):''}</div>
+    <div class="t-cap">👤 ${esc(capName)}${a.cuadrilla_nombre?' · '+esc(a.cuadrilla_nombre):''}</div>
+    ${atraso}
+  </div>`;
+}
+
+function cambiarSemana(delta){
+  if (delta === 0) _semanaActual = lunesDe(new Date());
+  else _semanaActual = new Date(_semanaActual.getTime() + delta * 7 * 24 * 3600 * 1000);
+  $('f-semana').value = semanaISO(_semanaActual);
+  cargarPlan();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODAL · Detalle de asignación
+   ═══════════════════════════════════════════════════════════════ */
+function verDetalle(asigId){
+  const a = _asignaciones.find(x => x.id === asigId);
+  if (!a) return;
+  const cap = _capataces.find(c => c.user_id === a.capataz_id);
+  const capName = cap ? cap.nombre : (a.capataz_id ? '(otro)' : 'Sin asignar');
+  $('md-title').textContent = '🚜 ' + a.tipo;
+  $('md-body').innerHTML = `
+    <div class="row"><label>Estado</label><div><span class="chip-est" style="background:var(--p);color:#fff;padding:3px 10px">${a.estado_asignacion}</span> · prioridad <b>${a.prioridad}</b></div></div>
+    <div class="row"><label>Ubicación</label><div>${esc(a.ruta)}${a.progresiva?' km '+esc(a.progresiva):''} · ${esc(a.partido||'—')}</div></div>
+    <div class="row"><label>Fecha prevista</label><div>${fmtFecha(a.fecha_prevista)}${a.dias_atraso>0?` <span style="color:var(--ro)">(${a.dias_atraso}d atraso)</span>`:''}</div></div>
+    <div class="row"><label>Capataz</label><div>${esc(capName)}${a.cuadrilla_nombre?' · '+esc(a.cuadrilla_nombre):''}</div></div>
+    ${a.superficie?`<div class="row"><label>Superficie</label><div>${esc(a.superficie)}</div></div>`:''}
+    ${a.modalidad?`<div class="row"><label>Modalidad</label><div>${esc(a.modalidad)}</div></div>`:''}
+    ${a.notas_asignacion?`<div class="row"><label>Notas</label><div>${esc(a.notas_asignacion)}</div></div>`:''}
+    ${a.foto_origen?`<div class="row"><label>Foto origen</label><div><img src="${esc(a.foto_origen)}" style="max-width:200px;border-radius:5px;border:1px solid var(--light)"></div></div>`:''}
+    ${a.foto_cierre?`<div class="row"><label>Foto cierre</label><div><img src="${esc(a.foto_cierre)}" style="max-width:200px;border-radius:5px;border:1px solid var(--light)"></div></div>`:''}
+    ${a.fecha_iniciada?`<div class="row"><label>Iniciada</label><div>${new Date(a.fecha_iniciada).toLocaleString('es-AR')}</div></div>`:''}
+    ${a.fecha_completada?`<div class="row"><label>Completada</label><div>${new Date(a.fecha_completada).toLocaleString('es-AR')}</div></div>`:''}
+  `;
+  const foot = $('md-foot');
+  const btns = [];
+  if (a.estado_asignacion === 'pendiente'){
+    btns.push(`<button class="btn ghost" onclick="cambiarEstadoAsig('${a.id}','cancelada','Cancelada por jefe')">✕ Cancelar</button>`);
+    btns.push(`<button class="btn ghost" onclick="cambiarEstadoAsig('${a.id}','pospuesta','Pospuesta por jefe')">↷ Posponer</button>`);
+  }
+  if (a.estado_asignacion === 'pospuesta'){
+    btns.push(`<button class="btn ghost" onclick="cambiarEstadoAsig('${a.id}','pendiente',null)">⇢ Reactivar</button>`);
+  }
+  btns.push(`<button class="btn primary" onclick="cerrarModalDet()">Cerrar</button>`);
+  foot.innerHTML = btns.join('');
+  $('modal-det').classList.add('on');
+}
+function cerrarModalDet(){ $('modal-det').classList.remove('on'); }
+
+async function cambiarEstadoAsig(id, nuevoEstado, motivo){
+  const payload = { estado_asignacion: nuevoEstado };
+  if (nuevoEstado === 'cancelada' || nuevoEstado === 'pospuesta') payload.motivo_no_ejecucion = motivo;
+  const { error } = await _supa.from('asignaciones_tarea').update(payload).eq('id', id);
+  if (error){ toast('Error: ' + error.message, 'err'); return; }
+  toast('✓ Estado actualizado a ' + nuevoEstado);
+  cerrarModalDet();
+  cargarPlan();
+}
+
+/* ── Vista + navegación ── */
+function cambiarVista(v){
+  document.querySelectorAll('.vtab').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  $('view-bandeja').style.display = v === 'bandeja' ? 'block' : 'none';
+  $('view-plan').style.display    = v === 'plan'    ? 'block' : 'none';
+  if (v === 'plan') cargarPlan();
+}
+
+function verFoto(url){
+  window.open(url, '_blank');
+}
+
+async function cerrarSesion(){
+  await _supa.auth.signOut();
+  location.href = 'index.html';
+}
+
+iniciar();
+</script>
+</body>
+</html>
