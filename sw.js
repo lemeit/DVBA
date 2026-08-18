@@ -26,7 +26,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.95.10';  // v9.95.10 · UX portal: leyenda scrolleable + scrollbar 12px + rueda mouse ok + spans móvil sincronizados
+const CACHE_NAME = 'dvba-campo-v9.95.11';  // v9.95.11 · Fix offline: fallback ampliado a app.html + dvba_campo_lite.html + caches.match tolerante a query params
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -124,21 +124,30 @@ self.addEventListener('fetch', e => {
       }
       return resp;
     }).catch(() => {
-      // Offline: cache exacto, sino variantes del HTML principal
-      return caches.match(e.request).then(cached => {
+      // v9.95.11 · Offline · Match tolerante a query params (?v=X.Y.Z de cache-busters
+      // + params PWA que Android puede agregar como ?utm_source=pwa, etc.)
+      return caches.match(e.request, { ignoreSearch: true, ignoreVary: true }).then(cached => {
         if (cached) return cached;
         const path = url.pathname;
-        // Si la URL es la app principal sin .html o solo el directorio,
-        // devolver el .html cacheado
-        if (/\/dvba_campo\/?$/.test(path) ||
-            path.endsWith('/DVBA/') || path.endsWith('/DVBA') ||
-            path.endsWith('/')) {
-          return caches.match('./dvba_campo.html')
-            .then(c => c || caches.match('./'))
-            .then(c => c || new Response('Sin caché del HTML principal.', {
-              status: 503,
-              headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-            }));
+        // v9.95.11 · Fallback ampliado · cubre TODAS las entradas del PWA
+        // (root, /DVBA/, /app.html, /dvba_campo_lite.html, /dvba_campo.html, /campo.html)
+        // Antes solo cubría /dvba_campo → si el user abría desde el icono PWA
+        // (start_url=app.html) y modo avión, caía al 503 genérico.
+        const esEntradaPWA =
+          /\/(app|campo|dvba_campo|dvba_campo_lite)(\.html)?\/?$/.test(path) ||
+          path.endsWith('/DVBA/') || path.endsWith('/DVBA') ||
+          path.endsWith('/');
+        if (esEntradaPWA) {
+          // Prioridad: app.html (bootstrap) → dvba_campo_lite.html (Modo Básico default)
+          //           → dvba_campo.html (Modo Avanzado) → root
+          return caches.match('./app.html', { ignoreSearch: true })
+            .then(c => c || caches.match('./dvba_campo_lite.html', { ignoreSearch: true }))
+            .then(c => c || caches.match('./dvba_campo.html', { ignoreSearch: true }))
+            .then(c => c || caches.match('./', { ignoreSearch: true }))
+            .then(c => c || new Response(
+              'Sin caché del HTML principal. Abrí la app con internet al menos una vez.',
+              { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+            ));
         }
         return new Response(
           'Sin conexión y sin caché disponible para este recurso.',
