@@ -954,7 +954,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.77';
+const APP_VERSION = 'v8.78';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 
 // ── Logo DVBA para sello en fotos ────────────────────────────────────────────
@@ -1786,6 +1786,11 @@ async function cargarRegs() {
       tipo_via:        r.tipo_via        || 'rp',
       // v3 Modelo Tipos v2 (SQL_15) — naturaleza del registro
       naturaleza:      r.naturaleza      || 'relevamiento',
+      // v8.78 (SQL_16) — sub-atributos en columnas dedicadas + fallback al parseo
+      // del sufijo `[superficie:X · modalidad:Y]` de observaciones para registros
+      // pre-migración que aún tienen el metadato serializado.
+      superficie:      r.superficie || _parsearSubAtrib(r.observaciones, 'superficie'),
+      modalidad:       r.modalidad  || _parsearSubAtrib(r.observaciones, 'modalidad'),
     }));
     setModoIndicador(true);
     actualizarBadgeCola();  // v7.12 — refresca badge "X pendientes"
@@ -2814,18 +2819,15 @@ async function guardar(){
   const tipo    = document.getElementById('ftipo').value;
   const estado  = document.getElementById('festado').value;
   const obs     = document.getElementById('fobs').value;
-  // v7.10 — sub-atributos condicionales (se serializan en observaciones)
+  // v8.78 · sub-atributos condicionales van a columnas dedicadas (SQL_16)
   const superficie = document.getElementById('fsuperficie')?.value || '';
   const modalidad  = document.getElementById('fmodalidad')?.value || '';
   // v7.15 — tipo_via (RP o camino secundario)
   const tipoVia = document.getElementById('ftipo-via')?.value || 'rp';
   if (!ruta || !prog || !tipo || !estado) { alert('Complete ' + (tipoVia==='camino'?'Camino':'Ruta') + ', Progresiva, Tipo y Estado.'); return; }
-  // Concat metadatos al final de las observaciones (sin migrar Supabase)
-  let obsFinal = obs;
-  const meta = [];
-  if (superficie) meta.push('superficie:'+superficie);
-  if (modalidad) meta.push('modalidad:'+modalidad);
-  if (meta.length) obsFinal = (obs ? obs+'\n\n' : '') + '['+meta.join(' · ')+']';
+  // v8.78 · observaciones = solo texto libre del user. superficie/modalidad
+  // ya no se concatenan al final (SQL_16 columnas dedicadas).
+  const obsFinal = obs;
 
   const fi = document.getElementById('ffoto');
   const manualLat = parseFloat(document.getElementById('flat').value);
@@ -2919,8 +2921,10 @@ async function guardar(){
       foto_url:      fotoFinal,
       lat, lng,
       fecha:         fechaFinal,
-      tipo_via:      tipoVia,     // v7.15 — 'rp' | 'camino'
-      naturaleza:    naturaleza,  // v3 Modelo Tipos v2 (SQL_15)
+      tipo_via:      tipoVia,          // v7.15 — 'rp' | 'camino'
+      naturaleza:    naturaleza,       // v3 Modelo Tipos v2 (SQL_15)
+      superficie:    superficie||null, // v8.78 columna dedicada (SQL_16)
+      modalidad:     modalidad||null,  // v8.78 columna dedicada (SQL_16)
     };
 
     if (_supa) {
@@ -6901,6 +6905,19 @@ function generarMapaSVG(ridsArr, W, H) {
 // ─── EDICIÓN DE REGISTROS ────────────────────────────────────────
 let _editandoId = null;
 
+/* v8.78 (SQL_16) · Fallback de parseo de sub-atributos serializados en observaciones.
+ * Los registros pre-migración pueden tener al final del texto:
+ *   [superficie:asfalto · modalidad:mecanico]
+ * Después del SQL_16 esto ya no debería existir, pero por si el user tiene
+ * registros que aún no migró, extraemos el valor con regex tolerante. */
+function _parsearSubAtrib(observaciones, campo){
+  if (!observaciones) return null;
+  const rx = new RegExp('\\b' + campo + ':\\s*(\\w+)', 'i');
+  const m = observaciones.match(rx);
+  return m ? m[1].toLowerCase() : null;
+}
+
+
 // v7.48 — Rotación + re-sellar foto desde el sidebar de edición
 let _rotacionPreview = 0;   // pasos de 90° adicionales para la foto en edición
 let _regEditandoFoto = null; // referencia al registro con la foto que se está editando
@@ -7321,6 +7338,12 @@ function editReg(id) {
   document.getElementById('fprog').value    = reg.prog || '';
   z6TipoSetValor(reg.tipo || '');
   document.getElementById('festado').value  = reg.estado || '';
+  // v8.78 (SQL_16) · Precargar superficie/modalidad si el registro los tiene
+  // (viene de columna dedicada o del parseo fallback del sufijo de observaciones).
+  const selSupEdit = document.getElementById('fsuperficie');
+  if (selSupEdit && reg.superficie) selSupEdit.value = reg.superficie;
+  const selModEdit = document.getElementById('fmodalidad');
+  if (selModEdit && reg.modalidad)  selModEdit.value = reg.modalidad;
   // v8.25 · Si las observaciones son el placeholder auto-generado por el Modo Básico
   // ("Foto tomada con Modo Básico (vX.XX) · GPS ±Ym · Completar datos en oficina."),
   // mostrarlas VACÍAS en el input para que el user complete con datos reales sin

@@ -451,7 +451,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.13</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.14</span></div>
   </div>
 </div>
 
@@ -687,7 +687,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:auto">
-  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.13</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
+  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.14</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
 </div>
 
 
@@ -1695,7 +1695,7 @@ function comprimir(b64,maxPx,q){
   });
 }
 
-/* v9.95.13 · Cache defensivo del último valor válido de f-ruta.
+/* v9.95.14 · Cache defensivo del último valor válido de f-ruta.
    v9.83 solo capturaba 'change' (interacción manual). Cuando el código setea
    .value programáticamente (actualizarCaminosDelPartido, prefill GPS, restauración
    desde partido) el evento NO se dispara → cache queda vacío → al enviar sale
@@ -1751,7 +1751,7 @@ async function guardarRegistro(){
   const partido=document.getElementById('f-partido').value.trim();
   const lat=parseFloat(document.getElementById('f-lat').value)||null;
   const lng=parseFloat(document.getElementById('f-lng').value)||null;
-  // v9.18 — sub-atributos condicionales
+  // v9.18 — sub-atributos condicionales (v9.95.14 · van a columnas dedicadas, SQL_16)
   const superficie=document.getElementById('f-superficie')?.value.trim()||'';
   const modalidad=document.getElementById('f-modalidad')?.value.trim()||'';
   // v9.20 — tipo_via (RP o camino secundario)
@@ -1760,12 +1760,9 @@ async function guardarRegistro(){
   if(!tipo){toast('Seleccioná el tipo de suceso','err');return;}
   if(!lat||!lng){toast('Aplicá las coordenadas GPS con ↓ Usar','err');return;}
   const fecha=new Date().toISOString(), tempId=Date.now();
-  // Incluimos superficie/modalidad en observaciones (no requiere migración Supabase)
-  let obsCompletas = obs;
-  const meta = [];
-  if (superficie) meta.push('superficie:'+superficie);
-  if (modalidad) meta.push('modalidad:'+modalidad);
-  if (meta.length) obsCompletas = (obs ? obs+'\n\n' : '') + '['+meta.join(' · ')+']';
+  // v9.95.14 · superficie/modalidad ahora van a columnas dedicadas (SQL_16).
+  // observaciones queda solo con el texto libre del user, sin sufijo `[...]`.
+  const obsCompletas = obs;
   // v9.19 — Workflow: registros de campo entran como 'campo' (van a cola de revisión)
   // v9.20 — Si es camino, NO armonizar contra RPs (armonizador solo conoce RPs por ahora)
   let validadoGeo = 'sin_coords';
@@ -1791,8 +1788,10 @@ async function guardarRegistro(){
     validado_geo:    validadoGeo,
     sello_version:   null,
     prioridad:       'normal',
-    tipo_via:        tipoVia,     // ← v9.20 RP o camino secundario
-    naturaleza:      naturaleza,  // ← v3 Modelo Tipos v2 (SQL_15)
+    tipo_via:        tipoVia,          // ← v9.20 RP o camino secundario
+    naturaleza:      naturaleza,       // ← v3 Modelo Tipos v2 (SQL_15)
+    superficie:      superficie||null, // ← v9.95.14 columna dedicada (SQL_16)
+    modalidad:       modalidad||null,  // ← v9.95.14 columna dedicada (SQL_16)
     zona:            (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.zonaActual() : 'VI'   // v9.69 Fase 2
   };
   if(navigator.onLine) showOv('Verificando conexión…');
@@ -2228,7 +2227,7 @@ function hacerThumb(b64){
   // (v9.95.4 tenía "var APP_VER = window.APP_VER" que causaba SyntaxError por doble
   // declaración con otro script, abortando la asignación y dejando el modal Acerca
   // de mostrando versión vieja cacheada).
-  window.APP_VER = 'v9.95.13';
+  window.APP_VER = 'v9.95.14';
   console.log('[dvba_campo] window.APP_VER inicializado a', window.APP_VER);
 </script>
 <!-- v9.95.4 · Cache-busters en los .js críticos para forzar reload aunque el SW cachee -->
