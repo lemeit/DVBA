@@ -155,14 +155,15 @@ function _inyectarCSS(){
     .dvba-nav-brand .app{font-size:14px;font-weight:800;letter-spacing:.3px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .dvba-nav-brand .app sup{color:#ffd060;font-size:.65em;font-weight:700;margin-left:2px}
     .dvba-nav-brand .sub{font-size:11px;color:rgba(255,255,255,.85);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .dvba-nav-zona{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);padding:5px 11px;border-radius:14px;font-size:11px;font-weight:700;color:#fff;letter-spacing:.4px;white-space:nowrap;flex-shrink:0}
-    /* Zona-picker relocado del header legacy · estilo consistente con el badge */
+    .dvba-nav-zona{background:#ffd060;border:1px solid #e6b636;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:800;color:#5a3d00;letter-spacing:.3px;white-space:nowrap;flex-shrink:0}
+    /* v8.83 · Slot inline dentro del brand (al lado del título) */
+    .dvba-nav-zona-slot-inline{display:inline-flex;align-items:center;gap:6px;margin-left:10px;vertical-align:middle}
     .dvba-nav-zona-slot{display:flex;align-items:center;gap:5px;flex-shrink:0}
-    .dvba-nav-zona-slot select,.dvba-nav-zona-slot .dvba-nav-picker-relocado{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);color:#fff;padding:5px 10px;border-radius:14px;font-size:11px;font-weight:700;letter-spacing:.4px;font-family:'Encode Sans',sans-serif;cursor:pointer;outline:none;appearance:auto;-webkit-appearance:auto}
-    .dvba-nav-zona-slot select option{background:#00707e;color:#fff}
-    .dvba-nav-zona-slot select:hover,.dvba-nav-zona-slot .dvba-nav-picker-relocado:hover{background:rgba(255,255,255,.28)}
-    .dvba-nav-zona-slot select:focus{border-color:#fff}
-    .dvba-nav-zona-slot label{font-size:10px;color:rgba(255,255,255,.85);font-weight:600}
+    .dvba-nav-zona-slot select,.dvba-nav-zona-slot .dvba-nav-picker-relocado{background:#ffd060;border:1px solid #e6b636;color:#5a3d00;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:800;letter-spacing:.3px;font-family:'Encode Sans',sans-serif;cursor:pointer;outline:none;appearance:auto;-webkit-appearance:auto}
+    .dvba-nav-zona-slot select option{background:#fff;color:#5a3d00}
+    .dvba-nav-zona-slot select:hover,.dvba-nav-zona-slot .dvba-nav-picker-relocado:hover{background:#ffe088}
+    .dvba-nav-zona-slot select:focus{border-color:#a56600}
+    .dvba-nav-zona-slot label{font-size:10px;color:rgba(255,255,255,.9);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
     .dvba-nav-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.32);color:#fff;padding:7px 13px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:all .15s;flex-shrink:0}
     .dvba-nav-btn:hover{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.5)}
     .dvba-nav-btn.open{background:#fff;color:#007e8c;border-color:#fff}
@@ -325,13 +326,12 @@ const DVBA_NAV = {
         <div class="dvba-nav-brand">
           <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA" onerror="this.style.display='none';this.parentElement.textContent='🛣'"></div>
           <div class="titulo">
-            <span class="app">SIG Vial PBA<sup>β</sup></span>
+            <span class="app">SIG Vial PBA<sup>β</sup>
+              <span class="dvba-nav-zona-slot dvba-nav-zona-slot-inline" id="dvba-nav-zona-slot"></span>
+            </span>
             ${titulo ? `<span class="sub">${esc(titulo)}</span>` : ''}
           </div>
         </div>
-        ${rol !== 'publico' ? `<div class="dvba-nav-zona-slot" id="dvba-nav-zona-slot">
-          ${opts.zonaControlHtml ? opts.zonaControlHtml : (zona ? `<span class="dvba-nav-zona">${esc(zonaLabel)}</span>` : '')}
-        </div>` : ''}
         ${(['admin','gerencia','jefe_zona','jefe_tecnica','jefe_operativa'].includes(rol)) ? `
           <button id="dvba-nav-cola-btn" class="dvba-nav-btn" title="Registros pendientes de revisión${rol==='gerencia'?' (solo lectura · gerencia interviene por sugerencia)':''}"
                   onclick="(typeof abrirColaPendientes==='function'?abrirColaPendientes():alert('Cola no disponible en este portal'))"
@@ -371,34 +371,60 @@ const DVBA_NAV = {
     //  - Publico → badge estático de la zona actual.
     setTimeout(() => {
       const zonaSlot = document.getElementById('dvba-nav-zona-slot');
-      const picker = document.getElementById('zonaPicker');
       if (!zonaSlot) return;
-      // Cualquier user logueado con picker en DOM → picker interactivo.
-      // (RLS filtra escritura; navegación entre zonas es libre para todos.)
-      if (rol !== 'publico' && picker && picker.tagName === 'SELECT'){
-        // Limpiar el slot (por si venía un pill `zonaControlHtml` estático desde el portal)
+      // v8.83 · TODOS los roles logueados tienen picker interactivo con las 4 zonas
+      // hoy activas (PBA, IV, V, VI). Al elegir → reload con ?zona=X.
+      // La RLS zonal filtra la escritura; la navegación entre zonas es libre.
+      if (rol !== 'publico'){
         zonaSlot.innerHTML = '';
-        picker.classList.add('dvba-nav-picker-relocado');
         const lbl = document.createElement('label');
         lbl.textContent = 'Zona:';
         zonaSlot.appendChild(lbl);
-        zonaSlot.appendChild(picker);
-        picker.style.display = '';
-        picker.style.visibility = 'visible';
+        const sel = document.createElement('select');
+        sel.className = 'dvba-nav-picker-relocado';
+        sel.id = 'dvba-nav-zona-select';
+        const zonaHoy = (window.ZONA_ACTUAL || zona || 'PBA').toUpperCase();
+        const ZONAS_HOY = ['PBA','IV','V','VI'];  // Ampliar cuando se agreguen más zonas
+        const NOMBRES = { PBA:'🌐 Todas (PBA)', IV:'IV · Junín', V:'V · Chivilcoy', VI:'VI · Saladillo' };
+        ZONAS_HOY.forEach(z => {
+          const opt = document.createElement('option');
+          opt.value = z; opt.textContent = NOMBRES[z] || z;
+          if (z === zonaHoy) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', function(){
+          const nueva = this.value;
+          // Preferir la API DVBA_ZONA (que hace reload con ?zona=X)
+          if (window.DVBA_ZONA && typeof DVBA_ZONA.cambiar === 'function'){
+            DVBA_ZONA.cambiar(nueva);
+          } else {
+            const url = new URL(location.href);
+            url.searchParams.set('zona', nueva);
+            location.href = url.toString();
+          }
+        });
+        zonaSlot.appendChild(sel);
       } else {
-        // Sin picker o rol publico: mostrar UN solo badge estático.
-        // Si ya vino un pill custom (zonaControlHtml), lo dejamos y no agregamos otro.
+        // Publico: badge estático de la zona que está viendo
         const yaHayContenido = zonaSlot.children.length > 0;
         if (!yaHayContenido){
           const hZona = document.getElementById('hZona')?.textContent?.trim();
-          const zonaMostrar = zona || (hZona ? hZona.replace(/^ZONA\s*/i,'') : null);
+          const zonaMostrar = (window.ZONA_ACTUAL || zona || (hZona ? hZona.replace(/^ZONA\s*/i,'') : null));
           if (zonaMostrar){
             const badge = document.createElement('span');
             badge.className = 'dvba-nav-zona';
-            badge.textContent = esTransversal ? '🌐 Todas las zonas' : ('Zona ' + zonaMostrar);
+            badge.textContent = zonaMostrar === 'PBA' ? '🌐 PBA (panorámica)' : ('Zona ' + zonaMostrar);
             zonaSlot.appendChild(badge);
           }
         }
+      }
+      // v8.83 · Al montar el nav, refrescar el badge de cola (el conteo llega
+      // asincrónicamente desde Supabase; sin este refresh queda con el valor
+      // inicial 0 que había cuando montó el nav).
+      if (typeof actualizarBadgeCola === 'function'){
+        setTimeout(actualizarBadgeCola, 500);
+        setTimeout(actualizarBadgeCola, 1500);
+        setTimeout(actualizarBadgeCola, 3000);
       }
     }, 100);
   },
