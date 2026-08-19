@@ -353,6 +353,52 @@ body.solo-lectura #view-bandeja .empty{display:none}
   </div>
 </div>
 
+<!-- Modal Cierre con foto de campo -->
+<div class="modal-ov" id="modal-cierre">
+  <div class="modal" style="max-width:780px">
+    <div class="modal-head">
+      <h3>✅ Cerrar asignación con foto de campo</h3>
+      <button class="close" onclick="cerrarModalCierre()">×</button>
+    </div>
+    <div class="modal-body" id="mc-body">
+      <div id="mc-context" style="background:#f7fbfc;padding:10px 14px;border-radius:5px;border:1px dashed var(--light);margin-bottom:15px;font-size:12px"></div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+        <b style="color:var(--pd);font-size:12px">📸 Fotos crudas de Modo Básico</b>
+        <label style="font-size:11px;color:var(--mut);cursor:pointer">
+          <input type="checkbox" id="mc-solo-ruta" checked style="vertical-align:middle;min-width:auto"> Solo de esta ruta
+        </label>
+        <span style="font-size:10px;color:var(--mut);flex:1;text-align:right">últimos 15 días · sin cierre vinculado</span>
+      </div>
+      <div id="mc-fotos" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;max-height:260px;overflow-y:auto;padding:4px"></div>
+      <div id="mc-form" style="display:none;margin-top:15px;padding-top:15px;border-top:2px solid var(--p)">
+        <div style="font-size:11px;color:var(--pd);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Completar datos del cierre</div>
+        <div class="row"><label>Foto elegida</label><div id="mc-foto-sel" style="font-size:11px;color:var(--mut)"></div></div>
+        <div class="row"><label>Tipo (tarea ejecutada)</label><input type="text" id="mc-tipo" style="width:100%"></div>
+        <div class="row"><label>Estado</label><select id="mc-estado" style="width:100%">
+          <option value="finalizado">✅ Finalizado</option>
+          <option value="reparado">🔵 Reparado</option>
+          <option value="en_obra">🟡 En obra (parcial)</option>
+        </select></div>
+        <div class="row"><label>Superficie</label><select id="mc-superficie" style="width:100%">
+          <option value="">—</option>
+          <option value="asfalto">Asfalto</option><option value="hormigon">Hormigón</option>
+          <option value="tierra">Tierra</option><option value="estabilizado">Estabilizado</option>
+          <option value="dolomita">Dolomita</option><option value="suelo_cal">Suelo cal</option>
+        </select></div>
+        <div class="row"><label>Modalidad</label><select id="mc-modalidad" style="width:100%">
+          <option value="">—</option>
+          <option value="manual">Manual</option><option value="mecanico">Mecánico</option><option value="mixto">Mixto</option>
+        </select></div>
+        <div class="row"><label>Observaciones cierre</label><textarea id="mc-obs" placeholder="Notas del cierre (opcional)" style="width:100%;min-height:50px;resize:vertical"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="cerrarModalCierre()">Cancelar</button>
+      <button class="btn primary" id="mc-guardar" onclick="guardarCierre()" style="display:none;background:var(--vd);border-color:#1a8a44">✓ Cerrar asignación</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Detalle de tarjeta -->
 <div class="modal-ov" id="modal-det">
   <div class="modal">
@@ -382,7 +428,7 @@ body.solo-lectura #view-bandeja .empty{display:none}
 /* ═══════════════════════════════════════════════════════════════
    Plan Operativo · Portal escritorio para Jefe de Zona / Operativa
    ═══════════════════════════════════════════════════════════════ */
-const APP_VERSION = 'v8.79';
+const APP_VERSION = 'v8.80';
 window.APP_VERSION = APP_VERSION;
 // Auto-update del span de versión al DOMContentLoaded (idem admin/reportes)
 document.addEventListener('DOMContentLoaded', () => {
@@ -846,6 +892,12 @@ function verDetalle(asigId){
   if (a.fue_intervenida && a.intervenido_por){
     $('md-body').innerHTML += `<div style="margin-top:10px;padding:8px 12px;background:#fdecdc;border-left:4px solid var(--am);border-radius:4px;font-size:11px"><b style="color:var(--am)">🔍 Intervención registrada</b> · ${a.intervenido_en?new Date(a.intervenido_en).toLocaleString('es-AR'):''}${a.motivo_intervencion?'<br><i>'+esc(a.motivo_intervencion)+'</i>':''}</div>`;
   }
+  // v8.80 · Botón "Cerrar con foto de campo" · vincula asignación con relevamiento crudo
+  // subido desde el Modo Básico. Solo para jefe_zona / jefe_operativa / gerencia / admin.
+  const puedeCerrar = ['jefe_zona','jefe_operativa','gerencia','admin'].includes(_perfil.rol);
+  if (puedeCerrar && (a.estado_asignacion === 'pendiente' || a.estado_asignacion === 'en_curso')){
+    btns.push(`<button class="btn primary" style="background:var(--vd);border-color:#1a8a44" onclick="abrirModalCierre('${a.id}')">✅ Cerrar con foto de campo</button>`);
+  }
   if (puedeEditar && a.estado_asignacion === 'pendiente'){
     btns.push(`<button class="btn ghost" onclick="cambiarEstadoAsig('${a.id}','cancelada','Cancelada por ${esc(_perfil.rol)}')">✕ Cancelar</button>`);
     btns.push(`<button class="btn ghost" onclick="cambiarEstadoAsig('${a.id}','pospuesta','Pospuesta por ${esc(_perfil.rol)}')">↷ Posponer</button>`);
@@ -858,6 +910,142 @@ function verDetalle(asigId){
   $('modal-det').classList.add('on');
 }
 function cerrarModalDet(){ $('modal-det').classList.remove('on'); }
+
+/* ═══════════════════════════════════════════════════════════════
+   v8.80 · CIERRE CON FOTO DE CAMPO
+   Flujo: jefe abre modal desde detalle · elige foto cruda del Modo Básico ·
+   completa datos → 2 UPDATEs (relevamiento + asignación).
+   ═══════════════════════════════════════════════════════════════ */
+let _asigCierreActual = null;   // asignación siendo cerrada
+let _fotoCierreSel = null;      // foto elegida del listado
+
+async function abrirModalCierre(asigId){
+  const a = _asignaciones.find(x => x.id === asigId);
+  if (!a){ toast('No encontrada', 'err'); return; }
+  _asigCierreActual = a;
+  _fotoCierreSel = null;
+  cerrarModalDet();
+  $('mc-context').innerHTML = `
+    <b style="color:var(--pd)">${esc(a.tipo)}</b> · ${esc(a.ruta)}${a.progresiva?' km '+esc(a.progresiva):''} · ${esc(a.partido||'—')}
+    <div style="color:var(--mut);font-size:11px;margin-top:3px">📅 Prevista: ${fmtFecha(a.fecha_prevista)} · ${esc(_capataces.find(c=>c.user_id===a.capataz_id)?.nombre||'(sin capataz)')}${a.cuadrilla_nombre?' · '+esc(a.cuadrilla_nombre):''}</div>
+  `;
+  $('mc-form').style.display = 'none';
+  $('mc-guardar').style.display = 'none';
+  $('mc-tipo').value = a.tipo || '';
+  $('mc-superficie').value = a.superficie || '';
+  $('mc-modalidad').value = a.modalidad || '';
+  $('mc-obs').value = '';
+  $('mc-solo-ruta').onchange = cargarFotosCierre;
+  $('modal-cierre').classList.add('on');
+  await cargarFotosCierre();
+}
+function cerrarModalCierre(){
+  $('modal-cierre').classList.remove('on');
+  _asigCierreActual = null; _fotoCierreSel = null;
+}
+
+async function cargarFotosCierre(){
+  if (!_asigCierreActual) return;
+  const a = _asigCierreActual;
+  const soloRuta = $('mc-solo-ruta').checked;
+  const desde = new Date(); desde.setDate(desde.getDate() - 15);
+  const desdeS = desde.toISOString();
+  // Fotos crudas del Modo Básico: estado_workflow='campo' + foto_url no null
+  // + zona coincide + últimos 15 días.
+  let q = _supa.from('relevamientos')
+    .select('id, foto_url, fecha, lat, lng, partido, ruta, observaciones, tipo, estado_workflow, tipo_via')
+    .eq('estado_workflow', 'campo')
+    .not('foto_url', 'is', null)
+    .gte('fecha', desdeS)
+    .eq('zona', a.zona)
+    .order('fecha', { ascending: false })
+    .limit(60);
+  if (soloRuta && a.ruta) q = q.eq('ruta', a.ruta);
+  const { data, error } = await q;
+  if (error){ toast('Error cargando fotos: ' + error.message, 'err'); return; }
+  // Filtrar además las que ya tienen cierre vinculado a otra asignación
+  const ids = (data||[]).map(r => r.id);
+  let idsUsados = new Set();
+  if (ids.length){
+    const { data: usados } = await _supa.from('asignaciones_tarea')
+      .select('registro_cierre_id').in('registro_cierre_id', ids);
+    idsUsados = new Set((usados||[]).map(x => x.registro_cierre_id).filter(Boolean));
+  }
+  const disponibles = (data||[]).filter(r => !idsUsados.has(r.id));
+  const cont = $('mc-fotos');
+  if (!disponibles.length){
+    cont.innerHTML = `<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--mut);font-size:12px;background:#f7fbfc;border-radius:5px">
+      <div style="font-size:24px;margin-bottom:5px">📭</div>
+      <b>No hay fotos crudas disponibles</b><br>
+      <span style="font-size:11px">Sin fotos del Modo Básico en ${soloRuta?'esta ruta y':'esta'} zona en los últimos 15 días.</span>
+      ${soloRuta?'<br><br><button class="btn ghost" onclick="document.getElementById(\'mc-solo-ruta\').checked=false;cargarFotosCierre()" style="font-size:11px;padding:5px 10px">Ver de toda la zona</button>':''}
+    </div>`;
+    return;
+  }
+  cont.innerHTML = disponibles.map(r => {
+    const fecha = new Date(r.fecha).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'}) + ' ' + new Date(r.fecha).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="mc-foto-card" data-id="${r.id}" onclick="seleccionarFotoCierre(${r.id})" style="border:2px solid var(--light);border-radius:5px;padding:5px;cursor:pointer;background:#fff;transition:all .15s">
+      <img src="${esc(r.foto_url)}" style="width:100%;height:90px;object-fit:cover;border-radius:3px;background:#e5e5e5" alt="">
+      <div style="font-size:10px;color:var(--pd);font-weight:700;margin-top:4px">${esc(r.ruta||'(sin ruta)')}</div>
+      <div style="font-size:9.5px;color:var(--mut)">${fecha}</div>
+      ${r.partido?`<div style="font-size:9px;color:var(--mut)">${esc(r.partido)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function seleccionarFotoCierre(fotoId){
+  document.querySelectorAll('.mc-foto-card').forEach(el => {
+    const sel = el.dataset.id == fotoId;
+    el.style.borderColor = sel ? 'var(--vd)' : 'var(--light)';
+    el.style.background = sel ? '#e6f6ea' : '#fff';
+    if (sel) _fotoCierreSel = fotoId;
+  });
+  $('mc-form').style.display = 'block';
+  $('mc-guardar').style.display = 'inline-block';
+  const card = document.querySelector('.mc-foto-card[data-id="'+fotoId+'"]');
+  const fecha = card ? card.querySelector('div:nth-child(3)').textContent : '';
+  const ruta = card ? card.querySelector('div:nth-child(2)').textContent : '';
+  $('mc-foto-sel').textContent = `Foto #${fotoId} · ${ruta} · ${fecha}`;
+}
+
+async function guardarCierre(){
+  const a = _asigCierreActual;
+  const fotoId = _fotoCierreSel;
+  if (!a || !fotoId){ toast('Elegí una foto primero', 'warn'); return; }
+  const tipoFinal = $('mc-tipo').value.trim();
+  if (!tipoFinal){ toast('Completá el tipo de tarea ejecutada', 'warn'); return; }
+  const ahora = new Date().toISOString();
+  // 1. UPDATE al relevamiento (foto cruda): completar datos, marcarlo aprobado + naturaleza=tarea
+  const relevPayload = {
+    tipo: tipoFinal,
+    estado: $('mc-estado').value || 'finalizado',
+    naturaleza: 'tarea',
+    superficie: $('mc-superficie').value || null,
+    modalidad: $('mc-modalidad').value || null,
+    observaciones: $('mc-obs').value.trim() || null,
+    estado_workflow: 'aprobado',
+    validado_geo: 'auto_corregido'
+  };
+  const { error: e1 } = await _supa.from('relevamientos').update(relevPayload).eq('id', fotoId);
+  if (e1){ toast('Error completando registro: ' + e1.message, 'err'); return; }
+  // 2. UPDATE a la asignación: marcarla completada + vincular
+  const asigPayload = {
+    estado_asignacion: 'completada',
+    fecha_completada: ahora,
+    registro_cierre_id: fotoId
+  };
+  const { error: e2 } = await _supa.from('asignaciones_tarea').update(asigPayload).eq('id', a.id);
+  if (e2){
+    toast('Error cerrando asignación: ' + e2.message, 'err');
+    // Rollback manual del relevamiento (revertir a estado campo)
+    await _supa.from('relevamientos').update({ estado_workflow: 'campo' }).eq('id', fotoId);
+    return;
+  }
+  toast('✓ Asignación cerrada correctamente');
+  cerrarModalCierre();
+  cargarPlan();
+  cargarBandeja();
+}
 
 async function cambiarEstadoAsig(id, nuevoEstado, motivo){
   const payload = { estado_asignacion: nuevoEstado };

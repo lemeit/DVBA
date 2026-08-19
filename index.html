@@ -447,7 +447,7 @@ body.modo-campo #campo-fab{display:flex}
 </style>
 </head>
 <body>
-<!-- Nav consolidado v8.79 · via datos/nav.js. Header viejo oculto pero sus IDs (hZona, hPartido, zonaPicker, user-info, user-email) siguen "vivos" para la lógica de zona-picker y auth. -->
+<!-- Nav consolidado v8.80 · via datos/nav.js. Header viejo oculto pero sus IDs (hZona, hPartido, zonaPicker, user-info, user-email) siguen "vivos" para la lógica de zona-picker y auth. -->
 <div id="dvba-nav-mount"></div>
 <header id="nav-legacy" style="display:none">
   <img src="datos/img/logo_dvba_clean.png" style="height:38px;width:38px;object-fit:contain;flex-shrink:0" alt="DVBA">
@@ -525,7 +525,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.79</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.80</span></div>
   </div>
 </div>
 <div class="layout">
@@ -891,7 +891,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.79</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
+        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.80</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
       </div>
     </div>
 
@@ -960,8 +960,8 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.79';
-// v8.79 · Montar nav consolidado (después de que loader_zona haya inicializado hZona)
+const APP_VERSION = 'v8.80';
+// v8.80 · Montar nav consolidado (después de que loader_zona haya inicializado hZona)
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     if (typeof DVBA_NAV === 'undefined') return;
@@ -9017,7 +9017,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
       <div style="margin-bottom:14px">
         <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
-        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.79</span> · Familia escritorio</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.80</span> · Familia escritorio</div>
         <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.91</b></div>
       </div>
 
