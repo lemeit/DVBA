@@ -447,7 +447,7 @@ body.modo-campo #campo-fab{display:flex}
 </style>
 </head>
 <body>
-<!-- Nav consolidado v8.81 · via datos/nav.js. Header viejo oculto pero sus IDs (hZona, hPartido, zonaPicker, user-info, user-email) siguen "vivos" para la lógica de zona-picker y auth. -->
+<!-- Nav consolidado v8.82 · via datos/nav.js. Header viejo oculto pero sus IDs (hZona, hPartido, zonaPicker, user-info, user-email) siguen "vivos" para la lógica de zona-picker y auth. -->
 <div id="dvba-nav-mount"></div>
 <header id="nav-legacy" style="display:none">
   <img src="datos/img/logo_dvba_clean.png" style="height:38px;width:38px;object-fit:contain;flex-shrink:0" alt="DVBA">
@@ -525,7 +525,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.81</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.82</span></div>
   </div>
 </div>
 <div class="layout">
@@ -891,7 +891,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.81</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
+        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.82</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
       </div>
     </div>
 
@@ -960,8 +960,8 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.81';
-// v8.81 · Montar nav consolidado (después de que loader_zona haya inicializado hZona)
+const APP_VERSION = 'v8.82';
+// v8.82 · Montar nav consolidado (después de que loader_zona haya inicializado hZona)
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     if (typeof DVBA_NAV === 'undefined') return;
@@ -972,7 +972,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e){}
     const hZona = document.getElementById('hZona')?.textContent || '';
     DVBA_NAV.montar({
-      titulo: 'Portal principal · Mapa y relevamientos',
+      titulo: 'Portal principal',
       seccion: 'portal',
       perfil,
       zonaControlHtml: hZona ? `<span style="background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);padding:5px 11px;border-radius:14px;font-size:11px;font-weight:700;color:#fff">Zona ${hZona.replace(/^ZONA\s*/i,'')}</span>` : null,
@@ -9017,7 +9017,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
       <div style="margin-bottom:14px">
         <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
-        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.81</span> · Familia escritorio</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.82</span> · Familia escritorio</div>
         <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.91</b></div>
       </div>
 
@@ -10243,8 +10243,8 @@ async function guardarAliasCamino(){
 
 
 
-<!-- v8.66f.2 · Banner dismissible modo público (estilo cookies) -->
-<div id="avisoPublico" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9500;background:rgba(31,39,50,.96);color:#fff;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));border-top:2px solid #ffd060;box-shadow:0 -4px 12px rgba(0,0,0,.35);font-family:'Encode Sans',sans-serif">
+<!-- v8.82 · Banner dismissible desactivado · lo reemplaza el banner del nav.js (mount) -->
+<div id="avisoPublico" style="display:none !important;position:fixed;bottom:0;left:0;right:0;z-index:9500;background:rgba(31,39,50,.96);color:#fff;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));border-top:2px solid #ffd060;box-shadow:0 -4px 12px rgba(0,0,0,.35);font-family:'Encode Sans',sans-serif">
   <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
     <div style="font-size:22px;flex-shrink:0">ℹ️</div>
     <div style="flex:1;min-width:240px;font-size:12.5px;line-height:1.5">

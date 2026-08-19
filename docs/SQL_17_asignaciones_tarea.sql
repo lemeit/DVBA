@@ -412,10 +412,19 @@ COMMENT ON VIEW v_kpi_asignaciones IS
 -- Reemplazar los UUIDs por los reales de auth.users:
 --
 -- INSERT INTO usuarios_perfil (user_id, nombre, rol, zona) VALUES
---   ('<UID_JEFE_ZONA>',    'Ing. Jefe VI',       'jefe_zona',     'VI'),
---   ('<UID_JEFE_OP>',      'Ing. Jefe Operat.',  'jefe_operativa','VI'),
---   ('<UID_CAPATAZ_1>',    'Capataz Norte',      'capataz',       'VI'),
---   ('<UID_CAPATAZ_2>',    'Capataz Sur',        'capataz',       'VI')
--- ON CONFLICT (user_id) DO UPDATE
---   SET rol  = EXCLUDED.rol,
---       zona = EXCLUDED.zona;
+INSERT INTO usuarios_perfil (user_id, nombre, rol, zona) VALUES
+('966fe4f6-46a1-44b9-b27c-a4b9ad6b3665',  'Jefe Zona',    'jefe_zona',      'VI'),
+('8cecf908-dd6d-4c91-b7c1-d9a003abc31a',  'Jefe Operat.', 'jefe_operativa', 'VI'),
+('9b027516-2de9-4046-bc6c-cda7efbb1c08',  'Capataz 1',    'capataz',        'VI')
+ON CONFLICT (user_id) DO UPDATE
+SET rol  = EXCLUDED.rol,
+    zona = EXCLUDED.zona;
+
+
+-- jefezona.vi@dvba.test
+-- jefeoperativa.vi@dvba.test
+-- jefetecnica.vi@dvba.test
+-- capataz1.vi@dvba.test
+-- jefeoperativa.iv@dvba.test
+-- jefeoperativa.v@dvba.test
+-- gerencia@dvba.test

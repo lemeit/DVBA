@@ -320,7 +320,7 @@ const DVBA_NAV = {
 
     mount.innerHTML = `
       ${estaImpersonando ? `<div id="dvba-imp-banner">👁 Viendo el sistema como <b>${esc(ROL_LABELS[perfilImp.rol]||perfilImp.rol)}${perfilImp.zona?` · Zona ${esc(perfilImp.zona)}`:''}</b><button onclick="DVBA_NAV.volverAVistaReal()">✕ Volver a vista real</button></div>` : ''}
-      ${rol === 'publico' ? `<div id="dvba-publico-banner" style="background:#e6f7f9;color:#00505a;padding:6px 14px;text-align:center;font-size:11.5px;font-weight:600;border-bottom:1px solid #b0dde2;font-family:'Encode Sans',sans-serif">🔓 <b>Vista pública</b> · Estás navegando sin sesión · Podés ver el mapa y la guía. Para cargar relevamientos, ejecutar tareas o ver informes, <a href="#" onclick="event.preventDefault();DVBA_NAV._iniciarSesion()" style="color:#007e8c;font-weight:800;text-decoration:underline">iniciar sesión</a>.</div>` : ''}
+      ${rol === 'publico' ? `<div id="dvba-publico-banner" style="background:#e6f7f9;color:#00505a;padding:6px 14px;text-align:center;font-size:11.5px;font-weight:600;border-bottom:1px solid #b0dde2;font-family:'Encode Sans',sans-serif">🔓 <b>Vista pública</b> · Mapa y guía disponibles sin sesión. Para acceder al sistema completo, <a href="#" onclick="event.preventDefault();DVBA_NAV._iniciarSesion()" style="color:#007e8c;font-weight:800;text-decoration:underline">iniciar sesión</a>.</div>` : ''}
       <header class="dvba-nav-header">
         <div class="dvba-nav-brand">
           <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA" onerror="this.style.display='none';this.parentElement.textContent='🛣'"></div>
@@ -329,9 +329,9 @@ const DVBA_NAV = {
             ${titulo ? `<span class="sub">${esc(titulo)}</span>` : ''}
           </div>
         </div>
-        <div class="dvba-nav-zona-slot" id="dvba-nav-zona-slot">
+        ${rol !== 'publico' ? `<div class="dvba-nav-zona-slot" id="dvba-nav-zona-slot">
           ${opts.zonaControlHtml ? opts.zonaControlHtml : (zona ? `<span class="dvba-nav-zona">${esc(zonaLabel)}</span>` : '')}
-        </div>
+        </div>` : ''}
         ${rol !== 'publico' ? `
           <button id="dvba-nav-menu-btn" class="dvba-nav-btn" onclick="DVBA_NAV.toggleMenu()">☰ ${esc((nombre.split(' ')[0]||nombre).substring(0,14))} <span class="caret">▼</span></button>
         ` : `
@@ -346,8 +346,8 @@ const DVBA_NAV = {
           </div>
           ${impersonarPanel}
           ${menuHtml}
-          <div class="sep"></div>
-          <button class="item logout" onclick="DVBA_NAV._logout()">🚪 Cerrar sesión</button>
+          ${rol !== 'publico' ? `<div class="sep"></div>
+          <button class="item logout" onclick="DVBA_NAV._logout()">🚪 Cerrar sesión</button>` : ''}
           <div class="footer-min">${esc(_leerVersion())} · Legales en el footer del portal</div>
         </div>
       </header>

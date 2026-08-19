@@ -109,7 +109,7 @@ table.rep td.center{text-align:center}
 </head>
 <body>
 
-<!-- Nav consolidado v8.81 · via datos/nav.js. Header viejo movido a #nav-legacy (oculto), sus IDs (hZona, hPartido, zonaPicker) siguen "vivos" para que la lógica JS no rompa. -->
+<!-- Nav consolidado v8.82 · via datos/nav.js. Header viejo movido a #nav-legacy (oculto), sus IDs (hZona, hPartido, zonaPicker) siguen "vivos" para que la lógica JS no rompa. -->
 <div id="dvba-nav-mount"></div>
 <header id="nav-legacy" style="display:none">
   <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
@@ -282,10 +282,10 @@ table.rep td.center{text-align:center}
 <footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:none;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--pd);position:fixed;bottom:0;left:0;right:0;z-index:80">
   <div style="flex:1;min-width:260px">
     <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
-    <span style="margin-left:8px">Módulo de reportes · Uso interno institucional.</span>
+    <span style="margin-left:8px">Módulo de Informes · Uso interno institucional.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.81</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.82</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -297,7 +297,7 @@ table.rep td.center{text-align:center}
 // Charts con Chart.js CDN · Export CSV vanilla
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v8.81';
+const APP_VERSION = 'v8.82';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 // v8.72 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VERSION; });
@@ -1535,7 +1535,7 @@ function rpReset(){
   rpGenerar();
 }
 
-// v8.81 · Montar nav consolidado al DOMContentLoaded (después del login)
+// v8.82 · Montar nav consolidado al DOMContentLoaded (después del login)
 function _rpMontarNav(sessionEmail){
   if (typeof DVBA_NAV === 'undefined') return;
   let perfil = { rol: 'admin', zona: null, nombre: sessionEmail, email: sessionEmail };
