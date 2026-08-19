@@ -131,7 +131,7 @@ function _inyectarCSS(){
   s.id = 'dvba-nav-css';
   s.textContent = `
     #dvba-nav-mount, #dvba-nav-mount *{box-sizing:border-box}
-    .dvba-nav-header{background:#00aec3;color:#fff;padding:10px 18px;display:flex;align-items:center;gap:14px;border-bottom:2px solid #007e8c;position:relative;z-index:100;font-family:'Encode Sans','Segoe UI',Arial,sans-serif}
+    .dvba-nav-header{background:#00aec3;color:#fff;padding:10px 18px;display:flex;align-items:center;gap:14px;border-bottom:2px solid #007e8c;position:relative;z-index:8000;font-family:'Encode Sans','Segoe UI',Arial,sans-serif}
     .dvba-nav-brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
     .dvba-nav-brand .logo{width:32px;height:32px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
     .dvba-nav-brand .logo img{width:26px;height:26px;object-fit:contain}
@@ -144,7 +144,7 @@ function _inyectarCSS(){
     .dvba-nav-btn:hover{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.5)}
     .dvba-nav-btn.open{background:#fff;color:#007e8c;border-color:#fff}
     .dvba-nav-btn .caret{font-size:9px;opacity:.8}
-    .dvba-nav-drop{position:absolute;top:calc(100% + 4px);background:#fff;border:1px solid #d0d4dc;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.18);min-width:250px;padding:6px 0;display:none;z-index:200;font-family:'Encode Sans',sans-serif}
+    .dvba-nav-drop{position:absolute;top:calc(100% + 4px);background:#fff;border:1px solid #d0d4dc;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.18);min-width:250px;padding:6px 0;display:none;z-index:8500;font-family:'Encode Sans',sans-serif}
     .dvba-nav-drop.on{display:block}
     .dvba-nav-drop.menu-drop{right:18px;left:auto}
     .dvba-nav-drop.user-drop{right:18px}
