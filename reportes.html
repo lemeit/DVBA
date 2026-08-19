@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@500;600;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SIG Vial PBA · Reportes</title>
+<title>SIG Vial PBA · Informes institucionales</title>
 <link rel="icon" href="datos/img/favicon.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -1546,7 +1546,7 @@ function _rpMontarNav(sessionEmail){
   // Preservar zona-picker legacy si existe (para gerencia/admin)
   const hZona = document.getElementById('hZona')?.textContent || '';
   DVBA_NAV.montar({
-    titulo: 'Reportes de tareas · Dashboard institucional',
+    titulo: 'Informes institucionales · Análisis de ejecución',
     seccion: 'reportes',
     perfil,
     zonaControlHtml: hZona ? `<span style="background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);padding:5px 11px;border-radius:14px;font-size:11px;font-weight:700;color:#fff">Zona ${hZona.replace(/^ZONA\s*/i,'')}</span>` : null,

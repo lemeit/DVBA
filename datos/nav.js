@@ -61,21 +61,11 @@ const SECCIONES = [
   // Grupo ANÁLISIS
   {
     key: 'reportes',
-    label: '📊 Reportes',
+    label: '📊 Informes',
     href: 'reportes.html',
-    title: 'Reportes de tareas ejecutadas · dashboard + PDF',
+    title: 'Informes institucionales · dashboard + PDF de ejecución',
     grupo: 'Análisis',
     roles: ['tecnico','jefe_administrativa','jefe_automotores',
-            'jefe_tecnica','jefe_operativa','jefe_zona','gerencia','admin']
-  },
-  {
-    key: 'guia',
-    label: '📖 Guía online',
-    href: 'https://lemeit.github.io/DVBA/wiki/',
-    target: '_blank',
-    title: 'Guía de usuario online (pestaña nueva)',
-    grupo: 'Análisis',
-    roles: ['tecnico','capataz','jefe_administrativa','jefe_automotores',
             'jefe_tecnica','jefe_operativa','jefe_zona','gerencia','admin']
   },
   // Grupo ADMINISTRACIÓN
@@ -86,6 +76,17 @@ const SECCIONES = [
     title: 'Gestión de usuarios · solo Admin',
     grupo: 'Administración',
     roles: ['admin']
+  },
+  // Grupo AYUDA (al final)
+  {
+    key: 'guia',
+    label: '📖 Guía online',
+    href: 'https://lemeit.github.io/DVBA/wiki/',
+    target: '_blank',
+    title: 'Guía de usuario online (pestaña nueva)',
+    grupo: 'Ayuda',
+    roles: ['tecnico','capataz','jefe_administrativa','jefe_automotores',
+            'jefe_tecnica','jefe_operativa','jefe_zona','gerencia','admin']
   }
 ];
 
@@ -338,13 +339,8 @@ const DVBA_NAV = {
           ${impersonarPanel}
           ${menuHtml}
           <div class="sep"></div>
-          <div class="head">Ayuda e información</div>
-          <a href="#" class="item" onclick="event.preventDefault();DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')">ℹ Acerca del sistema</a>
-          <a href="#" class="item" onclick="event.preventDefault();DVBA_LEGAL&&DVBA_LEGAL.abrir('terminos')">📄 Términos de uso</a>
-          <a href="#" class="item" onclick="event.preventDefault();DVBA_LEGAL&&DVBA_LEGAL.abrir('privacidad')">🔒 Privacidad</a>
-          <div class="sep"></div>
           <button class="item logout" onclick="DVBA_NAV._logout()">🚪 Cerrar sesión</button>
-          <div class="footer-min">${esc(_leerVersion())}</div>
+          <div class="footer-min">${esc(_leerVersion())} · Legales en el footer del portal</div>
         </div>
       </header>
     `;
