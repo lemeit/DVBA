@@ -137,8 +137,9 @@ function _inyectarCSS(){
     .dvba-nav-btn .caret{font-size:9px;opacity:.8}
     .dvba-nav-drop{position:absolute;top:calc(100% + 4px);background:#fff;border:1px solid #d0d4dc;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.18);min-width:250px;padding:6px 0;display:none;z-index:200;font-family:'Encode Sans',sans-serif}
     .dvba-nav-drop.on{display:block}
-    .dvba-nav-drop.menu-drop{right:auto}
+    .dvba-nav-drop.menu-drop{right:18px;left:auto}
     .dvba-nav-drop.user-drop{right:18px}
+    .dvba-nav-drop.menu-drop.user-drop{right:18px;left:auto;max-height:calc(100vh - 80px);overflow-y:auto}
     .dvba-nav-drop .head{padding:7px 16px;font-size:10px;font-weight:800;color:#838383;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid #e0e0e0;margin-bottom:4px}
     .dvba-nav-drop .item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:12.5px;color:#1a2a3a;text-decoration:none;font-weight:600;cursor:pointer;font-family:inherit;background:none;border:0;width:100%;text-align:left;transition:background .12s}
     .dvba-nav-drop .item:hover{background:#e6f7f9;color:#007e8c}
@@ -183,7 +184,11 @@ const DVBA_NAV = {
     opts = opts || {};
     const perfil = _leerPerfil(opts.perfil);
     const rol = perfil.rol || 'publico';
-    const zona = perfil.zona || (rol === 'gerencia' || rol === 'admin' ? 'PBA' : '');
+    // Los roles transversales (admin/gerencia) no tienen zona propia — se muestran
+    // como "🌐 Todas" para dejar claro que ven la Provincia entera.
+    const esTransversal = (rol === 'gerencia' || rol === 'admin');
+    const zona = perfil.zona || (esTransversal ? 'Todas' : '');
+    const zonaLabel = esTransversal ? '🌐 Todas las zonas' : ('Zona ' + zona);
     const nombre = perfil.nombre || perfil.email || (rol === 'publico' ? 'Usuario público' : 'Sin nombre');
     const titulo = opts.titulo || '';
     const seccionActiva = opts.seccion || '';
@@ -204,6 +209,8 @@ const DVBA_NAV = {
       return `${isSep}<a href="${esc(s.href)}"${target} title="${esc(s.title||'')}" class="item${isActive}">${s.label}</a>`;
     }).join('');
 
+    // v8.79b · Un solo menú unificado (secciones + usuario + legales + logout)
+    // en vez de dos dropdowns separados. Más compacto y sin duplicar legales.
     mount.innerHTML = `
       <header class="dvba-nav-header">
         <div class="dvba-nav-brand">
@@ -213,22 +220,21 @@ const DVBA_NAV = {
             ${titulo ? `<span class="sub">${esc(titulo)}</span>` : ''}
           </div>
         </div>
-        ${zona ? `<span class="dvba-nav-zona">Zona ${esc(zona)}</span>` : ''}
+        ${opts.zonaControlHtml ? `<span class="dvba-nav-zona" style="padding:0;background:transparent;border:0">${opts.zonaControlHtml}</span>` : (zona ? `<span class="dvba-nav-zona">${esc(zonaLabel)}</span>` : '')}
         ${rol !== 'publico' ? `
-          <button id="dvba-nav-menu-btn" class="dvba-nav-btn" onclick="DVBA_NAV.toggleMenu()">☰ Menú <span class="caret">▼</span></button>
-          <button id="dvba-nav-user-btn" class="dvba-nav-btn" onclick="DVBA_NAV.toggleUser()">👤 ${esc(nombre.split(' ')[0]||nombre)} <span class="caret">▼</span></button>
+          <button id="dvba-nav-menu-btn" class="dvba-nav-btn" onclick="DVBA_NAV.toggleMenu()">☰ ${esc((nombre.split(' ')[0]||nombre).substring(0,14))} <span class="caret">▼</span></button>
         ` : `
           <a href="index.html" class="dvba-nav-btn" style="text-decoration:none">🔐 Iniciar sesión</a>
         `}
-        <div id="dvba-nav-menu-drop" class="dvba-nav-drop menu-drop" style="left:auto">
-          <div class="head">Secciones</div>
-          ${menuHtml}
-        </div>
-        <div id="dvba-nav-user-drop" class="dvba-nav-drop user-drop">
+        <div id="dvba-nav-menu-drop" class="dvba-nav-drop menu-drop user-drop">
           <div class="user-info">
             <div class="nom">${esc(nombre)}</div>
-            <div class="meta">${ROL_LABELS[rol]||rol}${zona?` · Zona ${esc(zona)}`:''}</div>
+            <div class="meta">${ROL_LABELS[rol]||rol}${zona?` · ${esc(zonaLabel)}`:''}</div>
           </div>
+          <div class="head">Secciones</div>
+          ${menuHtml}
+          <div class="sep"></div>
+          <div class="head">Ayuda e información</div>
           <a href="#" class="item" onclick="event.preventDefault();DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')">ℹ Acerca del sistema</a>
           <a href="#" class="item" onclick="event.preventDefault();DVBA_LEGAL&&DVBA_LEGAL.abrir('terminos')">📄 Términos de uso</a>
           <a href="#" class="item" onclick="event.preventDefault();DVBA_LEGAL&&DVBA_LEGAL.abrir('privacidad')">🔒 Privacidad</a>
@@ -239,21 +245,12 @@ const DVBA_NAV = {
       </header>
     `;
 
-    // Ajustar posición del dropdown de menú relativo al botón
-    setTimeout(() => {
-      const btn = document.getElementById('dvba-nav-menu-btn');
-      const drop = document.getElementById('dvba-nav-menu-drop');
-      if (btn && drop){
-        const r = btn.getBoundingClientRect();
-        drop.style.left = r.left + 'px';
-      }
-    }, 50);
-
     // Guardar callback logout
     DVBA_NAV._onLogout = onLogout;
   },
   toggleMenu(){ _toggle('dvba-nav-menu-drop','dvba-nav-menu-btn'); },
-  toggleUser(){ _toggle('dvba-nav-user-drop','dvba-nav-user-btn'); },
+  // Alias legacy · si algo llamaba a toggleUser sigue funcionando (mismo menú unificado ahora)
+  toggleUser(){ _toggle('dvba-nav-menu-drop','dvba-nav-menu-btn'); },
   async _logout(){
     _cerrarTodos();
     if (typeof DVBA_NAV._onLogout === 'function') await DVBA_NAV._onLogout();

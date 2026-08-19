@@ -21,6 +21,7 @@
 <script src="datos/auth.js"></script>
 <script src="datos/perfil.js" defer></script>
 <script src="datos/legales.js" defer></script>
+<script src="datos/nav.js"></script>
 <style>
 :root{
   --p:#00aec3;    --pd:#007e8c;   --pl:#74c9e3;
@@ -108,7 +109,9 @@ table.rep td.center{text-align:center}
 </head>
 <body>
 
-<header>
+<!-- Nav consolidado v8.79 · via datos/nav.js. Header viejo movido a #nav-legacy (oculto), sus IDs (hZona, hPartido, zonaPicker) siguen "vivos" para que la lógica JS no rompa. -->
+<div id="dvba-nav-mount"></div>
+<header id="nav-legacy" style="display:none">
   <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
   <div class="t">
     <h1>DVBA &mdash; <span style="color:#ffd060" id="hZona">ZONA VI</span> <span class="hbadge" id="hPartido">Saladillo</span>
@@ -1531,6 +1534,32 @@ function rpReset(){
   document.getElementById('fRuta').value = '';
   rpGenerar();
 }
+
+// v8.79 · Montar nav consolidado al DOMContentLoaded (después del login)
+function _rpMontarNav(sessionEmail){
+  if (typeof DVBA_NAV === 'undefined') return;
+  let perfil = { rol: 'admin', zona: null, nombre: sessionEmail, email: sessionEmail };
+  try {
+    const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
+    if (cache.rol) perfil = { rol: cache.rol, zona: cache.zona||null, nombre: cache.nombre||sessionEmail, email: sessionEmail };
+  } catch(e){}
+  // Preservar zona-picker legacy si existe (para gerencia/admin)
+  const hZona = document.getElementById('hZona')?.textContent || '';
+  DVBA_NAV.montar({
+    titulo: 'Reportes de tareas · Dashboard institucional',
+    seccion: 'reportes',
+    perfil,
+    zonaControlHtml: hZona ? `<span style="background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);padding:5px 11px;border-radius:14px;font-size:11px;font-weight:700;color:#fff">Zona ${hZona.replace(/^ZONA\s*/i,'')}</span>` : null,
+    onLogout: rpLogout
+  });
+}
+document.addEventListener('DOMContentLoaded', () => {
+  // Esperamos ~600ms a que se cargue perfil + zona antes de montar
+  setTimeout(() => {
+    const email = document.getElementById('email')?.textContent || '';
+    _rpMontarNav(email && email !== '—' ? email : '');
+  }, 800);
+});
 
 async function rpLogout(){
   if (!confirm('¿Cerrar sesión?')) return;
