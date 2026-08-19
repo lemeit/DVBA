@@ -242,8 +242,14 @@ const DVBA_NAV = {
 
     _inyectarCSS();
 
-    // Filtrar secciones por rol
-    const items = SECCIONES.filter(s => s.roles.includes(rol));
+    // Filtrar secciones por rol. Para 'publico' mostramos solo Portal + Guía
+    // (que sí puede ver sin login) para que el menú no quede vacío.
+    let items;
+    if (rol === 'publico'){
+      items = SECCIONES.filter(s => s.key === 'portal' || s.key === 'guia');
+    } else {
+      items = SECCIONES.filter(s => s.roles.includes(rol));
+    }
 
     const mount = document.getElementById('dvba-nav-mount');
     if (!mount){ console.warn('[DVBA_NAV] no se encontró <div id="dvba-nav-mount">'); return; }
@@ -314,6 +320,7 @@ const DVBA_NAV = {
 
     mount.innerHTML = `
       ${estaImpersonando ? `<div id="dvba-imp-banner">👁 Viendo el sistema como <b>${esc(ROL_LABELS[perfilImp.rol]||perfilImp.rol)}${perfilImp.zona?` · Zona ${esc(perfilImp.zona)}`:''}</b><button onclick="DVBA_NAV.volverAVistaReal()">✕ Volver a vista real</button></div>` : ''}
+      ${rol === 'publico' ? `<div id="dvba-publico-banner" style="background:#e6f7f9;color:#00505a;padding:6px 14px;text-align:center;font-size:11.5px;font-weight:600;border-bottom:1px solid #b0dde2;font-family:'Encode Sans',sans-serif">🔓 <b>Vista pública</b> · Estás navegando sin sesión · Podés ver el mapa y la guía. Para cargar relevamientos, ejecutar tareas o ver informes, <a href="#" onclick="event.preventDefault();DVBA_NAV._iniciarSesion()" style="color:#007e8c;font-weight:800;text-decoration:underline">iniciar sesión</a>.</div>` : ''}
       <header class="dvba-nav-header">
         <div class="dvba-nav-brand">
           <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA" onerror="this.style.display='none';this.parentElement.textContent='🛣'"></div>
@@ -328,7 +335,8 @@ const DVBA_NAV = {
         ${rol !== 'publico' ? `
           <button id="dvba-nav-menu-btn" class="dvba-nav-btn" onclick="DVBA_NAV.toggleMenu()">☰ ${esc((nombre.split(' ')[0]||nombre).substring(0,14))} <span class="caret">▼</span></button>
         ` : `
-          <a href="index.html" class="dvba-nav-btn" style="text-decoration:none">🔐 Iniciar sesión</a>
+          <button id="dvba-nav-menu-btn" class="dvba-nav-btn" onclick="DVBA_NAV.toggleMenu()">☰ Menú <span class="caret">▼</span></button>
+          <button class="dvba-nav-btn" onclick="DVBA_NAV._iniciarSesion()" style="background:rgba(255,255,255,.9);color:#007e8c">🔐 Iniciar sesión</button>
         `}
         <div id="dvba-nav-menu-drop" class="dvba-nav-drop menu-drop user-drop">
           <div class="user-info">
@@ -348,31 +356,62 @@ const DVBA_NAV = {
     // Guardar callback logout
     DVBA_NAV._onLogout = onLogout;
 
-    // v8.80 · Auto-relocar el <select id="zonaPicker"> del header legacy si existe.
-    // El picker está oculto en #nav-legacy pero su lógica JS (cambiarZona, etc.)
-    // sigue viva. Lo movemos al header nuevo para que el usuario pueda cambiar
-    // de zona sin perder la funcionalidad histórica.
-    // Solo si el rol lo permite ver múltiples zonas (admin/gerencia).
+    // v8.81 · Zona-picker: se decide qué mostrar en el slot según rol.
+    //  - admin/gerencia (transversal) → relocar el <select id="zonaPicker">
+    //    del header legacy para que puedan cambiar entre zonas.
+    //  - técnico/jefe/capataz con zona fija → badge estático "Zona VI".
+    //  - publico → nada (o "Zona actual: VI" según lo que traiga hZona).
     setTimeout(() => {
       const zonaSlot = document.getElementById('dvba-nav-zona-slot');
       const picker = document.getElementById('zonaPicker');
-      if (zonaSlot && picker && (esTransversal || picker.tagName === 'SELECT')){
-        // Limpiar el badge estático y meter el picker vivo
+      if (!zonaSlot) return;
+      if (esTransversal && picker && picker.tagName === 'SELECT'){
+        // Reubicar el picker interactivo
         const badge = zonaSlot.querySelector('.dvba-nav-zona');
         if (badge) badge.remove();
         picker.classList.add('dvba-nav-picker-relocado');
-        // Envolver con label "Zona:" para que se lea claro
         if (!zonaSlot.querySelector('label')){
           const lbl = document.createElement('label');
           lbl.textContent = 'Zona:';
           zonaSlot.appendChild(lbl);
         }
         zonaSlot.appendChild(picker);
-        // Asegurar que el header legacy pueda seguir oculto sin ocultar al picker
         picker.style.display = '';
         picker.style.visibility = 'visible';
+      } else {
+        // Roles con zona fija (técnico, capataz, jefes) o público: badge estático.
+        // Si no había badge (porque zona era null pero el DOM tiene hZona),
+        // buscar hZona.textContent como fallback para mostrar la zona activa.
+        let badge = zonaSlot.querySelector('.dvba-nav-zona');
+        const hZona = document.getElementById('hZona')?.textContent?.trim();
+        const zonaMostrar = zona || (hZona ? hZona.replace(/^ZONA\s*/i,'') : null);
+        if (!badge && zonaMostrar){
+          badge = document.createElement('span');
+          badge.className = 'dvba-nav-zona';
+          badge.textContent = 'Zona ' + zonaMostrar;
+          zonaSlot.appendChild(badge);
+        } else if (badge && zonaMostrar && badge.textContent === 'Zona '){
+          badge.textContent = 'Zona ' + zonaMostrar;
+        }
       }
     }, 100);
+  },
+  _iniciarSesion(){
+    _cerrarTodos();
+    // Intentar detectar y abrir el modal de login del portal donde estemos.
+    // Cada portal expone su función global de login con nombre distinto.
+    if (typeof abrirLogin === 'function') { abrirLogin(); return; }
+    if (typeof mostrarLogin === 'function') { mostrarLogin(); return; }
+    // Portal principal (index.html) usa el overlay #login-ov
+    const loginOv = document.getElementById('login-ov');
+    if (loginOv){ loginOv.style.display = 'flex'; return; }
+    // Fallback: ir al portal principal donde sí está el modal de login
+    if (!location.pathname.endsWith('/') && !location.pathname.endsWith('/index.html')){
+      location.href = 'index.html?login=1';
+    } else {
+      // Ya estamos en index sin modal detectado · avisar
+      alert('El modal de login no se detectó. Recargá la página o llamá a soporte.');
+    }
   },
   toggleMenu(){ _toggle('dvba-nav-menu-drop','dvba-nav-menu-btn'); },
   // Alias legacy · si algo llamaba a toggleUser sigue funcionando (mismo menú unificado ahora)

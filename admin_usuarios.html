@@ -126,7 +126,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
   </div>
 </div>
 
-<!-- Nav consolidado v8.80 · via datos/nav.js -->
+<!-- Nav consolidado v8.81 · via datos/nav.js -->
 <div id="dvba-nav-mount"></div>
 
 <main>
@@ -224,7 +224,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
     <span style="margin-left:8px">Módulo de administración · Uso interno institucional.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.80</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.81</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -326,7 +326,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 
 <script>
 // v8.66f.2 · Constante de versión unificada (familia escritorio v8.X)
-const APP_VERSION = 'v8.80';
+const APP_VERSION = 'v8.81';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 // v8.72 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VERSION; });
@@ -403,7 +403,7 @@ async function chequearAcceso(){
       return false;
     }
     document.getElementById('guard').style.display = 'none';
-    // v8.80 · Montar nav compartido (después de verificar admin)
+    // v8.81 · Montar nav compartido (después de verificar admin)
     if (typeof DVBA_NAV !== 'undefined'){
       try {
         const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
