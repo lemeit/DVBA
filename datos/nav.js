@@ -27,56 +27,65 @@
 'use strict';
 
 // ── Matriz de secciones por rol ────────────────────────────────────
-// Cada sección declara qué roles pueden entrar. Las que el rol actual
-// no tenga permitidas, no aparecen en el menú desplegable.
+// Cada sección declara qué roles pueden entrar y a qué grupo pertenece.
+// El menú se renderea con headings por grupo. Las secciones que el rol
+// actual no tenga permitidas, no aparecen.
 const SECCIONES = [
   {
     key: 'portal',
     label: '🗺 Portal (mapa)',
     href: 'index.html',
     title: 'Mapa principal + relevamientos',
+    grupo: '', // sin grupo · va arriba de todo
     roles: ['tecnico','capataz','jefe_administrativa','jefe_automotores',
             'jefe_tecnica','jefe_operativa','jefe_zona','gerencia','admin']
   },
-  {
-    key: 'plan_seguridad',
-    label: '🛡️ Plan de Seguridad',
-    href: 'partes_diarios.html',
-    title: 'Plan de Seguridad en la Circulación · cargar tareas',
-    roles: ['tecnico','jefe_tecnica','jefe_operativa','jefe_zona','gerencia','admin']
-  },
+  // Grupo PLAN OPERATIVO · dos caras del mismo ciclo (planificación → ejecución)
   {
     key: 'plan_operativo',
-    label: '🚜 Plan Operativo',
+    label: '📅 Planificación',
     href: 'plan_operativo.html',
-    title: 'Asignaciones de tareas para capataces',
+    title: 'Plan Operativo · Bandeja + asignación semanal (planificación)',
+    grupo: 'Plan Operativo',
     roles: ['capataz','jefe_administrativa','jefe_automotores',
             'jefe_tecnica','jefe_operativa','jefe_zona','gerencia','admin']
   },
   {
+    key: 'plan_seguridad',
+    label: '✅ Ejecución',
+    href: 'partes_diarios.html',
+    title: 'Plan Operativo · Partes diarios de ejecución (Plan de Seguridad en la Circulación)',
+    grupo: 'Plan Operativo',
+    roles: ['tecnico','jefe_tecnica','jefe_operativa','jefe_zona','gerencia','admin']
+  },
+  // Grupo ANÁLISIS
+  {
     key: 'reportes',
     label: '📊 Reportes',
     href: 'reportes.html',
-    title: 'Reportes de tareas · dashboard + PDF',
+    title: 'Reportes de tareas ejecutadas · dashboard + PDF',
+    grupo: 'Análisis',
     roles: ['tecnico','jefe_administrativa','jefe_automotores',
             'jefe_tecnica','jefe_operativa','jefe_zona','gerencia','admin']
   },
   {
     key: 'guia',
-    label: '📖 Guía',
+    label: '📖 Guía online',
     href: 'https://lemeit.github.io/DVBA/wiki/',
     target: '_blank',
     title: 'Guía de usuario online (pestaña nueva)',
+    grupo: 'Análisis',
     roles: ['tecnico','capataz','jefe_administrativa','jefe_automotores',
             'jefe_tecnica','jefe_operativa','jefe_zona','gerencia','admin']
   },
+  // Grupo ADMINISTRACIÓN
   {
     key: 'admin',
-    label: '🛡 Panel Admin',
+    label: '🛡 Panel de Usuarios',
     href: 'admin_usuarios.html',
     title: 'Gestión de usuarios · solo Admin',
-    roles: ['admin'],
-    separadorAntes: true
+    grupo: 'Administración',
+    roles: ['admin']
   }
 ];
 
@@ -202,11 +211,21 @@ const DVBA_NAV = {
     const mount = document.getElementById('dvba-nav-mount');
     if (!mount){ console.warn('[DVBA_NAV] no se encontró <div id="dvba-nav-mount">'); return; }
 
+    // v8.79b · Renderear secciones agrupadas · un heading por grupo.
+    // Recorremos ordenadamente y agregamos un <div class="head"> cada vez
+    // que cambia el grupo.
+    let ultimoGrupo = null;
     const menuHtml = items.map(s => {
       const isActive = s.key === seccionActiva ? ' active' : '';
-      const isSep = s.separadorAntes ? '<div class="sep"></div>' : '';
       const target = s.target ? ` target="${s.target}" rel="noopener"` : '';
-      return `${isSep}<a href="${esc(s.href)}"${target} title="${esc(s.title||'')}" class="item${isActive}">${s.label}</a>`;
+      let headHtml = '';
+      const grupoActual = s.grupo || '';
+      if (grupoActual !== ultimoGrupo){
+        if (ultimoGrupo !== null) headHtml += '<div class="sep"></div>';
+        if (grupoActual) headHtml += `<div class="head">${esc(grupoActual)}</div>`;
+        ultimoGrupo = grupoActual;
+      }
+      return `${headHtml}<a href="${esc(s.href)}"${target} title="${esc(s.title||'')}" class="item${isActive}">${s.label}</a>`;
     }).join('');
 
     // v8.79b · Un solo menú unificado (secciones + usuario + legales + logout)
@@ -231,7 +250,6 @@ const DVBA_NAV = {
             <div class="nom">${esc(nombre)}</div>
             <div class="meta">${ROL_LABELS[rol]||rol}${zona?` · ${esc(zonaLabel)}`:''}</div>
           </div>
-          <div class="head">Secciones</div>
           ${menuHtml}
           <div class="sep"></div>
           <div class="head">Ayuda e información</div>
