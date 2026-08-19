@@ -413,9 +413,13 @@ COMMENT ON VIEW v_kpi_asignaciones IS
 --
 -- INSERT INTO usuarios_perfil (user_id, nombre, rol, zona) VALUES
 INSERT INTO usuarios_perfil (user_id, nombre, rol, zona) VALUES
-('966fe4f6-46a1-44b9-b27c-a4b9ad6b3665',  'Jefe Zona',    'jefe_zona',      'VI'),
-('8cecf908-dd6d-4c91-b7c1-d9a003abc31a',  'Jefe Operat.', 'jefe_operativa', 'VI'),
-('9b027516-2de9-4046-bc6c-cda7efbb1c08',  'Capataz 1',    'capataz',        'VI')
+('966fe4f6-46a1-44b9-b27c-a4b9ad6b3665',  'Jefe Zona',              'jefe_zona',       'VI'),
+('8cecf908-dd6d-4c91-b7c1-d9a003abc31a',  'Jefe Operat.',           'jefe_operativa',  'VI'),
+('9b027516-2de9-4046-bc6c-cda7efbb1c08',  'Capataz 1',              'capataz',         'VI'),
+('8e827a41-17b3-4406-9bf8-6725c488943e',                  'Ing. Jefe Técnica VI',   'jefe_tecnica',    'VI'),
+('95ce42b6-b7e9-48b2-aca6-6f15a053a0e9',                'Jefe Operativa IV',      'jefe_operativa',  'IV'),
+('d5d509cb-2dbb-4872-9b75-8dacc3bd1f47',                 'Jefe Operativa V',       'jefe_operativa',  'V'),
+('be399ee0-8b64-4abf-a7ec-19c3ecc499cd',                        'Gerencia',               'gerencia',        NULL)
 ON CONFLICT (user_id) DO UPDATE
 SET rol  = EXCLUDED.rol,
     zona = EXCLUDED.zona;

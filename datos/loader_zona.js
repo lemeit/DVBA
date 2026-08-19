@@ -97,13 +97,31 @@
       if (z && MANIFESTS[z]) return { zona: z, origen: 'url' };
     } catch (_) {}
 
-    // 1.b Perfil del user técnico (si logueado)
+    // 1.b Perfil del user con zona asignada (si logueado)
+    // v8.82 · Incluye todos los roles operativos zonales, no solo 'tecnico'.
+    // Roles con zona: tecnico, capataz, jefe_zona, jefe_tecnica, jefe_operativa,
+    //                 jefe_administrativa, jefe_automotores.
+    // Roles transversales sin zona: gerencia, admin, publico (van a PBA).
+    // v8.82 · También respeta impersonación de admin/gerencia (dvba_perfil_impersonado).
     try {
+      const rolesZonales = new Set([
+        'tecnico', 'capataz',
+        'jefe_zona', 'jefe_tecnica', 'jefe_operativa',
+        'jefe_administrativa', 'jefe_automotores'
+      ]);
+      // Prioridad: perfil impersonado > perfil real
+      const rawImp = localStorage.getItem('dvba_perfil_impersonado');
+      if (rawImp) {
+        const pi = JSON.parse(rawImp);
+        if (pi && rolesZonales.has(pi.rol) && pi.zona && MANIFESTS[pi.zona]) {
+          return { zona: pi.zona, origen: 'perfil-impersonado' };
+        }
+      }
       const raw = localStorage.getItem('dvba_perfil');
       if (raw) {
         const perfil = JSON.parse(raw);
-        if (perfil && perfil.rol === 'tecnico' && perfil.zona && MANIFESTS[perfil.zona]) {
-          return { zona: perfil.zona, origen: 'perfil-tecnico' };
+        if (perfil && rolesZonales.has(perfil.rol) && perfil.zona && MANIFESTS[perfil.zona]) {
+          return { zona: perfil.zona, origen: 'perfil-' + perfil.rol };
         }
       }
     } catch (_) {}
@@ -135,7 +153,9 @@
   try {
     const enIndex = /(\/|\/index\.html)($|\?|#)/.test(location.pathname + location.search);
     const hayZonaEnURL = new URLSearchParams(location.search).has('zona');
-    if (enIndex && !hayZonaEnURL && deteccion.origen === 'perfil-tecnico') {
+    // v8.82 · redirect para cualquier origen basado en perfil (tecnico, jefes, capataz, impersonado)
+    const esOrigenPerfil = /^perfil-/.test(deteccion.origen);
+    if (enIndex && !hayZonaEnURL && esOrigenPerfil) {
       const nuevoURL = location.pathname + '?zona=' + zonaCod + location.hash;
       console.log('[loader_zona] Auto-redirect técnico → ' + nuevoURL);
       location.replace(nuevoURL);

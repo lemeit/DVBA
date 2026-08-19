@@ -418,9 +418,21 @@ const DVBA_NAV = {
   toggleUser(){ _toggle('dvba-nav-menu-drop','dvba-nav-menu-btn'); },
   async _logout(){
     _cerrarTodos();
-    // Al hacer logout se limpia también la impersonación (por si quedó)
+    // v8.82 · Al hacer logout limpiamos TODOS los caches para que la próxima
+    // sesión no vea la zona/rol/perfil anteriores.
     try { localStorage.removeItem('dvba_perfil_impersonado'); } catch(e){}
+    try { localStorage.removeItem('dvba_perfil'); } catch(e){}
+    try { localStorage.removeItem('dvba_zona'); } catch(e){}
+    try { localStorage.removeItem('dvba_zona_activa'); } catch(e){}
+    try { if (window.DVBA_PERFIL && DVBA_PERFIL.limpiar) DVBA_PERFIL.limpiar(); } catch(e){}
     if (typeof DVBA_NAV._onLogout === 'function') await DVBA_NAV._onLogout();
+    // Fallback: si el portal no seteó onLogout, forzamos ir al index sin ?zona
+    else {
+      try {
+        const path = location.pathname.replace(/[^/]+$/, '') + 'index.html';
+        location.replace(path);
+      } catch(e){ location.reload(); }
+    }
   },
   // v8.80 · Impersonación (admin/gerencia)
   _aplicarImpersonacion(){

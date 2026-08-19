@@ -1526,6 +1526,21 @@ async function sincronizarSupaConSesion(){
       if (typeof DVBA_PERFIL !== 'undefined'){
         await DVBA_PERFIL.cargar(_supa);
         aplicarVisibilidadRol();
+        // v8.82 · Roles zonales: si el URL no matchea la zona del perfil, reload
+        // (permite que loader_zona.js cargue los bundles correctos de esa zona).
+        try {
+          const perfil = DVBA_PERFIL.get();
+          const rolesZonales = new Set(['tecnico','capataz','jefe_zona','jefe_tecnica','jefe_operativa','jefe_administrativa','jefe_automotores']);
+          if (perfil && rolesZonales.has(perfil.rol) && perfil.zona){
+            const zActual = (window.ZONA_ACTUAL || '').toUpperCase();
+            if (zActual !== perfil.zona){
+              const url = location.pathname + '?zona=' + perfil.zona + location.hash;
+              console.log('[login] reload → zona ' + perfil.zona + ' (rol ' + perfil.rol + ')');
+              location.replace(url);
+              return true; // evita seguir procesando esta sesion
+            }
+          }
+        } catch(e){ console.warn('[login-zona-reload]', e.message); }
       }
     } catch(e){ console.warn('[perfil]', e.message); }
     return true;
@@ -1694,10 +1709,19 @@ async function hacerLogout(){
   try {
     Object.keys(localStorage).filter(k => k.startsWith('sb-') || k.startsWith('supabase.')).forEach(k => localStorage.removeItem(k));
   } catch(e){}
+  // v8.82 · Limpiar cache de zona/perfil para que la próxima sesión no vea la anterior
+  try { localStorage.removeItem('dvba_perfil'); } catch(e){}
+  try { localStorage.removeItem('dvba_perfil_impersonado'); } catch(e){}
+  try { localStorage.removeItem('dvba_zona'); } catch(e){}
+  try { localStorage.removeItem('dvba_zona_activa'); } catch(e){}
   aplicarVisibilidadRol();
   aplicarModoSesion();
-  // v8.46 · Forzar reload para que el estado quede limpio de verdad
-  setTimeout(() => location.reload(), 300);
+  // v8.82 · Ir al index.html sin ?zona (limpio) para que el próximo login
+  // decida su zona desde el perfil real, no del URL viejo.
+  setTimeout(() => {
+    const path = location.pathname.replace(/[^/]+$/, '') + 'index.html';
+    location.replace(path);
+  }, 300);
 }
 
 function mostrarUsuario(){
