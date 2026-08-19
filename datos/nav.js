@@ -332,6 +332,13 @@ const DVBA_NAV = {
         ${rol !== 'publico' ? `<div class="dvba-nav-zona-slot" id="dvba-nav-zona-slot">
           ${opts.zonaControlHtml ? opts.zonaControlHtml : (zona ? `<span class="dvba-nav-zona">${esc(zonaLabel)}</span>` : '')}
         </div>` : ''}
+        ${(['admin','gerencia','jefe_zona','jefe_tecnica','jefe_operativa'].includes(rol)) ? `
+          <button id="dvba-nav-cola-btn" class="dvba-nav-btn" title="Registros pendientes de revisión${rol==='gerencia'?' (solo lectura · gerencia interviene por sugerencia)':''}"
+                  onclick="(typeof abrirColaPendientes==='function'?abrirColaPendientes():alert('Cola no disponible en este portal'))"
+                  style="background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);color:#fff;padding:5px 10px;border-radius:14px;font-weight:700;cursor:pointer">
+            🔔 <span id="cola-count-nav">0</span>${rol==='gerencia'?' <sup style="opacity:.75">solo ver</sup>':''}
+          </button>
+        ` : ''}
         ${rol !== 'publico' ? `
           <button id="dvba-nav-menu-btn" class="dvba-nav-btn" onclick="DVBA_NAV.toggleMenu()">☰ ${esc((nombre.split(' ')[0]||nombre).substring(0,14))} <span class="caret">▼</span></button>
         ` : `
@@ -356,42 +363,41 @@ const DVBA_NAV = {
     // Guardar callback logout
     DVBA_NAV._onLogout = onLogout;
 
-    // v8.81 · Zona-picker: se decide qué mostrar en el slot según rol.
-    //  - admin/gerencia (transversal) → relocar el <select id="zonaPicker">
-    //    del header legacy para que puedan cambiar entre zonas.
-    //  - técnico/jefe/capataz con zona fija → badge estático "Zona VI".
-    //  - publico → nada (o "Zona actual: VI" según lo que traiga hZona).
+    // v8.82 · Zona-picker: TODOS los roles logueados pueden EXPLORAR otras zonas
+    // (la RLS zonal se encarga de bloquear escritura en zonas ajenas). Solo el
+    // rol 'publico' ve una etiqueta fija de la zona que está viendo.
+    //  - Logueado + hay <select id="zonaPicker"> en el DOM → relocar el picker.
+    //  - Logueado sin picker (otros portales sin mapa) → badge estático.
+    //  - Publico → badge estático de la zona actual.
     setTimeout(() => {
       const zonaSlot = document.getElementById('dvba-nav-zona-slot');
       const picker = document.getElementById('zonaPicker');
       if (!zonaSlot) return;
-      if (esTransversal && picker && picker.tagName === 'SELECT'){
-        // Reubicar el picker interactivo
-        const badge = zonaSlot.querySelector('.dvba-nav-zona');
-        if (badge) badge.remove();
+      // Cualquier user logueado con picker en DOM → picker interactivo.
+      // (RLS filtra escritura; navegación entre zonas es libre para todos.)
+      if (rol !== 'publico' && picker && picker.tagName === 'SELECT'){
+        // Limpiar el slot (por si venía un pill `zonaControlHtml` estático desde el portal)
+        zonaSlot.innerHTML = '';
         picker.classList.add('dvba-nav-picker-relocado');
-        if (!zonaSlot.querySelector('label')){
-          const lbl = document.createElement('label');
-          lbl.textContent = 'Zona:';
-          zonaSlot.appendChild(lbl);
-        }
+        const lbl = document.createElement('label');
+        lbl.textContent = 'Zona:';
+        zonaSlot.appendChild(lbl);
         zonaSlot.appendChild(picker);
         picker.style.display = '';
         picker.style.visibility = 'visible';
       } else {
-        // Roles con zona fija (técnico, capataz, jefes) o público: badge estático.
-        // Si no había badge (porque zona era null pero el DOM tiene hZona),
-        // buscar hZona.textContent como fallback para mostrar la zona activa.
-        let badge = zonaSlot.querySelector('.dvba-nav-zona');
-        const hZona = document.getElementById('hZona')?.textContent?.trim();
-        const zonaMostrar = zona || (hZona ? hZona.replace(/^ZONA\s*/i,'') : null);
-        if (!badge && zonaMostrar){
-          badge = document.createElement('span');
-          badge.className = 'dvba-nav-zona';
-          badge.textContent = 'Zona ' + zonaMostrar;
-          zonaSlot.appendChild(badge);
-        } else if (badge && zonaMostrar && badge.textContent === 'Zona '){
-          badge.textContent = 'Zona ' + zonaMostrar;
+        // Sin picker o rol publico: mostrar UN solo badge estático.
+        // Si ya vino un pill custom (zonaControlHtml), lo dejamos y no agregamos otro.
+        const yaHayContenido = zonaSlot.children.length > 0;
+        if (!yaHayContenido){
+          const hZona = document.getElementById('hZona')?.textContent?.trim();
+          const zonaMostrar = zona || (hZona ? hZona.replace(/^ZONA\s*/i,'') : null);
+          if (zonaMostrar){
+            const badge = document.createElement('span');
+            badge.className = 'dvba-nav-zona';
+            badge.textContent = esTransversal ? '🌐 Todas las zonas' : ('Zona ' + zonaMostrar);
+            zonaSlot.appendChild(badge);
+          }
         }
       }
     }, 100);
