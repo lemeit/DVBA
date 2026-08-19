@@ -13,6 +13,7 @@
 <script src="dvba_tipos.js"></script>
 <script src="datos/dvba_estados.js"></script>
 <script src="datos/legales.js" defer></script>
+<script src="datos/nav.js"></script>
 <style>
 :root{
   --p:#00aec3; --pd:#007e8c; --pl:#74c9e3; --p-xl:#cae7ea;
@@ -161,6 +162,11 @@ table.bandeja tbody tr.tiene-asig{opacity:.55;background:#f8f9fa}
 .empty{background:#fff;border:1px dashed var(--light);border-radius:6px;padding:40px 20px;text-align:center;color:var(--mut);font-size:13px}
 .empty .ico{font-size:36px;margin-bottom:8px}
 
+/* Solo lectura · ocultar controles de asignación para roles que solo miran */
+body.solo-lectura .btn-a{display:none}
+body.solo-lectura .toolbar .btn{display:none}
+body.solo-lectura #view-bandeja .empty{display:none}
+
 /* Responsive */
 @media (max-width: 900px){
   .kanban{grid-template-columns:1fr;max-height:none}
@@ -181,19 +187,8 @@ table.bandeja tbody tr.tiene-asig{opacity:.55;background:#f8f9fa}
   </div>
 </div>
 
-<!-- Header institucional -->
-<header style="display:none" id="hdr">
-  <h1>🚜 <span>Plan Operativo</span> · SIG Vial PBA</h1>
-  <span class="hbadge" id="hdr-rol">rol</span>
-  <span class="hbadge" id="hdr-zona">zona</span>
-  <div class="nav">
-    <a href="index.html">🗺 Portal</a>
-    <a href="reportes.html">📊 Reportes</a>
-    <a href="partes_diarios.html">📋 Partes</a>
-    <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')">ℹ Acerca</a>
-    <button onclick="cerrarSesion()">🚪 Cerrar sesión</button>
-  </div>
-</header>
+<!-- Header institucional unificado (via datos/nav.js) -->
+<div id="dvba-nav-mount"></div>
 
 <!-- Nav de vistas -->
 <nav class="vtabs" style="display:none" id="vtabs">
@@ -402,12 +397,13 @@ const _supa = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
 });
 
 let _user = null;
-let _perfil = null;   // { rol, zona, nombre }
-let _capataces = [];  // array de {user_id, nombre}
-let _backlog = [];    // relevamientos pendientes
-let _asignaciones = []; // asignaciones de la semana visible
+let _perfil = null;      // { rol, zona, nombre }
+let _capataces = [];     // array de {user_id, nombre}
+let _backlog = [];       // relevamientos pendientes
+let _asignaciones = [];  // asignaciones de la semana visible
 let _selRelevamiento = null; // relevamiento elegido en el modal Generar
 let _semanaActual = null;    // Date del lunes de la semana visible
+let _puedeAsignar = false;   // true si rol permite crear/editar asignaciones
 
 /* ── Utils ── */
 function $(id){ return document.getElementById(id); }
@@ -474,11 +470,29 @@ async function iniciar(){
   }
   // Autorizado · mostrar UI
   $('guard').style.display = 'none';
-  $('hdr').style.display = 'flex';
   $('vtabs').style.display = 'flex';
   $('mn').style.display = 'block';
-  $('hdr-rol').textContent = perfil.rol;
-  $('hdr-zona').textContent = 'Zona ' + (perfil.zona || 'PBA');
+
+  // Montar nav compartido
+  if (typeof DVBA_NAV !== 'undefined'){
+    // Persistir perfil en localStorage para que otros portales lo lean sin re-fetch
+    try { localStorage.setItem('dvba_perfil', JSON.stringify({...perfil, email:_user.email})); } catch(e){}
+    DVBA_NAV.montar({
+      titulo: 'Plan Operativo · gestión de tareas',
+      seccion: 'plan_operativo',
+      perfil: {...perfil, email:_user.email},
+      onLogout: cerrarSesion
+    });
+  }
+
+  // Ocultar botón "Generar tarea" si el rol es solo lectura (jefe_tecnica,
+  // jefe_administrativa, jefe_automotores, capataz). Solo jefe_zona / jefe_operativa
+  // / gerencia / admin pueden asignar.
+  _puedeAsignar = ['jefe_zona','jefe_operativa','gerencia','admin'].includes(perfil.rol);
+  if (!_puedeAsignar){
+    // Ocultamos la columna "Generar" agregando clase al body
+    document.body.classList.add('solo-lectura');
+  }
 
   await cargarCapataces();
   // Setear semana actual = esta semana
@@ -611,6 +625,9 @@ function renderBandeja(){
   tb.innerHTML = sorted.map(r => {
     const tieneAsig = r.asignaciones_abiertas > 0;
     const cat = inferCategoria(r.tipo);
+    const btnAsig = _puedeAsignar
+      ? `<button class="btn-a" onclick="abrirModalGen(${r.relevamiento_id})">🚜 Generar</button>`
+      : '<span class="mut">— sin permiso —</span>';
     return `<tr class="${tieneAsig?'tiene-asig':''}" data-id="${r.relevamiento_id}">
       <td>${r.foto_url ? `<img class="foto-tiny" src="${esc(r.foto_url)}" onclick="verFoto('${esc(r.foto_url)}')" alt="">` : '<span class="mut">—</span>'}</td>
       <td><span class="chip-pri ${r.prioridad_sugerida}">${r.prioridad_sugerida}</span></td>
@@ -623,7 +640,7 @@ function renderBandeja(){
       <td><b style="color:var(--pd)">${esc(r.ruta||'—')}</b><br><span class="mut">km ${esc(r.progresiva||'—')}</span></td>
       <td>${esc(r.partido||'—')}</td>
       <td>${fmtFecha(r.fecha_relevamiento)}</td>
-      <td><button class="btn-a" onclick="abrirModalGen(${r.relevamiento_id})">🚜 Generar</button></td>
+      <td>${btnAsig}</td>
     </tr>`;
   }).join('');
 }
@@ -824,11 +841,16 @@ function verDetalle(asigId){
   `;
   const foot = $('md-foot');
   const btns = [];
-  if (a.estado_asignacion === 'pendiente'){
-    btns.push(`<button class="btn ghost" onclick="cambiarEstadoAsig('${a.id}','cancelada','Cancelada por jefe')">✕ Cancelar</button>`);
-    btns.push(`<button class="btn ghost" onclick="cambiarEstadoAsig('${a.id}','pospuesta','Pospuesta por jefe')">↷ Posponer</button>`);
+  const puedeEditar = _puedeAsignar; // gerencia también entra acá porque está en la lista
+  // Badge de intervención si aplica
+  if (a.fue_intervenida && a.intervenido_por){
+    $('md-body').innerHTML += `<div style="margin-top:10px;padding:8px 12px;background:#fdecdc;border-left:4px solid var(--am);border-radius:4px;font-size:11px"><b style="color:var(--am)">🔍 Intervención registrada</b> · ${a.intervenido_en?new Date(a.intervenido_en).toLocaleString('es-AR'):''}${a.motivo_intervencion?'<br><i>'+esc(a.motivo_intervencion)+'</i>':''}</div>`;
   }
-  if (a.estado_asignacion === 'pospuesta'){
+  if (puedeEditar && a.estado_asignacion === 'pendiente'){
+    btns.push(`<button class="btn ghost" onclick="cambiarEstadoAsig('${a.id}','cancelada','Cancelada por ${esc(_perfil.rol)}')">✕ Cancelar</button>`);
+    btns.push(`<button class="btn ghost" onclick="cambiarEstadoAsig('${a.id}','pospuesta','Pospuesta por ${esc(_perfil.rol)}')">↷ Posponer</button>`);
+  }
+  if (puedeEditar && a.estado_asignacion === 'pospuesta'){
     btns.push(`<button class="btn ghost" onclick="cambiarEstadoAsig('${a.id}','pendiente',null)">⇢ Reactivar</button>`);
   }
   btns.push(`<button class="btn primary" onclick="cerrarModalDet()">Cerrar</button>`);
@@ -840,6 +862,14 @@ function cerrarModalDet(){ $('modal-det').classList.remove('on'); }
 async function cambiarEstadoAsig(id, nuevoEstado, motivo){
   const payload = { estado_asignacion: nuevoEstado };
   if (nuevoEstado === 'cancelada' || nuevoEstado === 'pospuesta') payload.motivo_no_ejecucion = motivo;
+  // v8.79 · Auditoría de intervención cross-zona (Gerencia editando tarea de otra zona)
+  // Se marca cuando el rol es gerencia y la zona del registro no coincide con la del user.
+  const asig = _asignaciones.find(x => x.id === id);
+  if (asig && _perfil.rol === 'gerencia' && asig.zona !== _perfil.zona){
+    payload.intervenido_por = _user.id;
+    payload.intervenido_en = new Date().toISOString();
+    payload.motivo_intervencion = 'Intervención de Gerencia · ' + (motivo || nuevoEstado);
+  }
   const { error } = await _supa.from('asignaciones_tarea').update(payload).eq('id', id);
   if (error){ toast('Error: ' + error.message, 'err'); return; }
   toast('✓ Estado actualizado a ' + nuevoEstado);
