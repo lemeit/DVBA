@@ -10290,29 +10290,17 @@ async function guardarAliasCamino(){
 </div>
 
 <script>
-// v8.66f.2 · Aviso modo público (banner dismissible + botón ℹ Alcance en header)
-// Aparece la primera vez que un usuario sin sesión entra al portal. Al cerrar
-// setea flag en localStorage y no vuelve a molestar. El botón ℹ Alcance del
-// header lo reabre bajo demanda ignorando el flag.
+// v8.85 · Banner "Modo público" DESHABILITADO · lo reemplaza el banner celeste
+// del nav.js (arriba de todo). Funciones stub para no romper referencias legacy
+// (botón ℹ Alcance del header, etc.).
 function mostrarAvisoPublico(forzar){
+  // no-op · el banner de arriba (nav.js) es el único vigente
   const el = document.getElementById('avisoPublico');
-  if (!el) return;
-  const logueado = window.dvbaAuth && dvbaAuth.estaLogueado();
-  if (logueado) { el.style.display = 'none'; return; }
-  const yaVisto = localStorage.getItem('dvba_aviso_publico_visto') === '1';
-  if (yaVisto && !forzar) return;
-  el.style.display = 'block';
+  if (el) el.style.display = 'none';
 }
 function cerrarAvisoPublico(){
   const el = document.getElementById('avisoPublico');
   if (el) el.style.display = 'none';
-  try { localStorage.setItem('dvba_aviso_publico_visto', '1'); } catch(_){}
-}
-// Auto-mostrar al cargar la página si corresponde
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => setTimeout(() => mostrarAvisoPublico(false), 600));
-} else {
-  setTimeout(() => mostrarAvisoPublico(false), 600);
 }
 </script>
 
