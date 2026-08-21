@@ -113,7 +113,7 @@ table.usuarios tbody tr.inactivo{opacity:.5}
 .toast.err{background:#fbecec;border-color:var(--ro);color:#7a0f0f}
 
 /* Footer */
-/* v8.86h · Sacado text-align:center genérico — el footerInst usa flex + justify-content:space-between y el center lo desalineaba */
+/* v8.86i · Sacado text-align:center genérico — el footerInst usa flex + justify-content:space-between y el center lo desalineaba */
 footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-top:1px solid var(--light);background:var(--w)}
 </style>
 </head>
@@ -127,7 +127,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
   </div>
 </div>
 
-<!-- Nav consolidado v8.86h · via datos/nav.js -->
+<!-- Nav consolidado v8.86i · via datos/nav.js -->
 <div id="dvba-nav-mount"></div>
 
 <main>
@@ -225,7 +225,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
     <span style="margin-left:8px">Panel de Administración · Módulo de gestión de usuarios y perfiles para Admin del sistema.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86h</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86i</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -327,7 +327,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 
 <script>
 // v8.66f.2 · Constante de versión unificada (familia escritorio v8.X)
-const APP_VERSION = 'v8.86h';
+const APP_VERSION = 'v8.86i';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 // v8.72 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VERSION; });
@@ -367,7 +367,7 @@ async function chequearAcceso(){
       guardBtn.style.display = 'inline-block';
       return false;
     }
-    // v8.86h · #hUser vive en el header legacy (display:none), guard defensivo
+    // v8.86i · #hUser vive en el header legacy (display:none), guard defensivo
     const _hUser = document.getElementById('hUser');
     if (_hUser) _hUser.textContent = session.user.email;
 
@@ -406,7 +406,7 @@ async function chequearAcceso(){
       return false;
     }
     document.getElementById('guard').style.display = 'none';
-    // v8.86h · Montar nav compartido (después de verificar admin)
+    // v8.86i · Montar nav compartido (después de verificar admin)
     if (typeof DVBA_NAV !== 'undefined'){
       try {
         const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
