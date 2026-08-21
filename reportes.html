@@ -197,6 +197,12 @@ table.rep td.center{text-align:center}
   <button class="btn-primary" onclick="rpExportPDFGerencia()" title="Informe Mensual Gerencia (layout oficial DVBA · 8 tareas · paleta institucional)" style="background:#003366">📄 Gerencia</button>
 </div>
 
+<!-- v8.86h · Aviso cuando un rol operativo consulta una zona ajena y no ve datos -->
+<div id="avisoZonaAjena" style="display:none;margin:12px 20px 0;padding:12px 16px;background:#fff8e6;border-left:4px solid #c47a00;border-radius:4px;font-size:12px;color:#5a3d00;line-height:1.5">
+  <b>ℹ Sin datos en esta zona</b> ·
+  <span id="avisoZonaAjenaTxt"></span>
+</div>
+
 <!-- Resumen (KPIs) · v7.87 con Red Primaria / Secundaria separadas -->
 <div class="kpis" id="kpis" style="display:none;position:relative">
   <div style="position:absolute;top:-8px;left:20px;background:var(--w);padding:1px 8px;font-size:9px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.5px;border-radius:3px;border:1px solid var(--light)">📊 Resumen del rango</div>
@@ -530,6 +536,22 @@ async function rpGenerar(){
   let filtradosReales = partesReales;
   if (natSel === 'relevamiento') filtradosReales = [];  // partes reales son tareas → excluir
   _partesCache = [...filtradosReales, ...pseudoPartes];
+
+  // v8.86h · Aviso si un rol operativo zonal consulta una zona ajena y no obtiene datos
+  const _avisoZA = document.getElementById('avisoZonaAjena');
+  const _avisoTx = document.getElementById('avisoZonaAjenaTxt');
+  const _zonaPerfil = _perfil.zona || '';
+  const _rolesZonalesUI = ['tecnico','capataz','jefe_zona','jefe_tecnica','jefe_operativa','jefe_administrativa','jefe_automotores'];
+  const _esRolZonal = _rolesZonalesUI.includes(_rolPerfil);
+  if (_avisoZA && _avisoTx){
+    if (_esRolZonal && _zonaPerfil && zonaActiva !== 'PBA' && zonaActiva !== _zonaPerfil && _partesCache.length === 0){
+      _avisoTx.innerHTML = `Estás consultando <b>Zona ${zonaActiva}</b>, pero tu perfil es de <b>Zona ${_zonaPerfil}</b>. Como rol operativo, solo tenés visibilidad sobre los datos de tu propia zona. Cambiá el selector del header a <b>Zona ${_zonaPerfil}</b> para ver tus informes.`;
+      _avisoZA.style.display = 'block';
+    } else {
+      _avisoZA.style.display = 'none';
+    }
+  }
+
   const tareasMap = Object.fromEntries(_tareas.map(t => [t.id, t.nombre]));
   rpRenderKPIs(_partesCache, tareasMap);
   rpRenderCharts(_partesCache, tareasMap);
