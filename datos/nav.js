@@ -155,14 +155,15 @@ function _inyectarCSS(){
     .dvba-nav-brand .app{font-size:14px;font-weight:800;letter-spacing:.3px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .dvba-nav-brand .app sup{color:#ffd060;font-size:.65em;font-weight:700;margin-left:2px}
     .dvba-nav-brand .sub{font-size:11px;color:rgba(255,255,255,.85);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    /* v8.85 · Pill amarilla prominente + picker grande al lado del título (sibling del brand) */
-    .dvba-nav-zona{background:#ffd060;border:1.5px solid #e6b636;padding:6px 14px;border-radius:16px;font-size:13px;font-weight:800;color:#4a3200;letter-spacing:.3px;white-space:nowrap;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.15)}
-    .dvba-nav-zona-slot{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:8px}
-    .dvba-nav-zona-slot select,.dvba-nav-zona-slot .dvba-nav-picker-relocado{background:#ffd060;border:1.5px solid #e6b636;color:#4a3200;padding:6px 12px 6px 14px;border-radius:16px;font-size:13px;font-weight:800;letter-spacing:.3px;font-family:'Encode Sans',sans-serif;cursor:pointer;outline:none;appearance:auto;-webkit-appearance:auto;box-shadow:0 1px 3px rgba(0,0,0,.15)}
-    .dvba-nav-zona-slot select option{background:#fff;color:#5a3d00}
-    .dvba-nav-zona-slot select:hover,.dvba-nav-zona-slot .dvba-nav-picker-relocado:hover{background:#ffe088}
-    .dvba-nav-zona-slot select:focus{border-color:#a56600}
-    .dvba-nav-zona-slot label{font-size:10px;color:rgba(255,255,255,.9);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+    /* v8.86 · Picker al lado de "SIG Vial PBA" (inline en la misma fila del app-row) */
+    .dvba-nav-brand .app-row{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+    .dvba-nav-zona{background:transparent;color:#ffd060;padding:0;font-size:14px;font-weight:800;letter-spacing:.6px;white-space:nowrap;flex-shrink:0;text-transform:uppercase}
+    .dvba-nav-zona-slot{display:inline-flex;align-items:center;flex-shrink:0}
+    .dvba-nav-zona-slot select,.dvba-nav-zona-slot .dvba-nav-picker-relocado{background:transparent;border:1.5px solid #ffd060;color:#ffd060;padding:2px 10px 2px 12px;border-radius:14px;font-size:13px;font-weight:800;letter-spacing:.5px;font-family:'Encode Sans',sans-serif;cursor:pointer;outline:none;appearance:auto;-webkit-appearance:auto;text-transform:uppercase}
+    .dvba-nav-zona-slot select option{background:#00707e;color:#fff;font-weight:600}
+    .dvba-nav-zona-slot select:hover,.dvba-nav-zona-slot .dvba-nav-picker-relocado:hover{background:rgba(255,208,96,.18)}
+    .dvba-nav-zona-slot select:focus{outline:1px solid #ffd060}
+    .dvba-nav-zona-slot label{font-size:10px;color:#ffd060;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
     .dvba-nav-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.32);color:#fff;padding:7px 13px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:all .15s;flex-shrink:0}
     .dvba-nav-btn:hover{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.5)}
     .dvba-nav-btn.open{background:#fff;color:#007e8c;border-color:#fff}
@@ -325,11 +326,13 @@ const DVBA_NAV = {
         <div class="dvba-nav-brand">
           <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA" onerror="this.style.display='none';this.parentElement.textContent='🛣'"></div>
           <div class="titulo">
-            <span class="app">SIG Vial PBA<sup>β</sup></span>
+            <div class="app-row">
+              <span class="app">SIG Vial PBA<sup>β</sup></span>
+              <span class="dvba-nav-zona-slot" id="dvba-nav-zona-slot"></span>
+            </div>
             ${titulo ? `<span class="sub">${esc(titulo)}</span>` : ''}
           </div>
         </div>
-        <div class="dvba-nav-zona-slot" id="dvba-nav-zona-slot"></div>
         ${(['admin','gerencia','jefe_zona','jefe_tecnica','jefe_operativa'].includes(rol)) ? `
           <button id="dvba-nav-cola-btn" class="dvba-nav-btn" title="Registros pendientes de revisión${rol==='gerencia'?' (solo lectura · gerencia interviene por sugerencia)':''}"
                   onclick="(typeof abrirColaPendientes==='function'?abrirColaPendientes():alert('Cola no disponible en este portal'))"
@@ -340,8 +343,7 @@ const DVBA_NAV = {
         ${rol !== 'publico' ? `
           <button id="dvba-nav-menu-btn" class="dvba-nav-btn" onclick="DVBA_NAV.toggleMenu()">☰ ${esc((nombre.split(' ')[0]||nombre).substring(0,14))} <span class="caret">▼</span></button>
         ` : `
-          <button id="dvba-nav-menu-btn" class="dvba-nav-btn" onclick="DVBA_NAV.toggleMenu()">☰ Menú <span class="caret">▼</span></button>
-          <button class="dvba-nav-btn" onclick="DVBA_NAV._iniciarSesion()" style="background:rgba(255,255,255,.9);color:#007e8c">🔐 Iniciar sesión</button>
+          <button id="dvba-nav-menu-btn" class="dvba-nav-btn" onclick="DVBA_NAV.toggleMenu()" style="background:rgba(255,255,255,.92);color:#007e8c;border-color:#fff">🔐 Iniciar sesión <span class="caret">▼</span></button>
         `}
         <div id="dvba-nav-menu-drop" class="dvba-nav-drop menu-drop user-drop">
           <div class="user-info">
@@ -350,6 +352,7 @@ const DVBA_NAV = {
             ${estaImpersonando?`<div class="meta" style="color:#a56600;font-size:10px;margin-top:2px">Real: ${esc(ROL_LABELS[rolReal]||rolReal)}${perfilReal.zona?' · Zona '+esc(perfilReal.zona):''}</div>`:''}
           </div>
           ${impersonarPanel}
+          ${rol === 'publico' ? `<button class="item" style="background:#e6f7f9;color:#007e8c;font-weight:800" onclick="DVBA_NAV._iniciarSesion()">🔐 Iniciar sesión</button><div class="sep"></div>` : ''}
           ${menuHtml}
           ${rol !== 'publico' ? `<div class="sep"></div>
           <button class="item logout" onclick="DVBA_NAV._logout()">🚪 Cerrar sesión</button>` : ''}
@@ -370,30 +373,28 @@ const DVBA_NAV = {
     setTimeout(() => {
       const zonaSlot = document.getElementById('dvba-nav-zona-slot');
       if (!zonaSlot) return;
-      // v8.85 · Picker con las 12 zonas + PBA. Estilo: pill amarilla prominente,
-      // al lado del título. Cambio de zona → reload con ?zona=X (loader_zona).
-      // Público también ve el picker (para navegar la PBA); solo cambia
-      // el rol de escritura via RLS.
+      // v8.86 · Picker con las 12 zonas + PBA. Al lado del título, texto amarillo
+      // vial en mayúsculas: formato "ZONA IV · JUNÍN". Cambio → reload con ?zona=X.
       zonaSlot.innerHTML = '';
       const sel = document.createElement('select');
       sel.className = 'dvba-nav-picker-relocado';
       sel.id = 'dvba-nav-zona-select';
       const zonaHoy = (window.ZONA_ACTUAL || zona || 'PBA').toUpperCase();
-      // 12 zonas + PBA. Etiquetas cortas para el pill.
+      // 12 zonas + PBA · formato "ZONA X · CABECERA"
       const ZONAS = [
-        { cod:'PBA',  label:'🌐 PBA · Todas' },
-        { cod:'I',    label:'Zona I · Arrecifes' },
-        { cod:'II',   label:'Zona II · Morón' },
-        { cod:'III',  label:'Zona III · Ensenada' },
-        { cod:'IV',   label:'Zona IV · Junín' },
-        { cod:'V',    label:'Zona V · Chivilcoy' },
-        { cod:'VI',   label:'Zona VI · Saladillo' },
-        { cod:'VII',  label:'Zona VII · Bragado' },
-        { cod:'VIII', label:'Zona VIII · 9 de Julio' },
-        { cod:'IX',   label:'Zona IX · Olavarría' },
-        { cod:'X',    label:'Zona X · Azul' },
-        { cod:'XI',   label:'Zona XI · Necochea' },
-        { cod:'XII',  label:'Zona XII · Mar del Plata' }
+        { cod:'PBA',  label:'PBA · TODAS LAS ZONAS' },
+        { cod:'I',    label:'ZONA I · ARRECIFES' },
+        { cod:'II',   label:'ZONA II · MORÓN' },
+        { cod:'III',  label:'ZONA III · ENSENADA' },
+        { cod:'IV',   label:'ZONA IV · JUNÍN' },
+        { cod:'V',    label:'ZONA V · CHIVILCOY' },
+        { cod:'VI',   label:'ZONA VI · SALADILLO' },
+        { cod:'VII',  label:'ZONA VII · BRAGADO' },
+        { cod:'VIII', label:'ZONA VIII · 9 DE JULIO' },
+        { cod:'IX',   label:'ZONA IX · OLAVARRÍA' },
+        { cod:'X',    label:'ZONA X · AZUL' },
+        { cod:'XI',   label:'ZONA XI · NECOCHEA' },
+        { cod:'XII',  label:'ZONA XII · MAR DEL PLATA' }
       ];
       ZONAS.forEach(z => {
         const opt = document.createElement('option');
