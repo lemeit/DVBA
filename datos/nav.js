@@ -155,11 +155,10 @@ function _inyectarCSS(){
     .dvba-nav-brand .app{font-size:14px;font-weight:800;letter-spacing:.3px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .dvba-nav-brand .app sup{color:#ffd060;font-size:.65em;font-weight:700;margin-left:2px}
     .dvba-nav-brand .sub{font-size:11px;color:rgba(255,255,255,.85);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .dvba-nav-zona{background:#ffd060;border:1px solid #e6b636;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:800;color:#5a3d00;letter-spacing:.3px;white-space:nowrap;flex-shrink:0}
-    /* v8.83 · Slot inline dentro del brand (al lado del título) */
-    .dvba-nav-zona-slot-inline{display:inline-flex;align-items:center;gap:6px;margin-left:10px;vertical-align:middle}
-    .dvba-nav-zona-slot{display:flex;align-items:center;gap:5px;flex-shrink:0}
-    .dvba-nav-zona-slot select,.dvba-nav-zona-slot .dvba-nav-picker-relocado{background:#ffd060;border:1px solid #e6b636;color:#5a3d00;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:800;letter-spacing:.3px;font-family:'Encode Sans',sans-serif;cursor:pointer;outline:none;appearance:auto;-webkit-appearance:auto}
+    /* v8.85 · Pill amarilla prominente + picker grande al lado del título (sibling del brand) */
+    .dvba-nav-zona{background:#ffd060;border:1.5px solid #e6b636;padding:6px 14px;border-radius:16px;font-size:13px;font-weight:800;color:#4a3200;letter-spacing:.3px;white-space:nowrap;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+    .dvba-nav-zona-slot{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:8px}
+    .dvba-nav-zona-slot select,.dvba-nav-zona-slot .dvba-nav-picker-relocado{background:#ffd060;border:1.5px solid #e6b636;color:#4a3200;padding:6px 12px 6px 14px;border-radius:16px;font-size:13px;font-weight:800;letter-spacing:.3px;font-family:'Encode Sans',sans-serif;cursor:pointer;outline:none;appearance:auto;-webkit-appearance:auto;box-shadow:0 1px 3px rgba(0,0,0,.15)}
     .dvba-nav-zona-slot select option{background:#fff;color:#5a3d00}
     .dvba-nav-zona-slot select:hover,.dvba-nav-zona-slot .dvba-nav-picker-relocado:hover{background:#ffe088}
     .dvba-nav-zona-slot select:focus{border-color:#a56600}
@@ -326,12 +325,11 @@ const DVBA_NAV = {
         <div class="dvba-nav-brand">
           <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA" onerror="this.style.display='none';this.parentElement.textContent='🛣'"></div>
           <div class="titulo">
-            <span class="app">SIG Vial PBA<sup>β</sup>
-              <span class="dvba-nav-zona-slot dvba-nav-zona-slot-inline" id="dvba-nav-zona-slot"></span>
-            </span>
+            <span class="app">SIG Vial PBA<sup>β</sup></span>
             ${titulo ? `<span class="sub">${esc(titulo)}</span>` : ''}
           </div>
         </div>
+        <div class="dvba-nav-zona-slot" id="dvba-nav-zona-slot"></div>
         ${(['admin','gerencia','jefe_zona','jefe_tecnica','jefe_operativa'].includes(rol)) ? `
           <button id="dvba-nav-cola-btn" class="dvba-nav-btn" title="Registros pendientes de revisión${rol==='gerencia'?' (solo lectura · gerencia interviene por sugerencia)':''}"
                   onclick="(typeof abrirColaPendientes==='function'?abrirColaPendientes():alert('Cola no disponible en este portal'))"
@@ -372,52 +370,48 @@ const DVBA_NAV = {
     setTimeout(() => {
       const zonaSlot = document.getElementById('dvba-nav-zona-slot');
       if (!zonaSlot) return;
-      // v8.83 · TODOS los roles logueados tienen picker interactivo con las 4 zonas
-      // hoy activas (PBA, IV, V, VI). Al elegir → reload con ?zona=X.
-      // La RLS zonal filtra la escritura; la navegación entre zonas es libre.
-      if (rol !== 'publico'){
-        zonaSlot.innerHTML = '';
-        const lbl = document.createElement('label');
-        lbl.textContent = 'Zona:';
-        zonaSlot.appendChild(lbl);
-        const sel = document.createElement('select');
-        sel.className = 'dvba-nav-picker-relocado';
-        sel.id = 'dvba-nav-zona-select';
-        const zonaHoy = (window.ZONA_ACTUAL || zona || 'PBA').toUpperCase();
-        const ZONAS_HOY = ['PBA','IV','V','VI'];  // Ampliar cuando se agreguen más zonas
-        const NOMBRES = { PBA:'🌐 Todas (PBA)', IV:'IV · Junín', V:'V · Chivilcoy', VI:'VI · Saladillo' };
-        ZONAS_HOY.forEach(z => {
-          const opt = document.createElement('option');
-          opt.value = z; opt.textContent = NOMBRES[z] || z;
-          if (z === zonaHoy) opt.selected = true;
-          sel.appendChild(opt);
-        });
-        sel.addEventListener('change', function(){
-          const nueva = this.value;
-          // Preferir la API DVBA_ZONA (que hace reload con ?zona=X)
-          if (window.DVBA_ZONA && typeof DVBA_ZONA.cambiar === 'function'){
-            DVBA_ZONA.cambiar(nueva);
-          } else {
-            const url = new URL(location.href);
-            url.searchParams.set('zona', nueva);
-            location.href = url.toString();
-          }
-        });
-        zonaSlot.appendChild(sel);
-      } else {
-        // Publico: badge estático de la zona que está viendo
-        const yaHayContenido = zonaSlot.children.length > 0;
-        if (!yaHayContenido){
-          const hZona = document.getElementById('hZona')?.textContent?.trim();
-          const zonaMostrar = (window.ZONA_ACTUAL || zona || (hZona ? hZona.replace(/^ZONA\s*/i,'') : null));
-          if (zonaMostrar){
-            const badge = document.createElement('span');
-            badge.className = 'dvba-nav-zona';
-            badge.textContent = zonaMostrar === 'PBA' ? '🌐 PBA (panorámica)' : ('Zona ' + zonaMostrar);
-            zonaSlot.appendChild(badge);
-          }
+      // v8.85 · Picker con las 12 zonas + PBA. Estilo: pill amarilla prominente,
+      // al lado del título. Cambio de zona → reload con ?zona=X (loader_zona).
+      // Público también ve el picker (para navegar la PBA); solo cambia
+      // el rol de escritura via RLS.
+      zonaSlot.innerHTML = '';
+      const sel = document.createElement('select');
+      sel.className = 'dvba-nav-picker-relocado';
+      sel.id = 'dvba-nav-zona-select';
+      const zonaHoy = (window.ZONA_ACTUAL || zona || 'PBA').toUpperCase();
+      // 12 zonas + PBA. Etiquetas cortas para el pill.
+      const ZONAS = [
+        { cod:'PBA',  label:'🌐 PBA · Todas' },
+        { cod:'I',    label:'Zona I · Arrecifes' },
+        { cod:'II',   label:'Zona II · Morón' },
+        { cod:'III',  label:'Zona III · Ensenada' },
+        { cod:'IV',   label:'Zona IV · Junín' },
+        { cod:'V',    label:'Zona V · Chivilcoy' },
+        { cod:'VI',   label:'Zona VI · Saladillo' },
+        { cod:'VII',  label:'Zona VII · Bragado' },
+        { cod:'VIII', label:'Zona VIII · 9 de Julio' },
+        { cod:'IX',   label:'Zona IX · Olavarría' },
+        { cod:'X',    label:'Zona X · Azul' },
+        { cod:'XI',   label:'Zona XI · Necochea' },
+        { cod:'XII',  label:'Zona XII · Mar del Plata' }
+      ];
+      ZONAS.forEach(z => {
+        const opt = document.createElement('option');
+        opt.value = z.cod; opt.textContent = z.label;
+        if (z.cod === zonaHoy) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', function(){
+        const nueva = this.value;
+        if (window.DVBA_ZONA && typeof DVBA_ZONA.cambiar === 'function'){
+          DVBA_ZONA.cambiar(nueva);
+        } else {
+          const url = new URL(location.href);
+          url.searchParams.set('zona', nueva);
+          location.href = url.toString();
         }
-      }
+      });
+      zonaSlot.appendChild(sel);
       // v8.83 · Al montar el nav, refrescar el badge de cola (el conteo llega
       // asincrónicamente desde Supabase; sin este refresh queda con el valor
       // inicial 0 que había cuando montó el nav).
