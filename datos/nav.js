@@ -149,8 +149,9 @@ function _inyectarCSS(){
     #dvba-nav-mount, #dvba-nav-mount *{box-sizing:border-box}
     .dvba-nav-header{background:#00aec3;color:#fff;padding:10px 18px;display:flex;align-items:center;gap:14px;border-bottom:2px solid #007e8c;position:relative;z-index:8000;font-family:'Encode Sans','Segoe UI',Arial,sans-serif}
     .dvba-nav-brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
-    .dvba-nav-brand .logo{width:32px;height:32px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-    .dvba-nav-brand .logo img{width:26px;height:26px;object-fit:contain}
+    /* v8.86c · Logo igual al legacy: imagen 38x38 directa, sin contenedor blanco */
+    .dvba-nav-brand .logo{width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:transparent}
+    .dvba-nav-brand .logo img{width:38px;height:38px;object-fit:contain}
     .dvba-nav-brand .titulo{display:flex;flex-direction:column;line-height:1.15;min-width:0}
     .dvba-nav-brand .app{font-size:14px;font-weight:800;letter-spacing:.3px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .dvba-nav-brand .app sup{color:#ffd060;font-size:.65em;font-weight:700;margin-left:2px}
