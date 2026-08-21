@@ -9170,7 +9170,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
         <div style="font-size:18px;font-weight:800" id="sig-titulo">RP —</div>
         <div style="font-size:11px;opacity:.9;margin-top:2px" id="sig-subtitulo">Zona VI Saladillo · DVBA</div>
       </div>
-      <button onclick="cerrarModalSIGVial()" style="background:transparent;border:0;color:#fff;font-size:22px;cursor:pointer;padding:0 8px" title="Cerrar">×</button>
+      <button onclick="cerrarModalSIGVial()" style="background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.4);color:#fff;font-size:18px;line-height:1;cursor:pointer;padding:2px 10px 4px;border-radius:14px;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.5);flex-shrink:0;align-self:flex-start" title="Cerrar">×</button>
     </div>
     <div class="ms-b" id="sig-b" style="max-height:65vh;overflow-y:auto;padding:14px 16px">
       <!-- Contenido dinámico -->
@@ -9262,9 +9262,12 @@ function mostrarModalSIGVial(rid, latlng){
   // v8.29 · Actualizar botón toggle de RPs
   _actualizarBotonSelRP();
   const meta = (typeof RUTA_META !== 'undefined') ? RUTA_META[rid] : {color:'#003366'};
-  // Header con color de la RP
+  // Header con color de la RP · v8.86f · text-shadow para que el título/X se lean contra colores claros
   const hdr = document.getElementById('sig-h');
-  if (hdr) hdr.style.background = `linear-gradient(135deg, ${meta.color}, ${meta.color}dd)`;
+  if (hdr){
+    hdr.style.background = `linear-gradient(135deg, ${meta.color}, ${meta.color}dd)`;
+    hdr.style.textShadow = '0 1px 2px rgba(0,0,0,.55)';
+  }
   document.getElementById('sig-titulo').textContent = c.ruta_oficial + (c.doble_via ? ' (doble vía)' : '');
   document.getElementById('sig-subtitulo').textContent = 'Zona VI Saladillo · DVBA';
   // Progresiva en el punto clickeado
