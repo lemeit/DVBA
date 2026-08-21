@@ -113,7 +113,8 @@ table.usuarios tbody tr.inactivo{opacity:.5}
 .toast.err{background:#fbecec;border-color:var(--ro);color:#7a0f0f}
 
 /* Footer */
-footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-top:1px solid var(--light);text-align:center;background:var(--w)}
+/* v8.86h · Sacado text-align:center genérico — el footerInst usa flex + justify-content:space-between y el center lo desalineaba */
+footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-top:1px solid var(--light);background:var(--w)}
 </style>
 </head>
 <body>
@@ -126,7 +127,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
   </div>
 </div>
 
-<!-- Nav consolidado v8.86g · via datos/nav.js -->
+<!-- Nav consolidado v8.86h · via datos/nav.js -->
 <div id="dvba-nav-mount"></div>
 
 <main>
@@ -221,10 +222,10 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 <footer id="footerInst" style="background:#1f2732;color:rgba(255,255,255,.7);padding:7px 16px;font-size:10px;line-height:1.4;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid #444;position:fixed;bottom:0;left:0;right:0;z-index:80">
   <div style="flex:1;min-width:260px">
     <span style="font-size:10px;font-weight:700;color:#fff">© 2026 DVBA</span>
-    <span style="margin-left:8px">Módulo de administración · Uso interno institucional.</span>
+    <span style="margin-left:8px">Panel de Administración · Módulo de gestión de usuarios y perfiles para Admin del sistema.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86g</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86h</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -326,7 +327,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 
 <script>
 // v8.66f.2 · Constante de versión unificada (familia escritorio v8.X)
-const APP_VERSION = 'v8.86g';
+const APP_VERSION = 'v8.86h';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 // v8.72 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VERSION; });
@@ -366,7 +367,7 @@ async function chequearAcceso(){
       guardBtn.style.display = 'inline-block';
       return false;
     }
-    // v8.86g · #hUser vive en el header legacy (display:none), guard defensivo
+    // v8.86h · #hUser vive en el header legacy (display:none), guard defensivo
     const _hUser = document.getElementById('hUser');
     if (_hUser) _hUser.textContent = session.user.email;
 
@@ -405,7 +406,7 @@ async function chequearAcceso(){
       return false;
     }
     document.getElementById('guard').style.display = 'none';
-    // v8.86g · Montar nav compartido (después de verificar admin)
+    // v8.86h · Montar nav compartido (después de verificar admin)
     if (typeof DVBA_NAV !== 'undefined'){
       try {
         const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
