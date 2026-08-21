@@ -4,6 +4,22 @@
 
 Es la app **por default** al instalar la PWA en el celular. Está diseñada para operarios que necesitan sacar fotos con GPS sin cargar formularios largos.
 
+### Quién puede usarla
+
+Cualquier agente DVBA con usuario activo puede loguearse y cargar registros desde el celular. La app **no restringe por rol** — un capataz, un técnico, un jefe de división, un jefe de zona e incluso Admin pueden usarla indistintamente. La diferencia está en dónde va a parar cada registro: el sistema lo asigna automáticamente a la zona del partido donde se sacó la foto (no a la zona del usuario que la cargó).
+
+Ejemplo: un agente de casa central que recorra la Provincia y saque fotos en distintos partidos, verá que cada registro llega al jefe de la zona correspondiente sin tener que elegir zona manualmente.
+
+Los siguientes roles ven la app en su celular:
+
+- **Técnico** de zona (uso más común, en campo).
+- **Capataz** de cuadrilla (carga la foto de la obra terminada).
+- **Jefe** de cualquier división (Técnica, Operativa, Administrativa, Automotores) — para acompañar operativos.
+- **Jefe de Zona** — para revisar directamente en campo.
+- **Admin** — con acceso pleno.
+
+La única restricción efectiva pasa por la aprobación posterior en oficina: quién aprueba el registro depende del organigrama de la zona donde cayó.
+
 ### Cómo instalarla
 
 1. **Abrir la URL en Chrome del celular** — Ir a [lemeit.github.io/DVBA/app.html](https://lemeit.github.io/DVBA/app.html) desde Chrome (Android) o Safari (iOS). ⚠ Si ponés solo `/DVBA/` se abre el portal escritorio; para instalar la app hay que ir directo al link con `/app.html`.
