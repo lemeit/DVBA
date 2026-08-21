@@ -4,6 +4,18 @@
 
 Es la app tradicional con wizard completo. Se accede desde el link **⚙ Modo Avanzado** del footer de la lite o directamente en [dvba_campo.html](https://lemeit.github.io/DVBA/app.html).
 
+### Quién puede usarla
+
+El Modo Avanzado es accesible para cualquier agente DVBA con usuario activo — no hay filtro por rol dentro de la app. Los perfiles habituales:
+
+- **Técnico** de la División Técnica de zona (uso principal en relevamientos).
+- **Capataz** — para reportar detalles del avance de una tarea asignada.
+- **Jefe de la División Técnica** — cuando quiere clasificar directamente en campo lo que releva.
+- **Jefes de otras divisiones** y **Jefe de Zona** — para acompañamientos u observaciones puntuales.
+- **Admin** — con acceso pleno para pruebas y soporte.
+
+Igual que en Modo Básico, cada registro cargado desde el celular queda automáticamente asignado a la zona del partido donde se sacó la foto, sin importar la zona del usuario que lo cargó. El sistema se encarga de rutearlo al jefe de la zona geográfica correspondiente.
+
 ### Cuándo usarla
 
 - Cuando el operario tiene fluidez con la app y quiere clasificar en el momento.
