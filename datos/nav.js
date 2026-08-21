@@ -322,9 +322,29 @@ const DVBA_NAV = {
       </div>
     ` : '';
 
+    // v8.86h · Banner "zona ajena" para roles operativos zonales que están viendo
+    // una zona distinta a la de su perfil. Solo consulta — la RLS no les permite
+    // cargar registros ni ver colas de otras zonas.
+    const _rolesZonalesSet = new Set(['tecnico','capataz','jefe_zona','jefe_tecnica','jefe_operativa','jefe_administrativa','jefe_automotores']);
+    // Detectar zona activa: window.ZONA_ACTUAL (index) > URL ?zona=X (otros portales) > localStorage
+    let _zonaActual = window.ZONA_ACTUAL || '';
+    if (!_zonaActual){
+      try { _zonaActual = new URLSearchParams(location.search).get('zona') || ''; } catch(_){}
+    }
+    if (!_zonaActual){
+      try { _zonaActual = localStorage.getItem('dvba_zona') || ''; } catch(_){}
+    }
+    _zonaActual = _zonaActual.toUpperCase();
+    const _zonaPerfil = (zona || '').toUpperCase();
+    const _mostrarBannerZonaAjena = _rolesZonalesSet.has(rol) && _zonaPerfil && _zonaActual && _zonaActual !== _zonaPerfil && _zonaActual !== 'PBA';
+    const bannerZonaAjenaHTML = _mostrarBannerZonaAjena
+      ? `<div id="dvba-zonaajena-banner" style="background:#fff8e6;color:#5a3d00;padding:8px 16px;text-align:center;font-size:11.5px;font-weight:600;border-bottom:2px solid #c47a00;font-family:'Encode Sans',sans-serif">ℹ Estás consultando <b>Zona ${esc(_zonaActual)}</b> pero tu perfil es de <b>Zona ${esc(_zonaPerfil)}</b>. Podés navegar y consultar libremente, pero para cargar registros o ver la cola de pendientes, volvé a <b>Zona ${esc(_zonaPerfil)}</b> con el selector del header.</div>`
+      : '';
+
     mount.innerHTML = `
       ${estaImpersonando ? `<div id="dvba-imp-banner">👁 Viendo el sistema como <b>${esc(ROL_LABELS[perfilImp.rol]||perfilImp.rol)}${perfilImp.zona?` · Zona ${esc(perfilImp.zona)}`:''}</b><button onclick="DVBA_NAV.volverAVistaReal()">✕ Volver a vista real</button></div>` : ''}
       ${rol === 'publico' ? `<div id="dvba-publico-banner" style="background:#e6f7f9;color:#00505a;padding:6px 14px;text-align:center;font-size:11.5px;font-weight:600;border-bottom:1px solid #b0dde2;font-family:'Encode Sans',sans-serif">🔓 <b>Vista pública</b> · Mapa y guía disponibles sin sesión. Para acceder al sistema completo, <a href="#" onclick="event.preventDefault();DVBA_NAV._iniciarSesion()" style="color:#007e8c;font-weight:800;text-decoration:underline">iniciar sesión</a>.</div>` : ''}
+      ${bannerZonaAjenaHTML}
       <header class="dvba-nav-header">
         <div class="dvba-nav-brand">
           <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA" onerror="this.style.display='none';this.parentElement.textContent='🛣'"></div>
