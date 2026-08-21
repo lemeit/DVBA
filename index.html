@@ -447,7 +447,7 @@ body.modo-campo #campo-fab{display:flex}
 </style>
 </head>
 <body>
-<!-- Nav consolidado v8.86e · via datos/nav.js. Header viejo oculto pero sus IDs (hZona, hPartido, zonaPicker, user-info, user-email) siguen "vivos" para la lógica de zona-picker y auth. -->
+<!-- Nav consolidado v8.86g · via datos/nav.js. Header viejo oculto pero sus IDs (hZona, hPartido, zonaPicker, user-info, user-email) siguen "vivos" para la lógica de zona-picker y auth. -->
 <div id="dvba-nav-mount"></div>
 <header id="nav-legacy" style="display:none">
   <img src="datos/img/logo_dvba_clean.png" style="height:38px;width:38px;object-fit:contain;flex-shrink:0" alt="DVBA">
@@ -525,7 +525,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.86e</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.86g</span></div>
   </div>
 </div>
 <div class="layout">
@@ -891,7 +891,7 @@ body.modo-campo #campo-fab{display:flex}
         <div class="scard"><div class="sv" id="sreg">0</div><div class="sl">Registros</div></div>
       </div>
       <div class="pf-inst">
-        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.86e</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
+        SIG Vial PBA<sup style="font-size:.75em;color:var(--am);letter-spacing:0">β</sup> · <span id="app-ver-footer">v8.86g</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:var(--pd);text-decoration:none;font-weight:600">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:var(--pd);text-decoration:none;font-weight:600">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:var(--pd);text-decoration:none;font-weight:600">Privacidad</a>
       </div>
     </div>
 
@@ -960,8 +960,8 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.86e';
-// v8.86e · Montar nav consolidado (después de que loader_zona haya inicializado hZona)
+const APP_VERSION = 'v8.86g';
+// v8.86g · Montar nav consolidado (después de que loader_zona haya inicializado hZona)
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     if (typeof DVBA_NAV === 'undefined') return;
@@ -1526,7 +1526,7 @@ async function sincronizarSupaConSesion(){
       if (typeof DVBA_PERFIL !== 'undefined'){
         await DVBA_PERFIL.cargar(_supa);
         aplicarVisibilidadRol();
-        // v8.86e · Roles zonales: si el URL no matchea la zona del perfil, reload
+        // v8.86g · Roles zonales: si el URL no matchea la zona del perfil, reload
         // (permite que loader_zona.js cargue los bundles correctos de esa zona).
         try {
           const perfil = DVBA_PERFIL.get();
@@ -1709,14 +1709,14 @@ async function hacerLogout(){
   try {
     Object.keys(localStorage).filter(k => k.startsWith('sb-') || k.startsWith('supabase.')).forEach(k => localStorage.removeItem(k));
   } catch(e){}
-  // v8.86e · Limpiar cache de zona/perfil para que la próxima sesión no vea la anterior
+  // v8.86g · Limpiar cache de zona/perfil para que la próxima sesión no vea la anterior
   try { localStorage.removeItem('dvba_perfil'); } catch(e){}
   try { localStorage.removeItem('dvba_perfil_impersonado'); } catch(e){}
   try { localStorage.removeItem('dvba_zona'); } catch(e){}
   try { localStorage.removeItem('dvba_zona_activa'); } catch(e){}
   aplicarVisibilidadRol();
   aplicarModoSesion();
-  // v8.86e · Ir al index.html sin ?zona (limpio) para que el próximo login
+  // v8.86g · Ir al index.html sin ?zona (limpio) para que el próximo login
   // decida su zona desde el perfil real, no del URL viejo.
   setTimeout(() => {
     const path = location.pathname.replace(/[^/]+$/, '') + 'index.html';
@@ -2487,7 +2487,7 @@ function showTab(t,el){
 // grandes tipo III con 31 partidos), dropdown solo en vista panorámica PBA (135 partidos).
 // El criterio es SI es PBA o no — no cantidad de items.
 function _modoSidebarDropdown(){
-  // v8.86e · Modo dropdown si es PBA O si hay muchos partidos (evita colgado por
+  // v8.86g · Modo dropdown si es PBA O si hay muchos partidos (evita colgado por
   // renderizar cientos de chips en zonas sin bundle propio que caen a partidos_pba).
   if (window.ZONA_ACTUAL === 'PBA') return true;
   try {
@@ -4055,10 +4055,10 @@ function _reemplazarPartidos(nuevoGeo){
     p.partido = canon;
     p.PARTIDO = canon; // ambas keys por compat
   });
-  // v8.86e · Filtrar por zona activa cuando la zona usa partidos_pba.geojson como
+  // v8.86g · Filtrar por zona activa cuando la zona usa partidos_pba.geojson como
   // fallback (zonas I, II, III, VII, VIII, IX, X, XI, XII sin bundle propio).
   // Sin este filtro, PARTIDOS_LIST queda con 135 y colapsa la UI.
-  // v8.86e · Comparación normalizada (sin tildes, case-insensitive) porque el
+  // v8.86g · Comparación normalizada (sin tildes, case-insensitive) porque el
   // geojson trae "Bahia Blanca" o "General La Madrid" con variaciones vs
   // el mapping oficial. Antes se perdían partidos como Bahía Blanca o Lamadrid.
   const zAct = (window.ZONA_ACTUAL || '').toUpperCase();
@@ -4076,8 +4076,8 @@ function _reemplazarPartidos(nuevoGeo){
       if (!z) perdidos.push(p);
       return z === zAct;
     });
-    if (perdidos.length) console.warn(`[v8.86e] ${perdidos.length} partidos sin match en _partidoAZona:`, perdidos.slice(0,5));
-    console.log(`[v8.86e] Filtro por zona ${zAct}: ${antes} → ${nuevoGeo.features.length} partidos`);
+    if (perdidos.length) console.warn(`[v8.86g] ${perdidos.length} partidos sin match en _partidoAZona:`, perdidos.slice(0,5));
+    console.log(`[v8.86g] Filtro por zona ${zAct}: ${antes} → ${nuevoGeo.features.length} partidos`);
   }
   PARTIDOS_GEO = nuevoGeo;
   // Recomputar lista de partidos activos
@@ -4097,7 +4097,7 @@ function _reemplazarPartidos(nuevoGeo){
   // Rebuild UI + redraw + refit
   buildPartidosUI();
   drawPartidos();
-  // v8.86e · fitBounds robusto + diferido (evita que init de PBA / labels / clipping lo pise)
+  // v8.86g · fitBounds robusto + diferido (evita que init de PBA / labels / clipping lo pise)
   try {
     const b = L.geoJSON(PARTIDOS_GEO).getBounds();
     if (b.isValid()){
@@ -4105,11 +4105,11 @@ function _reemplazarPartidos(nuevoGeo){
       // Retry diferido: si otra lógica pisa el center (labels PBA, clipping, etc.)
       setTimeout(() => { try { map.fitBounds(b.pad(0.03), { animate: false }); } catch(_){} }, 800);
       setTimeout(() => { try { map.fitBounds(b.pad(0.03), { animate: false }); } catch(_){} }, 2000);
-      console.log('[v8.86e] fitBounds a zona', window.ZONA_ACTUAL, 'bounds:', b.toBBoxString());
+      console.log('[v8.86g] fitBounds a zona', window.ZONA_ACTUAL, 'bounds:', b.toBBoxString());
     } else {
-      console.warn('[v8.86e] fitBounds: bounds no válidos para PARTIDOS_GEO');
+      console.warn('[v8.86g] fitBounds: bounds no válidos para PARTIDOS_GEO');
     }
-  } catch(e){ console.warn('[v8.86e] fitBounds error:', e.message); }
+  } catch(e){ console.warn('[v8.86g] fitBounds error:', e.message); }
   _actualizarResumenZona();  // v8.66f.2 · actualizar contadores del sidebar
   if (typeof buildLeyenda === 'function') buildLeyenda();  // v8.66f.2 · refresca sección Partidos de la leyenda
   // v8.66f.2 · Repintar rutas zonales para aplicar clipping ahora que tenemos PARTIDOS_GEO nuevo
@@ -4181,7 +4181,7 @@ function dibujarRutasZonaNoCalibradas(){
       _rutasZonalesGeoCache = geo;
       _rutasZonalesCalibradasSet = calibradas;
 
-      // v8.86e · Filtrar RUTAS_LIST usando _rutasPorZona construido desde
+      // v8.86g · Filtrar RUTAS_LIST usando _rutasPorZona construido desde
       // partidos_pba.json (cada partido tiene su lista de rutas oficial).
       // El geojson rutas_pba.geojson NO tiene atributo partido → no se puede filtrar
       // por feature directamente. Este mapping es la fuente autoritaria.
@@ -4189,7 +4189,7 @@ function dibujarRutasZonaNoCalibradas(){
       let rutasDeZona = null; // null = sin filtro (deja todas)
       if (zAct && zAct !== 'PBA' && window._rutasPorZona && window._rutasPorZona[zAct]){
         rutasDeZona = window._rutasPorZona[zAct];
-        console.log(`[v8.86e] Rutas filtradas por zona ${zAct}: ${rutasDeZona.size} rutas oficiales`);
+        console.log(`[v8.86g] Rutas filtradas por zona ${zAct}: ${rutasDeZona.size} rutas oficiales`);
       }
       // Actualizar RUTAS_LIST + RUTA_META para las RPs de la zona
       const rpsUnicas = [...new Set(feats.map(f => String(f.properties.rtn || '')).filter(Boolean))]
@@ -4475,7 +4475,7 @@ fetch('datos/referencias/partidos_pba.json?v=8.64', {cache:'no-cache'})
     const _aliasNumericos = {
       'Veinticinco de Mayo':                ['25 de Mayo', '25 De Mayo'],
       'Nueve de Julio':                     ['9 de Julio', '9 De Julio'],
-      // v8.86e · aliases por abreviaciones geojson vs mapping canónico
+      // v8.86g · aliases por abreviaciones geojson vs mapping canónico
       'Coronel de Marina Leonardo Rosales': ['Coronel de Marina L. Rosales', 'Coronel Rosales', 'Coronel de Marina L Rosales'],
       'General Juan Madariaga':             ['General Madariaga'],
       'General La Madrid':                  ['General Lamadrid', 'General la Madrid']
@@ -4485,7 +4485,7 @@ fetch('datos/referencias/partidos_pba.json?v=8.64', {cache:'no-cache'})
       if (z) aliases.forEach(a => { map_nombre_a_zona[a] = z; });
     });
     _partidoAZona = map_nombre_a_zona;
-    // v8.86e · Construir también mapping zona → Set de rutas (para filtrar RUTAS_LIST
+    // v8.86g · Construir también mapping zona → Set de rutas (para filtrar RUTAS_LIST
     // en zonas sin bundle propio, donde rutas_pba.geojson trae todas las RPs).
     // Fuente: p.rutas del partidos_pba.json.
     window._rutasPorZona = {};
@@ -8467,7 +8467,7 @@ function actualizarBadgeCola(){
   const urgentes = pendientes.filter(r => r.prioridad === 'urgente').length;
   const elCount = document.getElementById('cola-count');
   if (elCount) elCount.textContent = pendientes.length;
-  // v8.86e · Sincronizar también el badge del nav consolidado (nav.js)
+  // v8.86g · Sincronizar también el badge del nav consolidado (nav.js)
   const elCountNav = document.getElementById('cola-count-nav');
   if (elCountNav) elCountNav.textContent = pendientes.length;
   const btnNav = document.getElementById('dvba-nav-cola-btn');
@@ -9116,7 +9116,7 @@ document.addEventListener('DOMContentLoaded', () => { z6TipoInit(); });
 
       <div style="margin-bottom:14px">
         <div style="font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px">Versión actual</div>
-        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.86e</span> · Familia escritorio</div>
+        <div style="font-size:13px;font-family:'SF Mono',Menlo,monospace"><span id="ad-ver">v8.86g</span> · Familia escritorio</div>
         <div style="font-size:10.5px;color:var(--mut);margin-top:2px">App móvil PWA: <b>v9.91</b></div>
       </div>
 
@@ -10345,7 +10345,7 @@ async function guardarAliasCamino(){
 
 
 
-<!-- v8.86e · Banner dismissible desactivado · lo reemplaza el banner del nav.js (mount) -->
+<!-- v8.86g · Banner dismissible desactivado · lo reemplaza el banner del nav.js (mount) -->
 <div id="avisoPublico" style="display:none !important;position:fixed;bottom:0;left:0;right:0;z-index:9500;background:rgba(31,39,50,.96);color:#fff;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));border-top:2px solid #ffd060;box-shadow:0 -4px 12px rgba(0,0,0,.35);font-family:'Encode Sans',sans-serif">
   <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
     <div style="font-size:22px;flex-shrink:0">ℹ️</div>
@@ -10360,7 +10360,7 @@ async function guardarAliasCamino(){
 </div>
 
 <script>
-// v8.86e · Banner "Modo público" DESHABILITADO · lo reemplaza el banner celeste
+// v8.86g · Banner "Modo público" DESHABILITADO · lo reemplaza el banner celeste
 // del nav.js (arriba de todo). Funciones stub para no romper referencias legacy
 // (botón ℹ Alcance del header, etc.).
 function mostrarAvisoPublico(forzar){
