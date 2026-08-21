@@ -380,6 +380,7 @@ const DVBA_NAV = {
       // nativo al hacer clic en cualquier parte del slot.
       zonaSlot.innerHTML = '';
       const zonaHoy = (window.ZONA_ACTUAL || zona || 'PBA').toUpperCase();
+      // Cabeceras oficiales · fuente: datos/zonas/CABECERAS.md (Luciano 2026-08-03)
       const ZONAS = [
         { cod:'PBA',  cab:'Todas las zonas' },
         { cod:'I',    cab:'Arrecifes' },
@@ -388,12 +389,12 @@ const DVBA_NAV = {
         { cod:'IV',   cab:'Junín' },
         { cod:'V',    cab:'Chivilcoy' },
         { cod:'VI',   cab:'Saladillo' },
-        { cod:'VII',  cab:'Bragado' },
-        { cod:'VIII', cab:'9 de Julio' },
-        { cod:'IX',   cab:'Olavarría' },
-        { cod:'X',    cab:'Azul' },
-        { cod:'XI',   cab:'Necochea' },
-        { cod:'XII',  cab:'Mar del Plata' }
+        { cod:'VII',  cab:'Dolores' },
+        { cod:'VIII', cab:'Pehuajó' },
+        { cod:'IX',   cab:'Azul' },
+        { cod:'X',    cab:'Mar del Plata' },
+        { cod:'XI',   cab:'Bahía Blanca' },
+        { cod:'XII',  cab:'Necochea' }
       ];
       const zActual = ZONAS.find(z => z.cod === zonaHoy) || ZONAS[0];
       // Parte visible

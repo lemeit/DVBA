@@ -84,15 +84,16 @@
     // v8.85 · Manifests básicos para las 8 zonas restantes (sin bundles calibrados
     // todavía). El mapa muestra partidos_pba + rutas_pba filtrados por la zona
     // seleccionada. Cuando se agreguen bundles calibrados, se enriquecen aquí.
-    I:    { codigo:'I',    nombre:'Arrecifes',      cabecera:'Arrecifes',      estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
-    II:   { codigo:'II',   nombre:'Morón',          cabecera:'Morón',          estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
-    III:  { codigo:'III',  nombre:'Ensenada',       cabecera:'Ensenada',       estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
-    VII:  { codigo:'VII',  nombre:'Bragado',        cabecera:'Bragado',        estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
-    VIII: { codigo:'VIII', nombre:'9 de Julio',     cabecera:'9 de Julio',     estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
-    IX:   { codigo:'IX',   nombre:'Olavarría',      cabecera:'Olavarría',      estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
-    X:    { codigo:'X',    nombre:'Azul',           cabecera:'Azul',           estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
-    XI:   { codigo:'XI',   nombre:'Necochea',       cabecera:'Necochea',       estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
-    XII:  { codigo:'XII',  nombre:'Mar del Plata',  cabecera:'Mar del Plata',  estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } }
+    // Cabeceras oficiales · fuente: datos/zonas/CABECERAS.md (Luciano 2026-08-03)
+    I:    { codigo:'I',    nombre:'Arrecifes',    cabecera:'Arrecifes',    estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
+    II:   { codigo:'II',   nombre:'Morón',        cabecera:'Morón',        estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
+    III:  { codigo:'III',  nombre:'Ensenada',     cabecera:'Ensenada',     estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
+    VII:  { codigo:'VII',  nombre:'Dolores',      cabecera:'Dolores',      estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
+    VIII: { codigo:'VIII', nombre:'Pehuajó',      cabecera:'Pehuajó',      estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
+    IX:   { codigo:'IX',   nombre:'Azul',         cabecera:'Azul',         estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
+    X:    { codigo:'X',    nombre:'Mar del Plata',cabecera:'Mar del Plata',estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
+    XI:   { codigo:'XI',   nombre:'Bahía Blanca', cabecera:'Bahía Blanca', estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } },
+    XII:  { codigo:'XII',  nombre:'Necochea',     cabecera:'Necochea',     estado:'sin_bundle', rps_calibradas:[], assets_zona:{ partidos:'datos/referencias/partidos_pba.geojson', rutas_geo:'datos/referencias/rutas_pba.geojson' } }
   };
 
   const VERSION = '8.62'; // para cache-bust de los <script src>
