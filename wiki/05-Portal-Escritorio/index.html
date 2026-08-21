@@ -530,6 +530,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#header-consolidado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Header consolidado
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#elementos-de-la-interfaz" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -556,6 +567,17 @@
     <span class="md-ellipsis">
       
         Cola de aprobación de registros
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modal-sig-vial-ficha-de-ruta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modal SIG Vial (ficha de ruta)
       
     </span>
   </a>
@@ -1095,6 +1117,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#header-consolidado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Header consolidado
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#elementos-de-la-interfaz" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1127,6 +1160,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#modal-sig-vial-ficha-de-ruta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modal SIG Vial (ficha de ruta)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1145,24 +1189,31 @@
 
 
 <blockquote>
-<p><a href="../04-Roles-y-Accesos/">← Roles y accesos</a> · <a href="../00-Indice/">Índice</a> · <a href="../06-Panel-Administracion/">Panel de Administración de Usuarios →</a></p>
+<p><a href="../04-Roles-y-Accesos/">← Roles y accesos</a> · <a href="../00-Indice/">Índice</a> · <a href="../05b-Portal-Plan-Operativo/">Portal Plan Operativo (Jefe de Zona) →</a></p>
 </blockquote>
 <h1 id="portal-web-escritorio">Portal web (escritorio)<a class="headerlink" href="#portal-web-escritorio" title="Permanent link">¶</a></h1>
-<p>El portal es el punto de entrada principal para técnicos, gerencia y administradores. Se accede desde cualquier navegador moderno en <a href="https://lemeit.github.io/DVBA/">lemeit.github.io/DVBA/</a>.</p>
+<p>El portal es el punto de entrada principal para todos los roles logueados: técnicos, capataces (para consultar), jefes de división, jefes de zona, gerencia y administradores. Se accede desde cualquier navegador moderno en <a href="https://lemeit.github.io/DVBA/">lemeit.github.io/DVBA/</a>.</p>
 <h3 id="vista-general">Vista general<a class="headerlink" href="#vista-general" title="Permanent link">¶</a></h3>
 <div class="admonition note">
 <p class="admonition-title">📷 Screenshot sugerido:</p>
-<p>vista general del portal con mapa + sidebar + capa 📋 Tareas activa.</p>
+<p>Vista general del portal con mapa + sidebar + capa 📋 Tareas activa + header consolidado con selector de zona.</p>
 </div>
+<h3 id="header-consolidado">Header consolidado<a class="headerlink" href="#header-consolidado" title="Permanent link">¶</a></h3>
+<p>El header es común a los cinco portales del sistema (Portal principal, Plan Operativo, Plan de Seguridad, Informes, Panel de Administración) y siempre incluye:</p>
+<ul>
+<li><strong>Logo institucional DVBA</strong> + título <strong>SIG Vial PBAᵝ</strong> con subtítulo del portal actual (por ejemplo <em>Portal principal</em>).</li>
+<li><strong>Selector de zona</strong> en amarillo institucional al lado del título, con formato <code>ZONA VI · [Saladillo] ▾</code>. Permite explorar cualquiera de las 12 zonas + una vista panorámica <strong>PBA · Todas las zonas</strong>. Cualquier usuario logueado puede navegar entre zonas; la RLS del backend limita la escritura a la zona propia.</li>
+<li><strong>Badge 🔔 X pendientes</strong> — visible únicamente para roles con autoridad de revisión (Admin, Gerencia, Jefe de Zona, Jefe de la División Técnica, Jefe de la División Operativa). El número muestra los registros crudos esperando aprobación en la zona activa. Para Gerencia aparece marcado como <em>solo ver</em>, ya que gerencia consulta pero no aprueba.</li>
+<li><strong>Botón único de usuario</strong> <code>☰ Nombre ▾</code> que abre el menú principal con: información del usuario (nombre + rol + zona), panel de impersonación (solo Admin y Gerencia), links a los demás portales agrupados por sección (Plan Operativo, Análisis, Ayuda), y opción <strong>🚪 Cerrar sesión</strong>.</li>
+<li>Si no hay sesión activa, en lugar del menú de usuario aparece un solo botón <strong>🔐 Iniciar sesión ▾</strong> con el mismo dropdown que expone las secciones públicas y el modal de login.</li>
+</ul>
 <h3 id="elementos-de-la-interfaz">Elementos de la interfaz<a class="headerlink" href="#elementos-de-la-interfaz" title="Permanent link">¶</a></h3>
-<p>Header</p>
-<p>Logo institucional · nombre de la zona activa · badge del usuario (con tooltip rol+zona) · links a Plan de Seguridad y Reportes · botón salir.</p>
 <p>Sidebar izquierdo</p>
-<p>Pills agrupadas de rutas provinciales y caminos secundarios. Filtros por partido. Selector de capa (RP / Camino / Tareas). Modal SIG Vial estilo DNV.</p>
+<p>Pills agrupadas de rutas provinciales y caminos secundarios. Filtros por partido. Selector de capa (RP / Camino / Tareas). Modal SIG Vial estilo DNV. Cuando la zona activa tiene muchos partidos (más de 20), las pills pasan a un desplegable compacto con búsqueda incorporada para no saturar la pantalla.</p>
 <p>Mapa central</p>
-<p>Leaflet con 8 partidos + 15 RPs + 100 caminos secundarios. Cursor flotante muestra progresiva al pasar sobre trazas. Click en un punto → pin con detalle.</p>
+<p>Mapa interactivo con partidos, rutas provinciales y caminos secundarios de la zona activa. Cursor flotante muestra progresiva al pasar sobre trazas. Click en un punto → pin con detalle. Al elegir otra zona con el selector del header, el mapa se re-centra y se recarga con las trazas y partidos correspondientes.</p>
 <p>Panel-footer</p>
-<p>Fijo abajo del sidebar. Resumen de la zona activa (partidos / rutas / caminos / registros) y línea con desarrollador + versión.</p>
+<p>Fijo abajo del sidebar. Resumen de la zona activa (partidos / rutas / caminos / registros).</p>
 <h3 id="capa-tareas">Capa 📋 Tareas<a class="headerlink" href="#capa-tareas" title="Permanent link">¶</a></h3>
 <p>Al activar esta capa, cada tarea diaria aparece dibujada sobre la traza real de la ruta o camino, con color según la antigüedad:</p>
 <ul>
@@ -1179,13 +1230,28 @@
 <p><strong>Gris</strong>: histórico anterior.</p>
 </li>
 </ul>
-<p>Los pines abren un popup con los detalles de la tarea (fecha, tipo, ruta, prog inicial/final, equipos, fotos vinculadas).</p>
+<p>Los pines abren un popup con los detalles de la tarea (fecha, tipo, ruta, progresiva inicial/final, equipos, fotos vinculadas).</p>
 <div class="admonition note">
 <p class="admonition-title">📷 Screenshot sugerido:</p>
-<p>capa Tareas activa mostrando polylines de colores sobre RP30 con popup abierto.</p>
+<p>Capa Tareas activa mostrando polylines de colores sobre RP30 con popup abierto.</p>
 </div>
 <h3 id="cola-de-aprobacion-de-registros">Cola de aprobación de registros<a class="headerlink" href="#cola-de-aprobacion-de-registros" title="Permanent link">¶</a></h3>
-<p>El botón <strong>🔔 N pendientes</strong> del header abre la cola de registros con estado <code>estado_workflow = 'campo'</code>. Cada registro tiene botones para aprobar / rechazar / editar / rotar la foto. Al aprobar se aplica el sello institucional v4 con los datos definitivos.</p>
+<p>El botón <strong>🔔 N pendientes</strong> del header abre la cola de registros crudos que llegaron desde el campo y esperan revisión. Cada registro se muestra con:</p>
+<ul>
+<li>Foto miniatura.</li>
+<li>Ruta + progresiva + partido.</li>
+<li>Tipo del problema.</li>
+<li>Sugerencias automáticas de armonización (si el GPS no coincide del todo con los datos cargados).</li>
+</ul>
+<p>Botones disponibles según el rol:</p>
+<ul>
+<li><strong>✅ Aprobar</strong> (Jefe de Zona / Jefe de División Técnica / Jefe de División Operativa / Admin) — aplica el sello institucional a la foto y marca el registro como oficial.</li>
+<li><strong>✏ Editar</strong> — corrige datos antes de aprobar.</li>
+<li><strong>✕ Rechazar</strong> — descarta el registro con motivo.</li>
+</ul>
+<p>Gerencia también ve la cola pero solo con opción de consulta.</p>
+<h3 id="modal-sig-vial-ficha-de-ruta">Modal SIG Vial (ficha de ruta)<a class="headerlink" href="#modal-sig-vial-ficha-de-ruta" title="Permanent link">¶</a></h3>
+<p>Al hacer clic sobre cualquier RP en el mapa se abre una ficha estilo DNV con los datos oficiales de la ruta: número, denominación, longitud, tipo de pavimento, ancho de calzada y banquinas, partidos que atraviesa. El header del modal toma el color de la ruta seleccionada para identificarla visualmente.</p>
 
 
 

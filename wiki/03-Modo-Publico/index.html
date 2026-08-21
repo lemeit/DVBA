@@ -463,6 +463,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#selector-de-zonas-disponible-tambien-sin-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selector de zonas · disponible también sin login
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#que-se-ve-sin-login" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -485,10 +496,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#aviso-institucional-y-boton-iniciar-sesion" class="md-nav__link">
+  <a href="#banner-y-boton-iniciar-sesion" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Aviso institucional y botón Iniciar sesión
+        Banner y botón Iniciar sesión
       
     </span>
   </a>
@@ -1073,6 +1084,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#selector-de-zonas-disponible-tambien-sin-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selector de zonas · disponible también sin login
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#que-se-ve-sin-login" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1095,10 +1117,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#aviso-institucional-y-boton-iniciar-sesion" class="md-nav__link">
+  <a href="#banner-y-boton-iniciar-sesion" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Aviso institucional y botón Iniciar sesión
+        Banner y botón Iniciar sesión
       
     </span>
   </a>
@@ -1127,7 +1149,15 @@
 </blockquote>
 <h1 id="modo-publico-sin-login">Modo público (sin login)<a class="headerlink" href="#modo-publico-sin-login" title="Permanent link">¶</a></h1>
 <p>El portal principal se abre en <em>modo público</em> por defecto. Cualquier persona con la URL puede ver el mapa de la red vial provincial sin necesidad de credenciales.</p>
-<p><strong>Portal multi-zona:</strong> el sistema cubre las <strong>12 zonas viales</strong> de la Dirección de Vialidad. Al abrir el portal público se ve toda la Provincia con los 135 partidos agrupados por su zona vial DVBA (paleta institucional de 12 tonos armónicos). Un técnico logueado se redirige automáticamente a su zona. Admin/Gerencia pueden cambiar de zona con el picker del header. Las trazas de las RPs se recortan automáticamente a los límites de los partidos de la zona activa. Sobre cada agrupación aparece el número romano (I..XII) de la zona.</p>
+<p><strong>Portal multi-zona:</strong> el sistema cubre las <strong>12 zonas viales</strong> de la Dirección de Vialidad. Al abrir el portal público se ve toda la Provincia con los 135 partidos agrupados por su zona vial DVBA (paleta institucional de 12 tonos armónicos). Sobre cada agrupación aparece el número romano (I..XII) de la zona. Las trazas de las RPs se recortan a los límites de los partidos de la zona activa.</p>
+<h3 id="selector-de-zonas-disponible-tambien-sin-login">Selector de zonas · disponible también sin login<a class="headerlink" href="#selector-de-zonas-disponible-tambien-sin-login" title="Permanent link">¶</a></h3>
+<p>En el header, al lado del título <strong>SIG Vial PBAᵝ</strong>, hay un selector amarillo con formato <code>ZONA VI · [Saladillo] ▾</code> que permite explorar cualquiera de las 12 zonas + una vista panorámica <strong>PBA · Todas las zonas</strong>.</p>
+<ul>
+<li>Al elegir una zona, el mapa se re-centra sobre ella y muestra los partidos, rutas y caminos correspondientes.</li>
+<li>Cualquier visitante (con o sin login) puede navegar libremente entre zonas — la información institucional del mapa es pública.</li>
+<li>Los usuarios logueados también usan este selector para consultar zonas distintas a la propia (por ejemplo, un jefe de Zona VI que quiera mirar el mapa de Zona IV para referencia). La escritura de registros sigue limitada a su zona.</li>
+<li>Un usuario técnico o de zona logueado se re-dirige automáticamente a su zona al entrar; después puede cambiar manualmente si lo necesita.</li>
+</ul>
 <h3 id="que-se-ve-sin-login">¿Qué se ve sin login?<a class="headerlink" href="#que-se-ve-sin-login" title="Permanent link">¶</a></h3>
 <ul>
 <li>
@@ -1152,18 +1182,26 @@
 <p>Plan de Seguridad en la Circulación.</p>
 </li>
 <li>
-<p>Módulo Reportes gerenciales.</p>
+<p>Módulo Informes gerenciales.</p>
+</li>
+<li>
+<p>Portal Plan Operativo (asignaciones de trabajo a cuadrillas).</p>
 </li>
 <li>
 <p>Panel de Administración de Usuarios.</p>
 </li>
 </ul>
-<h3 id="aviso-institucional-y-boton-iniciar-sesion">Aviso institucional y botón Iniciar sesión<a class="headerlink" href="#aviso-institucional-y-boton-iniciar-sesion" title="Permanent link">¶</a></h3>
-<p>Al entrar por primera vez sin sesión aparece un <strong>banner informativo</strong> en la parte inferior explicando el alcance del modo público, con un botón directo <code>🔐 Iniciar sesión</code>. El botón <code>Entendido ✕</code> lo oculta y no vuelve a aparecer en el mismo dispositivo (queda registrado en <code>localStorage</code>).</p>
-<p>Para volver a leer el mensaje, tocar el botón <code>ℹ Alcance</code> del header (a la derecha del botón de login), disponible únicamente en modo público.</p>
+<h3 id="banner-y-boton-iniciar-sesion">Banner y botón Iniciar sesión<a class="headerlink" href="#banner-y-boton-iniciar-sesion" title="Permanent link">¶</a></h3>
+<p>Al entrar sin sesión aparece un <strong>banner celeste</strong> en la parte superior con el aviso "Vista pública · Mapa y guía disponibles sin sesión. Para acceder al sistema completo, iniciar sesión" y un vínculo directo.</p>
+<p>También en el header, el único botón de acción visible es <strong>🔐 Iniciar sesión ▾</strong>, que al hacer clic abre un menú con:</p>
+<ul>
+<li>🔐 Iniciar sesión (destacado en celeste)</li>
+<li>Portal principal</li>
+<li>Guía</li>
+</ul>
 <div class="admonition info">
 <p class="admonition-title">🔒 Seguridad</p>
-<p>La RLS (Row Level Security) de Supabase (<code>SQL_12</code>) bloquea al rol <code>anon</code> de acceder por API a tareas, partes, fotos o perfiles de usuarios. Aunque alguien tenga la anon-key pública (visible en el HTML), <strong>no puede consultar información institucional interna</strong>.</p>
+<p>Aunque el mapa y la guía son de acceso público, la información operativa interna (relevamientos, tareas, partes diarios, fotos de campo, usuarios, roles) está protegida por reglas de seguridad del backend. <strong>Sin sesión válida no se puede consultar ninguna información institucional interna</strong> por más que se conozca la URL o se inspeccione la página.</p>
 </div>
 
 
