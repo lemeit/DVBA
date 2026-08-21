@@ -3,7 +3,21 @@
 > Documento de diseño — visión y roadmap
 > Autor: Ing. Luciano Lamaita · Div. Técnica DVBA Zona VI
 > Iniciado: 2026-07-13
-> Estado: **draft — pendiente de discusión con Gerencia**
+> Última actualización: 2026-08-19 · **Fase 2 implementada (Jefe de Zona operativo end-to-end)**
+> Estado: **v8.86e en producción con las 12 zonas + 10 roles**
+
+## Estado de implementación (2026-08-19)
+
+- **Nivel 1 · Público** ✅ operativo desde v7.x — RLS pública con anon key (SQL_12).
+- **Nivel 2 · Técnico Zona** ✅ operativo desde v8.59 — RLS zonal (SQL_9), trigger auto-zona (SQL_10).
+- **Nivel 2b · Jefes de zona** ✅ operativo desde v8.83 — 5 roles nuevos (jefe_zona, jefe_operativa, jefe_tecnica, jefe_administrativa, jefe_automotores) + capataz. RLS ampliada (SQL_19), trigger ampliado (SQL_20/SQL_21), portal `plan_operativo.html`.
+- **Zona por partido geográfico** ✅ v8.84 — tabla `partidos_zona` (135 partidos, SQL_22) + trigger `zona_por_partido` (SQL_23). Un capataz VI en Junín ahora cae en la cola del jefe IV.
+- **Nivel 3 · Gerencia** ⚙️ parcial — puede leer todo pero **NO aprueba ni edita** (regla acordada Luciano 2026-08-19). Interviene vía sugerencias (SQL_18: `intervenido_por/en/motivo`).
+- **Nivel 4 · Admin** ✅ operativo (`admin_usuarios.html`).
+- **Impersonación admin/gerencia** ✅ v8.80 — panel "ver como otro rol/zona".
+- **Nav consolidado 5 portales** ✅ v8.79-v8.86e — `datos/nav.js`.
+- **UI 12 zonas** ✅ v8.85 — MANIFESTS + picker con las 12 zonas + fallback partidos_pba para las sin bundle propio.
+- **App móvil multi-rol** ✅ v9.95.15 — labels completos, sin guardas de rol (RLS filtra).
 
 ---
 

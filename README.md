@@ -12,10 +12,10 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 | URL | Archivo | Versión | Descripción |
 |---|---|---|---|
-| https://lemeit.github.io/DVBA/ | `index.html` | **v8.78** | Portal principal: mapa Leaflet + **sidebar drawer colapsable** (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. **Botón `🎯 Ubicar`** (flujo inverso ruta+km → posición). **Sistema de reportes mixto** (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. **Sello v4 overlay** semitransparente sobre la foto con QR + logo DVBA. **EXIF metadata** completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III). |
-| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v8.78** | App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo `sello_v4.js` con el portal. |
-| https://lemeit.github.io/DVBA/reportes.html | `reportes.html` | **v8.78** | Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia. |
-| https://lemeit.github.io/DVBA/app.html | `app.html` → router | **v9.95.14** | **App móvil PWA (URL canónica)** — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia. Instalado en el celu queda como `SIG Vial PBA` (un solo ícono). URL legacy `campo.html` sigue como redirect. |
+| https://lemeit.github.io/DVBA/ | `index.html` | **v8.86e** | Portal principal: mapa Leaflet + **sidebar drawer colapsable** (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. **Botón `🎯 Ubicar`** (flujo inverso ruta+km → posición). **Sistema de reportes mixto** (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. **Sello v4 overlay** semitransparente sobre la foto con QR + logo DVBA. **EXIF metadata** completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III). |
+| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v8.86e** | App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo `sello_v4.js` con el portal. |
+| https://lemeit.github.io/DVBA/reportes.html | `reportes.html` | **v8.86e** | Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia. |
+| https://lemeit.github.io/DVBA/app.html | `app.html` → router | **v9.95.15** | **App móvil PWA (URL canónica)** — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia. Instalado en el celu queda como `SIG Vial PBA` (un solo ícono). URL legacy `campo.html` sigue como redirect. |
 | ↳ `dvba_campo_lite.html` (interno) | Modo Básico | v9.91 | UI minimalista: foto + GPS + envío directo. Compresión 1200px/q=0.75 con `createImageBitmap` (low-memory). Inyección EXIF con GPS + fecha aunque la foto vaya cruda. Diseñado para operarios sin fluidez tecnológica. |
 | ↳ `dvba_campo.html` (interno) | Modo Avanzado | v9.91 | Wizard completo con selección de tipo/estado/subatributos, autocomplete de rutas y caminos, edición fina + sello v4 aplicado en móvil. |
 | https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte (subruta legacy — el portal principal ya cubre este flujo) |
@@ -24,7 +24,18 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 | https://lemeit.github.io/DVBA/docs/guia_visual_sig_vial_pba.html | guía visual | v1.1 | 10 láminas navegables (mockups smartphone) · imprimible como PDF |
 | https://github.com/lemeit/DVBA/blob/main/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
 
-## Funcionalidades destacadas (v8.72-v8.78 · v9.95.5-v9.95.14 · 18-agosto-2026)
+## Funcionalidades destacadas (v8.72-v8.86e · v9.95.5-v9.95.15 · 19-agosto-2026)
+
+### Fase 2 · Roles multi-zona (v8.79 – v8.86e) — **operativo end-to-end**
+
+- **Organigrama completo como roles** en `usuarios_perfil`: gerencia, jefe_zona, jefe_operativa, jefe_tecnica, jefe_administrativa, jefe_automotores, capataz, tecnico, admin, publico.
+- **Portal `plan_operativo.html`** para el jefe de zona: bandeja de entrada, kanban semanal, generar tarea, cerrar con foto (vincula relevamiento crudo con asignación).
+- **Nav consolidado** compartido en los 5 portales (`datos/nav.js`) con dropdown único, impersonación admin/gerencia, zona-picker con las 12 zonas, badge cola de pendientes.
+- **RLS zonal ampliada** (SQL_19): todos los roles operativos zonales pueden ver/insertar/editar en su zona. Solo admin y tecnico borran.
+- **Trigger zona-por-partido-geográfico** (SQL_23): la zona del registro se deriva del partido (tabla `partidos_zona` con 135 partidos). Cualquier agente DVBA que recorra la PBA y cargue una foto queda automáticamente asignado al jefe de la zona correcta.
+- **App móvil** (v9.95.15) acepta todos los roles operativos. Labels de rol completos.
+
+
 
 **Migración #4 · sub-atributos a columnas dedicadas (v8.78 · v9.95.14 · SQL_16)** — Hasta v8.77, los sub-atributos `superficie` (asfalto/hormigón/tierra/…) y `modalidad` (manual/mecánico/mixto) se serializaban al final del campo `observaciones` con el formato `[superficie:X · modalidad:Y]`. Funcional pero impedía cruzar en reportes agregados. La migración crea columnas dedicadas, hace backfill automático con regex desde el texto existente + limpieza del sufijo. Frontend (móvil y escritorio) escribe en columnas propias; lectura con fallback al parseo para retrocompatibilidad. Ahora se puede consultar en SQL directo (ej. `SELECT superficie, COUNT(*) FROM relevamientos WHERE naturaleza='tarea' GROUP BY superficie`).
 

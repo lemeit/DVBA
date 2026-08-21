@@ -4,9 +4,9 @@
 
 DVBA · Departamento Zona VI Saladillo
 
-Última actualización: 13 de agosto de 2026
+Última actualización: 19 de agosto de 2026
 
-Versión bitácora: v5.4 — apps v9.95.10 / v8.77 · 14-ago-2026
+Versión bitácora: v5.5 — apps v9.95.15 / v8.86e · 19-ago-2026
 
 Responsable: Ing. Luciano Lamaita
 
@@ -826,10 +826,83 @@ TAB 6 · PENDIENTES
 
 | Artefacto | Versión | Archivo(s) | Bumpear con |
 |---|---|---|---|
-| **📱 App Campo (PWA unificada)** | v9.88 | `app.html` (router) + `dvba_campo_lite.html` (Modo Básico) + `dvba_campo.html` (Modo Avanzado) + `sw.js` | Manual: `APP_VER` en HTMLs + `CACHE_NAME` en `sw.js` |
-| **🖥 Familia escritorio** | v8.52 | `index.html`, `partes_diarios.html`, `reportes.html` + módulos `datos/` | Manual en `const APP_VERSION` + spans footer en los 3 |
+| **📱 App Campo (PWA unificada)** | v9.95.15 | `app.html` (router) + `dvba_campo_lite.html` (Modo Básico) + `dvba_campo.html` (Modo Avanzado) + `sw.js` | Manual: `APP_VER` en HTMLs + `CACHE_NAME` en `sw.js` |
+| **🖥 Familia escritorio** | v8.86e | `index.html`, `partes_diarios.html`, `reportes.html`, `admin_usuarios.html`, `plan_operativo.html` + módulos `datos/` (nav.js, loader_zona.js) | Manual en `const APP_VERSION` + spans footer en los 5 |
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
+
+### v8.78 – v8.86e / v9.95.11 – v9.95.15 · 15 – 19 agosto 2026 — Fase 2 Roles Multi-zona (Jefe de Zona operativo end-to-end) + arquitectura zona-por-partido geográfico
+
+Bloque grande de dos semanas: sale el sistema del piloto VI aislado y pasa a estar preparado para **operación multi-zona real** con jerarquías de roles, ciclo completo (relevar → asignar → ejecutar → cerrar → reportar) y filtrado zonal profundo (RLS + trigger + UI).
+
+**Frente 1 · Modelo de datos multi-rol (SQL_17 → SQL_23).** Se define el organigrama completo DVBA como roles en `usuarios_perfil`:
+
+```
+gerencia (1) → jefe_zona (12) → jefe_operativa / jefe_tecnica / jefe_administrativa / jefe_automotores → capataz → tecnico
+                                                                                                                    ↓
+                                                                                                                 (campo)
+admin (transversal)   ·   publico (sin login)
+```
+
+- **SQL_17** · nueva tabla `asignaciones_tarea` (backlog jefe → capataz → cierre con foto). Helpers `current_user_es_jefe()`, `current_user_puede_asignar()`, `current_user_es_capataz()`. Vistas `v_backlog_jefe_zona`, `v_agenda_capataz`, `v_kpi_asignaciones`.
+- **SQL_18** · columnas `intervenido_por / intervenido_en / motivo_intervencion` para el mecanismo de intervención cross-zona de gerencia (no aprueba, sugiere).
+- **SQL_19** · ampliar RLS zonal de `relevamientos` y `partes_diarios` a los 5 roles nuevos (SQL_9 solo reconocía `tecnico` / `admin` / `gerencia`). Se introducen los helpers `current_user_es_operativo_zonal()` y `current_user_es_lector_zonal()` para no duplicar la lista de roles en cada policy. DELETE queda restringido a `admin` y `tecnico` (jefes NO borran para preservar auditoría).
+- **SQL_20** · ampliar el trigger `forzar_zona_por_rol()` a todos los roles operativos zonales (antes solo `tecnico` → cualquier jefe insertando fallaba con 42501).
+- **SQL_21** · sumar `jefe_administrativa` y `jefe_automotores` al operativo zonal (todos los jefes pueden cargar).
+- **SQL_22** · tabla `partidos_zona(numero, nombre, zona, aliases[])` con los **135 partidos oficiales** cruzados con las 12 zonas viales DVBA. Función `zona_por_partido(nombre)` con lookup case-insensitive + sin tildes + aliases (Bahía Blanca, Coronel de Marina L. Rosales, General Madariaga, 25 de Mayo, 9 de Julio).
+- **SQL_23** · reemplaza `forzar_zona_por_rol()` por lógica **zona-por-partido-geográfico**: la zona del registro se deriva del partido enviado (no del rol del que carga). Un capataz VI que releve un bache en Junín ahora cae en la cola del jefe IV, no queda mal etiquetado en VI.
+- **SQL_24** · retro-fill de registros históricos usando `zona_por_partido()`. Fix de 7 huérfanos con `zona=NULL` asignados a VI.
+- **SQL_25** · fix corrección de 9 partidos asignados a ZIII que en realidad son ZII (Zárate, Tigre, San Andrés de Giles, San Antonio de Areco, San Fernando, San Isidro, San Miguel, Tres de Febrero, Vicente López). Fuente: revisión Luciano 2026-08-19.
+
+**Frente 2 · Módulo Jefe de Zona · UI escritorio (`plan_operativo.html`).** Nuevo portal para el ciclo operativo:
+- Bandeja de entrada del jefe (vista `v_backlog_jefe_zona`).
+- Plan semanal en kanban de 7 columnas.
+- Modal "Generar tarea" con ítems desde `DVBA_TIPOS.itemsPorNaturaleza`.
+- Modal "Cerrar con foto" — el jefe elige una foto cruda cargada por el capataz y completa los datos, cerrando el ciclo con doble `UPDATE` (relevamiento + asignación).
+
+**Frente 3 · Nav consolidado v8.79-v8.86e (`datos/nav.js`).** Un solo módulo compartido en los 5 portales:
+- Aplicado a `index.html`, `reportes.html`, `partes_diarios.html`, `admin_usuarios.html`, `plan_operativo.html`.
+- Header viejo queda como `#nav-legacy` con `display:none` (preserva IDs `hZona`, `hPartido`, `zonaPicker`, `hUser`, `user-info` para que la lógica existente no rompa).
+- Un solo dropdown unificado: user info + secciones filtradas por rol + logout. Grupos con separadores.
+- **Renombres UX**: "Reportes" → "Informes" (evita ambigüedad con reportes del mapa). "Plan de Seguridad" + "Plan Operativo" agrupados bajo "Plan Operativo" con labels claros "📅 Planificación" y "✅ Ejecución".
+- **Impersonación** para admin/gerencia: panel para "ver como" otro rol/zona vía `localStorage.dvba_perfil_impersonado`. `loader_zona.js` respeta el impersonado.
+- **Zona-picker** con las 12 zonas + PBA panorámica. Estilo legacy restaurado: pill amarilla `[Cabecera]` + chevron + `<select>` invisible superpuesto. Inline al lado del título "SIG Vial PBAᵝ".
+- **Botón unificado sin sesión**: 1 solo `🔐 Iniciar sesión ▼` que abre dropdown con "Iniciar sesión" (resaltado) + Portal + Guía.
+- **Badge cola de pendientes** `🔔 X` en el nav, visible para admin/gerencia/jefe_zona/jefe_tecnica/jefe_operativa. Gerencia con etiqueta "solo ver".
+- **Fix z-index** (8000/8500) para que el dropdown quede arriba del mapa Leaflet.
+
+**Frente 4 · Loader zonal multi-rol (`datos/loader_zona.js`).**
+- Detección de zona ampliada: reconoce **todos los roles zonales** (antes solo `tecnico`), incluye lookup en `dvba_perfil_impersonado`.
+- MANIFESTS con las **12 zonas** (antes solo 4). Las 8 nuevas sin bundle propio usan `partidos_pba.geojson` + `rutas_pba.geojson` como fallback.
+- **Filtro dinámico partidos → zona activa** (`_reemplazarPartidos` v8.86c/d): al elegir una zona sin bundle, filtra las 135 features quedándose solo con las de esa zona usando `_partidoAZona` normalizado (sin tildes, case-insensitive). Evita el congelamiento por renderizar 135 chips.
+- **Filtro rutas → zona activa** (v8.86e): construye `_rutasPorZona` desde `partidos_pba.json` (cada partido trae su lista oficial de rutas). Sin este filtro, Zona VII cargaba 82 rutas de PBA.
+- **fitBounds robusto con retry** al cambiar de zona (evita que labels PBA o clipping pisen el centro).
+
+**Frente 5 · Usuarios de prueba + roles reales.**
+- Nuevos usuarios en Supabase Auth para probar el ciclo: `jefezona.vi`, `jefeoperativa.vi/iv/v`, `jefetecnica.vi`, `capataz1.vi`, `gerencia` (dominio ficticio `@dvba.test` con Auto Confirm).
+- `tecnica.dvba.z6@gmail.com` promovido a `jefe_tecnica` VI (rol acorde a la realidad: Luciano es jefe de la División Técnica).
+- Perfiles cargados en `usuarios_perfil` con `ON CONFLICT DO UPDATE`. Alias viejos `+z4` / `+z5` deshabilitados.
+- Admin reales: `lucianolamaita@gmail.com` + `lulamaita@vialidad.gba.gov.ar`.
+
+**Frente 6 · App móvil v9.95.11 – v9.95.15.**
+- Labels de rol completos para todos los roles nuevos (`👑 Jefe de Zona`, `📐 Jefe Div. Técnica`, etc.). Sin guardas de rol en el HTML — cualquier user logueado carga y la RLS zonal filtra.
+- Fix bug crítico de sync móvil: SQL_20 ampliado evita error 42501 (`new row violates RLS policy`) al usar cuentas de jefe.
+
+**Frente 7 · Fixes UI.**
+- Admin panel: guard defensivo `#hUser` que evitaba entrar (`TypeError: Cannot set properties of null`).
+- Portal title corregido: "Portal principal" (sin "· Mapa y relevamientos").
+- Footer reportes: "Módulo de Informes" (era "reportes").
+- Un solo banner "Vista pública" (el celeste del nav) — deshabilitado el viejo `#avisoPublico` que se reabría por JS pisando el `display:none`.
+- Logout limpia `dvba_perfil`, `dvba_perfil_impersonado`, `dvba_zona`, `dvba_zona_activa` y va a `index.html` limpio (sin `?zona=`).
+- Logo del nav: 38x38 directo (sin ring blanco extra del contenedor 32x32).
+
+**Cabeceras oficiales · fix de fondo.** `CABECERAS.md` tenía 9 partidos mal asignados a ZIII (eran ZII). Corregido en `partidos_pba.json`, `CABECERAS.md`, `SQL_22`, y aplicado como patch retro-activo `SQL_25` a la BD. Zonas resultantes: I=11, II=**26** (era 17), III=**23** (era 31), IV=9, V=6, VI=8, VII=11, VIII=12, IX=6, X=6, XI=11, XII=6 → 135 total.
+
+**Bumps**: escritorio `v8.77 → v8.78 → v8.79 → v8.80 → v8.81 → v8.82 → v8.83 → v8.84 → v8.85 → v8.86 → v8.86b/c/d/e`. Móvil `v9.95.10 → v9.95.11 → v9.95.15` (CACHE_NAME sincronizado en `sw.js`).
+
+**Pendientes conocidos**: (a) columna `autor_id` en `relevamientos` para trazabilidad cross-zona (hoy solo hay autor en cierres de asignaciones); (b) revisar las 10 zonas restantes por posibles errores similares a ZII/ZIII; (c) bug de "página congelada" residual al cambiar entre algunas zonas (probablemente clipping O(partidos × tramos) con 2400 features).
+
+---
 
 ### v8.77 / v9.95.10 · 14 agosto 2026 (tarde) — UX portal: leyenda scrolleable + spans móvil sincronizados
 
