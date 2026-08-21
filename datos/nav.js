@@ -155,15 +155,17 @@ function _inyectarCSS(){
     .dvba-nav-brand .app{font-size:14px;font-weight:800;letter-spacing:.3px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .dvba-nav-brand .app sup{color:#ffd060;font-size:.65em;font-weight:700;margin-left:2px}
     .dvba-nav-brand .sub{font-size:11px;color:rgba(255,255,255,.85);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    /* v8.86 · Picker al lado de "SIG Vial PBA" (inline en la misma fila del app-row) */
-    .dvba-nav-brand .app-row{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
-    .dvba-nav-zona{background:transparent;color:#ffd060;padding:0;font-size:14px;font-weight:800;letter-spacing:.6px;white-space:nowrap;flex-shrink:0;text-transform:uppercase}
-    .dvba-nav-zona-slot{display:inline-flex;align-items:center;flex-shrink:0}
-    .dvba-nav-zona-slot select,.dvba-nav-zona-slot .dvba-nav-picker-relocado{background:transparent;border:1.5px solid #ffd060;color:#ffd060;padding:2px 10px 2px 12px;border-radius:14px;font-size:13px;font-weight:800;letter-spacing:.5px;font-family:'Encode Sans',sans-serif;cursor:pointer;outline:none;appearance:auto;-webkit-appearance:auto;text-transform:uppercase}
-    .dvba-nav-zona-slot select option{background:#00707e;color:#fff;font-weight:600}
-    .dvba-nav-zona-slot select:hover,.dvba-nav-zona-slot .dvba-nav-picker-relocado:hover{background:rgba(255,208,96,.18)}
-    .dvba-nav-zona-slot select:focus{outline:1px solid #ffd060}
-    .dvba-nav-zona-slot label{font-size:10px;color:#ffd060;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+    /* v8.86b · Picker estilo LEGACY · "· ZONA VI [Saladillo] ▾" inline junto al título */
+    .dvba-nav-brand .app-row{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+    .dvba-nav-zona-slot{display:inline-flex;align-items:center;gap:5px;flex-shrink:0;position:relative;cursor:pointer;padding:2px 4px}
+    .dvba-nav-zona-slot:hover{background:rgba(255,255,255,.06);border-radius:6px}
+    .dvba-nav-zona-slot .zona-sep{color:rgba(255,255,255,.55);font-size:13px;font-weight:400;margin-right:2px}
+    .dvba-nav-zona-slot .zona-nombre{color:#fff;font-size:13px;font-weight:700;letter-spacing:.4px;white-space:nowrap}
+    .dvba-nav-zona-slot .zona-cabecera{background:#ffd060;color:#4a3200;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:.3px;white-space:nowrap;border:1px solid #e6b636}
+    .dvba-nav-zona-slot .zona-caret{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:10px;padding:1px 6px;border-radius:4px;font-weight:700;line-height:1.4}
+    .dvba-nav-zona-slot select.zona-select-overlay{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:11px;border:0;padding:0;margin:0}
+    .dvba-nav-zona-slot select.zona-select-overlay option{background:#fff;color:#333;font-weight:600;padding:4px}
+    .dvba-nav-zona-slot select.zona-select-overlay:focus{outline:none}
     .dvba-nav-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.32);color:#fff;padding:7px 13px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:all .15s;flex-shrink:0}
     .dvba-nav-btn:hover{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.5)}
     .dvba-nav-btn.open{background:#fff;color:#007e8c;border-color:#fff}
@@ -373,32 +375,42 @@ const DVBA_NAV = {
     setTimeout(() => {
       const zonaSlot = document.getElementById('dvba-nav-zona-slot');
       if (!zonaSlot) return;
-      // v8.86 · Picker con las 12 zonas + PBA. Al lado del título, texto amarillo
-      // vial en mayúsculas: formato "ZONA IV · JUNÍN". Cambio → reload con ?zona=X.
+      // v8.86b · Picker estilo LEGACY: "· ZONA VI [Saladillo] ▾" al lado del título.
+      // Estructura visual pura + <select> invisible superpuesto que abre el dropdown
+      // nativo al hacer clic en cualquier parte del slot.
       zonaSlot.innerHTML = '';
-      const sel = document.createElement('select');
-      sel.className = 'dvba-nav-picker-relocado';
-      sel.id = 'dvba-nav-zona-select';
       const zonaHoy = (window.ZONA_ACTUAL || zona || 'PBA').toUpperCase();
-      // 12 zonas + PBA · formato "ZONA X · CABECERA"
       const ZONAS = [
-        { cod:'PBA',  label:'PBA · TODAS LAS ZONAS' },
-        { cod:'I',    label:'ZONA I · ARRECIFES' },
-        { cod:'II',   label:'ZONA II · MORÓN' },
-        { cod:'III',  label:'ZONA III · ENSENADA' },
-        { cod:'IV',   label:'ZONA IV · JUNÍN' },
-        { cod:'V',    label:'ZONA V · CHIVILCOY' },
-        { cod:'VI',   label:'ZONA VI · SALADILLO' },
-        { cod:'VII',  label:'ZONA VII · BRAGADO' },
-        { cod:'VIII', label:'ZONA VIII · 9 DE JULIO' },
-        { cod:'IX',   label:'ZONA IX · OLAVARRÍA' },
-        { cod:'X',    label:'ZONA X · AZUL' },
-        { cod:'XI',   label:'ZONA XI · NECOCHEA' },
-        { cod:'XII',  label:'ZONA XII · MAR DEL PLATA' }
+        { cod:'PBA',  cab:'Todas las zonas' },
+        { cod:'I',    cab:'Arrecifes' },
+        { cod:'II',   cab:'Morón' },
+        { cod:'III',  cab:'Ensenada' },
+        { cod:'IV',   cab:'Junín' },
+        { cod:'V',    cab:'Chivilcoy' },
+        { cod:'VI',   cab:'Saladillo' },
+        { cod:'VII',  cab:'Bragado' },
+        { cod:'VIII', cab:'9 de Julio' },
+        { cod:'IX',   cab:'Olavarría' },
+        { cod:'X',    cab:'Azul' },
+        { cod:'XI',   cab:'Necochea' },
+        { cod:'XII',  cab:'Mar del Plata' }
       ];
+      const zActual = ZONAS.find(z => z.cod === zonaHoy) || ZONAS[0];
+      // Parte visible
+      const sep = document.createElement('span'); sep.className = 'zona-sep'; sep.textContent = '·'; zonaSlot.appendChild(sep);
+      const nom = document.createElement('span'); nom.className = 'zona-nombre';
+      nom.textContent = zActual.cod === 'PBA' ? 'PBA' : ('ZONA ' + zActual.cod);
+      zonaSlot.appendChild(nom);
+      const cab = document.createElement('span'); cab.className = 'zona-cabecera'; cab.textContent = zActual.cab; zonaSlot.appendChild(cab);
+      const car = document.createElement('span'); car.className = 'zona-caret'; car.textContent = '▾'; zonaSlot.appendChild(car);
+      // Select invisible superpuesto
+      const sel = document.createElement('select');
+      sel.className = 'zona-select-overlay';
+      sel.id = 'dvba-nav-zona-select';
       ZONAS.forEach(z => {
         const opt = document.createElement('option');
-        opt.value = z.cod; opt.textContent = z.label;
+        opt.value = z.cod;
+        opt.textContent = z.cod === 'PBA' ? 'PBA · Todas las zonas' : ('ZONA ' + z.cod + ' · ' + z.cab);
         if (z.cod === zonaHoy) opt.selected = true;
         sel.appendChild(opt);
       });
