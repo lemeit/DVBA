@@ -19,7 +19,7 @@
 - San Nicolás
 - San Pedro
 
-## Zona II · **Morón** (17 partidos)
+## Zona II · **Morón** (26 partidos)
 - Campana
 - Escobar
 - Exaltación de la Cruz
@@ -37,8 +37,17 @@
 - Moreno
 - ⭐ Morón
 - Pilar
+- San Andrés de Giles
+- San Antonio de Areco
+- San Fernando
+- San Isidro
+- San Miguel
+- Tigre
+- Tres de Febrero
+- Vicente López
+- Zárate
 
-## Zona III · **Ensenada** (31 partidos)
+## Zona III · **Ensenada** (23 partidos)
 - Almirante Brown
 - Avellaneda
 - Berazategui
@@ -62,15 +71,6 @@
 - Punta Indio
 - Quilmes
 - San Vicente
-- San Andrés de Giles
-- San Antonio de Areco
-- San Fernando
-- San Isidro
-- San Miguel
-- Tigre
-- Tres de Febrero
-- Vicente López
-- Zárate
 
 ## Zona IV · **Junín** (9 partidos)
 - Carlos Tejedor
@@ -172,8 +172,8 @@
 | Zona | Cabecera                | # Partidos | Estado SIG Vial PBAᵝ |
 |------|-------------------------|------------|----------------------|
 | I    | Arrecifes               | 11         | 🕐 Pendiente         |
-| II   | Morón                   | 17         | 🕐 Pendiente         |
-| III  | Ensenada                | 31         | 🕐 Pendiente         |
+| II   | Morón                   | 26         | 🕐 Pendiente         |
+| III  | Ensenada                | 23         | 🕐 Pendiente         |
 | IV   | Junín                   | 9          | 🕐 Pendiente (piloto siguiente) |
 | V    | Chivilcoy               | 6          | 🕐 Pendiente (piloto siguiente) |
 | VI   | **Saladillo**           | 8          | ✅ **Producción**    |
