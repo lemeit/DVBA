@@ -338,7 +338,7 @@ const DVBA_NAV = {
     const _zonaPerfil = (zona || '').toUpperCase();
     const _mostrarBannerZonaAjena = _rolesZonalesSet.has(rol) && _zonaPerfil && _zonaActual && _zonaActual !== _zonaPerfil && _zonaActual !== 'PBA';
     const bannerZonaAjenaHTML = _mostrarBannerZonaAjena
-      ? `<div id="dvba-zonaajena-banner" style="background:#fff8e6;color:#5a3d00;padding:8px 16px;text-align:center;font-size:11.5px;font-weight:600;border-bottom:2px solid #c47a00;font-family:'Encode Sans',sans-serif">ℹ Estás consultando <b>Zona ${esc(_zonaActual)}</b> pero tu perfil es de <b>Zona ${esc(_zonaPerfil)}</b>. Podés navegar y consultar libremente, pero para cargar registros o ver la cola de pendientes, volvé a <b>Zona ${esc(_zonaPerfil)}</b> con el selector del header.</div>`
+      ? `<div id="dvba-zonaajena-banner" style="background:#fff8e6;color:#5a3d00;padding:8px 16px;text-align:center;font-size:11.5px;font-weight:600;border-bottom:2px solid #c47a00;font-family:'Encode Sans',sans-serif">ℹ Estás consultando <b>Zona ${esc(_zonaActual)}</b> pero tu perfil es de <b>Zona ${esc(_zonaPerfil)}</b>. Podés navegar y consultar libremente, pero para cargar registros o ver la cola de pendientes, volvé a <b>Zona ${esc(_zonaPerfil)}</b> desde el menú amarillo de arriba.</div>`
       : '';
 
     mount.innerHTML = `
