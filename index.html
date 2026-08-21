@@ -1543,19 +1543,20 @@ async function sincronizarSupaConSesion(){
       if (typeof DVBA_PERFIL !== 'undefined'){
         await DVBA_PERFIL.cargar(_supa);
         aplicarVisibilidadRol();
-        // v8.86h · Roles zonales: si el URL no matchea la zona del perfil, reload
-        // (permite que loader_zona.js cargue los bundles correctos de esa zona).
+        // v8.86h · Roles zonales: si el URL NO tiene ?zona= explícito y el perfil
+        // tiene una zona asignada, redirigir a esa zona (primer login).
+        // v8.86i · IMPORTANTE: NO redirigir si el user tiene ?zona=X en URL, aunque
+        // sea distinta a la del perfil — significa que eligió esa zona manualmente
+        // con el picker para navegar/consultar. La RLS igual limita la escritura.
         try {
           const perfil = DVBA_PERFIL.get();
           const rolesZonales = new Set(['tecnico','capataz','jefe_zona','jefe_tecnica','jefe_operativa','jefe_administrativa','jefe_automotores']);
-          if (perfil && rolesZonales.has(perfil.rol) && perfil.zona){
-            const zActual = (window.ZONA_ACTUAL || '').toUpperCase();
-            if (zActual !== perfil.zona){
-              const url = location.pathname + '?zona=' + perfil.zona + location.hash;
-              console.log('[login] reload → zona ' + perfil.zona + ' (rol ' + perfil.rol + ')');
-              location.replace(url);
-              return true; // evita seguir procesando esta sesion
-            }
+          const _urlZona = new URLSearchParams(location.search).get('zona');
+          if (perfil && rolesZonales.has(perfil.rol) && perfil.zona && !_urlZona){
+            const url = location.pathname + '?zona=' + perfil.zona + location.hash;
+            console.log('[login] primer login sin ?zona en URL → redirect a zona ' + perfil.zona + ' (rol ' + perfil.rol + ')');
+            location.replace(url);
+            return true; // evita seguir procesando esta sesion
           }
         } catch(e){ console.warn('[login-zona-reload]', e.message); }
       }
