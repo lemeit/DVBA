@@ -1418,6 +1418,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v886n-sql_32-31-agosto-2026-noche-ciclo-de-borrado-cerrado-con-notificacion-al-jefe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.86n / SQL_32 · 31 agosto 2026 (noche) — Ciclo de borrado cerrado con notificación al jefe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v886lv886m-31-agosto-2026-noche-despues-del-episodio-fixes-de-ux-post-piloto" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2349,6 +2360,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v886n-sql_32-31-agosto-2026-noche-ciclo-de-borrado-cerrado-con-notificacion-al-jefe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.86n / SQL_32 · 31 agosto 2026 (noche) — Ciclo de borrado cerrado con notificación al jefe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v886lv886m-31-agosto-2026-noche-despues-del-episodio-fixes-de-ux-post-piloto" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2782,7 +2804,7 @@
 <h1 id="bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial">📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial<a class="headerlink" href="#bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial" title="Permanent link">¶</a></h1>
 <p>DVBA · Departamento Zona VI Saladillo</p>
 <p>Última actualización: 31 de agosto de 2026</p>
-<p>Versión bitácora: v5.9 — apps v9.95.16 / v8.86m · 31-ago-2026 (fixes producción + refinamientos UI modal soft-delete + filtro frontend zonal incluye NULL)</p>
+<p>Versión bitácora: v5.10 — apps v9.95.16 / v8.86n · 31-ago-2026 (cierra ciclo borrado con notificación de restauración)</p>
 <p>Responsable: Ing. Luciano Lamaita</p>
 <p>Repositorio: <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a></p>
 <p>Estado general: 🟢 En desarrollo activo</p>
@@ -3909,6 +3931,36 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 </tr>
 </tbody>
 </table>
+<h3 id="v886n-sql_32-31-agosto-2026-noche-ciclo-de-borrado-cerrado-con-notificacion-al-jefe">v8.86n / SQL_32 · 31 agosto 2026 (noche) — Ciclo de borrado cerrado con notificación al jefe<a class="headerlink" href="#v886n-sql_32-31-agosto-2026-noche-ciclo-de-borrado-cerrado-con-notificacion-al-jefe" title="Permanent link">¶</a></h3>
+<p>Faltaba cerrar el ciclo del borrado: hasta ahora el jefe archivaba con motivo, el admin veía en el panel de auditoría y podía restaurar, pero el jefe <strong>no se enteraba</strong> de que su registro había vuelto. SQL_32 + frontend v8.86n cierran ese loop.</p>
+<p><strong>SQL_32 · notificaciones de restauración</strong>:
+- Columnas nuevas en <code>relevamientos</code> y <code>partes_diarios</code>: <code>restaurado_en</code>, <code>restaurado_por</code>, <code>motivo_restauracion</code>, <code>restauracion_vista</code> (bool default false).
+- El <code>motivo_borrado</code> se <strong>conserva</strong> aunque el registro se restaure (queda como historial para futuras revisiones).
+- RPC <code>restaurar_registro(tabla, id, motivo)</code>: solo admin, motivo opcional, resetea <code>borrado_en/por</code> y setea <code>restaurado_en/por/motivo</code> + <code>restauracion_vista=false</code>.
+- RPC <code>marcar_restauraciones_vistas()</code>: el jefe la llama al cerrar el banner o modal para marcar como leídas.
+- Vista <code>v_restauraciones_pendientes</code>: registros restaurados que aún no fueron vistos por el jefe zonal. Filtrada por RLS (jefe VI solo ve las suyas).</p>
+<p><strong>Frontend admin (v8.86n · admin_usuarios.html)</strong>:
+- Botón "Restaurar" del panel de auditoría abre ahora un <strong>modal con motivo opcional</strong> (paleta verde <code>#22a954</code> porque es acción positiva, en contraste con el rojo del archivado). Muestra la info del registro y el motivo original del archivado para contexto. Textarea con placeholder sugerido, botón "↺ Restaurar" que llama a la RPC <code>restaurar_registro</code>.</p>
+<p><strong>Frontend jefe (v8.86n · index.html)</strong>:
+- Al cargar el portal, <code>cargarRestauracionesPendientes()</code> consulta <code>v_restauraciones_pendientes</code>.
+- Si hay resultados: aparece un <strong>banner celeste</strong> debajo del nav con contador + botones "Ver detalle" y "✕ Entendido".
+- "Ver detalle" abre un modal con card por cada registro: id + info + zona + fecha de carga + <strong>tu motivo de archivado original</strong> (fondo ámbar) + <strong>quien restauró y su motivo</strong> (fondo turquesa).
+- Al cerrar el banner o marcar como visto en el modal, llama a <code>marcar_restauraciones_vistas()</code> (marca todos los pendientes de la zona del jefe como leídos).
+- Todo con paleta institucional DVBA (turquesa/ámbar/rojo).</p>
+<p><strong>Ciclo completo cerrado</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Jefe archiva con motivo (&gt;=10 chars)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    ↓
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Admin ve en panel auditoría (con autor original, quién archivó, motivo)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    ↓
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>Admin decide: Restaurar (motivo opcional) o Eliminar definitivo
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    ↓
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>Si restauró: Jefe recibe aviso al ingresar (banner + modal con contexto completo)
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    ↓
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>Jefe cierra el aviso → marcado como visto → no se muestra de nuevo
+</code></pre></div></p>
+<p>Documentación completa auditable en cualquier momento vía panel admin (auditoría) + vista <code>v_restauraciones_pendientes</code>.</p>
+<p>Bumps: escritorio <code>v8.86m → v8.86n</code> (5 portales). Móvil sin cambios.</p>
+<hr />
 <h3 id="v886lv886m-31-agosto-2026-noche-despues-del-episodio-fixes-de-ux-post-piloto">v8.86l/v8.86m · 31 agosto 2026 (noche · después del episodio) — Fixes de UX post-piloto<a class="headerlink" href="#v886lv886m-31-agosto-2026-noche-despues-del-episodio-fixes-de-ux-post-piloto" title="Permanent link">¶</a></h3>
 <p>Tras el episodio de bugs (v9.95.16 + SQL_31) surgieron 2 refinamientos de UX visibles al usar en producción:</p>
 <ul>
@@ -4142,10 +4194,10 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 - <strong>tecnico</strong> pierde DELETE (solo admin borra físico, para preservar auditoría).
 - <strong>jefe_zona</strong> gana soft-delete en su zona con justificación obligatoria; admin puede revisar y restaurar desde <code>v_borrados_auditoria</code>.</p>
 <p><strong>Frente 1 · Modelo de datos multi-rol (SQL_17 → SQL_23).</strong> Se define el organigrama completo DVBA como roles en <code>usuarios_perfil</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>gerencia (1) → jefe_zona (12) → jefe_operativa / jefe_tecnica / jefe_administrativa / jefe_automotores → capataz → tecnico
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>                                                                                                                    ↓
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>                                                                                                                 (campo)
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>admin (transversal)   ·   publico (sin login)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>gerencia (1) → jefe_zona (12) → jefe_operativa / jefe_tecnica / jefe_administrativa / jefe_automotores → capataz → tecnico
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>                                                                                                                    ↓
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>                                                                                                                 (campo)
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>admin (transversal)   ·   publico (sin login)
 </code></pre></div>
 <ul>
 <li><strong>SQL_17</strong> · nueva tabla <code>asignaciones_tarea</code> (backlog jefe → capataz → cierre con foto). Helpers <code>current_user_es_jefe()</code>, <code>current_user_puede_asignar()</code>, <code>current_user_es_capataz()</code>. Vistas <code>v_backlog_jefe_zona</code>, <code>v_agenda_capataz</code>, <code>v_kpi_asignaciones</code>.</li>
