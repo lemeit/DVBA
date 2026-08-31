@@ -34,7 +34,7 @@
 <script src="datos/exif_writer.js" defer></script>
 <script src="datos/sello_v4.js" defer></script>
 <script src="datos/armonizador.js" defer></script>  <!-- v8.72 · para detectarPartido() desde GPS al subir foto -->
-<!-- v8.86jg · Paths corregidos (los anteriores daban 404 y ensuciaban la consola).
+<!-- v8.86kg · Paths corregidos (los anteriores daban 404 y ensuciaban la consola).
      armonizador es opcional en partes_diarios (solo se usa si hay foto con GPS a armonizar).
      Los datos zonales se cargan bajo demanda por fetch; no hace falta bundle síncrono. -->
 <script src="datos/zonas/zona_VI/caracteristicas_viales_zonaVI.js" defer onerror="this.remove()"></script>
@@ -231,7 +231,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
 </head>
 <body>
 
-<!-- Nav consolidado v8.86j · via datos/nav.js. Header viejo oculto pero sus IDs (hZona, hPartido, zonaPicker) siguen "vivos" para la lógica JS. -->
+<!-- Nav consolidado v8.86k · via datos/nav.js. Header viejo oculto pero sus IDs (hZona, hPartido, zonaPicker) siguen "vivos" para la lógica JS. -->
 <div id="dvba-nav-mount"></div>
 <header id="nav-legacy" style="display:none">
   <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
@@ -348,7 +348,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <span style="margin-left:8px">Plan de Seguridad en la Circulación · Módulo de carga de partes diarios para Técnicos y Jefes de la División Operativa.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86j</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86k</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -1423,12 +1423,12 @@ function pdQuitarFoto(momento, i){
 // insertamos un relevamiento y vinculamos vía parte_fotos como "previa"
 // o "posterior" — así aparece en el mapa Y queda ligada al parte.
 // ═══════════════════════════════════════════════════════════════════
-const APP_VER = 'v8.86j';
+const APP_VER = 'v8.86k';
 window.APP_VER = APP_VER;  // v8.72 · expone a window para legales.js
 // v8.72 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => {
   const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VER;
-  // v8.86j · Montar nav consolidado
+  // v8.86k · Montar nav consolidado
   setTimeout(() => {
     if (typeof DVBA_NAV === 'undefined') return;
     let perfil = { rol: 'admin', zona: null, nombre: '', email: '' };
