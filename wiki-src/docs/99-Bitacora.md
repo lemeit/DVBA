@@ -6,7 +6,7 @@ DVBA · Departamento Zona VI Saladillo
 
 Última actualización: 31 de agosto de 2026
 
-Versión bitácora: v5.8 — apps v9.95.16 / v8.86k · 31-ago-2026 (episodio de bugs producción · fix trigger zona + no pérdida silenciosa fotos)
+Versión bitácora: v5.9 — apps v9.95.16 / v8.86m · 31-ago-2026 (fixes producción + refinamientos UI modal soft-delete + filtro frontend zonal incluye NULL)
 
 Responsable: Ing. Luciano Lamaita
 
@@ -830,6 +830,18 @@ TAB 6 · PENDIENTES
 | **🖥 Familia escritorio** | v8.86e | `index.html`, `partes_diarios.html`, `reportes.html`, `admin_usuarios.html`, `plan_operativo.html` + módulos `datos/` (nav.js, loader_zona.js) | Manual en `const APP_VERSION` + spans footer en los 5 |
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
+
+### v8.86l/v8.86m · 31 agosto 2026 (noche · después del episodio) — Fixes de UX post-piloto
+
+Tras el episodio de bugs (v9.95.16 + SQL_31) surgieron 2 refinamientos de UX visibles al usar en producción:
+
+- **Fix v8.86l · frontend filtro zona incluye NULL**. Bug detectado por el user: cargó una foto desde Modo Básico sin partido (queda con `zona=NULL` por el trigger nuevo), y al entrar como jefe_zona VI la foto no aparecía; solo la veía seleccionando "Todas las zonas" en el picker. Causa: `cargarRegs` en `index.html` hacía `.eq('zona', X)` strict, que excluía los NULL aunque la RLS del backend sí los permitía. Fix: cambiar a `.or('zona.eq.X,zona.is.null')` para que el frontend respete la misma lógica de la RLS. Ahora los jefes zonales ven los registros de su zona más los huérfanos NULL (que suelen ser cargas del Modo Básico sin partido o registros históricos pre-multi-zona).
+
+- **Fix v8.86m · modal soft-delete con paleta institucional**. El modal de archivado con motivo usaba naranja/marrón (paleta ámbar). Alineado a la paleta oficial DVBA: header en gradient turquesa institucional (`#00aec3 → #007e8c`), botón "Confirmar archivado" en rojo seguridad institucional (`#BE1717`), botón "Cancelar" con hover turquesa, textarea con focus turquesa. Además cambio del texto del botón de "Archivar registro" a "**Confirmar archivado**" (más neutro y claro), y restauración del texto al reabrir el modal (evita que quede pegado en "Archivando..." si un intento previo falló).
+
+Bumps: escritorio `v8.86k → v8.86l → v8.86m` (5 portales). Móvil sin cambios.
+
+---
 
 ### v9.95.16 + SQL_31 · 31 agosto 2026 (noche) — Episodio de bugs en producción · pérdida de fotos y trigger zona roto
 
