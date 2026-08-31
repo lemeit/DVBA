@@ -6,7 +6,7 @@ DVBA · Departamento Zona VI Saladillo
 
 Última actualización: 31 de agosto de 2026
 
-Versión bitácora: v5.9 — apps v9.95.16 / v8.86m · 31-ago-2026 (fixes producción + refinamientos UI modal soft-delete + filtro frontend zonal incluye NULL)
+Versión bitácora: v5.10 — apps v9.95.16 / v8.86n · 31-ago-2026 (cierra ciclo borrado con notificación de restauración)
 
 Responsable: Ing. Luciano Lamaita
 
@@ -830,6 +830,46 @@ TAB 6 · PENDIENTES
 | **🖥 Familia escritorio** | v8.86e | `index.html`, `partes_diarios.html`, `reportes.html`, `admin_usuarios.html`, `plan_operativo.html` + módulos `datos/` (nav.js, loader_zona.js) | Manual en `const APP_VERSION` + spans footer en los 5 |
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
+
+### v8.86n / SQL_32 · 31 agosto 2026 (noche) — Ciclo de borrado cerrado con notificación al jefe
+
+Faltaba cerrar el ciclo del borrado: hasta ahora el jefe archivaba con motivo, el admin veía en el panel de auditoría y podía restaurar, pero el jefe **no se enteraba** de que su registro había vuelto. SQL_32 + frontend v8.86n cierran ese loop.
+
+**SQL_32 · notificaciones de restauración**:
+- Columnas nuevas en `relevamientos` y `partes_diarios`: `restaurado_en`, `restaurado_por`, `motivo_restauracion`, `restauracion_vista` (bool default false).
+- El `motivo_borrado` se **conserva** aunque el registro se restaure (queda como historial para futuras revisiones).
+- RPC `restaurar_registro(tabla, id, motivo)`: solo admin, motivo opcional, resetea `borrado_en/por` y setea `restaurado_en/por/motivo` + `restauracion_vista=false`.
+- RPC `marcar_restauraciones_vistas()`: el jefe la llama al cerrar el banner o modal para marcar como leídas.
+- Vista `v_restauraciones_pendientes`: registros restaurados que aún no fueron vistos por el jefe zonal. Filtrada por RLS (jefe VI solo ve las suyas).
+
+**Frontend admin (v8.86n · admin_usuarios.html)**:
+- Botón "Restaurar" del panel de auditoría abre ahora un **modal con motivo opcional** (paleta verde `#22a954` porque es acción positiva, en contraste con el rojo del archivado). Muestra la info del registro y el motivo original del archivado para contexto. Textarea con placeholder sugerido, botón "↺ Restaurar" que llama a la RPC `restaurar_registro`.
+
+**Frontend jefe (v8.86n · index.html)**:
+- Al cargar el portal, `cargarRestauracionesPendientes()` consulta `v_restauraciones_pendientes`.
+- Si hay resultados: aparece un **banner celeste** debajo del nav con contador + botones "Ver detalle" y "✕ Entendido".
+- "Ver detalle" abre un modal con card por cada registro: id + info + zona + fecha de carga + **tu motivo de archivado original** (fondo ámbar) + **quien restauró y su motivo** (fondo turquesa).
+- Al cerrar el banner o marcar como visto en el modal, llama a `marcar_restauraciones_vistas()` (marca todos los pendientes de la zona del jefe como leídos).
+- Todo con paleta institucional DVBA (turquesa/ámbar/rojo).
+
+**Ciclo completo cerrado**:
+```
+Jefe archiva con motivo (>=10 chars)
+    ↓
+Admin ve en panel auditoría (con autor original, quién archivó, motivo)
+    ↓
+Admin decide: Restaurar (motivo opcional) o Eliminar definitivo
+    ↓
+Si restauró: Jefe recibe aviso al ingresar (banner + modal con contexto completo)
+    ↓
+Jefe cierra el aviso → marcado como visto → no se muestra de nuevo
+```
+
+Documentación completa auditable en cualquier momento vía panel admin (auditoría) + vista `v_restauraciones_pendientes`.
+
+Bumps: escritorio `v8.86m → v8.86n` (5 portales). Móvil sin cambios.
+
+---
 
 ### v8.86l/v8.86m · 31 agosto 2026 (noche · después del episodio) — Fixes de UX post-piloto
 

@@ -63,10 +63,10 @@ Cada fila muestra:
 - **Archivado por**: nombre del jefe de zona que lo archivó.
 - **Motivo**: la justificación que dejó el jefe (hover para ver completo si es largo).
 - **Acciones**:
-    - **↺ Restaurar** — quita la marca de archivado; el registro vuelve a ser visible para todos los roles (útil si el archivado fue por error).
+    - **↺ Restaurar** — abre un modal con un motivo **opcional** (podés aclarar por qué lo restaurás; se le muestra al jefe). Al confirmar, el registro vuelve a ser visible para todos los roles y **el jefe de zona recibe un aviso** al ingresar al portal con toda la información del ciclo (su motivo original + tu motivo de restauración + fecha).
     - **✕ Definitivo** — elimina físicamente el registro para siempre (doble confirmación; irreversible).
 
-Este panel es la contrapartida del formulario de archivado que ve el jefe de zona en el mapa. Garantiza que ninguna eliminación es unilateral: siempre hay un rastro, un motivo declarado y una revisión posible por parte del administrador del sistema.
+Este panel es la contrapartida del formulario de archivado que ve el jefe de zona en el mapa. Garantiza que ninguna eliminación es unilateral: siempre hay un rastro, un motivo declarado, una revisión posible por parte del administrador del sistema, y un aviso claro al jefe cuando su decisión de archivado es revertida.
 
 !!! note "📷 Screenshots sugeridos"
     - Panel Admin con las 3 secciones visibles (métricas + tabla usuarios + solicitudes + auditoría borrados).

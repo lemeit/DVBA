@@ -113,7 +113,7 @@ table.usuarios tbody tr.inactivo{opacity:.5}
 .toast.err{background:#fbecec;border-color:var(--ro);color:#7a0f0f}
 
 /* Footer */
-/* v8.86m · Sacado text-align:center genérico — el footerInst usa flex + justify-content:space-between y el center lo desalineaba */
+/* v8.86n · Sacado text-align:center genérico — el footerInst usa flex + justify-content:space-between y el center lo desalineaba */
 footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-top:1px solid var(--light);background:var(--w)}
 </style>
 </head>
@@ -127,7 +127,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
   </div>
 </div>
 
-<!-- Nav consolidado v8.86m · via datos/nav.js -->
+<!-- Nav consolidado v8.86n · via datos/nav.js -->
 <div id="dvba-nav-mount"></div>
 
 <main>
@@ -217,7 +217,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
     </table>
   </div>
 
-  <!-- v8.86m · Auditoría de registros archivados (soft-delete) por jefes de zona -->
+  <!-- v8.86n · Auditoría de registros archivados (soft-delete) por jefes de zona -->
   <div style="margin-top:24px;padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <h2 style="margin:0;font-size:14px;color:#003366;letter-spacing:.3px">
@@ -256,7 +256,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
     <span style="margin-left:8px">Panel de Administración · Módulo de gestión de usuarios y perfiles para Admin del sistema.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86m</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86n</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -358,7 +358,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 
 <script>
 // v8.66f.2 · Constante de versión unificada (familia escritorio v8.X)
-const APP_VERSION = 'v8.86m';
+const APP_VERSION = 'v8.86n';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 // v8.72 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VERSION; });
@@ -398,7 +398,7 @@ async function chequearAcceso(){
       guardBtn.style.display = 'inline-block';
       return false;
     }
-    // v8.86m · #hUser vive en el header legacy (display:none), guard defensivo
+    // v8.86n · #hUser vive en el header legacy (display:none), guard defensivo
     const _hUser = document.getElementById('hUser');
     if (_hUser) _hUser.textContent = session.user.email;
 
@@ -437,7 +437,7 @@ async function chequearAcceso(){
       return false;
     }
     document.getElementById('guard').style.display = 'none';
-    // v8.86m · Montar nav compartido (después de verificar admin)
+    // v8.86n · Montar nav compartido (después de verificar admin)
     if (typeof DVBA_NAV !== 'undefined'){
       try {
         const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
@@ -658,7 +658,7 @@ async function cargarSolicitudes(){
   if (!tbody || !_supa) return;
   tbody.innerHTML = '<tr><td colspan="7" style="padding:16px;text-align:center;color:var(--mut)">Cargando...</td></tr>';
   try {
-    // v8.86m · Migrado de .from('v_solicitudes_admin') → .rpc('get_solicitudes_admin')
+    // v8.86n · Migrado de .from('v_solicitudes_admin') → .rpc('get_solicitudes_admin')
     // La RPC devuelve el mismo shape de columnas + ya viene ordenada por creado_en.
     const { data, error } = await _supa.rpc('get_solicitudes_admin');
     if (error) throw error;
@@ -750,7 +750,7 @@ async function descartarSolicitud(id){
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// v8.86m · Auditoría de borrados (soft-delete de jefe_zona)
+// v8.86n · Auditoría de borrados (soft-delete de jefe_zona)
 // Fuente: vista v_borrados_auditoria (SQL_27)
 // ═══════════════════════════════════════════════════════════════════════════════
 let _borradosCache = [];
@@ -783,7 +783,7 @@ function renderBorrados(rows){
     const fecha = r.borrado_en ? new Date(r.borrado_en).toLocaleString('es-AR', {dateStyle:'short', timeStyle:'short'}) : '—';
     const infoReg = [r.tipo, r.ruta ? 'RP ' + r.ruta : '', r.progresiva || '', r.partido || ''].filter(Boolean).join(' · ') || '#' + r.id;
     const motivoCorto = r.motivo_borrado ? (r.motivo_borrado.length > 60 ? r.motivo_borrado.slice(0,57) + '...' : r.motivo_borrado) : '';
-    // v8.86m · Autor original (rol + zona snapshot). Si es null es un registro histórico pre-SQL_30.
+    // v8.86n · Autor original (rol + zona snapshot). Si es null es un registro histórico pre-SQL_30.
     const autorNombre = r.autor_original_nombre || (r.autor_original_id ? '(usuario ' + String(r.autor_original_id).slice(0,8) + ')' : '');
     const autorMeta = [r.autor_rol, r.autor_zona ? 'Zona ' + r.autor_zona : ''].filter(Boolean).join(' · ');
     const autorHtml = autorNombre
@@ -808,17 +808,89 @@ function renderBorrados(rows){
 
 function _esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+// v8.86n · Restaurar vía RPC restaurar_registro (SQL_32) con motivo opcional.
+// Ya no borra motivo_borrado (queda como historial). Setea restaurado_en/por/motivo
+// y restauracion_vista=false para que el jefe vea el aviso al ingresar.
 async function restaurarBorrado(tabla, id){
-  if (!confirm('¿Restaurar el registro #' + id + ' de ' + tabla + '?\n\nSe quita la marca de borrado y vuelve a ser visible para todos los roles.')) return;
+  _abrirModalRestaurar(tabla, id);
+}
+
+function _abrirModalRestaurar(tabla, id){
+  let ov = document.getElementById('modal-restaurar-motivo');
+  if (!ov){
+    ov = document.createElement('div');
+    ov.id = 'modal-restaurar-motivo';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9800;padding:20px;font-family:"Encode Sans",sans-serif';
+    ov.innerHTML = `
+      <div style="background:#fff;border-radius:8px;max-width:520px;width:100%;box-shadow:0 12px 32px rgba(0,0,0,.35);overflow:hidden">
+        <div style="background:linear-gradient(135deg,#22a954,#1a8642);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:16px;font-weight:800">↺ Restaurar registro archivado</div>
+            <div style="font-size:11px;opacity:.9;margin-top:2px">El jefe de zona recibirá un aviso al ingresar al portal</div>
+          </div>
+          <button onclick="_cerrarModalRestaurar()" style="background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.4);color:#fff;font-size:16px;line-height:1;cursor:pointer;padding:3px 10px 5px;border-radius:14px;font-weight:700">×</button>
+        </div>
+        <div style="padding:18px">
+          <div id="mr-reg-info" style="background:#e6f6ea;border-left:3px solid #22a954;border-radius:4px;padding:10px 12px;font-size:12px;color:#000;margin-bottom:14px;line-height:1.5"></div>
+          <label style="display:block;font-size:11px;font-weight:800;color:#1a8642;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">Motivo de la restauración (opcional)</label>
+          <textarea id="mr-motivo" rows="3" maxlength="500" placeholder="Ej: Revisado con el jefe, no era duplicado. Se puede aprobar."
+            style="width:100%;padding:9px 11px;border:1.5px solid #d0d4dc;border-radius:5px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#000"
+            onfocus="this.style.borderColor='#1a8642'" onblur="this.style.borderColor='#d0d4dc'"></textarea>
+          <div style="font-size:10px;color:#838383;margin-top:4px">Si dejás vacío, el jefe verá "Restaurado sin comentario". Con motivo, le llega tu explicación.</div>
+        </div>
+        <div style="padding:12px 18px;background:#f5f7f8;border-top:1px solid #e0e0e0;display:flex;gap:8px;justify-content:flex-end">
+          <button onclick="_cerrarModalRestaurar()" style="padding:8px 16px;border:1px solid #d0d4dc;background:#fff;color:#404040;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer">Cancelar</button>
+          <button id="mr-confirmar" onclick="_confirmarRestaurar()" style="padding:8px 18px;border:0;background:#22a954;color:#fff;border-radius:5px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.15)">
+            ↺ Restaurar
+          </button>
+        </div>
+      </div>`;
+    document.body.appendChild(ov);
+  }
+  ov.dataset.tabla = tabla;
+  ov.dataset.regId = String(id);
+  // Cargar info del registro
+  const info = _borradosCache.find(r => r.id === id && r.tabla === tabla);
+  const infoTxt = info
+    ? '<b>' + tabla + ' #' + id + '</b>' +
+      (info.ruta ? ' · RP ' + info.ruta : '') +
+      (info.progresiva ? ' · km ' + info.progresiva : '') +
+      (info.partido ? '<br>' + info.partido : '') +
+      (info.tipo ? ' · ' + info.tipo : '') +
+      (info.motivo_borrado ? '<br><span style="font-size:11px;color:#606060"><b>Archivado por:</b> ' + _esc(info.borrado_por_nombre || '(sin nombre)') + ' · <b>Motivo:</b> ' + _esc(info.motivo_borrado) + '</span>' : '')
+    : '<b>' + tabla + ' #' + id + '</b>';
+  ov.querySelector('#mr-reg-info').innerHTML = infoTxt;
+  ov.querySelector('#mr-motivo').value = '';
+  const btn = ov.querySelector('#mr-confirmar');
+  btn.disabled = false; btn.textContent = '↺ Restaurar';
+  ov.style.display = 'flex';
+  setTimeout(() => ov.querySelector('#mr-motivo').focus(), 100);
+}
+
+function _cerrarModalRestaurar(){
+  const ov = document.getElementById('modal-restaurar-motivo');
+  if (ov) ov.style.display = 'none';
+}
+
+async function _confirmarRestaurar(){
+  const ov = document.getElementById('modal-restaurar-motivo');
+  if (!ov) return;
+  const tabla = ov.dataset.tabla;
+  const id = Number(ov.dataset.regId);
+  const motivo = ov.querySelector('#mr-motivo').value.trim() || null;
+  const btn = ov.querySelector('#mr-confirmar');
+  btn.disabled = true; btn.textContent = 'Restaurando...';
   try {
-    // UPDATE directo (admin tiene UPDATE por RLS)
-    const { error } = await _supa.from(tabla)
-      .update({ borrado_en: null, borrado_por: null, motivo_borrado: null })
-      .eq('id', id);
+    const { data, error } = await _supa.rpc('restaurar_registro', {
+      p_tabla: tabla, p_id: id, p_motivo: motivo
+    });
     if (error) throw error;
+    _cerrarModalRestaurar();
     cargarBorradosAuditoria();
   } catch(e){
+    console.error('[restaurar]', e);
     alert('Error al restaurar: ' + (e.message || e));
+    btn.disabled = false; btn.textContent = '↺ Restaurar';
   }
 }
 
@@ -842,7 +914,7 @@ async function eliminarDefinitivo(tabla, id){
   if (ok) {
     await cargarUsuarios();
     await cargarSolicitudes();       // v8.66f.2
-    await cargarBorradosAuditoria(); // v8.86m
+    await cargarBorradosAuditoria(); // v8.86n
   }
 })();
 </script>
