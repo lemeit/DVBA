@@ -71,9 +71,9 @@ const SECCIONES = [
   // Grupo ADMINISTRACIÓN
   {
     key: 'admin',
-    label: '🛡 Panel de Usuarios',
+    label: '🛡 Panel de administración',
     href: 'admin_usuarios.html',
-    title: 'Gestión de usuarios · solo Admin',
+    title: 'Usuarios · Solicitudes · Auditoría · Sistema (4 tabs) · solo Admin',
     grupo: 'Administración',
     roles: ['admin']
   },

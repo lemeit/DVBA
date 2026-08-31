@@ -109,7 +109,7 @@ table.rep td.center{text-align:center}
 </head>
 <body>
 
-<!-- Nav consolidado v8.86o · via datos/nav.js. Header viejo movido a #nav-legacy (oculto), sus IDs (hZona, hPartido, zonaPicker) siguen "vivos" para que la lógica JS no rompa. -->
+<!-- Nav consolidado v8.86p · via datos/nav.js. Header viejo movido a #nav-legacy (oculto), sus IDs (hZona, hPartido, zonaPicker) siguen "vivos" para que la lógica JS no rompa. -->
 <div id="dvba-nav-mount"></div>
 <header id="nav-legacy" style="display:none">
   <div class="logo"><img src="datos/img/logo_dvba_clean.png" alt="DVBA"></div>
@@ -197,7 +197,7 @@ table.rep td.center{text-align:center}
   <button class="btn-primary" onclick="rpExportPDFGerencia()" title="Informe Mensual Gerencia (layout oficial DVBA · 8 tareas · paleta institucional)" style="background:#003366">📄 Gerencia</button>
 </div>
 
-<!-- v8.86o · Aviso cuando un rol operativo consulta una zona ajena y no ve datos -->
+<!-- v8.86p · Aviso cuando un rol operativo consulta una zona ajena y no ve datos -->
 <div id="avisoZonaAjena" style="display:none;margin:12px 20px 0;padding:12px 16px;background:#fff8e6;border-left:4px solid #c47a00;border-radius:4px;font-size:12px;color:#5a3d00;line-height:1.5">
   <b>ℹ Sin datos en esta zona</b> ·
   <span id="avisoZonaAjenaTxt"></span>
@@ -291,7 +291,7 @@ table.rep td.center{text-align:center}
     <span style="margin-left:8px">Módulo de Informes · Análisis mensual y consolidados para Jefes de Zona, División Operativa y Gerencia.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86o</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86p</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -303,7 +303,7 @@ table.rep td.center{text-align:center}
 // Charts con Chart.js CDN · Export CSV vanilla
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v8.86o';
+const APP_VERSION = 'v8.86p';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 // v8.72 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VERSION; });
@@ -537,7 +537,7 @@ async function rpGenerar(){
   if (natSel === 'relevamiento') filtradosReales = [];  // partes reales son tareas → excluir
   _partesCache = [...filtradosReales, ...pseudoPartes];
 
-  // v8.86o · Aviso si un rol operativo zonal consulta una zona ajena y no obtiene datos
+  // v8.86p · Aviso si un rol operativo zonal consulta una zona ajena y no obtiene datos
   const _avisoZA = document.getElementById('avisoZonaAjena');
   const _avisoTx = document.getElementById('avisoZonaAjenaTxt');
   const _zonaPerfil = _perfil.zona || '';
@@ -1557,7 +1557,7 @@ function rpReset(){
   rpGenerar();
 }
 
-// v8.86o · Montar nav consolidado al DOMContentLoaded (después del login)
+// v8.86p · Montar nav consolidado al DOMContentLoaded (después del login)
 function _rpMontarNav(sessionEmail){
   if (typeof DVBA_NAV === 'undefined') return;
   let perfil = { rol: 'admin', zona: null, nombre: sessionEmail, email: sessionEmail };
