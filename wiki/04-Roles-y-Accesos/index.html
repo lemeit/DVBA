@@ -502,10 +502,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#matriz-completa-de-permisos" class="md-nav__link">
+  <a href="#matriz-completa-de-permisos-fuente-unica-de-verdad" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Matriz completa de permisos
+        Matriz completa de permisos (fuente única de verdad)
       
     </span>
   </a>
@@ -1128,10 +1128,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#matriz-completa-de-permisos" class="md-nav__link">
+  <a href="#matriz-completa-de-permisos-fuente-unica-de-verdad" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Matriz completa de permisos
+        Matriz completa de permisos (fuente única de verdad)
       
     </span>
   </a>
@@ -1241,24 +1241,26 @@
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>  publico (sin login · solo mapa)
 </code></pre></div>
 <hr />
-<h2 id="matriz-completa-de-permisos">Matriz completa de permisos<a class="headerlink" href="#matriz-completa-de-permisos" title="Permanent link">¶</a></h2>
+<h2 id="matriz-completa-de-permisos-fuente-unica-de-verdad">Matriz completa de permisos (fuente única de verdad)<a class="headerlink" href="#matriz-completa-de-permisos-fuente-unica-de-verdad" title="Permanent link">¶</a></h2>
 <table>
 <thead>
 <tr>
 <th>Rol</th>
 <th>Alcance</th>
-<th style="text-align: center;">Cargar relev.</th>
-<th style="text-align: center;">Aprobar/editar</th>
+<th style="text-align: center;">Ver</th>
+<th style="text-align: center;">Cargar</th>
+<th style="text-align: center;">Editar</th>
+<th style="text-align: center;">Borrar</th>
+<th style="text-align: center;">Aprobar</th>
+<th style="text-align: center;">Sugerir</th>
 <th style="text-align: center;">Asignar tareas</th>
-<th style="text-align: center;">Ejecutar tareas</th>
-<th style="text-align: center;">Reportes</th>
-<th style="text-align: center;">Admin usuarios</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>publico</strong></td>
 <td>Solo mapa institucional</td>
+<td style="text-align: center;">mapa</td>
 <td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
@@ -1269,8 +1271,9 @@
 <tr>
 <td><strong>tecnico</strong></td>
 <td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
 <td style="text-align: center;">✓</td>
-<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓ (propios)</td>
 <td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
@@ -1279,69 +1282,76 @@
 <tr>
 <td><strong>capataz</strong></td>
 <td>Su zona</td>
-<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✓ (cierre de tarea)</td>
 <td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
-<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
 </tr>
 <tr>
 <td><strong>jefe_tecnica</strong></td>
 <td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
 <td style="text-align: center;">✓</td>
-<td style="text-align: center;">✓ (relev.)</td>
+<td style="text-align: center;">✓</td>
 <td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓ (relevamientos)</td>
 <td style="text-align: center;">✗</td>
-<td style="text-align: center;">✓ (parcial)</td>
 <td style="text-align: center;">✗</td>
 </tr>
 <tr>
 <td><strong>jefe_operativa</strong></td>
 <td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
 <td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
 <td style="text-align: center;">✓ (tareas cerradas)</td>
+<td style="text-align: center;">✗</td>
 <td style="text-align: center;">✓</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✓ (parcial)</td>
-<td style="text-align: center;">✗</td>
 </tr>
 <tr>
 <td><strong>jefe_administrativa</strong></td>
-<td>Su zona (lectura amplia)</td>
-<td style="text-align: center;">✓</td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
 <td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
-<td style="text-align: center;">✓ (parcial)</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
 </tr>
 <tr>
 <td><strong>jefe_automotores</strong></td>
-<td>Su zona (lectura amplia)</td>
-<td style="text-align: center;">✓</td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
 <td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
-<td style="text-align: center;">✓ (parcial)</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
 </tr>
 <tr>
 <td><strong>jefe_zona</strong></td>
-<td>Su zona (autoridad global de zona)</td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
 <td style="text-align: center;">✓</td>
 <td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓ con motivo</td>
 <td style="text-align: center;">✓</td>
 <td style="text-align: center;">✗</td>
 <td style="text-align: center;">✓</td>
-<td style="text-align: center;">✗</td>
 </tr>
 <tr>
 <td><strong>gerencia</strong></td>
 <td>Todas las zonas</td>
-<td style="text-align: center;">✗ (por convención)</td>
+<td style="text-align: center;">✓ todas</td>
 <td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗ (interviene sugiriendo)</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
 <td style="text-align: center;">✗</td>
 <td style="text-align: center;">✓</td>
 <td style="text-align: center;">✗</td>
@@ -1349,16 +1359,25 @@
 <tr>
 <td><strong>admin</strong></td>
 <td>Todo el sistema</td>
+<td style="text-align: center;">✓ todo</td>
 <td style="text-align: center;">✓</td>
 <td style="text-align: center;">✓</td>
-<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓ definitivo</td>
 <td style="text-align: center;">✓</td>
 <td style="text-align: center;">✓</td>
 <td style="text-align: center;">✓</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Nota sobre <code>gerencia</code></strong>: por convención institucional, gerencia solo <strong>lee y sugiere intervenciones</strong> a las zonas (no aprueba ni edita). Esto preserva la descentralización — cada zona gestiona sus tareas y Casa Central acompaña.</p>
+<p><strong>Sobre el borrado de registros</strong>: solo admin puede borrar de forma definitiva. El jefe de zona puede borrar registros de su zona pero <strong>debe completar un formulario con el motivo del borrado</strong> (mínimo 10 caracteres). Los registros borrados de esa forma quedan ocultos para todos los demás roles pero <strong>el admin los conserva y puede restaurarlos si fue un error</strong>. Toda la actividad de borrado queda registrada en una vista de auditoría accesible por admin. Los demás roles (jefes operativa/técnica/administrativa/automotores, capataces, técnicos) no pueden borrar bajo ninguna circunstancia.</p>
+<p><strong>Principios que guían la matriz</strong>:</p>
+<ul>
+<li><strong>Descentralización zonal</strong>: cada zona gestiona su operativa; gerencia consulta y sugiere pero no ejecuta.</li>
+<li><strong>Jerarquía real DVBA</strong>: los jefes de las divisiones administrativa y de automotores no cargan trabajo de campo vial (gestionan RRHH/contable y parque vehicular respectivamente); consultan datos de su zona pero no operan.</li>
+<li><strong>Mínimo privilegio con trazabilidad</strong>: nadie borra sin dejar registro. Admin borra definitivo. Jefe de zona borra con motivo obligatorio, y su acción queda auditada.</li>
+<li><strong>Trazabilidad geográfica</strong>: cada registro cae en la zona del partido donde ocurrió, independientemente de qué usuario lo cargó.</li>
+</ul>
+<p><strong>Nota sobre <code>gerencia</code></strong>: por convención institucional y decisión de diseño, gerencia solo <strong>lee todas las zonas y sugiere intervenciones</strong> al jefe de la zona correspondiente. No aprueba, no edita, no borra. Preserva la descentralización — cada zona gestiona su operativa.</p>
 <p><strong>Nota sobre <code>admin</code></strong>: además de la gestión del sistema, los usuarios admin pueden <strong>impersonar</strong> a cualquier otro rol o zona desde el menú para testear vistas y ayudar en soporte.</p>
 <hr />
 <h2 id="ciclo-operativo-completo">Ciclo operativo completo<a class="headerlink" href="#ciclo-operativo-completo" title="Permanent link">¶</a></h2>

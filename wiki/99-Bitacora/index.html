@@ -1418,10 +1418,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#v878-v886e-v99511-v99515-15-19-agosto-2026-fase-2-roles-multi-zona-jefe-de-zona-operativo-end-to-end-arquitectura-zona-por-partido-geografico" class="md-nav__link">
+  <a href="#v878-v886i-v99511-v99515-15-19-agosto-2026-fase-2-roles-multi-zona-jefe-de-zona-operativo-end-to-end-arquitectura-zona-por-partido-geografico-matriz-de-permisos-consolidada-sql_27" class="md-nav__link">
     <span class="md-ellipsis">
       
-        v8.78 – v8.86e / v9.95.11 – v9.95.15 · 15 – 19 agosto 2026 — Fase 2 Roles Multi-zona (Jefe de Zona operativo end-to-end) + arquitectura zona-por-partido geográfico
+        v8.78 – v8.86i / v9.95.11 – v9.95.15 · 15 – 19 agosto 2026 — Fase 2 Roles Multi-zona (Jefe de Zona operativo end-to-end) + arquitectura zona-por-partido geográfico + matriz de permisos consolidada (SQL_27)
       
     </span>
   </a>
@@ -2305,10 +2305,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#v878-v886e-v99511-v99515-15-19-agosto-2026-fase-2-roles-multi-zona-jefe-de-zona-operativo-end-to-end-arquitectura-zona-por-partido-geografico" class="md-nav__link">
+  <a href="#v878-v886i-v99511-v99515-15-19-agosto-2026-fase-2-roles-multi-zona-jefe-de-zona-operativo-end-to-end-arquitectura-zona-por-partido-geografico-matriz-de-permisos-consolidada-sql_27" class="md-nav__link">
     <span class="md-ellipsis">
       
-        v8.78 – v8.86e / v9.95.11 – v9.95.15 · 15 – 19 agosto 2026 — Fase 2 Roles Multi-zona (Jefe de Zona operativo end-to-end) + arquitectura zona-por-partido geográfico
+        v8.78 – v8.86i / v9.95.11 – v9.95.15 · 15 – 19 agosto 2026 — Fase 2 Roles Multi-zona (Jefe de Zona operativo end-to-end) + arquitectura zona-por-partido geográfico + matriz de permisos consolidada (SQL_27)
       
     </span>
   </a>
@@ -3821,8 +3821,143 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 </tr>
 </tbody>
 </table>
-<h3 id="v878-v886e-v99511-v99515-15-19-agosto-2026-fase-2-roles-multi-zona-jefe-de-zona-operativo-end-to-end-arquitectura-zona-por-partido-geografico">v8.78 – v8.86e / v9.95.11 – v9.95.15 · 15 – 19 agosto 2026 — Fase 2 Roles Multi-zona (Jefe de Zona operativo end-to-end) + arquitectura zona-por-partido geográfico<a class="headerlink" href="#v878-v886e-v99511-v99515-15-19-agosto-2026-fase-2-roles-multi-zona-jefe-de-zona-operativo-end-to-end-arquitectura-zona-por-partido-geografico" title="Permanent link">¶</a></h3>
+<h3 id="v878-v886i-v99511-v99515-15-19-agosto-2026-fase-2-roles-multi-zona-jefe-de-zona-operativo-end-to-end-arquitectura-zona-por-partido-geografico-matriz-de-permisos-consolidada-sql_27">v8.78 – v8.86i / v9.95.11 – v9.95.15 · 15 – 19 agosto 2026 — Fase 2 Roles Multi-zona (Jefe de Zona operativo end-to-end) + arquitectura zona-por-partido geográfico + matriz de permisos consolidada (SQL_27)<a class="headerlink" href="#v878-v886i-v99511-v99515-15-19-agosto-2026-fase-2-roles-multi-zona-jefe-de-zona-operativo-end-to-end-arquitectura-zona-por-partido-geografico-matriz-de-permisos-consolidada-sql_27" title="Permanent link">¶</a></h3>
 <p>Bloque grande de dos semanas: sale el sistema del piloto VI aislado y pasa a estar preparado para <strong>operación multi-zona real</strong> con jerarquías de roles, ciclo completo (relevar → asignar → ejecutar → cerrar → reportar) y filtrado zonal profundo (RLS + trigger + UI).</p>
+<p><strong>Matriz de permisos consolidada (fuente única de verdad · SQL_27 · 19-agosto-2026)</strong></p>
+<p>Después de una auditoría de seguridad se detectaron 3 derivas respecto de la directiva original del proyecto (gerencia descentralizada + jerarquía real DVBA + mínimo privilegio). SQL_27 revierte las derivas y consolida la matriz definitiva:</p>
+<table>
+<thead>
+<tr>
+<th>Rol</th>
+<th>Alcance</th>
+<th style="text-align: center;">SELECT</th>
+<th style="text-align: center;">INSERT</th>
+<th style="text-align: center;">UPDATE</th>
+<th style="text-align: center;">DELETE</th>
+<th style="text-align: center;">Aprobar</th>
+<th style="text-align: center;">Intervenir</th>
+<th style="text-align: center;">Asignar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>admin</strong></td>
+<td>Todo el sistema</td>
+<td style="text-align: center;">✓ all</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓ hard</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+</tr>
+<tr>
+<td><strong>gerencia</strong></td>
+<td>Todas las zonas</td>
+<td style="text-align: center;">✓ all</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr>
+<td><strong>jefe_zona</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓ soft (con motivo)</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓</td>
+</tr>
+<tr>
+<td><strong>jefe_operativa</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓ (tareas cerradas)</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓</td>
+</tr>
+<tr>
+<td><strong>jefe_tecnica</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓ (relevamientos)</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr>
+<td><strong>jefe_administrativa</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr>
+<td><strong>jefe_automotores</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr>
+<td><strong>capataz</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✓ (cierre)</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr>
+<td><strong>tecnico</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓ (propios)</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr>
+<td><strong>publico</strong></td>
+<td>Solo mapa institucional</td>
+<td style="text-align: center;">mapa</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Convención DELETE</strong>: <code>hard</code> elimina físicamente la fila (solo admin). <code>soft (con motivo)</code> marca el registro con <code>borrado_en / borrado_por / motivo_borrado</code> (mínimo 10 caracteres), queda oculto para roles no-admin y recuperable por admin desde la vista <code>v_borrados_auditoria</code>. El jefe_zona borra soft, restringido a su zona, vía la función RPC <code>soft_delete_relevamiento(id, motivo)</code> / <code>soft_delete_parte_diario(id, motivo)</code>.</p>
+<p>Cambios operados por SQL_27 (rollback de derivas + auditoría de borrados):
+- <strong>Gerencia</strong> pierde INSERT/UPDATE (regresa a "solo lectura + sugerir vía SQL_18 intervenciones").
+- <strong>jefe_administrativa</strong> y <strong>jefe_automotores</strong> vuelven a solo lectura zonal (SQL_21 los había ampliado a CRUD).
+- <strong>tecnico</strong> pierde DELETE (solo admin borra físico, para preservar auditoría).
+- <strong>jefe_zona</strong> gana soft-delete en su zona con justificación obligatoria; admin puede revisar y restaurar desde <code>v_borrados_auditoria</code>.</p>
 <p><strong>Frente 1 · Modelo de datos multi-rol (SQL_17 → SQL_23).</strong> Se define el organigrama completo DVBA como roles en <code>usuarios_perfil</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>gerencia (1) → jefe_zona (12) → jefe_operativa / jefe_tecnica / jefe_administrativa / jefe_automotores → capataz → tecnico
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>                                                                                                                    ↓

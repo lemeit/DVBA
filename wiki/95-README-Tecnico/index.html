@@ -1105,10 +1105,140 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 <li><strong>Organigrama completo como roles</strong> en <code>usuarios_perfil</code>: gerencia, jefe_zona, jefe_operativa, jefe_tecnica, jefe_administrativa, jefe_automotores, capataz, tecnico, admin, publico.</li>
 <li><strong>Portal <code>plan_operativo.html</code></strong> para el jefe de zona: bandeja de entrada, kanban semanal, generar tarea, cerrar con foto (vincula relevamiento crudo con asignación).</li>
 <li><strong>Nav consolidado</strong> compartido en los 5 portales (<code>datos/nav.js</code>) con dropdown único, impersonación admin/gerencia, zona-picker con las 12 zonas, badge cola de pendientes.</li>
-<li><strong>RLS zonal ampliada</strong> (SQL_19): todos los roles operativos zonales pueden ver/insertar/editar en su zona. Solo admin y tecnico borran.</li>
+<li><strong>RLS zonal consolidada</strong> (SQL_19/SQL_27): matriz definitiva de permisos por rol × acción · gerencia solo lee y sugiere · jefes administrativos/automotores solo lectura zonal · solo admin borra.</li>
 <li><strong>Trigger zona-por-partido-geográfico</strong> (SQL_23): la zona del registro se deriva del partido (tabla <code>partidos_zona</code> con 135 partidos). Cualquier agente DVBA que recorra la PBA y cargue una foto queda automáticamente asignado al jefe de la zona correcta.</li>
 <li><strong>App móvil</strong> (v9.95.15) acepta todos los roles operativos. Labels de rol completos.</li>
 </ul>
+<h3 id="matriz-de-permisos-consolidada-fuente-unica-de-verdad-sql_27">Matriz de permisos consolidada (fuente única de verdad · SQL_27)<a class="headerlink" href="#matriz-de-permisos-consolidada-fuente-unica-de-verdad-sql_27" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rol</th>
+<th>Alcance</th>
+<th style="text-align: center;">SELECT</th>
+<th style="text-align: center;">INSERT</th>
+<th style="text-align: center;">UPDATE</th>
+<th style="text-align: center;">DELETE</th>
+<th style="text-align: center;">Aprobar</th>
+<th style="text-align: center;">Intervenir</th>
+<th style="text-align: center;">Asignar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>admin</strong></td>
+<td>Todo el sistema</td>
+<td style="text-align: center;">✓ all</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓ hard</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+</tr>
+<tr>
+<td><strong>gerencia</strong></td>
+<td>Todas las zonas</td>
+<td style="text-align: center;">✓ all</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr>
+<td><strong>jefe_zona</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓ soft (con motivo)</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓</td>
+</tr>
+<tr>
+<td><strong>jefe_operativa</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓ (tareas cerradas)</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓</td>
+</tr>
+<tr>
+<td><strong>jefe_tecnica</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓ (relevamientos)</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr>
+<td><strong>jefe_administrativa</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr>
+<td><strong>jefe_automotores</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr>
+<td><strong>capataz</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✓ (cierre de tarea)</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr>
+<td><strong>tecnico</strong></td>
+<td>Su zona</td>
+<td style="text-align: center;">✓ zona</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓ (propios)</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr>
+<td><strong>publico</strong></td>
+<td>Solo mapa institucional</td>
+<td style="text-align: center;">mapa</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Convención DELETE</strong>: <code>hard</code> elimina físicamente la fila (solo admin). <code>soft (con motivo)</code> marca el registro como borrado con un motivo obligatorio (mínimo 10 caracteres); queda oculto para roles no-admin pero recuperable por admin desde la vista de auditoría <code>v_borrados_auditoria</code> (jefe_zona, solo dentro de su zona).</p>
+<p>Principios que guían la matriz: <strong>descentralización zonal</strong> (cada zona gestiona su operativa · gerencia consulta y sugiere pero no ejecuta), <strong>jerarquía real DVBA</strong> (los jefes de las divisiones administrativas y de automotores no cargan trabajo de campo vial), <strong>mínimo privilegio con trazabilidad</strong> (solo admin borra físico · jefe_zona borra lógico con justificación auditable · técnicos editan solo lo propio · capataces solo cierran su tarea asignada), y <strong>trazabilidad geográfica</strong> (cada registro cae en la zona de su partido, no en la del usuario que lo cargó).</p>
 <p><strong>Migración #4 · sub-atributos a columnas dedicadas (v8.78 · v9.95.14 · SQL_16)</strong> — Hasta v8.77, los sub-atributos <code>superficie</code> (asfalto/hormigón/tierra/…) y <code>modalidad</code> (manual/mecánico/mixto) se serializaban al final del campo <code>observaciones</code> con el formato <code>[superficie:X · modalidad:Y]</code>. Funcional pero impedía cruzar en reportes agregados. La migración crea columnas dedicadas, hace backfill automático con regex desde el texto existente + limpieza del sufijo. Frontend (móvil y escritorio) escribe en columnas propias; lectura con fallback al parseo para retrocompatibilidad. Ahora se puede consultar en SQL directo (ej. <code>SELECT superficie, COUNT(*) FROM relevamientos WHERE naturaleza='tarea' GROUP BY superficie</code>).</p>
 <p><strong>Cámara in-app en el Modo Básico (v9.95.13)</strong> — El Modo Básico crasheaba al abrir la cámara nativa (<code>&lt;input capture&gt;</code>): Android manda la PWA a background y por policy puede matar el proceso por gestión de recursos, con lo cual la app "reinicia" al volver de la cámara. Solución: portado el flow del Modo Avanzado (<code>getUserMedia</code> + modal in-app con <code>&lt;video&gt;</code> + botones capturar/cancelar/flip). La cámara vive dentro de la PWA, nunca pasa a background. Fallback automático a <code>&lt;input capture&gt;</code> si <code>getUserMedia</code> falla (permiso denegado, sin cámara, browser sin soporte).</p>
 <p><strong>Service Worker offline reparado (v9.95.11)</strong> — El fallback offline del SW solo cubría <code>/dvba_campo</code>; no manejaba <code>/app.html</code> (start_url del PWA) ni <code>/dvba_campo_lite.html</code>. Al abrir desde el icono PWA en modo avión, caía al mensaje "sin caché". Extendido a todas las entradas del PWA (<code>/app.html</code>, <code>/campo.html</code>, <code>/dvba_campo.html</code>, <code>/dvba_campo_lite.html</code>, <code>/</code>, <code>/DVBA/</code>, <code>/DVBA</code>) con cadena de fallback en cascada. <code>caches.match</code> con <code>{ignoreSearch:true, ignoreVary:true}</code> para tolerar query params (cache-busters, params UTM que Android agrega al PWA).</p>
