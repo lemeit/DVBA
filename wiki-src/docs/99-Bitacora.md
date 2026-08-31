@@ -6,7 +6,7 @@ DVBA · Departamento Zona VI Saladillo
 
 Última actualización: 31 de agosto de 2026
 
-Versión bitácora: v5.7 — apps v9.95.15 / v8.86k · 31-ago-2026
+Versión bitácora: v5.8 — apps v9.95.16 / v8.86k · 31-ago-2026 (episodio de bugs producción · fix trigger zona + no pérdida silenciosa fotos)
 
 Responsable: Ing. Luciano Lamaita
 
@@ -830,6 +830,39 @@ TAB 6 · PENDIENTES
 | **🖥 Familia escritorio** | v8.86e | `index.html`, `partes_diarios.html`, `reportes.html`, `admin_usuarios.html`, `plan_operativo.html` + módulos `datos/` (nav.js, loader_zona.js) | Manual en `const APP_VERSION` + spans footer en los 5 |
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
+
+### v9.95.16 + SQL_31 · 31 agosto 2026 (noche) — Episodio de bugs en producción · pérdida de fotos y trigger zona roto
+
+Después del bloque de hardening + trazabilidad de la tarde, la primera prueba en producción real reveló **dos bugs críticos separados**, uno en el móvil y uno en la base:
+
+**Bug 1 · Pérdida silenciosa de fotos en Modo Avanzado (`dvba_campo.html`)**
+
+En `subirFoto()` el error de red/timeout/JWT expirado devolvía `null` sin propagarse. El llamador seguía con el INSERT del registro poniendo `foto_url = NULL` y marcando `cloud = true`, lo que hacía que la app limpiara la foto de la cola offline. Resultado: **3 fotos perdidas irrecuperablemente** (IDs 462, 463, 464) — el user tomó las fotos, subió, la app dijo "guardado OK", pero solo persistieron los datos GPS sin la imagen.
+
+**Fix v9.95.16**: si `subirFoto` devuelve null, el INSERT NO se hace y el registro queda en cola offline con la foto en base64 para reintentar. El user ve "⚠ Falló subida foto · queda pendiente" en vez de un falso "guardado OK".
+
+Diagnóstico posterior: policies del bucket están bien configuradas. El upload falla por causas externas (red intermitente, timeout de 30s, JWT expirado en background) que la app ahora resiste sin perder datos.
+
+**Bug 2 · Trigger `forzar_zona_por_rol` quedó en versión SQL_20 antigua**
+
+Diagnóstico por `SELECT prosrc` reveló que el trigger no tenía la lógica de SQL_23 (derivar zona del partido). Cuando admin cargaba fotos:
+- Con partido reconocible → zona quedaba NULL (admin no está en el IF de operativos zonales del trigger viejo).
+- Con picker en vista "PBA" → zona quedaba con el string `'PBA'` (no es zona válida).
+- Efecto visible: los registros quedaban invisibles desde vistas por zona específica.
+
+**Fix SQL_31**: recrea la función con la lógica correcta priorizada:
+1. Si `partido` es reconocible → `NEW.zona := zona_por_partido(partido)`.
+2. Fallback para operativos zonales → `current_user_zona()`.
+3. Guard explícito: rechazar `'PBA'` como valor de zona (lo convierte a NULL).
+4. Admin/gerencia sin partido → respeta el valor enviado.
+
+Retro-fill: los 6 registros históricos con `zona=NULL` o `zona='PBA'` que tenían partido reconocible se corrigieron a la zona geográfica correcta.
+
+**Aprendizaje del episodio**: los cambios de trigger deben verificarse con `SELECT prosrc FROM pg_proc` después de cada migración, porque `CREATE OR REPLACE FUNCTION` puede haberse revertido por una migración posterior sin que se note. Y toda operación que dependa de una subida asíncrona (foto) debe tener manejo explícito de fallo, no silenciarlo con `return null`.
+
+Bumps: móvil `v9.95.15 → v9.95.16` (dvba_campo + dvba_campo_lite + sw.js CACHE_NAME). Escritorio sin cambios.
+
+---
 
 ### v8.86k / SQL_30 · 31 agosto 2026 (tarde) — Trazabilidad multi-usuario · columna autor_id
 
