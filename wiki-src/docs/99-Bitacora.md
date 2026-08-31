@@ -4,9 +4,9 @@
 
 DVBA · Departamento Zona VI Saladillo
 
-Última actualización: 19 de agosto de 2026
+Última actualización: 31 de agosto de 2026
 
-Versión bitácora: v5.5 — apps v9.95.15 / v8.86e · 19-ago-2026
+Versión bitácora: v5.6 — apps v9.95.15 / v8.86j · 31-ago-2026
 
 Responsable: Ing. Luciano Lamaita
 
@@ -830,6 +830,60 @@ TAB 6 · PENDIENTES
 | **🖥 Familia escritorio** | v8.86e | `index.html`, `partes_diarios.html`, `reportes.html`, `admin_usuarios.html`, `plan_operativo.html` + módulos `datos/` (nav.js, loader_zona.js) | Manual en `const APP_VERSION` + spans footer en los 5 |
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
+
+### v8.86j / SQL_26-27-28-29 · 31 agosto 2026 — Hardening de seguridad Supabase + soft-delete jefe_zona operativo desde UI
+
+Sesión focalizada en cerrar los hallazgos del **linter de seguridad de Supabase** y en dejar operativo el permiso de soft-delete que le dimos al jefe_zona en SQL_27. Punto de partida: ~45 warnings del linter; punto de llegada: 13 warnings esperados (helpers RLS + RPCs con validación de rol) + 1 bloqueado por plan Free (leaked passwords).
+
+**Frente 1 · SQL_26 · Hardening de vistas y bucket.**
+- `v_partes_diarios_export` marcada como `security_invoker` (elimina privilege escalation de vistas SQL).
+- Tabla legacy `registros` (esquema pre-multi-zona v6, tenía policy pública `USING(true)`) **DROPEADA** por ser huérfana y potencialmente peligrosa.
+- Vista `v_solicitudes_admin` reemplazada por función RPC **`get_solicitudes_admin()`** (`SECURITY DEFINER`, valida rol admin internamente). La vista cruzaba `auth.users` que `authenticated` no puede leer directo, generando warning grave.
+- `partidos_zona` tenía RLS activada sin policies (deny-all): agregada policy de lectura pública + policy de escritura solo admin. Es info institucional de mapping partido→zona, no sensible.
+
+**Frente 2 · SQL_27 · Matriz de permisos consolidada + soft-delete jefe_zona.** Auditoría de seguridad detectó 3 derivas respecto de la directiva original:
+- **Gerencia** había quedado con INSERT/UPDATE en SQL_19; rollback a **solo lectura** + sugerir vía SQL_18 intervenciones. Preserva descentralización zonal.
+- **jefe_administrativa** y **jefe_automotores** habían sido ampliados a CRUD en SQL_21 (basado en pedido "todos los jefes pueden cargar"); rollback a **solo lectura zonal** (coherente con SQL_17: estos jefes gestionan RRHH/contable/parque vehicular, no trabajo de campo vial).
+- **tecnico** tenía DELETE zonal; rollback (ningún rol operativo debe borrar registros oficiales unilateralmente).
+
+Nueva capacidad para **jefe_zona**: puede **archivar registros de su zona con motivo obligatorio** (mínimo 10 caracteres). Implementado con:
+- Nuevas columnas `borrado_en / borrado_por / motivo_borrado` en `relevamientos` y `partes_diarios`.
+- Funciones RPC `soft_delete_relevamiento(id, motivo)` y `soft_delete_parte_diario(id, motivo)` con validación de rol y zona.
+- Policy SELECT excluye borrados excepto para admin.
+- Vista `v_borrados_auditoria` para que admin pueda revisar/restaurar.
+
+**Frente 3 · SQL_28 · Hardening masivo de funciones DEFINER.**
+- Todas las funciones DEFINER (15) con `SET search_path = public` — evita hijacking por schemas maliciosos.
+- Revocado `EXECUTE` de `anon` y `PUBLIC` en las 17 funciones DEFINER — ninguna se puede llamar sin sesión.
+- Bucket `relevamientos`: dropeada la policy `storage_select_publico` (permitía listing). Queda solo la policy granular `fotos_lectura`, que también fue evaluada posteriormente.
+
+**Frente 4 · SQL_29 · Revoke authenticated en triggers puros.** 3 funciones que son solo triggers/helpers internos y no deben ser callable por RPC:
+- `forzar_zona_por_rol()` (trigger BEFORE INSERT/UPDATE en relevamientos/partes)
+- `set_caminos_alias_updated_at()` (trigger BEFORE UPDATE)
+- `zona_por_partido(TEXT)` (usada por el trigger anterior)
+
+Los triggers siguen funcionando porque corren bajo el owner del código (DEFINER), no bajo el rol del user.
+
+**Frente 5 · Frontend · Modal de borrado con motivo (v8.86j).** En `index.html`, la función `delReg(id)` ahora enruta según el rol del usuario:
+- **admin** → borrado físico definitivo (confirm simple).
+- **jefe_zona** → abre modal con textarea de motivo (contador de caracteres + botón deshabilitado hasta llegar a 10) → llama a la RPC `soft_delete_relevamiento`.
+- **Resto de roles** → mensaje explicativo indicando que no están autorizados y a quién contactar.
+
+El modal usa la paleta institucional DVBA (naranja advertencia) con header claro que aclara "El Admin del sistema podrá revisarlo y restaurarlo si fue error".
+
+**Frente 6 · Frontend · Migración vista → RPC.** `admin_usuarios.html` línea 628: cambiado de `.from('v_solicitudes_admin').select()` a `.rpc('get_solicitudes_admin')` para consumir la función SECURITY DEFINER en vez de la vista dropeada.
+
+**Estado final del linter** post-todo el bloque:
+- 0 errores.
+- 0 warnings de `function_search_path_mutable`.
+- 0 warnings de `anon_security_definer_function_executable`.
+- 0 warnings de `public_bucket_allows_listing`.
+- 13 warnings de `authenticated_security_definer_function_executable` esperados (7 helpers necesarios para las policies RLS + 6 RPCs válidas con role validation interna).
+- 1 warning de `auth_leaked_password_protection` — feature Pro Plan, no disponible en Free. Se compensa con reglas locales de password en el frontend.
+
+**Bumps**: escritorio `v8.86i → v8.86j` (5 portales). Móvil sin cambios (`v9.95.15`).
+
+---
 
 ### v8.78 – v8.86i / v9.95.11 – v9.95.15 · 15 – 19 agosto 2026 — Fase 2 Roles Multi-zona (Jefe de Zona operativo end-to-end) + arquitectura zona-por-partido geográfico + matriz de permisos consolidada (SQL_27)
 

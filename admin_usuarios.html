@@ -113,7 +113,7 @@ table.usuarios tbody tr.inactivo{opacity:.5}
 .toast.err{background:#fbecec;border-color:var(--ro);color:#7a0f0f}
 
 /* Footer */
-/* v8.86i · Sacado text-align:center genérico — el footerInst usa flex + justify-content:space-between y el center lo desalineaba */
+/* v8.86j · Sacado text-align:center genérico — el footerInst usa flex + justify-content:space-between y el center lo desalineaba */
 footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-top:1px solid var(--light);background:var(--w)}
 </style>
 </head>
@@ -127,7 +127,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
   </div>
 </div>
 
-<!-- Nav consolidado v8.86i · via datos/nav.js -->
+<!-- Nav consolidado v8.86j · via datos/nav.js -->
 <div id="dvba-nav-mount"></div>
 
 <main>
@@ -216,6 +216,36 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
       <tbody id="tbodySolic"><tr><td colspan="7" style="padding:16px;text-align:center;color:var(--mut)">Cargando...</td></tr></tbody>
     </table>
   </div>
+
+  <!-- v8.86j · Auditoría de registros archivados (soft-delete) por jefes de zona -->
+  <div style="margin-top:24px;padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <h2 style="margin:0;font-size:14px;color:#003366;letter-spacing:.3px">
+        🗑 Registros archivados por jefes de zona
+        <span id="borradosCount" style="background:#c47a00;color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;font-weight:700">0</span>
+      </h2>
+      <div>
+        <button onclick="cargarBorradosAuditoria()" style="padding:5px 10px;background:#009aae;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer">🔄 Refrescar</button>
+      </div>
+    </div>
+    <p style="margin:0 0 10px;font-size:11px;color:#606060;line-height:1.4">
+      Registros marcados como archivados por jefes de zona con justificación. No están eliminados físicamente — como Admin podés <b>restaurarlos</b> (quitar la marca) o <b>eliminarlos definitivamente</b>.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead>
+        <tr style="background:#f5f7fa;border-bottom:2px solid #003366">
+          <th style="padding:8px;text-align:left">Archivado</th>
+          <th style="padding:8px;text-align:left">Tabla</th>
+          <th style="padding:8px;text-align:left">Zona</th>
+          <th style="padding:8px;text-align:left">Registro</th>
+          <th style="padding:8px;text-align:left">Por</th>
+          <th style="padding:8px;text-align:left">Motivo</th>
+          <th style="padding:8px;text-align:right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyBorrados"><tr><td colspan="7" style="padding:16px;text-align:center;color:var(--mut)">Sin cargar (tocá Refrescar)</td></tr></tbody>
+    </table>
+  </div>
 </main>
 
 <!-- v8.66f.2 · Footer institucional unificado (mismo estilo que reportes.html) -->
@@ -225,7 +255,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
     <span style="margin-left:8px">Panel de Administración · Módulo de gestión de usuarios y perfiles para Admin del sistema.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86i</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86j</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -327,7 +357,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 
 <script>
 // v8.66f.2 · Constante de versión unificada (familia escritorio v8.X)
-const APP_VERSION = 'v8.86i';
+const APP_VERSION = 'v8.86j';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 // v8.72 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VERSION; });
@@ -367,7 +397,7 @@ async function chequearAcceso(){
       guardBtn.style.display = 'inline-block';
       return false;
     }
-    // v8.86i · #hUser vive en el header legacy (display:none), guard defensivo
+    // v8.86j · #hUser vive en el header legacy (display:none), guard defensivo
     const _hUser = document.getElementById('hUser');
     if (_hUser) _hUser.textContent = session.user.email;
 
@@ -406,7 +436,7 @@ async function chequearAcceso(){
       return false;
     }
     document.getElementById('guard').style.display = 'none';
-    // v8.86i · Montar nav compartido (después de verificar admin)
+    // v8.86j · Montar nav compartido (después de verificar admin)
     if (typeof DVBA_NAV !== 'undefined'){
       try {
         const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
@@ -615,7 +645,9 @@ async function cerrarSesion(){
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // v8.66f.2 · Cola de solicitudes pendientes (mover_zona / eliminar)
-// Fuente: view v_solicitudes_admin (definida en SQL_13)
+// Fuente: RPC get_solicitudes_admin (SQL_26 · reemplaza a la view v_solicitudes_admin
+//         que fue dropeada por el linter de seguridad, ya que cruzaba auth.users
+//         y requería privilege escalation. La RPC valida rol admin internamente.)
 // ═══════════════════════════════════════════════════════════════════════════════
 let _solicCache = [];
 
@@ -625,8 +657,9 @@ async function cargarSolicitudes(){
   if (!tbody || !_supa) return;
   tbody.innerHTML = '<tr><td colspan="7" style="padding:16px;text-align:center;color:var(--mut)">Cargando...</td></tr>';
   try {
-    const { data, error } = await _supa.from('v_solicitudes_admin')
-      .select('*').order('creado_en', {ascending: true});
+    // v8.86j · Migrado de .from('v_solicitudes_admin') → .rpc('get_solicitudes_admin')
+    // La RPC devuelve el mismo shape de columnas + ya viene ordenada por creado_en.
+    const { data, error } = await _supa.rpc('get_solicitudes_admin');
     if (error) throw error;
     _solicCache = data || [];
     if (count) count.textContent = _solicCache.length;
@@ -716,13 +749,92 @@ async function descartarSolicitud(id){
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// v8.86j · Auditoría de borrados (soft-delete de jefe_zona)
+// Fuente: vista v_borrados_auditoria (SQL_27)
+// ═══════════════════════════════════════════════════════════════════════════════
+let _borradosCache = [];
+
+async function cargarBorradosAuditoria(){
+  const tbody = document.getElementById('tbodyBorrados');
+  const count = document.getElementById('borradosCount');
+  if (!tbody || !_supa) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="padding:16px;text-align:center;color:var(--mut)">Cargando...</td></tr>';
+  try {
+    const { data, error } = await _supa.from('v_borrados_auditoria').select('*');
+    if (error) throw error;
+    _borradosCache = data || [];
+    if (count) count.textContent = _borradosCache.length;
+    renderBorrados(_borradosCache);
+  } catch (e){
+    console.error('[borrados-auditoria]', e);
+    tbody.innerHTML = '<tr><td colspan="7" style="padding:16px;text-align:center;color:#c00">Error: ' + e.message + '</td></tr>';
+  }
+}
+
+function renderBorrados(rows){
+  const tbody = document.getElementById('tbodyBorrados');
+  if (!tbody) return;
+  if (!rows.length){
+    tbody.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--mut)">✓ Sin registros archivados</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => {
+    const fecha = r.borrado_en ? new Date(r.borrado_en).toLocaleString('es-AR', {dateStyle:'short', timeStyle:'short'}) : '—';
+    const infoReg = [r.tipo, r.ruta ? 'RP ' + r.ruta : '', r.progresiva || '', r.partido || ''].filter(Boolean).join(' · ') || '#' + r.id;
+    const motivoCorto = r.motivo_borrado ? (r.motivo_borrado.length > 60 ? r.motivo_borrado.slice(0,57) + '...' : r.motivo_borrado) : '';
+    return `
+      <tr style="border-bottom:1px solid #e8ecef">
+        <td style="padding:7px;font-size:10.5px;color:#606060;white-space:nowrap">${fecha}</td>
+        <td style="padding:7px"><span style="background:#eef;color:#003366;font-size:10px;padding:2px 6px;border-radius:3px;font-weight:700">${r.tabla}</span></td>
+        <td style="padding:7px;font-size:11px;font-weight:700">${r.zona || '—'}</td>
+        <td style="padding:7px;font-size:11px">#${r.id} · ${_esc(infoReg)}</td>
+        <td style="padding:7px;font-size:11px;color:#404040">${_esc(r.borrado_por_nombre || '(sin nombre)')}</td>
+        <td style="padding:7px;font-size:11px;color:#5a3d00;max-width:250px" title="${_esc(r.motivo_borrado||'')}">${_esc(motivoCorto)}</td>
+        <td style="padding:7px;text-align:right;white-space:nowrap">
+          <button onclick="restaurarBorrado('${r.tabla}', ${r.id})" style="padding:4px 10px;background:#22a954;color:#fff;border:0;border-radius:3px;font-size:10.5px;font-weight:700;cursor:pointer;margin-right:4px" title="Restaurar el registro (quitar la marca de borrado)">↺ Restaurar</button>
+          <button onclick="eliminarDefinitivo('${r.tabla}', ${r.id})" style="padding:4px 10px;background:#c62828;color:#fff;border:0;border-radius:3px;font-size:10.5px;font-weight:700;cursor:pointer" title="Eliminar físicamente para siempre (no se puede deshacer)">✕ Definitivo</button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function _esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function restaurarBorrado(tabla, id){
+  if (!confirm('¿Restaurar el registro #' + id + ' de ' + tabla + '?\n\nSe quita la marca de borrado y vuelve a ser visible para todos los roles.')) return;
+  try {
+    // UPDATE directo (admin tiene UPDATE por RLS)
+    const { error } = await _supa.from(tabla)
+      .update({ borrado_en: null, borrado_por: null, motivo_borrado: null })
+      .eq('id', id);
+    if (error) throw error;
+    cargarBorradosAuditoria();
+  } catch(e){
+    alert('Error al restaurar: ' + (e.message || e));
+  }
+}
+
+async function eliminarDefinitivo(tabla, id){
+  if (!confirm('¿Eliminar DEFINITIVAMENTE el registro #' + id + ' de ' + tabla + '?\n\nEsta acción es irreversible. Se pierde el registro para siempre.')) return;
+  if (!confirm('Confirmá una vez más: eliminar físicamente #' + id + ' ' + tabla + '?')) return;
+  try {
+    const { error } = await _supa.from(tabla).delete().eq('id', id);
+    if (error) throw error;
+    cargarBorradosAuditoria();
+  } catch(e){
+    alert('Error al eliminar definitivo: ' + (e.message || e));
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // Init
 // ═══════════════════════════════════════════════════════════════════════════════
 (async () => {
   const ok = await chequearAcceso();
   if (ok) {
     await cargarUsuarios();
-    await cargarSolicitudes();  // v8.66f.2
+    await cargarSolicitudes();       // v8.66f.2
+    await cargarBorradosAuditoria(); // v8.86j
   }
 })();
 </script>
