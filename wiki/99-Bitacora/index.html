@@ -1418,6 +1418,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v886lv886m-31-agosto-2026-noche-despues-del-episodio-fixes-de-ux-post-piloto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.86l/v8.86m · 31 agosto 2026 (noche · después del episodio) — Fixes de UX post-piloto
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v99516-sql_31-31-agosto-2026-noche-episodio-de-bugs-en-produccion-perdida-de-fotos-y-trigger-zona-roto" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2338,6 +2349,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v886lv886m-31-agosto-2026-noche-despues-del-episodio-fixes-de-ux-post-piloto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.86l/v8.86m · 31 agosto 2026 (noche · después del episodio) — Fixes de UX post-piloto
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v99516-sql_31-31-agosto-2026-noche-episodio-de-bugs-en-produccion-perdida-de-fotos-y-trigger-zona-roto" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2760,7 +2782,7 @@
 <h1 id="bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial">📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial<a class="headerlink" href="#bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial" title="Permanent link">¶</a></h1>
 <p>DVBA · Departamento Zona VI Saladillo</p>
 <p>Última actualización: 31 de agosto de 2026</p>
-<p>Versión bitácora: v5.8 — apps v9.95.16 / v8.86k · 31-ago-2026 (episodio de bugs producción · fix trigger zona + no pérdida silenciosa fotos)</p>
+<p>Versión bitácora: v5.9 — apps v9.95.16 / v8.86m · 31-ago-2026 (fixes producción + refinamientos UI modal soft-delete + filtro frontend zonal incluye NULL)</p>
 <p>Responsable: Ing. Luciano Lamaita</p>
 <p>Repositorio: <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a></p>
 <p>Estado general: 🟢 En desarrollo activo</p>
@@ -3887,6 +3909,18 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 </tr>
 </tbody>
 </table>
+<h3 id="v886lv886m-31-agosto-2026-noche-despues-del-episodio-fixes-de-ux-post-piloto">v8.86l/v8.86m · 31 agosto 2026 (noche · después del episodio) — Fixes de UX post-piloto<a class="headerlink" href="#v886lv886m-31-agosto-2026-noche-despues-del-episodio-fixes-de-ux-post-piloto" title="Permanent link">¶</a></h3>
+<p>Tras el episodio de bugs (v9.95.16 + SQL_31) surgieron 2 refinamientos de UX visibles al usar en producción:</p>
+<ul>
+<li>
+<p><strong>Fix v8.86l · frontend filtro zona incluye NULL</strong>. Bug detectado por el user: cargó una foto desde Modo Básico sin partido (queda con <code>zona=NULL</code> por el trigger nuevo), y al entrar como jefe_zona VI la foto no aparecía; solo la veía seleccionando "Todas las zonas" en el picker. Causa: <code>cargarRegs</code> en <code>index.html</code> hacía <code>.eq('zona', X)</code> strict, que excluía los NULL aunque la RLS del backend sí los permitía. Fix: cambiar a <code>.or('zona.eq.X,zona.is.null')</code> para que el frontend respete la misma lógica de la RLS. Ahora los jefes zonales ven los registros de su zona más los huérfanos NULL (que suelen ser cargas del Modo Básico sin partido o registros históricos pre-multi-zona).</p>
+</li>
+<li>
+<p><strong>Fix v8.86m · modal soft-delete con paleta institucional</strong>. El modal de archivado con motivo usaba naranja/marrón (paleta ámbar). Alineado a la paleta oficial DVBA: header en gradient turquesa institucional (<code>#00aec3 → #007e8c</code>), botón "Confirmar archivado" en rojo seguridad institucional (<code>#BE1717</code>), botón "Cancelar" con hover turquesa, textarea con focus turquesa. Además cambio del texto del botón de "Archivar registro" a "<strong>Confirmar archivado</strong>" (más neutro y claro), y restauración del texto al reabrir el modal (evita que quede pegado en "Archivando..." si un intento previo falló).</p>
+</li>
+</ul>
+<p>Bumps: escritorio <code>v8.86k → v8.86l → v8.86m</code> (5 portales). Móvil sin cambios.</p>
+<hr />
 <h3 id="v99516-sql_31-31-agosto-2026-noche-episodio-de-bugs-en-produccion-perdida-de-fotos-y-trigger-zona-roto">v9.95.16 + SQL_31 · 31 agosto 2026 (noche) — Episodio de bugs en producción · pérdida de fotos y trigger zona roto<a class="headerlink" href="#v99516-sql_31-31-agosto-2026-noche-episodio-de-bugs-en-produccion-perdida-de-fotos-y-trigger-zona-roto" title="Permanent link">¶</a></h3>
 <p>Después del bloque de hardening + trazabilidad de la tarde, la primera prueba en producción real reveló <strong>dos bugs críticos separados</strong>, uno en el móvil y uno en la base:</p>
 <p><strong>Bug 1 · Pérdida silenciosa de fotos en Modo Avanzado (<code>dvba_campo.html</code>)</strong></p>
