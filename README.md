@@ -31,9 +31,28 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 - **Organigrama completo como roles** en `usuarios_perfil`: gerencia, jefe_zona, jefe_operativa, jefe_tecnica, jefe_administrativa, jefe_automotores, capataz, tecnico, admin, publico.
 - **Portal `plan_operativo.html`** para el jefe de zona: bandeja de entrada, kanban semanal, generar tarea, cerrar con foto (vincula relevamiento crudo con asignación).
 - **Nav consolidado** compartido en los 5 portales (`datos/nav.js`) con dropdown único, impersonación admin/gerencia, zona-picker con las 12 zonas, badge cola de pendientes.
-- **RLS zonal ampliada** (SQL_19): todos los roles operativos zonales pueden ver/insertar/editar en su zona. Solo admin y tecnico borran.
+- **RLS zonal consolidada** (SQL_19/SQL_27): matriz definitiva de permisos por rol × acción · gerencia solo lee y sugiere · jefes administrativos/automotores solo lectura zonal · solo admin borra.
 - **Trigger zona-por-partido-geográfico** (SQL_23): la zona del registro se deriva del partido (tabla `partidos_zona` con 135 partidos). Cualquier agente DVBA que recorra la PBA y cargue una foto queda automáticamente asignado al jefe de la zona correcta.
 - **App móvil** (v9.95.15) acepta todos los roles operativos. Labels de rol completos.
+
+### Matriz de permisos consolidada (fuente única de verdad · SQL_27)
+
+| Rol | Alcance | SELECT | INSERT | UPDATE | DELETE | Aprobar | Intervenir | Asignar |
+|---|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| **admin** | Todo el sistema | ✓ all | ✓ | ✓ | ✓ hard | ✓ | ✓ | ✓ |
+| **gerencia** | Todas las zonas | ✓ all | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ |
+| **jefe_zona** | Su zona | ✓ zona | ✓ | ✓ | ✓ soft (con motivo) | ✓ | ✗ | ✓ |
+| **jefe_operativa** | Su zona | ✓ zona | ✓ | ✓ | ✗ | ✓ (tareas cerradas) | ✗ | ✓ |
+| **jefe_tecnica** | Su zona | ✓ zona | ✓ | ✓ | ✗ | ✓ (relevamientos) | ✗ | ✗ |
+| **jefe_administrativa** | Su zona | ✓ zona | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **jefe_automotores** | Su zona | ✓ zona | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **capataz** | Su zona | ✓ zona | ✓ (cierre de tarea) | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **tecnico** | Su zona | ✓ zona | ✓ | ✓ (propios) | ✗ | ✗ | ✗ | ✗ |
+| **publico** | Solo mapa institucional | mapa | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+
+**Convención DELETE**: `hard` elimina físicamente la fila (solo admin). `soft (con motivo)` marca el registro como borrado con un motivo obligatorio (mínimo 10 caracteres); queda oculto para roles no-admin pero recuperable por admin desde la vista de auditoría `v_borrados_auditoria` (jefe_zona, solo dentro de su zona).
+
+Principios que guían la matriz: **descentralización zonal** (cada zona gestiona su operativa · gerencia consulta y sugiere pero no ejecuta), **jerarquía real DVBA** (los jefes de las divisiones administrativas y de automotores no cargan trabajo de campo vial), **mínimo privilegio con trazabilidad** (solo admin borra físico · jefe_zona borra lógico con justificación auditable · técnicos editan solo lo propio · capataces solo cierran su tarea asignada), y **trazabilidad geográfica** (cada registro cae en la zona de su partido, no en la del usuario que lo cargó).
 
 
 

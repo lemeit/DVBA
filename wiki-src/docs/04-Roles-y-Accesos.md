@@ -35,22 +35,31 @@ SIG Vial PBA refleja el organigrama real de la DVBA en **10 roles operativos**. 
 
 ---
 
-## Matriz completa de permisos
+## Matriz completa de permisos (fuente única de verdad)
 
-| Rol | Alcance | Cargar relev. | Aprobar/editar | Asignar tareas | Ejecutar tareas | Reportes | Admin usuarios |
-|---|---|:-:|:-:|:-:|:-:|:-:|:-:|
-| **publico** | Solo mapa institucional | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **tecnico** | Su zona | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **capataz** | Su zona | ✓ | ✗ | ✗ | ✓ | ✗ | ✗ |
-| **jefe_tecnica** | Su zona | ✓ | ✓ (relev.) | ✗ | ✗ | ✓ (parcial) | ✗ |
-| **jefe_operativa** | Su zona | ✓ | ✓ (tareas cerradas) | ✓ | ✗ | ✓ (parcial) | ✗ |
-| **jefe_administrativa** | Su zona (lectura amplia) | ✓ | ✗ | ✗ | ✗ | ✓ (parcial) | ✗ |
-| **jefe_automotores** | Su zona (lectura amplia) | ✓ | ✗ | ✗ | ✗ | ✓ (parcial) | ✗ |
-| **jefe_zona** | Su zona (autoridad global de zona) | ✓ | ✓ | ✓ | ✗ | ✓ | ✗ |
-| **gerencia** | Todas las zonas | ✗ (por convención) | ✗ | ✗ (interviene sugiriendo) | ✗ | ✓ | ✗ |
-| **admin** | Todo el sistema | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Rol | Alcance | Ver | Cargar | Editar | Borrar | Aprobar | Sugerir | Asignar tareas |
+|---|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| **publico** | Solo mapa institucional | mapa | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **tecnico** | Su zona | ✓ zona | ✓ | ✓ (propios) | ✗ | ✗ | ✗ | ✗ |
+| **capataz** | Su zona | ✓ zona | ✓ (cierre de tarea) | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **jefe_tecnica** | Su zona | ✓ zona | ✓ | ✓ | ✗ | ✓ (relevamientos) | ✗ | ✗ |
+| **jefe_operativa** | Su zona | ✓ zona | ✓ | ✓ | ✗ | ✓ (tareas cerradas) | ✗ | ✓ |
+| **jefe_administrativa** | Su zona | ✓ zona | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **jefe_automotores** | Su zona | ✓ zona | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **jefe_zona** | Su zona | ✓ zona | ✓ | ✓ | ✓ con motivo | ✓ | ✗ | ✓ |
+| **gerencia** | Todas las zonas | ✓ todas | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ |
+| **admin** | Todo el sistema | ✓ todo | ✓ | ✓ | ✓ definitivo | ✓ | ✓ | ✓ |
 
-**Nota sobre `gerencia`**: por convención institucional, gerencia solo **lee y sugiere intervenciones** a las zonas (no aprueba ni edita). Esto preserva la descentralización — cada zona gestiona sus tareas y Casa Central acompaña.
+**Sobre el borrado de registros**: solo admin puede borrar de forma definitiva. El jefe de zona puede borrar registros de su zona pero **debe completar un formulario con el motivo del borrado** (mínimo 10 caracteres). Los registros borrados de esa forma quedan ocultos para todos los demás roles pero **el admin los conserva y puede restaurarlos si fue un error**. Toda la actividad de borrado queda registrada en una vista de auditoría accesible por admin. Los demás roles (jefes operativa/técnica/administrativa/automotores, capataces, técnicos) no pueden borrar bajo ninguna circunstancia.
+
+**Principios que guían la matriz**:
+
+- **Descentralización zonal**: cada zona gestiona su operativa; gerencia consulta y sugiere pero no ejecuta.
+- **Jerarquía real DVBA**: los jefes de las divisiones administrativa y de automotores no cargan trabajo de campo vial (gestionan RRHH/contable y parque vehicular respectivamente); consultan datos de su zona pero no operan.
+- **Mínimo privilegio con trazabilidad**: nadie borra sin dejar registro. Admin borra definitivo. Jefe de zona borra con motivo obligatorio, y su acción queda auditada.
+- **Trazabilidad geográfica**: cada registro cae en la zona del partido donde ocurrió, independientemente de qué usuario lo cargó.
+
+**Nota sobre `gerencia`**: por convención institucional y decisión de diseño, gerencia solo **lee todas las zonas y sugiere intervenciones** al jefe de la zona correspondiente. No aprueba, no edita, no borra. Preserva la descentralización — cada zona gestiona su operativa.
 
 **Nota sobre `admin`**: además de la gestión del sistema, los usuarios admin pueden **impersonar** a cualquier otro rol o zona desde el menú para testear vistas y ayudar en soporte.
 

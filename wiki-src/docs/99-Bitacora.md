@@ -831,9 +831,34 @@ TAB 6 · PENDIENTES
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
 
-### v8.78 – v8.86e / v9.95.11 – v9.95.15 · 15 – 19 agosto 2026 — Fase 2 Roles Multi-zona (Jefe de Zona operativo end-to-end) + arquitectura zona-por-partido geográfico
+### v8.78 – v8.86i / v9.95.11 – v9.95.15 · 15 – 19 agosto 2026 — Fase 2 Roles Multi-zona (Jefe de Zona operativo end-to-end) + arquitectura zona-por-partido geográfico + matriz de permisos consolidada (SQL_27)
 
 Bloque grande de dos semanas: sale el sistema del piloto VI aislado y pasa a estar preparado para **operación multi-zona real** con jerarquías de roles, ciclo completo (relevar → asignar → ejecutar → cerrar → reportar) y filtrado zonal profundo (RLS + trigger + UI).
+
+**Matriz de permisos consolidada (fuente única de verdad · SQL_27 · 19-agosto-2026)**
+
+Después de una auditoría de seguridad se detectaron 3 derivas respecto de la directiva original del proyecto (gerencia descentralizada + jerarquía real DVBA + mínimo privilegio). SQL_27 revierte las derivas y consolida la matriz definitiva:
+
+| Rol | Alcance | SELECT | INSERT | UPDATE | DELETE | Aprobar | Intervenir | Asignar |
+|---|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| **admin** | Todo el sistema | ✓ all | ✓ | ✓ | ✓ hard | ✓ | ✓ | ✓ |
+| **gerencia** | Todas las zonas | ✓ all | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ |
+| **jefe_zona** | Su zona | ✓ zona | ✓ | ✓ | ✓ soft (con motivo) | ✓ | ✗ | ✓ |
+| **jefe_operativa** | Su zona | ✓ zona | ✓ | ✓ | ✗ | ✓ (tareas cerradas) | ✗ | ✓ |
+| **jefe_tecnica** | Su zona | ✓ zona | ✓ | ✓ | ✗ | ✓ (relevamientos) | ✗ | ✗ |
+| **jefe_administrativa** | Su zona | ✓ zona | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **jefe_automotores** | Su zona | ✓ zona | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **capataz** | Su zona | ✓ zona | ✓ (cierre) | ✗ | ✗ | ✗ | ✗ | ✗ |
+| **tecnico** | Su zona | ✓ zona | ✓ | ✓ (propios) | ✗ | ✗ | ✗ | ✗ |
+| **publico** | Solo mapa institucional | mapa | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+
+**Convención DELETE**: `hard` elimina físicamente la fila (solo admin). `soft (con motivo)` marca el registro con `borrado_en / borrado_por / motivo_borrado` (mínimo 10 caracteres), queda oculto para roles no-admin y recuperable por admin desde la vista `v_borrados_auditoria`. El jefe_zona borra soft, restringido a su zona, vía la función RPC `soft_delete_relevamiento(id, motivo)` / `soft_delete_parte_diario(id, motivo)`.
+
+Cambios operados por SQL_27 (rollback de derivas + auditoría de borrados):
+- **Gerencia** pierde INSERT/UPDATE (regresa a "solo lectura + sugerir vía SQL_18 intervenciones").
+- **jefe_administrativa** y **jefe_automotores** vuelven a solo lectura zonal (SQL_21 los había ampliado a CRUD).
+- **tecnico** pierde DELETE (solo admin borra físico, para preservar auditoría).
+- **jefe_zona** gana soft-delete en su zona con justificación obligatoria; admin puede revisar y restaurar desde `v_borrados_auditoria`.
 
 **Frente 1 · Modelo de datos multi-rol (SQL_17 → SQL_23).** Se define el organigrama completo DVBA como roles en `usuarios_perfil`:
 

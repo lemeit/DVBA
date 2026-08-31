@@ -63,6 +63,28 @@ Cada foto queda con un overlay institucional al pie: fecha, coordenadas, ruta y 
 
 El sistema modela los roles reales del organigrama zonal: técnicos que relevan en campo, capataces que ejecutan las tareas, jefes que asignan y revisan, gerencia que consulta. Cada rol ve solo lo que le corresponde de su zona, sin que se mezclen datos entre áreas.
 
+La matriz de permisos aplicada:
+
+| Rol | Alcance | Ver | Cargar | Editar | Borrar | Aprobar | Sugerir | Asignar |
+|---|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Público (sin login) | Solo mapa institucional | mapa | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| Técnico | Su zona | ✓ zona | ✓ | ✓ propios | ✗ | ✗ | ✗ | ✗ |
+| Capataz | Su zona | ✓ zona | ✓ cierre | ✗ | ✗ | ✗ | ✗ | ✗ |
+| Jefe División Técnica | Su zona | ✓ zona | ✓ | ✓ | ✗ | ✓ relev. | ✗ | ✗ |
+| Jefe División Operativa | Su zona | ✓ zona | ✓ | ✓ | ✗ | ✓ tareas | ✗ | ✓ |
+| Jefe División Administrativa | Su zona | ✓ zona | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| Jefe División Automotores | Su zona | ✓ zona | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| Jefe de Zona | Su zona | ✓ zona | ✓ | ✓ | ✓ con motivo | ✓ | ✗ | ✓ |
+| Gerencia | Todas las zonas | ✓ todas | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ |
+| Admin | Todo el sistema | ✓ todo | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+Cuatro principios ordenan la matriz:
+
+- **Descentralización zonal**: cada zona gestiona su propia operativa; la gerencia consulta y sugiere pero no ejecuta.
+- **Jerarquía real de la DVBA**: los jefes de división administrativa y de automotores no cargan trabajo de campo (gestionan otras cosas), pero sí consultan datos de su zona.
+- **Mínimo privilegio con trazabilidad**: nadie borra registros oficiales sin dejar rastro. Solo el admin borra de forma definitiva; el jefe de zona puede borrar en su zona pero debe completar un motivo obligatorio y queda registrado en auditoría.
+- **Trazabilidad geográfica**: cada foto o relevamiento cae automáticamente en la zona del partido donde ocurrió, sin importar qué usuario lo cargó.
+
 ### 3.5 Reportes mensuales
 
 Filtros por fecha, ruta, partido, tipo de tarea, con exportación a PDF y a Excel. Alineados con el formato oficial del Informe Mensual de Gerencia de DVBA.
