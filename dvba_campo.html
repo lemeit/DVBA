@@ -451,7 +451,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.15</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.16</span></div>
   </div>
 </div>
 
@@ -687,7 +687,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:auto">
-  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.15</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
+  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.16</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
 </div>
 
 
@@ -1704,7 +1704,7 @@ function comprimir(b64,maxPx,q){
   });
 }
 
-/* v9.95.15 · Cache defensivo del último valor válido de f-ruta.
+/* v9.95.16 · Cache defensivo del último valor válido de f-ruta.
    v9.83 solo capturaba 'change' (interacción manual). Cuando el código setea
    .value programáticamente (actualizarCaminosDelPartido, prefill GPS, restauración
    desde partido) el evento NO se dispara → cache queda vacío → al enviar sale
@@ -1760,7 +1760,7 @@ async function guardarRegistro(){
   const partido=document.getElementById('f-partido').value.trim();
   const lat=parseFloat(document.getElementById('f-lat').value)||null;
   const lng=parseFloat(document.getElementById('f-lng').value)||null;
-  // v9.18 — sub-atributos condicionales (v9.95.15 · van a columnas dedicadas, SQL_16)
+  // v9.18 — sub-atributos condicionales (v9.95.16 · van a columnas dedicadas, SQL_16)
   const superficie=document.getElementById('f-superficie')?.value.trim()||'';
   const modalidad=document.getElementById('f-modalidad')?.value.trim()||'';
   // v9.20 — tipo_via (RP o camino secundario)
@@ -1769,7 +1769,7 @@ async function guardarRegistro(){
   if(!tipo){toast('Seleccioná el tipo de suceso','err');return;}
   if(!lat||!lng){toast('Aplicá las coordenadas GPS con ↓ Usar','err');return;}
   const fecha=new Date().toISOString(), tempId=Date.now();
-  // v9.95.15 · superficie/modalidad ahora van a columnas dedicadas (SQL_16).
+  // v9.95.16 · superficie/modalidad ahora van a columnas dedicadas (SQL_16).
   // observaciones queda solo con el texto libre del user, sin sufijo `[...]`.
   const obsCompletas = obs;
   // v9.19 — Workflow: registros de campo entran como 'campo' (van a cola de revisión)
@@ -1799,24 +1799,45 @@ async function guardarRegistro(){
     prioridad:       'normal',
     tipo_via:        tipoVia,          // ← v9.20 RP o camino secundario
     naturaleza:      naturaleza,       // ← v3 Modelo Tipos v2 (SQL_15)
-    superficie:      superficie||null, // ← v9.95.15 columna dedicada (SQL_16)
-    modalidad:       modalidad||null,  // ← v9.95.15 columna dedicada (SQL_16)
+    superficie:      superficie||null, // ← v9.95.16 columna dedicada (SQL_16)
+    modalidad:       modalidad||null,  // ← v9.95.16 columna dedicada (SQL_16)
     zona:            (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.zonaActual() : 'VI'   // v9.69 Fase 2
   };
   if(navigator.onLine) showOv('Verificando conexión…');
   const online=await estaOnline();
   let cloud=false,fotoUrl=null;
+  // v9.95.16 · Anti pérdida de fotos: si hay foto y falla el upload,
+  // NO insertar el registro sin foto — mantenerlo en cola offline con la
+  // foto en base64 para reintentar. Antes: se creaba el registro con
+  // foto_url=null y la foto se perdía silenciosamente del móvil.
+  let uploadFalloConFoto = false;
   if(online){
     try{
-      if(fotoFinal){showOv('Subiendo foto…');fotoUrl=await subirFoto(fotoFinal,ruta);reg.foto_url=fotoUrl;}
-      showOv('Guardando en la nube…');
-      const resp=await fetch(SUPA_URL+'/rest/v1/relevamientos',{
-        method:'POST',
-        headers: await authHeaders({'Content-Type':'application/json','Prefer':'return=representation'}),
-        body:JSON.stringify(reg), signal:AbortSignal.timeout(12000)
-      });
-      if(resp.ok){const rows=await resp.json();reg.id=(rows[0]&&rows[0].id)||tempId;cloud=true;}
-      else{const t=await resp.text();console.warn('[SUPA]',resp.status,t);showOv('Error '+resp.status);await new Promise(r=>setTimeout(r,1800));}
+      if(fotoFinal){
+        showOv('Subiendo foto…');
+        fotoUrl=await subirFoto(fotoFinal,ruta);
+        if(!fotoUrl){
+          // Upload de foto falló pero teníamos foto para subir
+          uploadFalloConFoto = true;
+          console.error('[GUARDAR] subirFoto devolvió null · registro va a cola offline con la foto para reintentar');
+        } else {
+          reg.foto_url = fotoUrl;
+        }
+      }
+      // Solo insertar en Supabase si no hubo foto o si la foto sí se subió
+      if(!uploadFalloConFoto){
+        showOv('Guardando en la nube…');
+        const resp=await fetch(SUPA_URL+'/rest/v1/relevamientos',{
+          method:'POST',
+          headers: await authHeaders({'Content-Type':'application/json','Prefer':'return=representation'}),
+          body:JSON.stringify(reg), signal:AbortSignal.timeout(12000)
+        });
+        if(resp.ok){const rows=await resp.json();reg.id=(rows[0]&&rows[0].id)||tempId;cloud=true;}
+        else{const t=await resp.text();console.warn('[SUPA]',resp.status,t);showOv('Error '+resp.status);await new Promise(r=>setTimeout(r,1800));}
+      } else {
+        showOv('⚠ Falló subida foto · queda pendiente');
+        await new Promise(r=>setTimeout(r,1800));
+      }
     }catch(e){console.warn('[SUPA]',e.message);}
   }
   // ── Guardar en historial visible (localStorage) ──
@@ -2236,7 +2257,7 @@ function hacerThumb(b64){
   // (v9.95.4 tenía "var APP_VER = window.APP_VER" que causaba SyntaxError por doble
   // declaración con otro script, abortando la asignación y dejando el modal Acerca
   // de mostrando versión vieja cacheada).
-  window.APP_VER = 'v9.95.15';
+  window.APP_VER = 'v9.95.16';
   console.log('[dvba_campo] window.APP_VER inicializado a', window.APP_VER);
 </script>
 <!-- v9.95.4 · Cache-busters en los .js críticos para forzar reload aunque el SW cachee -->
