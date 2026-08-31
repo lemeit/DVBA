@@ -113,8 +113,19 @@ table.usuarios tbody tr.inactivo{opacity:.5}
 .toast.err{background:#fbecec;border-color:var(--ro);color:#7a0f0f}
 
 /* Footer */
-/* v8.86n · Sacado text-align:center genérico — el footerInst usa flex + justify-content:space-between y el center lo desalineaba */
+/* v8.86o · Sacado text-align:center genérico — el footerInst usa flex + justify-content:space-between y el center lo desalineaba */
 footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-top:1px solid var(--light);background:var(--w)}
+
+/* v8.86o · Tabs del Panel Admin (mismo estilo pill que Plan Operativo) */
+.admin-tabs{display:flex;gap:6px;background:#f5f7f8;border-bottom:1px solid var(--light);padding:8px 8px 0;margin:-20px -20px 20px;flex-wrap:wrap}
+.atab{padding:10px 18px;background:#fff;border:1px solid var(--light);border-bottom:0;border-radius:6px 6px 0 0;color:var(--mut);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.4px;transition:all .15s;box-shadow:0 -1px 2px rgba(0,0,0,.04);position:relative;top:1px;display:inline-flex;align-items:center;gap:8px}
+.atab:hover{color:var(--pd);background:var(--p-xl);border-color:var(--p);z-index:2}
+.atab.active{color:#fff;background:var(--p);border-color:var(--pd);box-shadow:0 -2px 6px rgba(0,126,140,.2);z-index:3}
+.atab.active::before{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--p)}
+.atab .atab-badge{background:var(--acc);color:#fff;font-size:10px;padding:1px 7px;border-radius:9px;font-weight:800;min-width:16px;text-align:center;display:inline-block}
+.atab.active .atab-badge{background:rgba(255,255,255,.28);color:#fff}
+.atab-pane{display:none}
+.atab-pane.active{display:block}
 </style>
 </head>
 <body>
@@ -127,10 +138,20 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
   </div>
 </div>
 
-<!-- Nav consolidado v8.86n · via datos/nav.js -->
+<!-- Nav consolidado v8.86o · via datos/nav.js -->
 <div id="dvba-nav-mount"></div>
 
 <main>
+  <!-- v8.86o · Tabs del Panel Admin -->
+  <div class="admin-tabs">
+    <button class="atab active" data-tab="usuarios" onclick="cambiarTabAdmin('usuarios')">👥 Usuarios</button>
+    <button class="atab" data-tab="solicitudes" onclick="cambiarTabAdmin('solicitudes')">🗂 Solicitudes <span class="atab-badge" id="tabBadgeSolic" style="display:none">0</span></button>
+    <button class="atab" data-tab="auditoria" onclick="cambiarTabAdmin('auditoria')">🗑 Auditoría <span class="atab-badge" id="tabBadgeAud" style="display:none">0</span></button>
+    <button class="atab" data-tab="sistema" onclick="cambiarTabAdmin('sistema')">🖥 Sistema</button>
+  </div>
+
+  <!-- ─── TAB USUARIOS ─────────────────────────────────────────────── -->
+  <div id="tab-usuarios" class="atab-pane active">
   <!-- Métricas -->
   <div class="mets" id="mets">
     <div class="card"><div class="lbl">Total users</div><div class="val" id="mTotal">—</div><div class="sub">registrados en Auth</div></div>
@@ -189,9 +210,12 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
       <tbody id="tbody"><tr><td colspan="7" style="padding:20px;text-align:center;color:var(--mut)">Cargando...</td></tr></tbody>
     </table>
   </div>
+  </div><!-- /tab-usuarios -->
 
+  <!-- ─── TAB SOLICITUDES ──────────────────────────────────────────── -->
+  <div id="tab-solicitudes" class="atab-pane">
   <!-- v8.66f.2 · Cola de solicitudes pendientes (mover_zona / eliminar) desde gerencia y técnicos -->
-  <div style="margin-top:24px;padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+  <div style="padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <h2 style="margin:0;font-size:14px;color:#003366;letter-spacing:.3px">
         🗂 Solicitudes pendientes
@@ -216,9 +240,12 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
       <tbody id="tbodySolic"><tr><td colspan="7" style="padding:16px;text-align:center;color:var(--mut)">Cargando...</td></tr></tbody>
     </table>
   </div>
+  </div><!-- /tab-solicitudes -->
 
-  <!-- v8.86n · Auditoría de registros archivados (soft-delete) por jefes de zona -->
-  <div style="margin-top:24px;padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+  <!-- ─── TAB AUDITORÍA ────────────────────────────────────────────── -->
+  <div id="tab-auditoria" class="atab-pane">
+  <!-- v8.86o · Auditoría de registros archivados (soft-delete) por jefes de zona -->
+  <div style="padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <h2 style="margin:0;font-size:14px;color:#003366;letter-spacing:.3px">
         🗑 Registros archivados por jefes de zona
@@ -247,6 +274,25 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
       <tbody id="tbodyBorrados"><tr><td colspan="8" style="padding:16px;text-align:center;color:var(--mut)">Sin cargar (tocá Refrescar)</td></tr></tbody>
     </table>
   </div>
+  </div><!-- /tab-auditoria -->
+
+  <!-- ─── TAB SISTEMA ──────────────────────────────────────────────── -->
+  <div id="tab-sistema" class="atab-pane">
+    <div style="padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <h2 style="margin:0;font-size:14px;color:#003366;letter-spacing:.3px">🖥 Estado del sistema y almacenamiento</h2>
+        <button onclick="cargarMetricasSistema()" style="padding:5px 10px;background:var(--pd);color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer">🔄 Refrescar</button>
+      </div>
+      <p style="margin:0 0 14px;font-size:11px;color:#606060;line-height:1.4">
+        Métricas técnicas de la base de datos y el almacenamiento. Útil para diagnóstico, planificación de crecimiento y monitoreo del uso.
+      </p>
+      <div id="sistema-loading" style="padding:24px;text-align:center;color:var(--mut);font-size:12px">Sin cargar. Tocá Refrescar.</div>
+      <div id="sistema-content" style="display:none">
+        <!-- Cards de métricas se rellenan dinámicamente -->
+      </div>
+    </div>
+  </div><!-- /tab-sistema -->
+
 </main>
 
 <!-- v8.66f.2 · Footer institucional unificado (mismo estilo que reportes.html) -->
@@ -256,7 +302,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
     <span style="margin-left:8px">Panel de Administración · Módulo de gestión de usuarios y perfiles para Admin del sistema.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86n</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86o</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -358,7 +404,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 
 <script>
 // v8.66f.2 · Constante de versión unificada (familia escritorio v8.X)
-const APP_VERSION = 'v8.86n';
+const APP_VERSION = 'v8.86o';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 // v8.72 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VERSION; });
@@ -398,7 +444,7 @@ async function chequearAcceso(){
       guardBtn.style.display = 'inline-block';
       return false;
     }
-    // v8.86n · #hUser vive en el header legacy (display:none), guard defensivo
+    // v8.86o · #hUser vive en el header legacy (display:none), guard defensivo
     const _hUser = document.getElementById('hUser');
     if (_hUser) _hUser.textContent = session.user.email;
 
@@ -437,7 +483,7 @@ async function chequearAcceso(){
       return false;
     }
     document.getElementById('guard').style.display = 'none';
-    // v8.86n · Montar nav compartido (después de verificar admin)
+    // v8.86o · Montar nav compartido (después de verificar admin)
     if (typeof DVBA_NAV !== 'undefined'){
       try {
         const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
@@ -658,7 +704,7 @@ async function cargarSolicitudes(){
   if (!tbody || !_supa) return;
   tbody.innerHTML = '<tr><td colspan="7" style="padding:16px;text-align:center;color:var(--mut)">Cargando...</td></tr>';
   try {
-    // v8.86n · Migrado de .from('v_solicitudes_admin') → .rpc('get_solicitudes_admin')
+    // v8.86o · Migrado de .from('v_solicitudes_admin') → .rpc('get_solicitudes_admin')
     // La RPC devuelve el mismo shape de columnas + ya viene ordenada por creado_en.
     const { data, error } = await _supa.rpc('get_solicitudes_admin');
     if (error) throw error;
@@ -750,7 +796,7 @@ async function descartarSolicitud(id){
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// v8.86n · Auditoría de borrados (soft-delete de jefe_zona)
+// v8.86o · Auditoría de borrados (soft-delete de jefe_zona)
 // Fuente: vista v_borrados_auditoria (SQL_27)
 // ═══════════════════════════════════════════════════════════════════════════════
 let _borradosCache = [];
@@ -783,7 +829,7 @@ function renderBorrados(rows){
     const fecha = r.borrado_en ? new Date(r.borrado_en).toLocaleString('es-AR', {dateStyle:'short', timeStyle:'short'}) : '—';
     const infoReg = [r.tipo, r.ruta ? 'RP ' + r.ruta : '', r.progresiva || '', r.partido || ''].filter(Boolean).join(' · ') || '#' + r.id;
     const motivoCorto = r.motivo_borrado ? (r.motivo_borrado.length > 60 ? r.motivo_borrado.slice(0,57) + '...' : r.motivo_borrado) : '';
-    // v8.86n · Autor original (rol + zona snapshot). Si es null es un registro histórico pre-SQL_30.
+    // v8.86o · Autor original (rol + zona snapshot). Si es null es un registro histórico pre-SQL_30.
     const autorNombre = r.autor_original_nombre || (r.autor_original_id ? '(usuario ' + String(r.autor_original_id).slice(0,8) + ')' : '');
     const autorMeta = [r.autor_rol, r.autor_zona ? 'Zona ' + r.autor_zona : ''].filter(Boolean).join(' · ');
     const autorHtml = autorNombre
@@ -808,7 +854,7 @@ function renderBorrados(rows){
 
 function _esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-// v8.86n · Restaurar vía RPC restaurar_registro (SQL_32) con motivo opcional.
+// v8.86o · Restaurar vía RPC restaurar_registro (SQL_32) con motivo opcional.
 // Ya no borra motivo_borrado (queda como historial). Setea restaurado_en/por/motivo
 // y restauracion_vista=false para que el jefe vea el aviso al ingresar.
 async function restaurarBorrado(tabla, id){
@@ -823,7 +869,7 @@ function _abrirModalRestaurar(tabla, id){
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9800;padding:20px;font-family:"Encode Sans",sans-serif';
     ov.innerHTML = `
       <div style="background:#fff;border-radius:8px;max-width:520px;width:100%;box-shadow:0 12px 32px rgba(0,0,0,.35);overflow:hidden">
-        <div style="background:linear-gradient(135deg,#22a954,#1a8642);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
+        <div style="background:linear-gradient(135deg,#00aec3,#007e8c);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
           <div>
             <div style="font-size:16px;font-weight:800">↺ Restaurar registro archivado</div>
             <div style="font-size:11px;opacity:.9;margin-top:2px">El jefe de zona recibirá un aviso al ingresar al portal</div>
@@ -831,16 +877,16 @@ function _abrirModalRestaurar(tabla, id){
           <button onclick="_cerrarModalRestaurar()" style="background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.4);color:#fff;font-size:16px;line-height:1;cursor:pointer;padding:3px 10px 5px;border-radius:14px;font-weight:700">×</button>
         </div>
         <div style="padding:18px">
-          <div id="mr-reg-info" style="background:#e6f6ea;border-left:3px solid #22a954;border-radius:4px;padding:10px 12px;font-size:12px;color:#000;margin-bottom:14px;line-height:1.5"></div>
-          <label style="display:block;font-size:11px;font-weight:800;color:#1a8642;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">Motivo de la restauración (opcional)</label>
+          <div id="mr-reg-info" style="background:#cae7ea;border-left:3px solid #007e8c;border-radius:4px;padding:10px 12px;font-size:12px;color:#000;margin-bottom:14px;line-height:1.5"></div>
+          <label style="display:block;font-size:11px;font-weight:800;color:#007e8c;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">Motivo de la restauración (opcional)</label>
           <textarea id="mr-motivo" rows="3" maxlength="500" placeholder="Ej: Revisado con el jefe, no era duplicado. Se puede aprobar."
             style="width:100%;padding:9px 11px;border:1.5px solid #d0d4dc;border-radius:5px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#000"
-            onfocus="this.style.borderColor='#1a8642'" onblur="this.style.borderColor='#d0d4dc'"></textarea>
+            onfocus="this.style.borderColor='#007e8c'" onblur="this.style.borderColor='#d0d4dc'"></textarea>
           <div style="font-size:10px;color:#838383;margin-top:4px">Si dejás vacío, el jefe verá "Restaurado sin comentario". Con motivo, le llega tu explicación.</div>
         </div>
         <div style="padding:12px 18px;background:#f5f7f8;border-top:1px solid #e0e0e0;display:flex;gap:8px;justify-content:flex-end">
           <button onclick="_cerrarModalRestaurar()" style="padding:8px 16px;border:1px solid #d0d4dc;background:#fff;color:#404040;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer">Cancelar</button>
-          <button id="mr-confirmar" onclick="_confirmarRestaurar()" style="padding:8px 18px;border:0;background:#22a954;color:#fff;border-radius:5px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.15)">
+          <button id="mr-confirmar" onclick="_confirmarRestaurar()" style="padding:8px 18px;border:0;background:#007e8c;color:#fff;border-radius:5px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.15)">
             ↺ Restaurar
           </button>
         </div>
@@ -914,9 +960,124 @@ async function eliminarDefinitivo(tabla, id){
   if (ok) {
     await cargarUsuarios();
     await cargarSolicitudes();       // v8.66f.2
-    await cargarBorradosAuditoria(); // v8.86n
+    await cargarBorradosAuditoria(); // v8.86o
+    _actualizarBadgesTabs();          // v8.86o · sync badges de tabs con conteos
+    // Si el URL trae #tab, saltar directo a esa tab
+    const h = location.hash.replace('#','');
+    if (h && ['usuarios','solicitudes','auditoria','sistema'].includes(h)){
+      cambiarTabAdmin(h);
+    }
   }
 })();
+
+// v8.86o · Cambiar entre tabs del Panel Admin
+function cambiarTabAdmin(tab){
+  document.querySelectorAll('.atab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.atab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
+  try { history.replaceState(null, '', '#' + tab); } catch(_){}
+  if (tab === 'sistema' && !window._sistemaCargado){
+    cargarMetricasSistema();
+    window._sistemaCargado = true;
+  }
+}
+
+// v8.86o · Badges en tabs con contadores de solicitudes y auditoría
+function _actualizarBadgesTabs(){
+  const bs = document.getElementById('tabBadgeSolic');
+  const ba = document.getElementById('tabBadgeAud');
+  if (bs){
+    const n = (typeof _solicCache !== 'undefined') ? _solicCache.length : 0;
+    if (n > 0){ bs.textContent = n; bs.style.display = 'inline-block'; }
+    else bs.style.display = 'none';
+  }
+  if (ba){
+    const n = (typeof _borradosCache !== 'undefined') ? _borradosCache.length : 0;
+    if (n > 0){ ba.textContent = n; ba.style.display = 'inline-block'; }
+    else ba.style.display = 'none';
+  }
+}
+
+// v8.86o · Tab Sistema · métricas de BD y almacenamiento (RPC admin_metricas_sistema · SQL_33)
+async function cargarMetricasSistema(){
+  const loading = document.getElementById('sistema-loading');
+  const content = document.getElementById('sistema-content');
+  if (!loading || !content || !_supa) return;
+  loading.style.display = 'block';
+  loading.textContent = 'Consultando métricas...';
+  content.style.display = 'none';
+  try {
+    const { data, error } = await _supa.rpc('admin_metricas_sistema');
+    if (error) throw error;
+    renderMetricasSistema(data);
+    loading.style.display = 'none';
+    content.style.display = 'block';
+  } catch(e){
+    console.error('[sistema]', e);
+    loading.innerHTML = '<div style="color:#c00">Error: ' + _esc(e.message||e) + '</div>';
+  }
+}
+
+function renderMetricasSistema(m){
+  const content = document.getElementById('sistema-content');
+  if (!content || !m) return;
+  const st = m.storage_relevamientos || {};
+  const rls = m.salud_rls || {};
+  const auth = m.auth || {};
+  const tablas = m.tablas || [];
+  const card = (titulo, valor, sub, color) =>
+    `<div style="background:#fff;border:1px solid var(--light);border-left:4px solid ${color};border-radius:6px;padding:12px 14px;min-width:180px;flex:1">
+       <div style="font-size:10px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${titulo}</div>
+       <div style="font-size:20px;font-weight:800;color:#003366">${valor}</div>
+       ${sub ? `<div style="font-size:10.5px;color:#606060;margin-top:2px">${sub}</div>` : ''}
+     </div>`;
+  const fmt = n => n == null ? '—' : Number(n).toLocaleString('es-AR');
+  const fecha = d => d ? new Date(d).toLocaleString('es-AR', {dateStyle:'short', timeStyle:'short'}) : '—';
+
+  content.innerHTML = `
+    <div style="margin-bottom:8px;font-size:11px;font-weight:800;color:var(--pd);text-transform:uppercase;letter-spacing:.5px">💾 Base de datos</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+      ${card('Tamaño total', m.db_size_pretty || '—', 'incluye datos + índices', 'var(--p)')}
+      ${card('Relevamientos', fmt(m.filas_relevamientos), fmt(m.filas_relevamientos_activos) + ' activos · ' + fmt(m.filas_relevamientos_archivados) + ' archivados', 'var(--pd)')}
+      ${card('Partes diarios', fmt(m.filas_partes_diarios), 'total de partes', 'var(--pl)')}
+      ${card('Usuarios', fmt(m.filas_usuarios_perfil), fmt(m.filas_usuarios_activos) + ' activos', 'var(--azul)')}
+    </div>
+    <div style="margin-bottom:8px;font-size:11px;font-weight:800;color:var(--pd);text-transform:uppercase;letter-spacing:.5px">📦 Almacenamiento (bucket fotos)</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+      ${card('Espacio usado', st.tamano_pretty || '0 bytes', (st.total_archivos||0) + ' fotos subidas', 'var(--am)')}
+      ${card('Última subida', fecha(st.ultima_subida), '', 'var(--am)')}
+      ${card('Bucket', 'relevamientos', 'público · SELECT restringido a bucket_id', 'var(--gold)')}
+    </div>
+    <div style="margin-bottom:8px;font-size:11px;font-weight:800;color:var(--pd);text-transform:uppercase;letter-spacing:.5px">🔐 Autenticación</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+      ${card('Users en Auth', fmt(auth.total_usuarios_auth), fmt(auth.confirmados) + ' confirmados', 'var(--vd)')}
+      ${card('Última actividad', fecha(auth.ultima_actividad), 'sign-in más reciente', 'var(--vd)')}
+    </div>
+    <div style="margin-bottom:8px;font-size:11px;font-weight:800;color:var(--pd);text-transform:uppercase;letter-spacing:.5px">🛡 Salud de seguridad</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+      ${card('Tablas con RLS', fmt(rls.tablas_con_rls), 'row-level security activa', 'var(--ro)')}
+      ${card('Policies totales', fmt(rls.total_policies), 'reglas de acceso definidas', 'var(--ro)')}
+    </div>
+    <div style="margin-bottom:8px;font-size:11px;font-weight:800;color:var(--pd);text-transform:uppercase;letter-spacing:.5px">📊 Top tablas por tamaño</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11.5px;background:#fff;border-radius:6px;overflow:hidden">
+      <thead>
+        <tr style="background:var(--p-xl);color:#003366">
+          <th style="padding:8px;text-align:left">Tabla</th>
+          <th style="padding:8px;text-align:right">Tamaño</th>
+          <th style="padding:8px;text-align:right">Filas estimadas</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tablas.map(t => `
+          <tr style="border-bottom:1px solid var(--light)">
+            <td style="padding:7px 8px;font-family:'JetBrains Mono',monospace">${_esc(t.tabla)}</td>
+            <td style="padding:7px 8px;text-align:right;font-weight:700">${_esc(t.tamano)}</td>
+            <td style="padding:7px 8px;text-align:right;color:#606060">${fmt(t.filas_estimadas)}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:14px;font-size:10.5px;color:#808080;text-align:right">Métricas actualizadas: ${fecha(m.timestamp)}</div>
+  `;
+}
 </script>
 
 </body>
