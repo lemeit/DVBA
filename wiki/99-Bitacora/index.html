@@ -1418,6 +1418,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v99516-sql_31-31-agosto-2026-noche-episodio-de-bugs-en-produccion-perdida-de-fotos-y-trigger-zona-roto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.95.16 + SQL_31 · 31 agosto 2026 (noche) — Episodio de bugs en producción · pérdida de fotos y trigger zona roto
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v886k-sql_30-31-agosto-2026-tarde-trazabilidad-multi-usuario-columna-autor_id" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,6 +2338,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v99516-sql_31-31-agosto-2026-noche-episodio-de-bugs-en-produccion-perdida-de-fotos-y-trigger-zona-roto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.95.16 + SQL_31 · 31 agosto 2026 (noche) — Episodio de bugs en producción · pérdida de fotos y trigger zona roto
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v886k-sql_30-31-agosto-2026-tarde-trazabilidad-multi-usuario-columna-autor_id" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2738,7 +2760,7 @@
 <h1 id="bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial">📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial<a class="headerlink" href="#bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial" title="Permanent link">¶</a></h1>
 <p>DVBA · Departamento Zona VI Saladillo</p>
 <p>Última actualización: 31 de agosto de 2026</p>
-<p>Versión bitácora: v5.7 — apps v9.95.15 / v8.86k · 31-ago-2026</p>
+<p>Versión bitácora: v5.8 — apps v9.95.16 / v8.86k · 31-ago-2026 (episodio de bugs producción · fix trigger zona + no pérdida silenciosa fotos)</p>
 <p>Responsable: Ing. Luciano Lamaita</p>
 <p>Repositorio: <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a></p>
 <p>Estado general: 🟢 En desarrollo activo</p>
@@ -3865,6 +3887,26 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 </tr>
 </tbody>
 </table>
+<h3 id="v99516-sql_31-31-agosto-2026-noche-episodio-de-bugs-en-produccion-perdida-de-fotos-y-trigger-zona-roto">v9.95.16 + SQL_31 · 31 agosto 2026 (noche) — Episodio de bugs en producción · pérdida de fotos y trigger zona roto<a class="headerlink" href="#v99516-sql_31-31-agosto-2026-noche-episodio-de-bugs-en-produccion-perdida-de-fotos-y-trigger-zona-roto" title="Permanent link">¶</a></h3>
+<p>Después del bloque de hardening + trazabilidad de la tarde, la primera prueba en producción real reveló <strong>dos bugs críticos separados</strong>, uno en el móvil y uno en la base:</p>
+<p><strong>Bug 1 · Pérdida silenciosa de fotos en Modo Avanzado (<code>dvba_campo.html</code>)</strong></p>
+<p>En <code>subirFoto()</code> el error de red/timeout/JWT expirado devolvía <code>null</code> sin propagarse. El llamador seguía con el INSERT del registro poniendo <code>foto_url = NULL</code> y marcando <code>cloud = true</code>, lo que hacía que la app limpiara la foto de la cola offline. Resultado: <strong>3 fotos perdidas irrecuperablemente</strong> (IDs 462, 463, 464) — el user tomó las fotos, subió, la app dijo "guardado OK", pero solo persistieron los datos GPS sin la imagen.</p>
+<p><strong>Fix v9.95.16</strong>: si <code>subirFoto</code> devuelve null, el INSERT NO se hace y el registro queda en cola offline con la foto en base64 para reintentar. El user ve "⚠ Falló subida foto · queda pendiente" en vez de un falso "guardado OK".</p>
+<p>Diagnóstico posterior: policies del bucket están bien configuradas. El upload falla por causas externas (red intermitente, timeout de 30s, JWT expirado en background) que la app ahora resiste sin perder datos.</p>
+<p><strong>Bug 2 · Trigger <code>forzar_zona_por_rol</code> quedó en versión SQL_20 antigua</strong></p>
+<p>Diagnóstico por <code>SELECT prosrc</code> reveló que el trigger no tenía la lógica de SQL_23 (derivar zona del partido). Cuando admin cargaba fotos:
+- Con partido reconocible → zona quedaba NULL (admin no está en el IF de operativos zonales del trigger viejo).
+- Con picker en vista "PBA" → zona quedaba con el string <code>'PBA'</code> (no es zona válida).
+- Efecto visible: los registros quedaban invisibles desde vistas por zona específica.</p>
+<p><strong>Fix SQL_31</strong>: recrea la función con la lógica correcta priorizada:
+1. Si <code>partido</code> es reconocible → <code>NEW.zona := zona_por_partido(partido)</code>.
+2. Fallback para operativos zonales → <code>current_user_zona()</code>.
+3. Guard explícito: rechazar <code>'PBA'</code> como valor de zona (lo convierte a NULL).
+4. Admin/gerencia sin partido → respeta el valor enviado.</p>
+<p>Retro-fill: los 6 registros históricos con <code>zona=NULL</code> o <code>zona='PBA'</code> que tenían partido reconocible se corrigieron a la zona geográfica correcta.</p>
+<p><strong>Aprendizaje del episodio</strong>: los cambios de trigger deben verificarse con <code>SELECT prosrc FROM pg_proc</code> después de cada migración, porque <code>CREATE OR REPLACE FUNCTION</code> puede haberse revertido por una migración posterior sin que se note. Y toda operación que dependa de una subida asíncrona (foto) debe tener manejo explícito de fallo, no silenciarlo con <code>return null</code>.</p>
+<p>Bumps: móvil <code>v9.95.15 → v9.95.16</code> (dvba_campo + dvba_campo_lite + sw.js CACHE_NAME). Escritorio sin cambios.</p>
+<hr />
 <h3 id="v886k-sql_30-31-agosto-2026-tarde-trazabilidad-multi-usuario-columna-autor_id">v8.86k / SQL_30 · 31 agosto 2026 (tarde) — Trazabilidad multi-usuario · columna autor_id<a class="headerlink" href="#v886k-sql_30-31-agosto-2026-tarde-trazabilidad-multi-usuario-columna-autor_id" title="Permanent link">¶</a></h3>
 <p>Siguiente paso natural del bloque de seguridad: dejar registrado quién carga cada relevamiento y parte diario. Hasta hoy solo teníamos la zona geográfica del registro (por el trigger <code>zona_por_partido</code>), pero no la identidad del autor. Sin esa columna:</p>
 <ul>
