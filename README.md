@@ -12,9 +12,9 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 | URL | Archivo | Versión | Descripción |
 |---|---|---|---|
-| https://lemeit.github.io/DVBA/ | `index.html` | **v8.86e** | Portal principal: mapa Leaflet + **sidebar drawer colapsable** (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. **Botón `🎯 Ubicar`** (flujo inverso ruta+km → posición). **Sistema de reportes mixto** (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. **Sello v4 overlay** semitransparente sobre la foto con QR + logo DVBA. **EXIF metadata** completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III). |
-| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v8.86e** | App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo `sello_v4.js` con el portal. |
-| https://lemeit.github.io/DVBA/reportes.html | `reportes.html` | **v8.86e** | Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia. |
+| https://lemeit.github.io/DVBA/ | `index.html` | **v8.86k** | Portal principal: mapa Leaflet + **sidebar drawer colapsable** (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. **Botón `🎯 Ubicar`** (flujo inverso ruta+km → posición). **Sistema de reportes mixto** (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. **Sello v4 overlay** semitransparente sobre la foto con QR + logo DVBA. **EXIF metadata** completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III). |
+| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v8.86k** | App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo `sello_v4.js` con el portal. |
+| https://lemeit.github.io/DVBA/reportes.html | `reportes.html` | **v8.86k** | Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia. |
 | https://lemeit.github.io/DVBA/app.html | `app.html` → router | **v9.95.15** | **App móvil PWA (URL canónica)** — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia. Instalado en el celu queda como `SIG Vial PBA` (un solo ícono). URL legacy `campo.html` sigue como redirect. |
 | ↳ `dvba_campo_lite.html` (interno) | Modo Básico | v9.91 | UI minimalista: foto + GPS + envío directo. Compresión 1200px/q=0.75 con `createImageBitmap` (low-memory). Inyección EXIF con GPS + fecha aunque la foto vaya cruda. Diseñado para operarios sin fluidez tecnológica. |
 | ↳ `dvba_campo.html` (interno) | Modo Avanzado | v9.91 | Wizard completo con selección de tipo/estado/subatributos, autocomplete de rutas y caminos, edición fina + sello v4 aplicado en móvil. |
@@ -24,7 +24,21 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 | https://lemeit.github.io/DVBA/docs/guia_visual_sig_vial_pba.html | guía visual | v1.1 | 10 láminas navegables (mockups smartphone) · imprimible como PDF |
 | https://github.com/lemeit/DVBA/blob/main/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
 
-## Funcionalidades destacadas (v8.72-v8.86e · v9.95.5-v9.95.15 · 19-agosto-2026)
+## Funcionalidades destacadas (v8.72-v8.86k · v9.95.5-v9.95.15 · 31-agosto-2026)
+
+### Hardening de seguridad + trazabilidad multi-usuario (v8.86j – v8.86k · SQL_26 → SQL_30)
+
+Después de una auditoría con el linter de Supabase se cerraron todos los hallazgos de seguridad y se agregó trazabilidad completa por autor:
+
+- **SQL_26** — hardening de vistas y bucket: `security_invoker` en las vistas de reportes, drop de la tabla legacy `registros` con policy pública peligrosa, reemplazo de `v_solicitudes_admin` (que cruzaba `auth.users`) por función RPC `get_solicitudes_admin()`, policy de lectura pública en `partidos_zona`.
+- **SQL_27** — matriz de permisos consolidada (fuente única de verdad): rollback de derivas (gerencia vuelve a solo lectura + sugerir, jefes admin/automotores a solo lectura zonal, técnico pierde DELETE) + soft-delete para jefe_zona con motivo obligatorio (mínimo 10 caracteres). Nueva vista `v_borrados_auditoria` para restaurar/eliminar desde el panel admin.
+- **SQL_28** — hardening masivo de funciones DEFINER: `SET search_path = public` en las 15 funciones + `REVOKE EXECUTE` de `anon` y `PUBLIC` en las 17 RPCs + drop de policy de bucket que permitía listing.
+- **SQL_29** — revoke de authenticated en triggers puros (`forzar_zona_por_rol`, `set_caminos_alias_updated_at`, `zona_por_partido`) que no deben ser RPCs.
+- **SQL_30** — columna `autor_id UUID` + `autor_rol` + `autor_zona` en `relevamientos` y `partes_diarios`, con trigger auto-populate y snapshot del rol/zona al momento de la carga. Policy UPDATE de técnico restringida a `autor_id = auth.uid()`. Vista `v_borrados_auditoria` extendida con autor original.
+
+Frontend (v8.86j–v8.86k): modal soft-delete jefe_zona con contador de caracteres + validación · panel admin con auditoría de borrados (restaurar / eliminar definitivo) · cola de pendientes muestra "👤 rol · Zona X" del autor original · migración `.from(v_solicitudes_admin)` → `.rpc(get_solicitudes_admin)`.
+
+Estado final del linter Supabase: 0 errores + 13 warnings esperados (helpers RLS + RPCs con role validation interna) + 1 warning bloqueado por plan Free (leaked password protection).
 
 ### Fase 2 · Roles multi-zona (v8.79 – v8.86e) — **operativo end-to-end**
 

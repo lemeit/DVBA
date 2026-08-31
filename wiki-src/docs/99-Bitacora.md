@@ -6,7 +6,7 @@ DVBA · Departamento Zona VI Saladillo
 
 Última actualización: 31 de agosto de 2026
 
-Versión bitácora: v5.6 — apps v9.95.15 / v8.86j · 31-ago-2026
+Versión bitácora: v5.7 — apps v9.95.15 / v8.86k · 31-ago-2026
 
 Responsable: Ing. Luciano Lamaita
 
@@ -830,6 +830,34 @@ TAB 6 · PENDIENTES
 | **🖥 Familia escritorio** | v8.86e | `index.html`, `partes_diarios.html`, `reportes.html`, `admin_usuarios.html`, `plan_operativo.html` + módulos `datos/` (nav.js, loader_zona.js) | Manual en `const APP_VERSION` + spans footer en los 5 |
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
+
+### v8.86k / SQL_30 · 31 agosto 2026 (tarde) — Trazabilidad multi-usuario · columna autor_id
+
+Siguiente paso natural del bloque de seguridad: dejar registrado quién carga cada relevamiento y parte diario. Hasta hoy solo teníamos la zona geográfica del registro (por el trigger `zona_por_partido`), pero no la identidad del autor. Sin esa columna:
+
+- No se podía aplicar la regla "técnico UPDATE solo sobre sus propios registros" (matriz SQL_27) porque no había cómo distinguir "propios" vs "ajenos".
+- El caso "agente de casa central que recorre la PBA" no dejaba huella: el jefe VI veía llegar un registro a su cola sin saber quién lo cargó.
+- La auditoría de borrados mostraba quién archivó, pero no quién había cargado originalmente.
+
+**SQL_30** resuelve las 3 cosas con una migración de datos + trigger + policy + vista:
+
+- Columnas `autor_id UUID REFERENCES auth.users(id)` + `autor_rol TEXT` + `autor_zona TEXT` en `relevamientos` y `partes_diarios`.
+- Trigger `set_autor_registro()` BEFORE INSERT que auto-completa desde `auth.uid()` + snapshot del rol y zona del user en el momento de la carga. Si el user cambia de rol o zona después, el registro histórico conserva quién era esa persona cuando cargó.
+- Índices parciales `WHERE autor_id IS NOT NULL` para queries frecuentes de "mis registros".
+- Policy UPDATE de `relevamientos` reescrita: técnico solo puede editar registros con `autor_id = auth.uid()` (o `autor_id IS NULL` para históricos pre-migración); jefes zonales pueden editar cualquiera de su zona.
+- Vista `v_borrados_auditoria` ampliada con `autor_original_id`, `autor_original_nombre`, `autor_rol`, `autor_zona`, `fecha_carga` (además de quién archivó).
+- Bloque de backfill conservador comentado (opcional): asigna los relevamientos históricos de zona VI creados antes del 19-ago-2026 al user `tecnica.dvba.z6` que era el único cargando en producción hasta esa fecha.
+
+**Frontend v8.86k**:
+- `index.html · cargarRegs`: mapea autor_id/rol/zona en el objeto de registro.
+- `index.html · cola de pendientes`: cada ítem muestra `👤 rol · Zona X` para que el aprobador sepa quién cargó.
+- `admin_usuarios.html · panel auditoría de borrados`: nueva columna **Autor original** con nombre + rol + zona snapshot. Distingue registros históricos ("sin autor registrado") de los nuevos con trazabilidad completa.
+
+**Ejemplo del caso resuelto**: admin de casa central abre la app móvil, saca foto en RP7 partido Las Heras. El trigger `zona_por_partido` marca `zona='VI'`, el trigger `set_autor_registro` graba `autor_id=<admin>`, `autor_rol='admin'`, `autor_zona=NULL`. El jefe de Zona VI ve al día siguiente en su cola de pendientes: `👤 admin · (sin zona)` — sabe de inmediato que vino de casa central, no de su equipo. Puede aprobar, editar o (si es error) archivar con justificación que quedará auditable para el admin.
+
+Bumps: escritorio `v8.86j → v8.86k` (5 portales). Móvil sin cambios (`v9.95.15`) — el trigger de BD ya llena autor_id, la app no necesita modificarse.
+
+---
 
 ### v8.86j / SQL_26-27-28-29 · 31 agosto 2026 — Hardening de seguridad Supabase + soft-delete jefe_zona operativo desde UI
 

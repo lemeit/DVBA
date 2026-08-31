@@ -8,7 +8,7 @@ Es la app **por default** al instalar la PWA en el celular. Está diseñada para
 
 Cualquier agente DVBA con usuario activo puede loguearse y cargar registros desde el celular. La app **no restringe por rol** — un capataz, un técnico, un jefe de división, un jefe de zona e incluso Admin pueden usarla indistintamente. La diferencia está en dónde va a parar cada registro: el sistema lo asigna automáticamente a la zona del partido donde se sacó la foto (no a la zona del usuario que la cargó).
 
-Ejemplo: un agente de casa central que recorra la Provincia y saque fotos en distintos partidos, verá que cada registro llega al jefe de la zona correspondiente sin tener que elegir zona manualmente.
+Ejemplo: un agente de casa central que recorra la Provincia y saque fotos en distintos partidos, verá que cada registro llega al jefe de la zona correspondiente sin tener que elegir zona manualmente. Y el jefe que lo recibe verá en su cola de aprobación una etiqueta con el rol y zona del autor (ej. "👤 admin · (sin zona)"), así distingue de un vistazo si el registro vino de campo local o de una gira central.
 
 Los siguientes roles ven la app en su celular:
 

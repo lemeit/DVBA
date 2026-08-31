@@ -82,8 +82,12 @@ Cuatro principios ordenan la matriz:
 
 - **Descentralización zonal**: cada zona gestiona su propia operativa; la gerencia consulta y sugiere pero no ejecuta.
 - **Jerarquía real de la DVBA**: los jefes de división administrativa y de automotores no cargan trabajo de campo (gestionan otras cosas), pero sí consultan datos de su zona.
-- **Mínimo privilegio con trazabilidad**: nadie borra registros oficiales sin dejar rastro. Solo el admin borra de forma definitiva; el jefe de zona puede borrar en su zona pero debe completar un motivo obligatorio y queda registrado en auditoría.
+- **Mínimo privilegio con trazabilidad**: nadie borra registros oficiales sin dejar rastro. Solo el admin borra de forma definitiva; el jefe de zona puede borrar en su zona pero debe completar un motivo obligatorio y queda registrado en auditoría. Cada registro además guarda automáticamente quién lo cargó (nombre + rol + zona en ese momento), para que el aprobador en oficina sepa el origen antes de tomar decisiones.
 - **Trazabilidad geográfica**: cada foto o relevamiento cae automáticamente en la zona del partido donde ocurrió, sin importar qué usuario lo cargó.
+
+### 3.5 Seguridad de la base de datos
+
+El backend usa Row-Level Security de PostgreSQL con políticas específicas para cada rol y zona, funciones de auditoría y separación estricta entre usuarios anónimos y autenticados. Después de una auditoría de seguridad se cerraron todos los hallazgos del linter automático: 0 errores y los pocos warnings restantes son las funciones helpers necesarias para que las políticas evalúen, con validación de rol dentro de cada función. Los borrados de registros son en dos niveles: el jefe de zona hace un archivado con motivo obligatorio (recuperable por admin), y el admin es el único que puede eliminar físicamente. Toda esta capa vive en la base de datos, no en el frontend — es imposible saltearla desde el navegador o desde la app móvil.
 
 ### 3.5 Reportes mensuales
 

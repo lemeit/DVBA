@@ -14,7 +14,7 @@ El Modo Avanzado es accesible para cualquier agente DVBA con usuario activo — 
 - **Jefes de otras divisiones** y **Jefe de Zona** — para acompañamientos u observaciones puntuales.
 - **Admin** — con acceso pleno para pruebas y soporte.
 
-Igual que en Modo Básico, cada registro cargado desde el celular queda automáticamente asignado a la zona del partido donde se sacó la foto, sin importar la zona del usuario que lo cargó. El sistema se encarga de rutearlo al jefe de la zona geográfica correspondiente.
+Igual que en Modo Básico, cada registro cargado desde el celular queda automáticamente asignado a la zona del partido donde se sacó la foto, sin importar la zona del usuario que lo cargó. El sistema se encarga de rutearlo al jefe de la zona geográfica correspondiente, y guarda también quién cargó el registro (nombre + rol + zona en ese momento) para que la cola de aprobación de oficina muestre el origen de cada foto.
 
 ### Cuándo usarla
 

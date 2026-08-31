@@ -57,6 +57,8 @@ El botón **🔔 N pendientes** del header abre la cola de registros crudos que 
 - Foto miniatura.
 - Ruta + progresiva + partido.
 - Tipo del problema.
+- Fecha y coordenadas GPS.
+- **👤 Autor original**: rol y zona del usuario que cargó el registro. Aparece como línea propia (ej. "👤 técnico · Zona VI" o "👤 admin · (sin zona)"). Esta información sirve para saber de dónde vino el registro antes de tomar decisiones — un jefe de Zona VI que ve un registro cargado por admin sabe que vino de casa central, no de su equipo.
 - Sugerencias automáticas de armonización (si el GPS no coincide del todo con los datos cargados).
 
 Botones disponibles según el rol:
@@ -66,6 +68,14 @@ Botones disponibles según el rol:
 - **✕ Rechazar** — descarta el registro con motivo.
 
 Gerencia también ve la cola pero solo con opción de consulta.
+
+### Archivar un registro (Jefe de Zona)
+
+Además de las opciones de aprobación, el Jefe de Zona puede **archivar** un registro de su zona cuando corresponda (ej. duplicado, prueba, mal cargado). El botón `✕` en la ficha de un registro abre un modal que exige completar un motivo con al menos 10 caracteres antes de confirmar. El sistema muestra el motivo con un contador de caracteres en tiempo real y solo habilita el botón de confirmación cuando el motivo es válido.
+
+Al confirmar, el registro deja de ser visible para el resto de los roles pero **el Admin del sistema lo conserva** en el Panel de Administración y puede restaurarlo si fue un error o eliminarlo definitivamente después de revisar. La acción queda registrada con fecha, motivo declarado y autor original del registro.
+
+Los roles de técnico y capataz **no ven este botón** — solo el admin puede eliminar de forma definitiva, y solo el jefe de zona puede archivar con justificación.
 
 ### Modal SIG Vial (ficha de ruta)
 
