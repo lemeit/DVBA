@@ -11,12 +11,10 @@
             "id": "1aef4a5e30195b1a",
             "type": "leaf",
             "state": {
-              "type": "pdf",
-              "state": {
-                "file": "docs/CONCURSO_VIAL_2026_preview.pdf"
-              },
-              "icon": "lucide-file-text",
-              "title": "CONCURSO_VIAL_2026_preview"
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Vista gráfica"
             }
           }
         ]
@@ -188,7 +186,7 @@
   },
   "active": "1aef4a5e30195b1a",
   "lastOpenFiles": [
-    "docs/CONCURSO_VIAL_2026.md",
-    "docs/CONCURSO_VIAL_2026_preview.pdf"
+    "docs/CONCURSO_VIAL_2026_preview.pdf",
+    "docs/CONCURSO_VIAL_2026.md"
   ]
 }
