@@ -1418,6 +1418,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v886j-sql_26-27-28-29-31-agosto-2026-hardening-de-seguridad-supabase-soft-delete-jefe_zona-operativo-desde-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.86j / SQL_26-27-28-29 · 31 agosto 2026 — Hardening de seguridad Supabase + soft-delete jefe_zona operativo desde UI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v878-v886i-v99511-v99515-15-19-agosto-2026-fase-2-roles-multi-zona-jefe-de-zona-operativo-end-to-end-arquitectura-zona-por-partido-geografico-matriz-de-permisos-consolidada-sql_27" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v886j-sql_26-27-28-29-31-agosto-2026-hardening-de-seguridad-supabase-soft-delete-jefe_zona-operativo-desde-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.86j / SQL_26-27-28-29 · 31 agosto 2026 — Hardening de seguridad Supabase + soft-delete jefe_zona operativo desde UI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v878-v886i-v99511-v99515-15-19-agosto-2026-fase-2-roles-multi-zona-jefe-de-zona-operativo-end-to-end-arquitectura-zona-por-partido-geografico-matriz-de-permisos-consolidada-sql_27" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2693,8 +2715,8 @@
 <p>═══════ HEADER ═══════</p>
 <h1 id="bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial">📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial<a class="headerlink" href="#bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial" title="Permanent link">¶</a></h1>
 <p>DVBA · Departamento Zona VI Saladillo</p>
-<p>Última actualización: 19 de agosto de 2026</p>
-<p>Versión bitácora: v5.5 — apps v9.95.15 / v8.86e · 19-ago-2026</p>
+<p>Última actualización: 31 de agosto de 2026</p>
+<p>Versión bitácora: v5.6 — apps v9.95.15 / v8.86j · 31-ago-2026</p>
 <p>Responsable: Ing. Luciano Lamaita</p>
 <p>Repositorio: <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a></p>
 <p>Estado general: 🟢 En desarrollo activo</p>
@@ -3821,6 +3843,46 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 </tr>
 </tbody>
 </table>
+<h3 id="v886j-sql_26-27-28-29-31-agosto-2026-hardening-de-seguridad-supabase-soft-delete-jefe_zona-operativo-desde-ui">v8.86j / SQL_26-27-28-29 · 31 agosto 2026 — Hardening de seguridad Supabase + soft-delete jefe_zona operativo desde UI<a class="headerlink" href="#v886j-sql_26-27-28-29-31-agosto-2026-hardening-de-seguridad-supabase-soft-delete-jefe_zona-operativo-desde-ui" title="Permanent link">¶</a></h3>
+<p>Sesión focalizada en cerrar los hallazgos del <strong>linter de seguridad de Supabase</strong> y en dejar operativo el permiso de soft-delete que le dimos al jefe_zona en SQL_27. Punto de partida: ~45 warnings del linter; punto de llegada: 13 warnings esperados (helpers RLS + RPCs con validación de rol) + 1 bloqueado por plan Free (leaked passwords).</p>
+<p><strong>Frente 1 · SQL_26 · Hardening de vistas y bucket.</strong>
+- <code>v_partes_diarios_export</code> marcada como <code>security_invoker</code> (elimina privilege escalation de vistas SQL).
+- Tabla legacy <code>registros</code> (esquema pre-multi-zona v6, tenía policy pública <code>USING(true)</code>) <strong>DROPEADA</strong> por ser huérfana y potencialmente peligrosa.
+- Vista <code>v_solicitudes_admin</code> reemplazada por función RPC <strong><code>get_solicitudes_admin()</code></strong> (<code>SECURITY DEFINER</code>, valida rol admin internamente). La vista cruzaba <code>auth.users</code> que <code>authenticated</code> no puede leer directo, generando warning grave.
+- <code>partidos_zona</code> tenía RLS activada sin policies (deny-all): agregada policy de lectura pública + policy de escritura solo admin. Es info institucional de mapping partido→zona, no sensible.</p>
+<p><strong>Frente 2 · SQL_27 · Matriz de permisos consolidada + soft-delete jefe_zona.</strong> Auditoría de seguridad detectó 3 derivas respecto de la directiva original:
+- <strong>Gerencia</strong> había quedado con INSERT/UPDATE en SQL_19; rollback a <strong>solo lectura</strong> + sugerir vía SQL_18 intervenciones. Preserva descentralización zonal.
+- <strong>jefe_administrativa</strong> y <strong>jefe_automotores</strong> habían sido ampliados a CRUD en SQL_21 (basado en pedido "todos los jefes pueden cargar"); rollback a <strong>solo lectura zonal</strong> (coherente con SQL_17: estos jefes gestionan RRHH/contable/parque vehicular, no trabajo de campo vial).
+- <strong>tecnico</strong> tenía DELETE zonal; rollback (ningún rol operativo debe borrar registros oficiales unilateralmente).</p>
+<p>Nueva capacidad para <strong>jefe_zona</strong>: puede <strong>archivar registros de su zona con motivo obligatorio</strong> (mínimo 10 caracteres). Implementado con:
+- Nuevas columnas <code>borrado_en / borrado_por / motivo_borrado</code> en <code>relevamientos</code> y <code>partes_diarios</code>.
+- Funciones RPC <code>soft_delete_relevamiento(id, motivo)</code> y <code>soft_delete_parte_diario(id, motivo)</code> con validación de rol y zona.
+- Policy SELECT excluye borrados excepto para admin.
+- Vista <code>v_borrados_auditoria</code> para que admin pueda revisar/restaurar.</p>
+<p><strong>Frente 3 · SQL_28 · Hardening masivo de funciones DEFINER.</strong>
+- Todas las funciones DEFINER (15) con <code>SET search_path = public</code> — evita hijacking por schemas maliciosos.
+- Revocado <code>EXECUTE</code> de <code>anon</code> y <code>PUBLIC</code> en las 17 funciones DEFINER — ninguna se puede llamar sin sesión.
+- Bucket <code>relevamientos</code>: dropeada la policy <code>storage_select_publico</code> (permitía listing). Queda solo la policy granular <code>fotos_lectura</code>, que también fue evaluada posteriormente.</p>
+<p><strong>Frente 4 · SQL_29 · Revoke authenticated en triggers puros.</strong> 3 funciones que son solo triggers/helpers internos y no deben ser callable por RPC:
+- <code>forzar_zona_por_rol()</code> (trigger BEFORE INSERT/UPDATE en relevamientos/partes)
+- <code>set_caminos_alias_updated_at()</code> (trigger BEFORE UPDATE)
+- <code>zona_por_partido(TEXT)</code> (usada por el trigger anterior)</p>
+<p>Los triggers siguen funcionando porque corren bajo el owner del código (DEFINER), no bajo el rol del user.</p>
+<p><strong>Frente 5 · Frontend · Modal de borrado con motivo (v8.86j).</strong> En <code>index.html</code>, la función <code>delReg(id)</code> ahora enruta según el rol del usuario:
+- <strong>admin</strong> → borrado físico definitivo (confirm simple).
+- <strong>jefe_zona</strong> → abre modal con textarea de motivo (contador de caracteres + botón deshabilitado hasta llegar a 10) → llama a la RPC <code>soft_delete_relevamiento</code>.
+- <strong>Resto de roles</strong> → mensaje explicativo indicando que no están autorizados y a quién contactar.</p>
+<p>El modal usa la paleta institucional DVBA (naranja advertencia) con header claro que aclara "El Admin del sistema podrá revisarlo y restaurarlo si fue error".</p>
+<p><strong>Frente 6 · Frontend · Migración vista → RPC.</strong> <code>admin_usuarios.html</code> línea 628: cambiado de <code>.from('v_solicitudes_admin').select()</code> a <code>.rpc('get_solicitudes_admin')</code> para consumir la función SECURITY DEFINER en vez de la vista dropeada.</p>
+<p><strong>Estado final del linter</strong> post-todo el bloque:
+- 0 errores.
+- 0 warnings de <code>function_search_path_mutable</code>.
+- 0 warnings de <code>anon_security_definer_function_executable</code>.
+- 0 warnings de <code>public_bucket_allows_listing</code>.
+- 13 warnings de <code>authenticated_security_definer_function_executable</code> esperados (7 helpers necesarios para las policies RLS + 6 RPCs válidas con role validation interna).
+- 1 warning de <code>auth_leaked_password_protection</code> — feature Pro Plan, no disponible en Free. Se compensa con reglas locales de password en el frontend.</p>
+<p><strong>Bumps</strong>: escritorio <code>v8.86i → v8.86j</code> (5 portales). Móvil sin cambios (<code>v9.95.15</code>).</p>
+<hr />
 <h3 id="v878-v886i-v99511-v99515-15-19-agosto-2026-fase-2-roles-multi-zona-jefe-de-zona-operativo-end-to-end-arquitectura-zona-por-partido-geografico-matriz-de-permisos-consolidada-sql_27">v8.78 – v8.86i / v9.95.11 – v9.95.15 · 15 – 19 agosto 2026 — Fase 2 Roles Multi-zona (Jefe de Zona operativo end-to-end) + arquitectura zona-por-partido geográfico + matriz de permisos consolidada (SQL_27)<a class="headerlink" href="#v878-v886i-v99511-v99515-15-19-agosto-2026-fase-2-roles-multi-zona-jefe-de-zona-operativo-end-to-end-arquitectura-zona-por-partido-geografico-matriz-de-permisos-consolidada-sql_27" title="Permanent link">¶</a></h3>
 <p>Bloque grande de dos semanas: sale el sistema del piloto VI aislado y pasa a estar preparado para <strong>operación multi-zona real</strong> con jerarquías de roles, ciclo completo (relevar → asignar → ejecutar → cerrar → reportar) y filtrado zonal profundo (RLS + trigger + UI).</p>
 <p><strong>Matriz de permisos consolidada (fuente única de verdad · SQL_27 · 19-agosto-2026)</strong></p>
