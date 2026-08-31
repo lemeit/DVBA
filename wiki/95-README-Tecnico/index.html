@@ -1034,19 +1034,19 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 <tr>
 <td>https://lemeit.github.io/DVBA/</td>
 <td><code>index.html</code></td>
-<td><strong>v8.86e</strong></td>
+<td><strong>v8.86k</strong></td>
 <td>Portal principal: mapa Leaflet + <strong>sidebar drawer colapsable</strong> (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. <strong>Botón <code>🎯 Ubicar</code></strong> (flujo inverso ruta+km → posición). <strong>Sistema de reportes mixto</strong> (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. <strong>Sello v4 overlay</strong> semitransparente sobre la foto con QR + logo DVBA. <strong>EXIF metadata</strong> completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III).</td>
 </tr>
 <tr>
 <td>https://lemeit.github.io/DVBA/partes_diarios.html</td>
 <td><code>partes_diarios.html</code></td>
-<td><strong>v8.86e</strong></td>
+<td><strong>v8.86k</strong></td>
 <td>App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo <code>sello_v4.js</code> con el portal.</td>
 </tr>
 <tr>
 <td>https://lemeit.github.io/DVBA/reportes.html</td>
 <td><code>reportes.html</code></td>
-<td><strong>v8.86e</strong></td>
+<td><strong>v8.86k</strong></td>
 <td>Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia.</td>
 </tr>
 <tr>
@@ -1099,7 +1099,18 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 </tr>
 </tbody>
 </table>
-<h2 id="funcionalidades-destacadas-v872-v886e-v9955-v99515-19-agosto-2026">Funcionalidades destacadas (v8.72-v8.86e · v9.95.5-v9.95.15 · 19-agosto-2026)<a class="headerlink" href="#funcionalidades-destacadas-v872-v886e-v9955-v99515-19-agosto-2026" title="Permanent link">¶</a></h2>
+<h2 id="funcionalidades-destacadas-v872-v886k-v9955-v99515-31-agosto-2026">Funcionalidades destacadas (v8.72-v8.86k · v9.95.5-v9.95.15 · 31-agosto-2026)<a class="headerlink" href="#funcionalidades-destacadas-v872-v886k-v9955-v99515-31-agosto-2026" title="Permanent link">¶</a></h2>
+<h3 id="hardening-de-seguridad-trazabilidad-multi-usuario-v886j-v886k-sql_26-sql_30">Hardening de seguridad + trazabilidad multi-usuario (v8.86j – v8.86k · SQL_26 → SQL_30)<a class="headerlink" href="#hardening-de-seguridad-trazabilidad-multi-usuario-v886j-v886k-sql_26-sql_30" title="Permanent link">¶</a></h3>
+<p>Después de una auditoría con el linter de Supabase se cerraron todos los hallazgos de seguridad y se agregó trazabilidad completa por autor:</p>
+<ul>
+<li><strong>SQL_26</strong> — hardening de vistas y bucket: <code>security_invoker</code> en las vistas de reportes, drop de la tabla legacy <code>registros</code> con policy pública peligrosa, reemplazo de <code>v_solicitudes_admin</code> (que cruzaba <code>auth.users</code>) por función RPC <code>get_solicitudes_admin()</code>, policy de lectura pública en <code>partidos_zona</code>.</li>
+<li><strong>SQL_27</strong> — matriz de permisos consolidada (fuente única de verdad): rollback de derivas (gerencia vuelve a solo lectura + sugerir, jefes admin/automotores a solo lectura zonal, técnico pierde DELETE) + soft-delete para jefe_zona con motivo obligatorio (mínimo 10 caracteres). Nueva vista <code>v_borrados_auditoria</code> para restaurar/eliminar desde el panel admin.</li>
+<li><strong>SQL_28</strong> — hardening masivo de funciones DEFINER: <code>SET search_path = public</code> en las 15 funciones + <code>REVOKE EXECUTE</code> de <code>anon</code> y <code>PUBLIC</code> en las 17 RPCs + drop de policy de bucket que permitía listing.</li>
+<li><strong>SQL_29</strong> — revoke de authenticated en triggers puros (<code>forzar_zona_por_rol</code>, <code>set_caminos_alias_updated_at</code>, <code>zona_por_partido</code>) que no deben ser RPCs.</li>
+<li><strong>SQL_30</strong> — columna <code>autor_id UUID</code> + <code>autor_rol</code> + <code>autor_zona</code> en <code>relevamientos</code> y <code>partes_diarios</code>, con trigger auto-populate y snapshot del rol/zona al momento de la carga. Policy UPDATE de técnico restringida a <code>autor_id = auth.uid()</code>. Vista <code>v_borrados_auditoria</code> extendida con autor original.</li>
+</ul>
+<p>Frontend (v8.86j–v8.86k): modal soft-delete jefe_zona con contador de caracteres + validación · panel admin con auditoría de borrados (restaurar / eliminar definitivo) · cola de pendientes muestra "👤 rol · Zona X" del autor original · migración <code>.from(v_solicitudes_admin)</code> → <code>.rpc(get_solicitudes_admin)</code>.</p>
+<p>Estado final del linter Supabase: 0 errores + 13 warnings esperados (helpers RLS + RPCs con role validation interna) + 1 warning bloqueado por plan Free (leaked password protection).</p>
 <h3 id="fase-2-roles-multi-zona-v879-v886e-operativo-end-to-end">Fase 2 · Roles multi-zona (v8.79 – v8.86e) — <strong>operativo end-to-end</strong><a class="headerlink" href="#fase-2-roles-multi-zona-v879-v886e-operativo-end-to-end" title="Permanent link">¶</a></h3>
 <ul>
 <li><strong>Organigrama completo como roles</strong> en <code>usuarios_perfil</code>: gerencia, jefe_zona, jefe_operativa, jefe_tecnica, jefe_administrativa, jefe_automotores, capataz, tecnico, admin, publico.</li>

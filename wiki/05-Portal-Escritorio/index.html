@@ -574,6 +574,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#archivar-un-registro-jefe-de-zona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Archivar un registro (Jefe de Zona)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#modal-sig-vial-ficha-de-ruta" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1161,6 +1172,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#archivar-un-registro-jefe-de-zona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Archivar un registro (Jefe de Zona)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#modal-sig-vial-ficha-de-ruta" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1241,6 +1263,8 @@
 <li>Foto miniatura.</li>
 <li>Ruta + progresiva + partido.</li>
 <li>Tipo del problema.</li>
+<li>Fecha y coordenadas GPS.</li>
+<li><strong>👤 Autor original</strong>: rol y zona del usuario que cargó el registro. Aparece como línea propia (ej. "👤 técnico · Zona VI" o "👤 admin · (sin zona)"). Esta información sirve para saber de dónde vino el registro antes de tomar decisiones — un jefe de Zona VI que ve un registro cargado por admin sabe que vino de casa central, no de su equipo.</li>
 <li>Sugerencias automáticas de armonización (si el GPS no coincide del todo con los datos cargados).</li>
 </ul>
 <p>Botones disponibles según el rol:</p>
@@ -1250,6 +1274,10 @@
 <li><strong>✕ Rechazar</strong> — descarta el registro con motivo.</li>
 </ul>
 <p>Gerencia también ve la cola pero solo con opción de consulta.</p>
+<h3 id="archivar-un-registro-jefe-de-zona">Archivar un registro (Jefe de Zona)<a class="headerlink" href="#archivar-un-registro-jefe-de-zona" title="Permanent link">¶</a></h3>
+<p>Además de las opciones de aprobación, el Jefe de Zona puede <strong>archivar</strong> un registro de su zona cuando corresponda (ej. duplicado, prueba, mal cargado). El botón <code>✕</code> en la ficha de un registro abre un modal que exige completar un motivo con al menos 10 caracteres antes de confirmar. El sistema muestra el motivo con un contador de caracteres en tiempo real y solo habilita el botón de confirmación cuando el motivo es válido.</p>
+<p>Al confirmar, el registro deja de ser visible para el resto de los roles pero <strong>el Admin del sistema lo conserva</strong> en el Panel de Administración y puede restaurarlo si fue un error o eliminarlo definitivamente después de revisar. La acción queda registrada con fecha, motivo declarado y autor original del registro.</p>
+<p>Los roles de técnico y capataz <strong>no ven este botón</strong> — solo el admin puede eliminar de forma definitiva, y solo el jefe de zona puede archivar con justificación.</p>
 <h3 id="modal-sig-vial-ficha-de-ruta">Modal SIG Vial (ficha de ruta)<a class="headerlink" href="#modal-sig-vial-ficha-de-ruta" title="Permanent link">¶</a></h3>
 <p>Al hacer clic sobre cualquier RP en el mapa se abre una ficha estilo DNV con los datos oficiales de la ruta: número, denominación, longitud, tipo de pavimento, ancho de calzada y banquinas, partidos que atraviesa. El header del modal toma el color de la ruta seleccionada para identificarla visualmente.</p>
 

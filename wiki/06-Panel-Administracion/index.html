@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#panel-de-administracion-de-usuarios" class="md-skip">
+        <a href="#panel-de-administracion" class="md-skip">
           Saltar a contenido
         </a>
       
@@ -575,10 +575,60 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#funcionalidades" class="md-nav__link">
+  <a href="#gestion-de-usuarios" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Funcionalidades
+        Gestión de usuarios
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Gestión de usuarios">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metricas-globales" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Métricas globales
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabla-de-usuarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabla de usuarios
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registro-de-nuevos-usuarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registro de nuevos usuarios
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solicitudes-pendientes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solicitudes pendientes
       
     </span>
   </a>
@@ -586,10 +636,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#registro-de-nuevos-usuarios" class="md-nav__link">
+  <a href="#auditoria-de-registros-archivados" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Registro de nuevos usuarios
+        Auditoría de registros archivados
       
     </span>
   </a>
@@ -1062,10 +1112,60 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#funcionalidades" class="md-nav__link">
+  <a href="#gestion-de-usuarios" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Funcionalidades
+        Gestión de usuarios
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Gestión de usuarios">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metricas-globales" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Métricas globales
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tabla-de-usuarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tabla de usuarios
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registro-de-nuevos-usuarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registro de nuevos usuarios
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solicitudes-pendientes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solicitudes pendientes
       
     </span>
   </a>
@@ -1073,10 +1173,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#registro-de-nuevos-usuarios" class="md-nav__link">
+  <a href="#auditoria-de-registros-archivados" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Registro de nuevos usuarios
+        Auditoría de registros archivados
       
     </span>
   </a>
@@ -1101,51 +1201,67 @@
 
 
 <blockquote>
-<p><a href="../05-Portal-Escritorio/">← Portal web (escritorio)</a> · <a href="../00-Indice/">Índice</a> · <a href="../07-App-Movil-Modo-Basico/">App móvil · Modo Básico →</a></p>
+<p><a href="../05b-Portal-Plan-Operativo/">← Portal Plan Operativo (Jefe de Zona)</a> · <a href="../00-Indice/">Índice</a> · <a href="../07-App-Movil-Modo-Basico/">App móvil · Modo Básico →</a></p>
 </blockquote>
-<h1 id="panel-de-administracion-de-usuarios">Panel de Administración de Usuarios<a class="headerlink" href="#panel-de-administracion-de-usuarios" title="Permanent link">¶</a></h1>
-<p>Módulo exclusivo para ADMIN. Se accede desde el botón <code>🛡 Admin</code> del header (visible en los 4 portales escritorio solo si tu rol es admin).</p>
-<h3 id="funcionalidades">Funcionalidades<a class="headerlink" href="#funcionalidades" title="Permanent link">¶</a></h3>
+<h1 id="panel-de-administracion">Panel de Administración<a class="headerlink" href="#panel-de-administracion" title="Permanent link">¶</a></h1>
+<p>Módulo exclusivo para el rol <strong>Admin</strong>. Se accede desde el menú principal (visible en los 5 portales solo si tu rol es admin). Contiene tres secciones principales: gestión de usuarios, cola de solicitudes pendientes y auditoría de registros archivados.</p>
+<hr />
+<h2 id="gestion-de-usuarios">Gestión de usuarios<a class="headerlink" href="#gestion-de-usuarios" title="Permanent link">¶</a></h2>
+<h3 id="metricas-globales">Métricas globales<a class="headerlink" href="#metricas-globales" title="Permanent link">¶</a></h3>
+<p>En la parte superior aparecen tarjetas con el conteo por rol y estado: total de usuarios, cuántos son admin, gerencia, técnicos, jefes de las distintas divisiones, capataces, cuántos están sin perfil (falta asignar rol) y cuántos inactivos.</p>
+<h3 id="tabla-de-usuarios">Tabla de usuarios<a class="headerlink" href="#tabla-de-usuarios" title="Permanent link">¶</a></h3>
+<p>Lista todos los usuarios registrados en el sistema con: email, rol, zona asignada, nombre, fecha de último acceso y estado activo/inactivo.</p>
+<p><strong>Filtros disponibles</strong>: por rol, por zona, por estado (activo/inactivo/sin perfil), y búsqueda libre por email o nombre.</p>
+<p><strong>Acciones por usuario</strong>:</p>
 <ul>
-<li>
-<p><strong>Métricas globales</strong>: total de usuarios, cuántos son admin/gerencia/técnico, cuántos están sin perfil (falta asignar rol), cuántos inactivos.</p>
-</li>
-<li>
-<p><strong>Tabla de usuarios</strong>: email, rol, zona asignada, nombre, fecha de último acceso, estado activo/inactivo.</p>
-</li>
-<li>
-<p><strong>Filtros</strong>: por rol, por zona, por estado.</p>
-</li>
-<li>
-<p><strong>Editar usuario</strong>: modificar rol y zona, activar/desactivar, resetear contraseña.</p>
-</li>
-<li>
-<p><strong>Invitar usuario</strong>: enviar link de invitación por email institucional.</p>
+<li><strong>Editar</strong>: modificar rol y zona, activar/desactivar la cuenta.</li>
+<li><strong>Reset</strong>: enviar link de recuperación de contraseña al email del usuario.</li>
+<li><strong>Desactivar</strong>: baja lógica (queda en la base pero no puede iniciar sesión).</li>
+</ul>
+<p>⚠ Los cambios de rol/zona impactan inmediatamente en el sistema. Un técnico movido de zona VI a IV deja de ver los registros de VI (aunque los haya cargado él mismo históricamente).</p>
+<h3 id="registro-de-nuevos-usuarios">Registro de nuevos usuarios<a class="headerlink" href="#registro-de-nuevos-usuarios" title="Permanent link">¶</a></h3>
+<p>Para dar de alta a alguien nuevo:</p>
+<ol>
+<li>Botón <strong>+ Invitar user</strong> en la parte superior derecha.</li>
+<li>Ingresar email institucional (formato <code>@vialidad.gba.gov.ar</code>) o correo personal si corresponde.</li>
+<li>Asignar rol (los 10 roles del organigrama disponibles) y zona (I a XII, o ninguna para roles transversales como admin y gerencia).</li>
+<li>El usuario recibe un email con un link para definir su contraseña.</li>
+<li>Al primer login, la app le muestra su rol y zona en el header (ej. <code>👑 Jefe de Zona · Zona VI</code>).</li>
+</ol>
+<hr />
+<h2 id="solicitudes-pendientes">Solicitudes pendientes<a class="headerlink" href="#solicitudes-pendientes" title="Permanent link">¶</a></h2>
+<p>Cola de acciones que otros roles (gerencia o jefes de zona) le pidieron al admin. Los tipos habituales:</p>
+<ul>
+<li><strong>Mover zona</strong>: un registro fue cargado en una zona y alguien detectó que en realidad corresponde a otra (por ejemplo, un límite ambiguo entre partidos).</li>
+<li><strong>Eliminar</strong>: un usuario pidió que un registro se elimine definitivamente, con motivo declarado.</li>
+</ul>
+<p>Cada solicitud muestra fecha, autor de la solicitud, tipo, registro afectado, destino sugerido y mensaje. El admin puede <strong>ejecutar</strong> la acción (con confirmación) o <strong>descartar</strong> (con motivo opcional).</p>
+<hr />
+<h2 id="auditoria-de-registros-archivados">Auditoría de registros archivados<a class="headerlink" href="#auditoria-de-registros-archivados" title="Permanent link">¶</a></h2>
+<p>Sección dedicada a los registros que un jefe de zona archivó (soft-delete) con motivo declarado. <strong>No están eliminados físicamente</strong>; el admin los ve acá y decide qué hacer.</p>
+<p>Cada fila muestra:</p>
+<ul>
+<li><strong>Archivado</strong>: fecha y hora del archivado.</li>
+<li><strong>Tabla</strong>: si es un relevamiento o un parte diario.</li>
+<li><strong>Zona</strong>: la zona donde estaba el registro.</li>
+<li><strong>Registro</strong>: id + tipo + ruta + progresiva + partido.</li>
+<li><strong>Autor original</strong>: nombre + rol + zona de quien había cargado el registro cuando lo creó. Si es "sin autor registrado" es un registro histórico anterior a la trazabilidad de autor.</li>
+<li><strong>Archivado por</strong>: nombre del jefe de zona que lo archivó.</li>
+<li><strong>Motivo</strong>: la justificación que dejó el jefe (hover para ver completo si es largo).</li>
+<li><strong>Acciones</strong>:<ul>
+<li><strong>↺ Restaurar</strong> — quita la marca de archivado; el registro vuelve a ser visible para todos los roles (útil si el archivado fue por error).</li>
+<li><strong>✕ Definitivo</strong> — elimina físicamente el registro para siempre (doble confirmación; irreversible).</li>
+</ul>
 </li>
 </ul>
-<p>⚠ Los cambios de rol/zona impactan inmediatamente en las políticas RLS de Supabase. Un técnico movido de zona VI a IV deja de ver registros de VI (aunque los haya cargado él mismo históricamente).</p>
-<h3 id="registro-de-nuevos-usuarios">Registro de nuevos usuarios<a class="headerlink" href="#registro-de-nuevos-usuarios" title="Permanent link">¶</a></h3>
-<p>Para dar de alta a un técnico o supervisor de una zona nueva:</p>
-<ol>
-<li>
-<p>Desde el Panel Admin → botón <code>+ Invitar</code>.</p>
-</li>
-<li>
-<p>Ingresar email institucional (formato <code>@vialidad.gba.gov.ar</code>).</p>
-</li>
-<li>
-<p>Asignar rol (técnico / gerencia / admin) y zona (I a XII).</p>
-</li>
-<li>
-<p>El usuario recibe un email con link para definir contraseña.</p>
-</li>
-<li>
-<p>Al primer login, la app le muestra su rol y zona en el header (<code>👷 Técnico · Zona IV</code>).</p>
-</li>
-</ol>
+<p>Este panel es la contrapartida del formulario de archivado que ve el jefe de zona en el mapa. Garantiza que ninguna eliminación es unilateral: siempre hay un rastro, un motivo declarado y una revisión posible por parte del administrador del sistema.</p>
 <div class="admonition note">
-<p class="admonition-title">📷 Screenshot sugerido:</p>
-<p>panel admin con métricas + tabla de usuarios + modal de edición abierto.</p>
+<p class="admonition-title">📷 Screenshots sugeridos</p>
+<ul>
+<li>Panel Admin con las 3 secciones visibles (métricas + tabla usuarios + solicitudes + auditoría borrados).</li>
+<li>Modal de edición de usuario abierto.</li>
+<li>Fila de auditoría de borrado con tooltip del motivo completo.</li>
+</ul>
 </div>
 
 

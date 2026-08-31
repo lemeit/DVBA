@@ -1418,6 +1418,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v886k-sql_30-31-agosto-2026-tarde-trazabilidad-multi-usuario-columna-autor_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.86k / SQL_30 · 31 agosto 2026 (tarde) — Trazabilidad multi-usuario · columna autor_id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v886j-sql_26-27-28-29-31-agosto-2026-hardening-de-seguridad-supabase-soft-delete-jefe_zona-operativo-desde-ui" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2316,6 +2327,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v886k-sql_30-31-agosto-2026-tarde-trazabilidad-multi-usuario-columna-autor_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v8.86k / SQL_30 · 31 agosto 2026 (tarde) — Trazabilidad multi-usuario · columna autor_id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v886j-sql_26-27-28-29-31-agosto-2026-hardening-de-seguridad-supabase-soft-delete-jefe_zona-operativo-desde-ui" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2716,7 +2738,7 @@
 <h1 id="bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial">📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial<a class="headerlink" href="#bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial" title="Permanent link">¶</a></h1>
 <p>DVBA · Departamento Zona VI Saladillo</p>
 <p>Última actualización: 31 de agosto de 2026</p>
-<p>Versión bitácora: v5.6 — apps v9.95.15 / v8.86j · 31-ago-2026</p>
+<p>Versión bitácora: v5.7 — apps v9.95.15 / v8.86k · 31-ago-2026</p>
 <p>Responsable: Ing. Luciano Lamaita</p>
 <p>Repositorio: <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a></p>
 <p>Estado general: 🟢 En desarrollo activo</p>
@@ -3843,6 +3865,29 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 </tr>
 </tbody>
 </table>
+<h3 id="v886k-sql_30-31-agosto-2026-tarde-trazabilidad-multi-usuario-columna-autor_id">v8.86k / SQL_30 · 31 agosto 2026 (tarde) — Trazabilidad multi-usuario · columna autor_id<a class="headerlink" href="#v886k-sql_30-31-agosto-2026-tarde-trazabilidad-multi-usuario-columna-autor_id" title="Permanent link">¶</a></h3>
+<p>Siguiente paso natural del bloque de seguridad: dejar registrado quién carga cada relevamiento y parte diario. Hasta hoy solo teníamos la zona geográfica del registro (por el trigger <code>zona_por_partido</code>), pero no la identidad del autor. Sin esa columna:</p>
+<ul>
+<li>No se podía aplicar la regla "técnico UPDATE solo sobre sus propios registros" (matriz SQL_27) porque no había cómo distinguir "propios" vs "ajenos".</li>
+<li>El caso "agente de casa central que recorre la PBA" no dejaba huella: el jefe VI veía llegar un registro a su cola sin saber quién lo cargó.</li>
+<li>La auditoría de borrados mostraba quién archivó, pero no quién había cargado originalmente.</li>
+</ul>
+<p><strong>SQL_30</strong> resuelve las 3 cosas con una migración de datos + trigger + policy + vista:</p>
+<ul>
+<li>Columnas <code>autor_id UUID REFERENCES auth.users(id)</code> + <code>autor_rol TEXT</code> + <code>autor_zona TEXT</code> en <code>relevamientos</code> y <code>partes_diarios</code>.</li>
+<li>Trigger <code>set_autor_registro()</code> BEFORE INSERT que auto-completa desde <code>auth.uid()</code> + snapshot del rol y zona del user en el momento de la carga. Si el user cambia de rol o zona después, el registro histórico conserva quién era esa persona cuando cargó.</li>
+<li>Índices parciales <code>WHERE autor_id IS NOT NULL</code> para queries frecuentes de "mis registros".</li>
+<li>Policy UPDATE de <code>relevamientos</code> reescrita: técnico solo puede editar registros con <code>autor_id = auth.uid()</code> (o <code>autor_id IS NULL</code> para históricos pre-migración); jefes zonales pueden editar cualquiera de su zona.</li>
+<li>Vista <code>v_borrados_auditoria</code> ampliada con <code>autor_original_id</code>, <code>autor_original_nombre</code>, <code>autor_rol</code>, <code>autor_zona</code>, <code>fecha_carga</code> (además de quién archivó).</li>
+<li>Bloque de backfill conservador comentado (opcional): asigna los relevamientos históricos de zona VI creados antes del 19-ago-2026 al user <code>tecnica.dvba.z6</code> que era el único cargando en producción hasta esa fecha.</li>
+</ul>
+<p><strong>Frontend v8.86k</strong>:
+- <code>index.html · cargarRegs</code>: mapea autor_id/rol/zona en el objeto de registro.
+- <code>index.html · cola de pendientes</code>: cada ítem muestra <code>👤 rol · Zona X</code> para que el aprobador sepa quién cargó.
+- <code>admin_usuarios.html · panel auditoría de borrados</code>: nueva columna <strong>Autor original</strong> con nombre + rol + zona snapshot. Distingue registros históricos ("sin autor registrado") de los nuevos con trazabilidad completa.</p>
+<p><strong>Ejemplo del caso resuelto</strong>: admin de casa central abre la app móvil, saca foto en RP7 partido Las Heras. El trigger <code>zona_por_partido</code> marca <code>zona='VI'</code>, el trigger <code>set_autor_registro</code> graba <code>autor_id=&lt;admin&gt;</code>, <code>autor_rol='admin'</code>, <code>autor_zona=NULL</code>. El jefe de Zona VI ve al día siguiente en su cola de pendientes: <code>👤 admin · (sin zona)</code> — sabe de inmediato que vino de casa central, no de su equipo. Puede aprobar, editar o (si es error) archivar con justificación que quedará auditable para el admin.</p>
+<p>Bumps: escritorio <code>v8.86j → v8.86k</code> (5 portales). Móvil sin cambios (<code>v9.95.15</code>) — el trigger de BD ya llena autor_id, la app no necesita modificarse.</p>
+<hr />
 <h3 id="v886j-sql_26-27-28-29-31-agosto-2026-hardening-de-seguridad-supabase-soft-delete-jefe_zona-operativo-desde-ui">v8.86j / SQL_26-27-28-29 · 31 agosto 2026 — Hardening de seguridad Supabase + soft-delete jefe_zona operativo desde UI<a class="headerlink" href="#v886j-sql_26-27-28-29-31-agosto-2026-hardening-de-seguridad-supabase-soft-delete-jefe_zona-operativo-desde-ui" title="Permanent link">¶</a></h3>
 <p>Sesión focalizada en cerrar los hallazgos del <strong>linter de seguridad de Supabase</strong> y en dejar operativo el permiso de soft-delete que le dimos al jefe_zona en SQL_27. Punto de partida: ~45 warnings del linter; punto de llegada: 13 warnings esperados (helpers RLS + RPCs con validación de rol) + 1 bloqueado por plan Free (leaked passwords).</p>
 <p><strong>Frente 1 · SQL_26 · Hardening de vistas y bucket.</strong>
