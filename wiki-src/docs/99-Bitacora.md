@@ -6,7 +6,7 @@ DVBA · Departamento Zona VI Saladillo
 
 Última actualización: 31 de agosto de 2026
 
-Versión bitácora: v5.10 — apps v9.95.16 / v8.86n · 31-ago-2026 (cierra ciclo borrado con notificación de restauración)
+Versión bitácora: v5.11 — apps v9.95.17 / v8.86p · 1-sep-2026 (guard rol solo lectura en móvil + panel admin en 4 tabs + batch usuarios prueba)
 
 Responsable: Ing. Luciano Lamaita
 
@@ -826,10 +826,24 @@ TAB 6 · PENDIENTES
 
 | Artefacto | Versión | Archivo(s) | Bumpear con |
 |---|---|---|---|
-| **📱 App Campo (PWA unificada)** | v9.95.15 | `app.html` (router) + `dvba_campo_lite.html` (Modo Básico) + `dvba_campo.html` (Modo Avanzado) + `sw.js` | Manual: `APP_VER` en HTMLs + `CACHE_NAME` en `sw.js` |
-| **🖥 Familia escritorio** | v8.86e | `index.html`, `partes_diarios.html`, `reportes.html`, `admin_usuarios.html`, `plan_operativo.html` + módulos `datos/` (nav.js, loader_zona.js) | Manual en `const APP_VERSION` + spans footer en los 5 |
+| **📱 App Campo (PWA unificada)** | v9.95.17 | `app.html` (router) + `dvba_campo_lite.html` (Modo Básico) + `dvba_campo.html` (Modo Avanzado) + `sw.js` | Manual: `APP_VER` en HTMLs + `CACHE_NAME` en `sw.js` |
+| **🖥 Familia escritorio** | v8.86p | `index.html`, `partes_diarios.html`, `reportes.html`, `admin_usuarios.html`, `plan_operativo.html` + módulos `datos/` (nav.js, loader_zona.js) | Manual en `const APP_VERSION` + spans footer en los 5 |
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
+
+### v9.95.17 + v8.86p · 1 septiembre 2026 — Guard de rol en móvil + panel admin en 4 tabs + batch de usuarios de prueba
+
+Cierre del sprint de coherencia de permisos que arrastraba tres deudas: el móvil dejaba cargar registros a roles que en escritorio son solo lectura, el panel admin mezclaba usuarios / solicitudes / auditoría en una sola vista larga, y no había un conjunto homogéneo de usuarios de prueba para probar la matriz en las tres zonas piloto.
+
+**Móvil · guard de rol (v9.95.17)**. Los tres roles que la matriz define como solo lectura (**gerencia**, **jefe_administrativa**, **jefe_automotores**) ahora ven un banner amarillo persistente arriba de la pantalla — *"Tu rol no está autorizado para cargar registros. Podés consultar el mapa y los datos pero la captura de foto está deshabilitada"* — y el botón de "Sacar foto" queda inhabilitado. Si alguno igual llega al submit, se rechaza con un aviso claro. El guard es puramente de UX (la seguridad real está en las policies RLS de Supabase que ya bloquean el INSERT desde SQL_27), pero evita el mal viaje de tocar el botón grande, cargar la foto, y recién ahí ver un error críptico. Aplica a Modo Básico y Modo Avanzado por igual. Bump `APP_VER` en ambos HTMLs + `CACHE_NAME` en `sw.js`.
+
+**Panel admin · reestructuración en 4 tabs (v8.86o)**. La página `admin_usuarios.html` pasó a tener 4 pestañas pill con estilo turquesa (Usuarios / Solicitudes / Auditoría / Sistema) con hash-routing (`#tab=sistema`), lazy-load por tab, y la tab nueva **Sistema** que llama a la RPC `admin_metricas_sistema` (SQL_33) y muestra 4 cards con snapshot en vivo de la base: tamaño de BD y de storage, cuenta de usuarios por rol, y un top de tablas por peso. Sirve al admin como radiografía rápida antes de sesiones de mantenimiento.
+
+**Trazabilidad de autor · cola en escritorio (v8.86l/m)**. En la cola pendiente del portal escritorio, cada registro muestra una etiqueta "👤 rol · Zona X" con el snapshot del autor (nombre + rol + zona en el momento de la carga), tomada de `autor_id` (SQL_30). Permite al jefe distinguir de un vistazo si un registro vino de campo local o de una gira central sin abrir el detalle.
+
+**Batch de usuarios de prueba (SQL_34)**. Se limpiaron los alias `+z4/+z5` viejos, `lulamaita@vialidad.gba.gov.ar` se promovió a admin (backup del admin principal), y se crearon 15 usuarios `@dvba.test` que completan los 7 roles operativos zonales en las tres zonas piloto IV / V / VI. Password inicial única `Dvba2026!` para todos los `.test` (los reales quedan intactos). Naming `{rol}.{zona}@dvba.test` (ej. `capataz.iv@dvba.test`, `jefeadmin.v@dvba.test`). Este batch permite testear en un ambiente cerrado toda la matriz de permisos (quién ve qué, quién puede editar, quién archiva, quién restaura) sin necesitar personas reales de las otras zonas.
+
+Impacto documental: `04-Roles-y-Accesos`, `06-Panel-Administracion`, `07-App-Movil-Modo-Basico` y `08-App-Movil-Modo-Avanzado` reflejan la matriz consolidada; el INFORME del congreso (sección 3.4) incorpora la matriz como parte de la propuesta institucional.
 
 ### v8.86n / SQL_32 · 31 agosto 2026 (noche) — Ciclo de borrado cerrado con notificación al jefe
 

@@ -6,15 +6,21 @@ Es la app tradicional con wizard completo. Se accede desde el link **⚙ Modo Av
 
 ### Quién puede usarla
 
-El Modo Avanzado es accesible para cualquier agente DVBA con usuario activo — no hay filtro por rol dentro de la app. Los perfiles habituales:
+El Modo Avanzado es accesible para cualquier agente DVBA con usuario activo. Al igual que el Modo Básico, distingue entre roles con permiso de carga y roles de solo lectura.
+
+**Roles con carga habilitada**
 
 - **Técnico** de la División Técnica de zona (uso principal en relevamientos).
 - **Capataz** — para reportar detalles del avance de una tarea asignada.
 - **Jefe de la División Técnica** — cuando quiere clasificar directamente en campo lo que releva.
-- **Jefes de otras divisiones** y **Jefe de Zona** — para acompañamientos u observaciones puntuales.
+- **Jefe de la División Operativa** y **Jefe de Zona** — para acompañamientos u observaciones puntuales.
 - **Admin** — con acceso pleno para pruebas y soporte.
 
-Igual que en Modo Básico, cada registro cargado desde el celular queda automáticamente asignado a la zona del partido donde se sacó la foto, sin importar la zona del usuario que lo cargó. El sistema se encarga de rutearlo al jefe de la zona geográfica correspondiente, y guarda también quién cargó el registro (nombre + rol + zona en ese momento) para que la cola de aprobación de oficina muestre el origen de cada foto.
+**Roles de solo lectura**
+
+- **Gerencia**, **Jefe de División Administrativa** y **Jefe de División Automotores** ven un banner amarillo persistente en el tope y no pueden completar el wizard: si intentan guardar reciben un aviso *"⛔ Tu rol no está autorizado para cargar registros en el sistema"*. Estos perfiles conservan el acceso al mapa y a la consulta de datos históricos, pero la producción de registros nuevos queda reservada a los roles con responsabilidad operativa directa sobre la red.
+
+Cada registro cargado desde el celular queda automáticamente asignado a la zona del partido donde se sacó la foto, sin importar la zona del usuario que lo cargó. El sistema se encarga de rutearlo al jefe de la zona geográfica correspondiente, y guarda también quién cargó el registro (nombre + rol + zona en ese momento) para que la cola de aprobación de oficina muestre el origen de cada foto.
 
 ### Cuándo usarla
 

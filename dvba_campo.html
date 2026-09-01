@@ -451,7 +451,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.16</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.17</span></div>
   </div>
 </div>
 
@@ -687,7 +687,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:auto">
-  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.16</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
+  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.17</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
 </div>
 
 
@@ -1742,7 +1742,42 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ── Guardar ── */
+// v9.95.17 · Guard de rol: bloquea la carga a roles solo-lectura.
+// Roles autorizados a cargar: admin, tecnico, capataz, jefe_zona, jefe_tecnica, jefe_operativa.
+// Roles solo-lectura: gerencia, jefe_administrativa, jefe_automotores.
+function _rolPuedeCargar(){
+  try {
+    const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
+    const rol = cache.rol || '';
+    const ROLES_CARGA = new Set(['admin','tecnico','capataz','jefe_zona','jefe_tecnica','jefe_operativa']);
+    return ROLES_CARGA.has(rol);
+  } catch(_){ return true; /* fallback tolerante */ }
+}
+function _chequearRolPuedeCargarAvanzado(){
+  const puede = _rolPuedeCargar();
+  let banner = document.getElementById('banner-solo-lectura');
+  if (!puede){
+    if (!banner){
+      let cache = {};
+      try { cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}'); } catch(_){}
+      const rolLbl = { gerencia:'Gerencia', jefe_administrativa:'Jefe Div. Administrativa', jefe_automotores:'Jefe Div. Automotores' }[cache.rol] || 'Tu rol';
+      banner = document.createElement('div');
+      banner.id = 'banner-solo-lectura';
+      banner.style.cssText = 'background:#fff8e6;color:#5a3d00;padding:10px 14px;text-align:center;font-size:13px;font-weight:700;border-bottom:2px solid #c47a00;font-family:sans-serif;line-height:1.4;position:sticky;top:0;z-index:9999';
+      banner.innerHTML = '⚠ <b>' + rolLbl + ' · Vista solo lectura</b><br><span style="font-weight:500;font-size:11.5px">Tu rol no está autorizado para cargar registros. Podés consultar el mapa y los datos pero la carga está deshabilitada.</span>';
+      document.body.insertBefore(banner, document.body.firstChild);
+    }
+  } else if (banner){ banner.remove(); }
+}
+// Ejecutar al cargar (después de que perfil esté disponible)
+window.addEventListener('load', () => setTimeout(_chequearRolPuedeCargarAvanzado, 800));
+
 async function guardarRegistro(){
+  // v9.95.17 · Guard de rol: bloquear carga para roles solo lectura
+  if (!_rolPuedeCargar()){
+    toast('⛔ Tu rol no está autorizado para cargar registros en el sistema', 'err');
+    return;
+  }
   let ruta=document.getElementById('f-ruta').value.trim();
   // v9.83 · Fallback defensivo · si el value se perdió (regresión al avanzar
   // el wizard), restaurar del cache en memoria.
@@ -2257,7 +2292,7 @@ function hacerThumb(b64){
   // (v9.95.4 tenía "var APP_VER = window.APP_VER" que causaba SyntaxError por doble
   // declaración con otro script, abortando la asignación y dejando el modal Acerca
   // de mostrando versión vieja cacheada).
-  window.APP_VER = 'v9.95.16';
+  window.APP_VER = 'v9.95.17';
   console.log('[dvba_campo] window.APP_VER inicializado a', window.APP_VER);
 </script>
 <!-- v9.95.4 · Cache-busters en los .js críticos para forzar reload aunque el SW cachee -->

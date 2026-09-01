@@ -6,19 +6,25 @@ Es la app **por default** al instalar la PWA en el celular. Está diseñada para
 
 ### Quién puede usarla
 
-Cualquier agente DVBA con usuario activo puede loguearse y cargar registros desde el celular. La app **no restringe por rol** — un capataz, un técnico, un jefe de división, un jefe de zona e incluso Admin pueden usarla indistintamente. La diferencia está en dónde va a parar cada registro: el sistema lo asigna automáticamente a la zona del partido donde se sacó la foto (no a la zona del usuario que la cargó).
+Cualquier agente DVBA con usuario activo puede loguearse y **consultar** desde el celular. Ahora bien, no todos los roles pueden **cargar** — el sistema distingue entre roles con permiso de campo y roles de solo lectura:
 
-Ejemplo: un agente de casa central que recorra la Provincia y saque fotos en distintos partidos, verá que cada registro llega al jefe de la zona correspondiente sin tener que elegir zona manualmente. Y el jefe que lo recibe verá en su cola de aprobación una etiqueta con el rol y zona del autor (ej. "👤 admin · (sin zona)"), así distingue de un vistazo si el registro vino de campo local o de una gira central.
-
-Los siguientes roles ven la app en su celular:
+**Roles con carga habilitada**
 
 - **Técnico** de zona (uso más común, en campo).
 - **Capataz** de cuadrilla (carga la foto de la obra terminada).
-- **Jefe** de cualquier división (Técnica, Operativa, Administrativa, Automotores) — para acompañar operativos.
+- **Jefe de División Técnica** y **Operativa** — para acompañar operativos.
 - **Jefe de Zona** — para revisar directamente en campo.
 - **Admin** — con acceso pleno.
 
-La única restricción efectiva pasa por la aprobación posterior en oficina: quién aprueba el registro depende del organigrama de la zona donde cayó.
+**Roles de solo lectura en móvil**
+
+- **Gerencia**
+- **Jefe de División Administrativa**
+- **Jefe de División Automotores**
+
+Estos tres perfiles ven un banner amarillo en la parte superior de la app que aclara *"Tu rol no está autorizado para cargar registros. Podés consultar el mapa y los datos pero la captura de foto está deshabilitada."* — el botón "Sacar foto" queda inhabilitado. Esto refleja el principio general del sistema: **carga desde el terreno la ejercen quienes tienen responsabilidad operativa sobre la red**; administración y gerencia consultan, aprueban o supervisan pero no cargan directamente.
+
+La zona del registro no la elige el usuario: el sistema la asigna automáticamente por el partido donde cayó la foto GPS. Un agente que recorra distintos partidos verá que cada registro llega al jefe de la zona correspondiente, y ese jefe lo verá en su cola con la etiqueta del rol y zona del autor (ej. "👤 tecnico · Zona VI"), lo que permite distinguir un aporte local de una gira central.
 
 ### Cómo instalarla
 

@@ -389,7 +389,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.95.16';
+const APP_VER = 'v9.95.17';
 window.APP_VER = APP_VER;
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -424,6 +424,43 @@ function lActualizarSubHeader(){
     }
   } catch(_){}
   el.textContent = 'Sin sesión';
+}
+
+// v9.95.17 · Guard de rol: bloquea la captura para roles sin autorización de carga.
+// Roles solo-lectura: gerencia, jefe_administrativa, jefe_automotores.
+// Roles que sí pueden cargar: admin, tecnico, capataz, jefe_zona, jefe_tecnica, jefe_operativa.
+function _lRolPuedeCargar(){
+  try {
+    const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
+    const rol = cache.rol || '';
+    const ROLES_CARGA = new Set(['admin','tecnico','capataz','jefe_zona','jefe_tecnica','jefe_operativa']);
+    return ROLES_CARGA.has(rol);
+  } catch(_){ return true; /* fallback tolerante */ }
+}
+function _lChequearRolPuedeCargar(){
+  const puede = _lRolPuedeCargar();
+  const banner = document.getElementById('l-banner-solo-lectura');
+  const btn = document.querySelector('#l-btn-foto') || document.querySelector('[onclick*="sacarFoto"]');
+  if (!puede){
+    // Crear banner si no existe
+    if (!banner){
+      const b = document.createElement('div');
+      b.id = 'l-banner-solo-lectura';
+      b.style.cssText = 'background:#fff8e6;color:#5a3d00;padding:12px 16px;text-align:center;font-size:13px;font-weight:700;border-bottom:2px solid #c47a00;font-family:sans-serif;line-height:1.4';
+      let cache = {};
+      try { cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}'); } catch(_){}
+      const rolLbl = { gerencia:'Gerencia', jefe_administrativa:'Jefe Div. Administrativa', jefe_automotores:'Jefe Div. Automotores' }[cache.rol] || 'Tu rol';
+      b.innerHTML = '⚠ <b>' + rolLbl + ' · Vista solo lectura</b><br><span style="font-weight:500;font-size:11.5px">Tu rol no está autorizado para cargar registros en el sistema. Podés consultar el mapa y los datos, pero la captura de foto está deshabilitada.</span>';
+      const header = document.querySelector('header') || document.body.firstChild;
+      if (header && header.nextSibling) header.parentNode.insertBefore(b, header.nextSibling);
+      else document.body.insertBefore(b, document.body.firstChild);
+    }
+    // Deshabilitar el botón principal
+    if (btn){ btn.disabled = true; btn.style.opacity = '.4'; btn.style.cursor = 'not-allowed'; btn.title = 'Rol sin autorización para cargar registros'; }
+  } else {
+    if (banner) banner.remove();
+    if (btn){ btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; btn.title = ''; }
+  }
 }
 let _gpsWatchId = null;
 let _gpsLat = null, _gpsLng = null, _gpsAcc = null, _gpsAlt = null;
@@ -831,6 +868,12 @@ async function lGuardar(){
     statusMostrar('error', 'Faltan datos', 'No hay foto o ubicación GPS.');
     return;
   }
+  // v9.95.17 · Guard de rol: bloquear carga para roles solo lectura
+  if (!_lRolPuedeCargar()){
+    statusMostrar('error', 'Sin autorización',
+      'Tu rol (Gerencia / Jefe Administrativa / Jefe Automotores) no está autorizado para cargar registros en el sistema. Podés consultar el mapa y los datos pero no realizar cargas.');
+    return;
+  }
   // Cerrar vista previa y bloquear pantalla con panel de estado
   $('preview').classList.remove('on');
   statusMostrar('cargando', 'Enviando...', 'Subiendo la foto');
@@ -1208,6 +1251,8 @@ async function inicializar(){
     }
     // v8.53 · Actualizar sub del header con Rol+Zona real del user
     lActualizarSubHeader();
+    // v9.95.17 · Guard de rol: si el user no puede cargar, mostrar aviso y bloquear el botón
+    _lChequearRolPuedeCargar();
   }
   // Paso 3 · si no hay sesión guardada:
   //   - Con red: mostrar login normal.
