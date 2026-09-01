@@ -1034,25 +1034,25 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 <tr>
 <td>https://lemeit.github.io/DVBA/</td>
 <td><code>index.html</code></td>
-<td><strong>v8.86k</strong></td>
-<td>Portal principal: mapa Leaflet + <strong>sidebar drawer colapsable</strong> (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. <strong>Botón <code>🎯 Ubicar</code></strong> (flujo inverso ruta+km → posición). <strong>Sistema de reportes mixto</strong> (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. <strong>Sello v4 overlay</strong> semitransparente sobre la foto con QR + logo DVBA. <strong>EXIF metadata</strong> completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III).</td>
+<td><strong>v8.86q</strong></td>
+<td>Portal principal: mapa Leaflet + <strong>sidebar drawer colapsable</strong> (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. <strong>Botón <code>🎯 Ubicar</code></strong> (flujo inverso ruta+km → posición). <strong>Sistema de reportes mixto</strong> (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. <strong>Sello v4 overlay</strong> semitransparente sobre la foto con QR + logo DVBA. <strong>EXIF metadata</strong> completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III). Basemaps: OSM + Satélite Esri (Vista Oscura CARTO temporalmente desactivada, pendiente proxy para no exponer API key).</td>
 </tr>
 <tr>
 <td>https://lemeit.github.io/DVBA/partes_diarios.html</td>
 <td><code>partes_diarios.html</code></td>
-<td><strong>v8.86k</strong></td>
+<td><strong>v8.86q</strong></td>
 <td>App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo <code>sello_v4.js</code> con el portal.</td>
 </tr>
 <tr>
 <td>https://lemeit.github.io/DVBA/reportes.html</td>
 <td><code>reportes.html</code></td>
-<td><strong>v8.86k</strong></td>
+<td><strong>v8.86q</strong></td>
 <td>Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia.</td>
 </tr>
 <tr>
 <td>https://lemeit.github.io/DVBA/app.html</td>
 <td><code>app.html</code> → router</td>
-<td><strong>v9.95.15</strong></td>
+<td><strong>v9.95.18</strong></td>
 <td><strong>App móvil PWA (URL canónica)</strong> — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia. Instalado en el celu queda como <code>SIG Vial PBA</code> (un solo ícono). URL legacy <code>campo.html</code> sigue como redirect.</td>
 </tr>
 <tr>
@@ -1099,7 +1099,12 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 </tr>
 </tbody>
 </table>
-<h2 id="funcionalidades-destacadas-v872-v886k-v9955-v99515-31-agosto-2026">Funcionalidades destacadas (v8.72-v8.86k · v9.95.5-v9.95.15 · 31-agosto-2026)<a class="headerlink" href="#funcionalidades-destacadas-v872-v886k-v9955-v99515-31-agosto-2026" title="Permanent link">¶</a></h2>
+<h2 id="funcionalidades-destacadas-v872-v886q-v9955-v99518-1-septiembre-2026">Funcionalidades destacadas (v8.72-v8.86q · v9.95.5-v9.95.18 · 1-septiembre-2026)<a class="headerlink" href="#funcionalidades-destacadas-v872-v886q-v9955-v99518-1-septiembre-2026" title="Permanent link">¶</a></h2>
+<h3 id="robustez-movil-con-senal-debil-apagado-temporal-vista-oscura-carto-v99518-v886q-1-sep-2026">Robustez móvil con señal débil + apagado temporal Vista Oscura CARTO (v9.95.18 + v8.86q · 1-sep-2026)<a class="headerlink" href="#robustez-movil-con-senal-debil-apagado-temporal-vista-oscura-carto-v99518-v886q-1-sep-2026" title="Permanent link">¶</a></h3>
+<p>Sprint de robustez cerrado con un fix crítico del Service Worker. Trío de bugs correlacionados aparecían cuando el celu tenía señal débil (no offline duro): Modo Básico "no arrancaba" y terminaba abriendo el portal escritorio (redirect loop en el fallback offline que servía <code>app.html</code> en vez de <code>dvba_campo_lite.html</code>), Modo Avanzado abría pero no calculaba la progresiva (los bundles <code>rutas_rpXX.js</code> quedaban colgados esperando la red y <code>ARMONIZADOR</code> arrancaba sin <code>CHAINS_DATA</code>), y la app "buscando señal" no arrancaba nunca (solo modo avión funcionaba porque <code>fetch()</code> falla al toque). Causa raíz común: SW era <strong>network-first sin timeout</strong> para TODO. Fix: <strong>cache-first</strong> para todo lo cacheado (HTML/JS/geojsons se sirven al instante + refresco en background) + <strong>network-first con timeout 3s</strong> para lo no cacheado + fallback offline que matchea PRIMERO el HTML pedido. Bump <code>CACHE_NAME</code> v9.95.18.</p>
+<p>En paralelo, apagado temporal del basemap "Vista Oscura" en <code>index.html</code> porque CARTO ahora exige API key para servir <code>dark_all</code> y el proxy que va a manejar la key sin exponerla en el HTML público todavía no está listo. El botón queda comentado en el selector de capas y <code>tDark</code> queda como alias defensivo de <code>tOSM</code>. Los basemaps OSM y Satélite Esri siguen funcionando normal. El plan es replicar el patrón de proxy con Cloudflare Worker + secret que ya funciona en tres proyectos internos (Ema Saladillo · PurpleAir · Agua).</p>
+<h3 id="guard-de-rol-en-movil-panel-admin-en-4-tabs-batch-usuarios-prueba-v99517-v886p-sql_34">Guard de rol en móvil + panel admin en 4 tabs + batch usuarios prueba (v9.95.17 + v8.86p · SQL_34)<a class="headerlink" href="#guard-de-rol-en-movil-panel-admin-en-4-tabs-batch-usuarios-prueba-v99517-v886p-sql_34" title="Permanent link">¶</a></h3>
+<p>Cierre del sprint de coherencia de permisos. Los tres roles solo-lectura (<strong>gerencia</strong>, <strong>jefe_administrativa</strong>, <strong>jefe_automotores</strong>) ahora ven un banner amarillo persistente en la app móvil ("Tu rol no está autorizado para cargar registros") y el botón de captura de foto queda deshabilitado — aplica en Modo Básico y Modo Avanzado. La seguridad real ya estaba en las policies RLS (SQL_27), esto es UX para no dejar al usuario descubrir el rechazo después de sacar la foto. Panel admin <code>admin_usuarios.html</code> reestructurado en 4 pestañas pill turquesa con hash-routing y lazy-load (Usuarios / Solicitudes / Auditoría / Sistema); tab Sistema llama a la RPC <code>admin_metricas_sistema</code> (SQL_33) con snapshot de BD + storage + auth + top tablas. Batch SQL_34: 15 usuarios <code>@dvba.test</code> completando los 7 roles operativos en las 3 zonas piloto (IV/V/VI), <code>lulamaita@vialidad.gba.gov.ar</code> promovido a admin (backup), alias <code>+z4/+z5</code> eliminados. Trazabilidad de autor en la cola pendiente del portal escritorio: etiqueta "👤 rol · Zona X" con el snapshot del autor (nombre + rol + zona en el momento de la carga).</p>
 <h3 id="hardening-de-seguridad-trazabilidad-multi-usuario-v886j-v886k-sql_26-sql_30">Hardening de seguridad + trazabilidad multi-usuario (v8.86j – v8.86k · SQL_26 → SQL_30)<a class="headerlink" href="#hardening-de-seguridad-trazabilidad-multi-usuario-v886j-v886k-sql_26-sql_30" title="Permanent link">¶</a></h3>
 <p>Después de una auditoría con el linter de Supabase se cerraron todos los hallazgos de seguridad y se agregó trazabilidad completa por autor:</p>
 <ul>

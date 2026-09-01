@@ -1418,6 +1418,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v99518-v886q-1-septiembre-2026-tarde-fix-critico-app-movil-con-senal-debil-apagado-temporal-de-vista-oscura-carto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.95.18 + v8.86q · 1 septiembre 2026 (tarde) — Fix crítico app móvil con señal débil + apagado temporal de Vista Oscura CARTO
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v99517-v886p-1-septiembre-2026-guard-de-rol-en-movil-panel-admin-en-4-tabs-batch-de-usuarios-de-prueba" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2371,6 +2382,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#v99518-v886q-1-septiembre-2026-tarde-fix-critico-app-movil-con-senal-debil-apagado-temporal-de-vista-oscura-carto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v9.95.18 + v8.86q · 1 septiembre 2026 (tarde) — Fix crítico app móvil con señal débil + apagado temporal de Vista Oscura CARTO
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#v99517-v886p-1-septiembre-2026-guard-de-rol-en-movil-panel-admin-en-4-tabs-batch-de-usuarios-de-prueba" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2825,8 +2847,8 @@
 <p>═══════ HEADER ═══════</p>
 <h1 id="bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial">📋 Bitácora del Proyecto · Sistema de Relevamiento y Gestión Vial<a class="headerlink" href="#bitacora-del-proyecto-sistema-de-relevamiento-y-gestion-vial" title="Permanent link">¶</a></h1>
 <p>DVBA · Departamento Zona VI Saladillo</p>
-<p>Última actualización: 31 de agosto de 2026</p>
-<p>Versión bitácora: v5.11 — apps v9.95.17 / v8.86p · 1-sep-2026 (guard rol solo lectura en móvil + panel admin en 4 tabs + batch usuarios prueba)</p>
+<p>Última actualización: 1 de septiembre de 2026</p>
+<p>Versión bitácora: v5.12 — apps v9.95.18 / v8.86q · 1-sep-2026 (SW cache-first + timeout 3s: fix app móvil con señal débil + desactivar Vista Oscura CARTO en escritorio)</p>
 <p>Responsable: Ing. Luciano Lamaita</p>
 <p>Repositorio: <a href="https://github.com/lemeit/DVBA">github.com/lemeit/DVBA</a></p>
 <p>Estado general: 🟢 En desarrollo activo</p>
@@ -3929,13 +3951,13 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 <tbody>
 <tr>
 <td><strong>📱 App Campo (PWA unificada)</strong></td>
-<td>v9.95.17</td>
+<td>v9.95.18</td>
 <td><code>app.html</code> (router) + <code>dvba_campo_lite.html</code> (Modo Básico) + <code>dvba_campo.html</code> (Modo Avanzado) + <code>sw.js</code></td>
 <td>Manual: <code>APP_VER</code> en HTMLs + <code>CACHE_NAME</code> en <code>sw.js</code></td>
 </tr>
 <tr>
 <td><strong>🖥 Familia escritorio</strong></td>
-<td>v8.86p</td>
+<td>v8.86q</td>
 <td><code>index.html</code>, <code>partes_diarios.html</code>, <code>reportes.html</code>, <code>admin_usuarios.html</code>, <code>plan_operativo.html</code> + módulos <code>datos/</code> (nav.js, loader_zona.js)</td>
 <td>Manual en <code>const APP_VERSION</code> + spans footer en los 5</td>
 </tr>
@@ -3953,6 +3975,24 @@ Pendiente: Fase 3 SQL 9 RLS zonal, Fase 4 Panel Admin usuarios, Fase 5 PDF ofici
 </tr>
 </tbody>
 </table>
+<h3 id="v99518-v886q-1-septiembre-2026-tarde-fix-critico-app-movil-con-senal-debil-apagado-temporal-de-vista-oscura-carto">v9.95.18 + v8.86q · 1 septiembre 2026 (tarde) — Fix crítico app móvil con señal débil + apagado temporal de Vista Oscura CARTO<a class="headerlink" href="#v99518-v886q-1-septiembre-2026-tarde-fix-critico-app-movil-con-senal-debil-apagado-temporal-de-vista-oscura-carto" title="Permanent link">¶</a></h3>
+<p><strong>App móvil (v9.95.18) · SW cache-first + timeout de 3s</strong></p>
+<p>Trío de bugs correlacionados que aparecían cuando el celu tenía <strong>señal débil</strong> (no offline duro, sino en modo "buscando red" o con datos móviles intermitentes):</p>
+<ul>
+<li><strong>Modo Básico no arrancaba, terminaba abriendo el portal escritorio.</strong> El ícono de la PWA cargaba <code>app.html</code> que redirige a <code>dvba_campo_lite.html</code>; el fetch de ese HTML quedaba colgado esperando la red (30-60 segundos hasta timeout de Android). En algún punto de esa espera con red parpadeante Chrome mostraba lo que tuviera cacheado como último recurso — y por un bug del orden del fallback offline del SW, terminaba sirviéndose <code>app.html</code> en lugar de <code>dvba_campo_lite.html</code>, disparando un redirect loop que en algunos ciclos derivaba a <code>./</code> = <code>index.html</code> = portal escritorio.</li>
+<li><strong>Modo Avanzado abría pero no calculaba la progresiva.</strong> La ruta y el partido aparecían correctamente porque venían del <code>red_vial_zonaVI.js</code> que sí llegaba, pero los bundles <code>rutas_rpXX.js</code> (con la calibración progresiva↔lat/lng) quedaban colgados en el mismo cuello de botella de red y <code>ARMONIZADOR</code> arrancaba con <code>CHAINS_DATA</code> vacío. La app parecía sana pero le faltaba el dato clave.</li>
+<li><strong>La app "buscando señal" no arrancaba nunca.</strong> Solo funcionaba en modo avión — porque en modo avión <code>fetch()</code> falla instantáneamente y el SW cae al cache; con señal débil el fetch quedaba a la espera indefinida.</li>
+</ul>
+<p><strong>Causa raíz común</strong>: el SW era <strong>network-first sin timeout</strong> para TODO — todos los requests iban primero a la red y solo caían al cache si el fetch fallaba. Con señal débil ni fallaba ni respondía: se colgaba.</p>
+<p><strong>Fix en <code>sw.js</code></strong>:
+- <strong>Cache-first para todo lo cacheado</strong>: si el recurso está en cache, se sirve al instante y se refresca en background (stale-while-revalidate). Los HTML, JS y geojsons de la app arrancan en 0 ms independientemente de la red.
+- <strong>Network-first con timeout de 3 s</strong> solo para lo NO cacheado (llamadas dinámicas puntuales). Si en 3 segundos no responde, cae al fallback offline.
+- <strong>Fix del orden del fallback offline</strong>: cuando la request es a <code>dvba_campo_lite.html</code> se devuelve <code>dvba_campo_lite.html</code> primero (no <code>app.html</code> como hacía antes). Mata el redirect loop y el desvío accidental al portal escritorio.</p>
+<p>Bump <code>APP_VER</code> (span footer + <code>&lt;span id='app-ver'&gt;</code> + <code>&lt;span id='loginVer'&gt;</code>) en <code>dvba_campo.html</code> y <code>dvba_campo_lite.html</code>, y <code>CACHE_NAME</code> en <code>sw.js</code> a <code>v9.95.18</code>. Para activar el fix hay que abrir la PWA con internet una vez para que se instale el SW nuevo — después queda vigente sin importar el estado de la red.</p>
+<p><strong>Portal escritorio (v8.86q) · Apagado temporal de Vista Oscura</strong></p>
+<p>CARTO cambió su política y ya no sirve tiles del basemap <code>dark_all</code> sin API key. El botón "Vista Oscura" del selector de capas en <code>index.html</code> mostraba un error de "API key required" sobre el mapa. Como no está listo todavía el proxy que va a manejar la key sin exponerla en el HTML público, se apagó la opción temporalmente: el botón queda comentado en el selector (líneas 921-923 del HTML), la variable <code>tDark</code> queda como alias de <code>tOSM</code> como fallback defensivo por si algún <code>setLayer('dark')</code> residual quedara referenciado, y la línea original de CARTO se preserva como comentario para reactivar rápido cuando el proxy esté. Los otros dos basemaps (Mapa OSM · Satélite Esri) siguen funcionando normalmente.</p>
+<p>La solución definitiva prevista es un <strong>Worker de Cloudflare que actúe como proxy de tiles</strong>, guardando la key como <code>wrangler secret</code> (invisible al navegador) y cacheando cada tile 24 h en el edge de Cloudflare para no consumir cuota de CARTO por cada pan/zoom. Ya hay 3 proyectos internos (Ema Saladillo, PurpleAir, Agua) que usan exactamente ese patrón; el próximo paso es replicarlo para DVBA.</p>
+<p>Bump del span de versión y del <code>APP_VERSION</code> en los 5 archivos de la familia escritorio (<code>index.html</code>, <code>partes_diarios.html</code>, <code>reportes.html</code>, <code>admin_usuarios.html</code>, <code>plan_operativo.html</code>) según convención de versionado unificado, aunque el cambio funcional afecte solo a <code>index.html</code>.</p>
 <h3 id="v99517-v886p-1-septiembre-2026-guard-de-rol-en-movil-panel-admin-en-4-tabs-batch-de-usuarios-de-prueba">v9.95.17 + v8.86p · 1 septiembre 2026 — Guard de rol en móvil + panel admin en 4 tabs + batch de usuarios de prueba<a class="headerlink" href="#v99517-v886p-1-septiembre-2026-guard-de-rol-en-movil-panel-admin-en-4-tabs-batch-de-usuarios-de-prueba" title="Permanent link">¶</a></h3>
 <p>Cierre del sprint de coherencia de permisos que arrastraba tres deudas: el móvil dejaba cargar registros a roles que en escritorio son solo lectura, el panel admin mezclaba usuarios / solicitudes / auditoría en una sola vista larga, y no había un conjunto homogéneo de usuarios de prueba para probar la matriz en las tres zonas piloto.</p>
 <p><strong>Móvil · guard de rol (v9.95.17)</strong>. Los tres roles que la matriz define como solo lectura (<strong>gerencia</strong>, <strong>jefe_administrativa</strong>, <strong>jefe_automotores</strong>) ahora ven un banner amarillo persistente arriba de la pantalla — <em>"Tu rol no está autorizado para cargar registros. Podés consultar el mapa y los datos pero la captura de foto está deshabilitada"</em> — y el botón de "Sacar foto" queda inhabilitado. Si alguno igual llega al submit, se rechaza con un aviso claro. El guard es puramente de UX (la seguridad real está en las policies RLS de Supabase que ya bloquean el INSERT desde SQL_27), pero evita el mal viaje de tocar el botón grande, cargar la foto, y recién ahí ver un error críptico. Aplica a Modo Básico y Modo Avanzado por igual. Bump <code>APP_VER</code> en ambos HTMLs + <code>CACHE_NAME</code> en <code>sw.js</code>.</p>
