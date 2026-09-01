@@ -918,7 +918,10 @@ body.modo-campo #campo-fab{display:flex}
   <div id="layer-btns">
     <!-- v7.33 — Layout simple: botones sueltos verticales + mini-panel plegable de visualización -->
     <button id="btn-osm" class="active" onclick="setLayer('osm')">Mapa OSM</button>
+    <!-- v8.86q · Vista Oscura desactivada temporalmente: CARTO ahora exige API key
+         y todavía no está configurado el proxy. Se re-habilitará cuando esté listo.
     <button id="btn-dark" onclick="setLayer('dark')">Vista Oscura</button>
+    -->
     <button id="btn-sat" onclick="setLayer('sat')">Satélite</button>
     <button id="btn-caminos" onclick="toggleCaminosLayer()" style="margin-top:4px;border-color:#7050b0;color:#7050b0">🚜 Caminos Sec.</button>
     <button id="btn-partes-mapa" onclick="togglePartesLayer()" style="margin-top:4px;border-color:#c47a00;color:#c47a00" title="Ver las tareas diarias cargadas sobre el mapa">📋 Tareas</button>
@@ -1974,7 +1977,9 @@ let rutaLbls={}, partidoLbls={};
 // SVG renderer (default) es más preciso.
 const map=L.map('map',{center:[-35.6,-59.6],zoom:10});
 const tOSM=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'OSM',maxZoom:19});
-const tDark=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',{attribution:'CARTO',maxZoom:19,subdomains:'abcd'});
+// v8.86q · tDark comentado: CARTO ahora exige API key y todavía no está listo el proxy.
+// const tDark=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',{attribution:'CARTO',maxZoom:19,subdomains:'abcd'});
+const tDark=tOSM;  // fallback al OSM mientras tanto (por si algún setLayer('dark') residual queda referenciado)
 const tSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri',maxZoom:19});
 let activeLayerName='osm';
 tOSM.addTo(map);
