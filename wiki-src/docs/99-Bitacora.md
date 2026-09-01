@@ -4,9 +4,9 @@
 
 DVBA · Departamento Zona VI Saladillo
 
-Última actualización: 31 de agosto de 2026
+Última actualización: 1 de septiembre de 2026
 
-Versión bitácora: v5.11 — apps v9.95.17 / v8.86p · 1-sep-2026 (guard rol solo lectura en móvil + panel admin en 4 tabs + batch usuarios prueba)
+Versión bitácora: v5.12 — apps v9.95.18 / v8.86q · 1-sep-2026 (SW cache-first + timeout 3s: fix app móvil con señal débil + desactivar Vista Oscura CARTO en escritorio)
 
 Responsable: Ing. Luciano Lamaita
 
@@ -826,10 +826,37 @@ TAB 6 · PENDIENTES
 
 | Artefacto | Versión | Archivo(s) | Bumpear con |
 |---|---|---|---|
-| **📱 App Campo (PWA unificada)** | v9.95.17 | `app.html` (router) + `dvba_campo_lite.html` (Modo Básico) + `dvba_campo.html` (Modo Avanzado) + `sw.js` | Manual: `APP_VER` en HTMLs + `CACHE_NAME` en `sw.js` |
-| **🖥 Familia escritorio** | v8.86p | `index.html`, `partes_diarios.html`, `reportes.html`, `admin_usuarios.html`, `plan_operativo.html` + módulos `datos/` (nav.js, loader_zona.js) | Manual en `const APP_VERSION` + spans footer en los 5 |
+| **📱 App Campo (PWA unificada)** | v9.95.18 | `app.html` (router) + `dvba_campo_lite.html` (Modo Básico) + `dvba_campo.html` (Modo Avanzado) + `sw.js` | Manual: `APP_VER` en HTMLs + `CACHE_NAME` en `sw.js` |
+| **🖥 Familia escritorio** | v8.86q | `index.html`, `partes_diarios.html`, `reportes.html`, `admin_usuarios.html`, `plan_operativo.html` + módulos `datos/` (nav.js, loader_zona.js) | Manual en `const APP_VERSION` + spans footer en los 5 |
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
+
+### v9.95.18 + v8.86q · 1 septiembre 2026 (tarde) — Fix crítico app móvil con señal débil + apagado temporal de Vista Oscura CARTO
+
+**App móvil (v9.95.18) · SW cache-first + timeout de 3s**
+
+Trío de bugs correlacionados que aparecían cuando el celu tenía **señal débil** (no offline duro, sino en modo "buscando red" o con datos móviles intermitentes):
+
+- **Modo Básico no arrancaba, terminaba abriendo el portal escritorio.** El ícono de la PWA cargaba `app.html` que redirige a `dvba_campo_lite.html`; el fetch de ese HTML quedaba colgado esperando la red (30-60 segundos hasta timeout de Android). En algún punto de esa espera con red parpadeante Chrome mostraba lo que tuviera cacheado como último recurso — y por un bug del orden del fallback offline del SW, terminaba sirviéndose `app.html` en lugar de `dvba_campo_lite.html`, disparando un redirect loop que en algunos ciclos derivaba a `./` = `index.html` = portal escritorio.
+- **Modo Avanzado abría pero no calculaba la progresiva.** La ruta y el partido aparecían correctamente porque venían del `red_vial_zonaVI.js` que sí llegaba, pero los bundles `rutas_rpXX.js` (con la calibración progresiva↔lat/lng) quedaban colgados en el mismo cuello de botella de red y `ARMONIZADOR` arrancaba con `CHAINS_DATA` vacío. La app parecía sana pero le faltaba el dato clave.
+- **La app "buscando señal" no arrancaba nunca.** Solo funcionaba en modo avión — porque en modo avión `fetch()` falla instantáneamente y el SW cae al cache; con señal débil el fetch quedaba a la espera indefinida.
+
+**Causa raíz común**: el SW era **network-first sin timeout** para TODO — todos los requests iban primero a la red y solo caían al cache si el fetch fallaba. Con señal débil ni fallaba ni respondía: se colgaba.
+
+**Fix en `sw.js`**:
+- **Cache-first para todo lo cacheado**: si el recurso está en cache, se sirve al instante y se refresca en background (stale-while-revalidate). Los HTML, JS y geojsons de la app arrancan en 0 ms independientemente de la red.
+- **Network-first con timeout de 3 s** solo para lo NO cacheado (llamadas dinámicas puntuales). Si en 3 segundos no responde, cae al fallback offline.
+- **Fix del orden del fallback offline**: cuando la request es a `dvba_campo_lite.html` se devuelve `dvba_campo_lite.html` primero (no `app.html` como hacía antes). Mata el redirect loop y el desvío accidental al portal escritorio.
+
+Bump `APP_VER` (span footer + `<span id='app-ver'>` + `<span id='loginVer'>`) en `dvba_campo.html` y `dvba_campo_lite.html`, y `CACHE_NAME` en `sw.js` a `v9.95.18`. Para activar el fix hay que abrir la PWA con internet una vez para que se instale el SW nuevo — después queda vigente sin importar el estado de la red.
+
+**Portal escritorio (v8.86q) · Apagado temporal de Vista Oscura**
+
+CARTO cambió su política y ya no sirve tiles del basemap `dark_all` sin API key. El botón "Vista Oscura" del selector de capas en `index.html` mostraba un error de "API key required" sobre el mapa. Como no está listo todavía el proxy que va a manejar la key sin exponerla en el HTML público, se apagó la opción temporalmente: el botón queda comentado en el selector (líneas 921-923 del HTML), la variable `tDark` queda como alias de `tOSM` como fallback defensivo por si algún `setLayer('dark')` residual quedara referenciado, y la línea original de CARTO se preserva como comentario para reactivar rápido cuando el proxy esté. Los otros dos basemaps (Mapa OSM · Satélite Esri) siguen funcionando normalmente.
+
+La solución definitiva prevista es un **Worker de Cloudflare que actúe como proxy de tiles**, guardando la key como `wrangler secret` (invisible al navegador) y cacheando cada tile 24 h en el edge de Cloudflare para no consumir cuota de CARTO por cada pan/zoom. Ya hay 3 proyectos internos (Ema Saladillo, PurpleAir, Agua) que usan exactamente ese patrón; el próximo paso es replicarlo para DVBA.
+
+Bump del span de versión y del `APP_VERSION` en los 5 archivos de la familia escritorio (`index.html`, `partes_diarios.html`, `reportes.html`, `admin_usuarios.html`, `plan_operativo.html`) según convención de versionado unificado, aunque el cambio funcional afecte solo a `index.html`.
 
 ### v9.95.17 + v8.86p · 1 septiembre 2026 — Guard de rol en móvil + panel admin en 4 tabs + batch de usuarios de prueba
 
