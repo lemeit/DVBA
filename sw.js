@@ -26,7 +26,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.95.17';  // v9.95.17 · Guard rol solo lectura móvil (gerencia/jefe_administrativa/jefe_automotores)
+const CACHE_NAME = 'dvba-campo-v9.95.18';  // v9.95.18 · CACHE-FIRST + timeout 3s (fix "no arranca con señal débil" + progresiva sin datos + redirect loop a portal escritorio)
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -93,6 +93,46 @@ self.addEventListener('activate', e => {
   );
 });
 
+// v9.95.18 · Fallback offline específico según el HTML que se pidió.
+// Fix crítico: antes SIEMPRE devolvía app.html primero, así que si pedías
+// dvba_campo_lite.html y no había red, te llegaba app.html → app.html hacía
+// location.replace('dvba_campo_lite.html') → loop; si en algún ciclo la red
+// resolvía algo distinto podías terminar en index.html (portal escritorio).
+// Ahora matcheamos primero el HTML pedido específicamente.
+function _fallbackOffline(url){
+  const path = url.pathname;
+  const esEntradaPWA =
+    /\/(app|campo|dvba_campo|dvba_campo_lite)(\.html)?\/?$/.test(path) ||
+    path.endsWith('/DVBA/') || path.endsWith('/DVBA') ||
+    path.endsWith('/');
+  if (!esEntradaPWA) {
+    return new Response(
+      'Sin conexión y sin caché disponible para este recurso.',
+      { status: 503, statusText: 'Offline',
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+    );
+  }
+  let candidatos;
+  if (/dvba_campo_lite/.test(path)) {
+    candidatos = ['./dvba_campo_lite.html', './dvba_campo.html', './app.html'];
+  } else if (/dvba_campo(?!_lite)/.test(path)) {
+    candidatos = ['./dvba_campo.html', './dvba_campo_lite.html', './app.html'];
+  } else {
+    candidatos = ['./app.html', './dvba_campo_lite.html', './dvba_campo.html'];
+  }
+  const tryNext = (i) => {
+    if (i >= candidatos.length) {
+      return new Response(
+        'Sin caché del HTML principal. Abrí la app con internet al menos una vez.',
+        { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+      );
+    }
+    return caches.match(candidatos[i], { ignoreSearch: true })
+      .then(c => c || tryNext(i + 1));
+  };
+  return tryNext(0);
+}
+
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   let url;
@@ -107,54 +147,48 @@ self.addEventListener('fetch', e => {
   if (e.request.url.includes('unpkg.com')) return;
   if (e.request.url.includes('tile.openstreetmap')) return;
 
+  // v9.95.18 · Estrategia mixta:
+  //   · Si está en cache → CACHE-FIRST (sirve al toque + refresca en background).
+  //     Mata el bug de "no arranca con señal débil": antes network-first sin
+  //     timeout dejaba a la app esperando 30-60s a que Android decidiera dar
+  //     timeout de red. También arregla la progresiva del Modo Avanzado, que
+  //     dependía de los bundles RP (rutas_rpXX.js) precacheados quedando
+  //     colgados en la red débil.
+  //   · Si NO está en cache → NETWORK-FIRST con timeout de 3s. Si en 3s no
+  //     hay red, cae al 503 (o al fallback offline si es un HTML de entrada).
   e.respondWith(
-    fetch(e.request).then(resp => {
-      if (resp && resp.status === 200 && resp.type === 'basic') {
-        const clone = resp.clone();
-        caches.open(CACHE_NAME)
-          .then(c => c.put(e.request, clone))
-          .catch(err => console.warn('[SW cache.put]', err.message));
-        return resp;
+    caches.match(e.request, { ignoreSearch: true, ignoreVary: true }).then(cached => {
+      if (cached) {
+        // Actualizar en background sin bloquear la respuesta
+        fetch(e.request).then(resp => {
+          if (resp && resp.status === 200 && resp.type === 'basic') {
+            const clone = resp.clone();
+            caches.open(CACHE_NAME)
+              .then(c => c.put(e.request, clone))
+              .catch(() => {});
+          } else if (resp && resp.status === 404) {
+            caches.open(CACHE_NAME)
+              .then(c => c.delete(e.request))
+              .catch(() => {});
+          }
+        }).catch(() => { /* offline, la cache ya se sirvió */ });
+        return cached;
       }
-      if (resp && resp.status === 404) {
-        caches.open(CACHE_NAME)
-          .then(c => c.delete(e.request))
-          .catch(() => {});
-        return resp;
-      }
-      return resp;
-    }).catch(() => {
-      // v9.95.11 · Offline · Match tolerante a query params (?v=X.Y.Z de cache-busters
-      // + params PWA que Android puede agregar como ?utm_source=pwa, etc.)
-      return caches.match(e.request, { ignoreSearch: true, ignoreVary: true }).then(cached => {
-        if (cached) return cached;
-        const path = url.pathname;
-        // v9.95.11 · Fallback ampliado · cubre TODAS las entradas del PWA
-        // (root, /DVBA/, /app.html, /dvba_campo_lite.html, /dvba_campo.html, /campo.html)
-        // Antes solo cubría /dvba_campo → si el user abría desde el icono PWA
-        // (start_url=app.html) y modo avión, caía al 503 genérico.
-        const esEntradaPWA =
-          /\/(app|campo|dvba_campo|dvba_campo_lite)(\.html)?\/?$/.test(path) ||
-          path.endsWith('/DVBA/') || path.endsWith('/DVBA') ||
-          path.endsWith('/');
-        if (esEntradaPWA) {
-          // Prioridad: app.html (bootstrap) → dvba_campo_lite.html (Modo Básico default)
-          //           → dvba_campo.html (Modo Avanzado) → root
-          return caches.match('./app.html', { ignoreSearch: true })
-            .then(c => c || caches.match('./dvba_campo_lite.html', { ignoreSearch: true }))
-            .then(c => c || caches.match('./dvba_campo.html', { ignoreSearch: true }))
-            .then(c => c || caches.match('./', { ignoreSearch: true }))
-            .then(c => c || new Response(
-              'Sin caché del HTML principal. Abrí la app con internet al menos una vez.',
-              { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
-            ));
+      // No estaba cacheado: intentar red con timeout de 3s
+      const netPromise = fetch(e.request).then(resp => {
+        if (resp && resp.status === 200 && resp.type === 'basic') {
+          const clone = resp.clone();
+          caches.open(CACHE_NAME)
+            .then(c => c.put(e.request, clone))
+            .catch(() => {});
         }
-        return new Response(
-          'Sin conexión y sin caché disponible para este recurso.',
-          { status: 503, statusText: 'Offline',
-            headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
-        );
+        return resp;
       });
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), 3000)
+      );
+      return Promise.race([netPromise, timeoutPromise])
+        .catch(() => _fallbackOffline(url));
     })
   );
 });
