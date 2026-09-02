@@ -26,7 +26,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.95.19';  // v9.95.19 · Fix guard rol falso positivo (whitelist→blacklist) + re-chequeo periódico + refresh user label en Info
+const CACHE_NAME = 'dvba-campo-v9.95.20';  // v9.95.20 · Precache assets faltantes (legales.js, rutas.js, imgs) + update flow: sin skipWaiting auto (banner ahora se ve) + updateViaCache:none + reg.update() al abrir
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -47,6 +47,7 @@ const CACHE_URLS = [
   './dvba_tipos.js',
   './datos/auth.js',
   './datos/perfil.js',
+  './datos/legales.js',           // v9.95.20 · modal Acerca/Términos/Privacidad (usado por ambos móviles)
   './datos/qrcode.min.js',
   './datos/supabase-js.min.js',   // v9.92a · Supabase JS local (fix modo básico offline)
   './datos/exif_writer.js',       // v9.80 · wrapper de piexif con datos DVBA
@@ -57,6 +58,7 @@ const CACHE_URLS = [
   './datos/zonas/zona_VI/red_vial_zonaVI.js',
   './datos/zonas/zona_VI/partidos_zonaVI.geojson',
   './datos/zonas/zona_VI/red_secundaria_zonaVI_final.geojson',
+  './datos/rutas/rutas.js',       // v9.95.20 · agregador general de rutas (autocomplete móvil)
   './datos/rutas/rutas_rp30.js',
   './datos/rutas/rutas_rp40.js',
   './datos/rutas/rutas_rp41.js',
@@ -65,15 +67,23 @@ const CACHE_URLS = [
   './datos/rutas/rutas_rp51.js',
   './datos/rutas/rutas_rp61.js',
   './datos/rutas/rutas_rp91.js',
-  './datos/zonas/zona_VI/caracteristicas_viales_zonaVI.js'
+  './datos/zonas/zona_VI/caracteristicas_viales_zonaVI.js',
+  // v9.95.20 · Assets de imagen usados por ambos móviles (favicon + icon + logo institucional).
+  // Sin estos, en modo sin conexión aparecían broken images en el header y el modal de instalación.
+  './datos/img/favicon.png',
+  './datos/img/icon-192.png',
+  './datos/img/icon-512.png',
+  './datos/img/logo_dvba_clean.png'
 ];
 
 self.addEventListener('install', e => {
-  // v9.95.2 · skipWaiting() automático: el nuevo SW toma control inmediatamente
-  // sin esperar a que todas las tabs se cierren. Combinado con clients.claim()
-  // del activate handler, garantiza que un bump de versión sea efectivo
-  // en el próximo reload del user, no requiere re-instalación de la PWA.
-  self.skipWaiting();
+  // v9.95.20 · SIN skipWaiting() automático — esperar a que el user apriete
+  // "Actualizar" en el banner. Antes el skipWaiting inmediato hacía que el
+  // nuevo SW tomara control en milisegundos y el reload disparara antes de
+  // que el user llegara a ver/leer/apretar el banner. Ahora el SW nuevo
+  // queda en estado "waiting" con el banner visible, y solo se activa
+  // cuando el user apriete (mediante postMessage('skipWaiting') que se
+  // maneja en el message handler más abajo).
   e.waitUntil(
     caches.open(CACHE_NAME).then(c =>
       Promise.all(CACHE_URLS.map(url =>

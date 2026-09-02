@@ -451,7 +451,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.19</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.20</span></div>
   </div>
 </div>
 
@@ -687,7 +687,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:auto">
-  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.19</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
+  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.20</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
 </div>
 
 
@@ -766,8 +766,16 @@ document.addEventListener('DOMContentLoaded',async()=>{
       // En primer install no había → NO recargar al primer controllerchange
       // (eso interrumpe el GPS que recién arranca).
       const hadController = !!navigator.serviceWorker.controller;
-      const reg=await navigator.serviceWorker.register('sw.js');
+      // v9.95.20 · updateViaCache:'none' fuerza a Chrome a re-fetchear el
+      // sw.js sin usar HTTP cache. Sin esto, Chrome puede seguir usando la
+      // versión vieja del sw.js por hasta 24h y no detectar actualizaciones.
+      const reg=await navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' });
       window._swReg = reg;
+      // v9.95.20 · Forzar chequeo de update al abrir la app + cada 30 min.
+      // Combinado con updateViaCache:'none', garantiza que si hay versión
+      // nueva publicada, el banner aparezca sin necesidad de cerrar/abrir.
+      try { reg.update(); } catch(_){}
+      setInterval(() => { try { reg.update(); } catch(_){} }, 30 * 60 * 1000);
       navigator.serviceWorker.addEventListener('message',onSWMsg);
       // Si ya hay un SW en estado "waiting" al cargar la app, mostrar banner
       if(reg.waiting && navigator.serviceWorker.controller){
@@ -2308,7 +2316,7 @@ function hacerThumb(b64){
   // (v9.95.4 tenía "var APP_VER = window.APP_VER" que causaba SyntaxError por doble
   // declaración con otro script, abortando la asignación y dejando el modal Acerca
   // de mostrando versión vieja cacheada).
-  window.APP_VER = 'v9.95.19';
+  window.APP_VER = 'v9.95.20';
   console.log('[dvba_campo] window.APP_VER inicializado a', window.APP_VER);
 </script>
 <!-- v9.95.4 · Cache-busters en los .js críticos para forzar reload aunque el SW cachee -->

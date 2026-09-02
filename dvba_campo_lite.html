@@ -389,7 +389,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.95.19';
+const APP_VER = 'v9.95.20';
 window.APP_VER = APP_VER;
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -1330,8 +1330,12 @@ if ('serviceWorker' in navigator){
   window.addEventListener('load', async () => {
     try {
       const hadController = !!navigator.serviceWorker.controller;
-      const reg = await navigator.serviceWorker.register('sw.js');
+      // v9.95.20 · updateViaCache:'none' fuerza a Chrome a re-fetchear el
+      // sw.js sin usar HTTP cache. Combinado con reg.update() explícito,
+      // garantiza detectar versiones nuevas al abrir la app.
+      const reg = await navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' });
       window._swReg = reg;
+      try { reg.update(); } catch(_){}
       // Si ya hay uno esperando al arrancar (y ya hay controller = no es primera instalación)
       if (reg.waiting && navigator.serviceWorker.controller){
         mostrarBannerUpdate();
