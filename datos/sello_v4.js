@@ -309,7 +309,8 @@ function aplicar(base64, datos, opts){
           txtFit(datos.localidad, tx, yB, maxW, fT, '#ffffff', true);
           yB += Math.round(fT * 1.35);
         }
-        const rutaKm = [datos.ruta, datos.prog ? 'Km ' + datos.prog : ''].filter(Boolean).join('  ·  ');
+        // v9.95.21 · SI: "km" en minúscula (kilómetro es unidad SI, no propio)
+        const rutaKm = [datos.ruta, datos.prog ? 'km ' + datos.prog : ''].filter(Boolean).join('  ·  ');
         if (rutaKm){
           txtFit(rutaKm, tx, yB, maxW, fM, '#ffffff', true);
           yB += Math.round(fM * 1.35);

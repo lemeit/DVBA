@@ -280,6 +280,26 @@ const DVBA_ESTADOS = (() => {
     return getEstadosRelev(catKey);
   }
 
+  // v9.95.21 · Helper: dado un key crudo ('en_ejecucion', 'reparado', ...)
+  // devuelve su label humano ('En ejecución', 'Reparado', ...). Se usa en
+  // el sello + tablas + UIs para no imprimir los enums con guión bajo.
+  // Busca en ESTADOS_TAREA, todos los POR_CAT_RELEV y UNIVERSALES.
+  const _INDEX_LABEL = (() => {
+    const idx = {};
+    ESTADOS_TAREA.forEach(e => idx[e.key] = e.label);
+    Object.values(POR_CAT_RELEV).forEach(arr => arr.forEach(e => idx[e.key] = e.label));
+    Object.values(UNIVERSALES).forEach(e => idx[e.key] = e.label);
+    return idx;
+  })();
+  function labelDe(key) {
+    if (!key) return '';
+    // Si ya matchea un label conocido, devolverlo
+    if (_INDEX_LABEL[key]) return _INDEX_LABEL[key];
+    // Fallback tolerante: si viene un key desconocido con underscore,
+    // convertir a "Sentence case" para que igual se lea bien.
+    return String(key).replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());
+  }
+
   return {
     // v1 (compat)
     getEstados,
@@ -301,6 +321,8 @@ const DVBA_ESTADOS = (() => {
     aplicaModalidadV2,
     POR_CAT_RELEV,
     ESTADOS_TAREA,
+    // v9.95.21 · label humano de un estado key
+    labelDe,
   };
 })();
 

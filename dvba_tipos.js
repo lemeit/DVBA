@@ -135,7 +135,7 @@ const DVBA_TIPOS = (() => {
         'Zona escolar (I-)',
         'Paso peatonal (I-)',
         // Elementos auxiliares
-        'Guardarrail',
+        'Guardarrail (tipo Flex Beam)',
         'Delineador',
         'Cebras (cabezal alcantarilla / puente)',
       ]
@@ -176,6 +176,7 @@ const DVBA_TIPOS = (() => {
         'Árbol caído',
         'Acceso a campo / tranquera dañada',
         'Animal muerto en calzada',
+        'Vehículo abandonado',
       ]
     },
 
@@ -377,7 +378,7 @@ const DVBA_TIPOS = (() => {
         'Zona escolar (I-)',
         'Paso peatonal (I-)',
         // Elementos auxiliares
-        'Guardarrail',
+        'Guardarrail (tipo Flex Beam)',
         'Delineador',
         'Cebras (cabezal alcantarilla / puente)',
       ],
@@ -439,6 +440,7 @@ const DVBA_TIPOS = (() => {
         'Árbol caído',
         'Acceso a campo / tranquera dañada',
         'Animal muerto en calzada',
+        'Vehículo abandonado',
       ],
       items_tarea: [
         'Desmalezado manual',
@@ -447,7 +449,7 @@ const DVBA_TIPOS = (() => {
         'Limpieza general de ramal',
         'Retiro de árbol caído',
         'Retiro de animal',
-        'Reparación de tranquera',
+        'Retiro de vehículo abandonado',
       ],
     },
 
