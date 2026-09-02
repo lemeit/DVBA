@@ -451,7 +451,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
       <div class="err" id="login-err"></div>
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.18</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:#c47a00;letter-spacing:0">β</sup> · <span id="loginVer">v9.95.19</span></div>
   </div>
 </div>
 
@@ -687,7 +687,7 @@ body.accesible .modal-sello .ms-b label{font-size:13px}
   <button class="btn-n btn-save" id="btn-save" onclick="guardarRegistro()" style="display:none">💾 Guardar</button>
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:19;text-align:center;font-size:9px;color:#aaa;background:var(--bg);padding:0 8px calc(3px + env(safe-area-inset-bottom,0px));line-height:1.6;pointer-events:auto">
-  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.18</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
+  <b style="color:#c47a00">SIG Vial PBA<sup style="font-size:.85em">β</sup></b> · <span id='app-ver'>v9.95.19</span> · <a href="javascript:void(0)" onclick="DVBA_LEGAL&&DVBA_LEGAL.abrir('acerca')" style="color:#aaa;text-decoration:underline;cursor:pointer">Acerca</a>
 </div>
 
 
@@ -1742,16 +1742,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ── Guardar ── */
-// v9.95.17 · Guard de rol: bloquea la carga a roles solo-lectura.
-// Roles autorizados a cargar: admin, tecnico, capataz, jefe_zona, jefe_tecnica, jefe_operativa.
-// Roles solo-lectura: gerencia, jefe_administrativa, jefe_automotores.
+// v9.95.19 · Guard de rol: bloquea la carga a roles solo-lectura.
+// Fix vs v9.95.17: usar BLACKLIST (bloquear solo los 3 conocidos como solo-lectura)
+// en vez de whitelist. Con whitelist, si el chequeo corre antes de que
+// DVBA_PERFIL.cargar() termine (fetch a Supabase), cache.rol='' no matchea y se
+// mostraba banner falso a roles autorizados como jefe_tecnica.
+// Ahora: sin cache → permisivo. Solo bloquear cuando hay confirmación explícita.
 function _rolPuedeCargar(){
   try {
     const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
     const rol = cache.rol || '';
-    const ROLES_CARGA = new Set(['admin','tecnico','capataz','jefe_zona','jefe_tecnica','jefe_operativa']);
-    return ROLES_CARGA.has(rol);
-  } catch(_){ return true; /* fallback tolerante */ }
+    if (!rol) return true;  // perfil todavía no cargado → permisivo
+    const ROLES_SOLO_LECTURA = new Set(['gerencia','jefe_administrativa','jefe_automotores']);
+    return !ROLES_SOLO_LECTURA.has(rol);
+  } catch(_){ return true; }
 }
 function _chequearRolPuedeCargarAvanzado(){
   const puede = _rolPuedeCargar();
@@ -1769,8 +1773,20 @@ function _chequearRolPuedeCargarAvanzado(){
     }
   } else if (banner){ banner.remove(); }
 }
-// Ejecutar al cargar (después de que perfil esté disponible)
-window.addEventListener('load', () => setTimeout(_chequearRolPuedeCargarAvanzado, 800));
+// v9.95.19 · Re-chequear varias veces para agarrar el momento en que
+// DVBA_PERFIL.cargar() termina de poblar el localStorage. También sincroniza
+// el label del user en el modal Info (que quedaba en "👤 Usuario").
+window.addEventListener('load', () => {
+  const reChequear = () => {
+    _chequearRolPuedeCargarAvanzado();
+    // Refrescar también el label del user (info + sub del header) por si
+    // mostrarUsuario() corrió antes de que el perfil se cargara.
+    try { if (typeof mostrarUsuario === 'function' && typeof _user !== 'undefined' && _user) mostrarUsuario(_user); } catch(_){}
+  };
+  // Chequear a los 0.5s, 1.5s, 3s y 6s para cubrir arranques lentos (Supabase
+  // fetch en red débil puede tardar varios segundos).
+  [500, 1500, 3000, 6000].forEach(t => setTimeout(reChequear, t));
+});
 
 async function guardarRegistro(){
   // v9.95.17 · Guard de rol: bloquear carga para roles solo lectura
@@ -2292,7 +2308,7 @@ function hacerThumb(b64){
   // (v9.95.4 tenía "var APP_VER = window.APP_VER" que causaba SyntaxError por doble
   // declaración con otro script, abortando la asignación y dejando el modal Acerca
   // de mostrando versión vieja cacheada).
-  window.APP_VER = 'v9.95.18';
+  window.APP_VER = 'v9.95.19';
   console.log('[dvba_campo] window.APP_VER inicializado a', window.APP_VER);
 </script>
 <!-- v9.95.4 · Cache-busters en los .js críticos para forzar reload aunque el SW cachee -->

@@ -389,7 +389,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.95.18';
+const APP_VER = 'v9.95.19';
 window.APP_VER = APP_VER;
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc';
@@ -426,16 +426,17 @@ function lActualizarSubHeader(){
   el.textContent = 'Sin sesión';
 }
 
-// v9.95.17 · Guard de rol: bloquea la captura para roles sin autorización de carga.
-// Roles solo-lectura: gerencia, jefe_administrativa, jefe_automotores.
-// Roles que sí pueden cargar: admin, tecnico, capataz, jefe_zona, jefe_tecnica, jefe_operativa.
+// v9.95.19 · Guard de rol con BLACKLIST (bloquear solo los 3 solo-lectura).
+// Fix vs v9.95.17: whitelist rígida bloqueaba falso-positivo a roles válidos
+// cuando el perfil todavía no había cargado. Ahora sin cache → permisivo.
 function _lRolPuedeCargar(){
   try {
     const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
     const rol = cache.rol || '';
-    const ROLES_CARGA = new Set(['admin','tecnico','capataz','jefe_zona','jefe_tecnica','jefe_operativa']);
-    return ROLES_CARGA.has(rol);
-  } catch(_){ return true; /* fallback tolerante */ }
+    if (!rol) return true;  // perfil no cargado todavía → permisivo
+    const ROLES_SOLO_LECTURA = new Set(['gerencia','jefe_administrativa','jefe_automotores']);
+    return !ROLES_SOLO_LECTURA.has(rol);
+  } catch(_){ return true; }
 }
 function _lChequearRolPuedeCargar(){
   const puede = _lRolPuedeCargar();
