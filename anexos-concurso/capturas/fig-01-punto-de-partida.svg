@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="3" result="offsetblur"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.18"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="leftBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f5f5f5"/>
+      <stop offset="100%" stop-color="#e8e8e8"/>
+    </linearGradient>
+    <linearGradient id="rightBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8f7fa"/>
+      <stop offset="100%" stop-color="#cfeef3"/>
+    </linearGradient>
+    <linearGradient id="arrowGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#009aae"/>
+      <stop offset="100%" stop-color="#00758a"/>
+    </linearGradient>
+    <marker id="arrowHead" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#00758a"/>
+    </marker>
+  </defs>
+
+  <!-- Fondo -->
+  <rect width="1600" height="900" fill="#ffffff"/>
+
+  <!-- Header bar -->
+  <rect x="0" y="0" width="1600" height="90" fill="#003a44"/>
+  <text x="50" y="45" font-size="26" font-weight="700" fill="#ffffff">Punto de partida</text>
+  <text x="50" y="72" font-size="15" fill="#7dd7e3">Del ecosistema fragmentado al sistema unificado · SIG Vial PBA</text>
+  <text x="1550" y="45" text-anchor="end" font-size="13" fill="#7dd7e3">FIGURA 1</text>
+  <text x="1550" y="65" text-anchor="end" font-size="11" fill="#5cb2c0" letter-spacing="0.3">DIAGRAMA CONCEPTUAL</text>
+
+  <!-- ============================================ -->
+  <!-- LADO IZQUIERDO: Fragmentación -->
+  <!-- ============================================ -->
+  <g>
+    <!-- Panel background -->
+    <rect x="40" y="130" width="640" height="680" rx="18" ry="18" fill="url(#leftBg)" stroke="#c8c8c8" stroke-width="1.5"/>
+
+    <!-- Titulo panel -->
+    <text x="360" y="180" text-anchor="middle" font-size="22" font-weight="700" fill="#666666" letter-spacing="1">ANTES · Fragmentación</text>
+    <text x="360" y="208" text-anchor="middle" font-size="13" fill="#888888" font-style="italic">Herramientas dispersas, sin trazabilidad entre piezas</text>
+
+    <!-- Icono 1: Carpeta física con papeles -->
+    <g transform="translate(140 300)">
+      <!-- Papeles atrás -->
+      <rect x="-32" y="-40" width="60" height="72" rx="2" fill="#ffffff" stroke="#aaa" stroke-width="1.5" transform="rotate(-8)"/>
+      <rect x="-28" y="-38" width="60" height="72" rx="2" fill="#ffffff" stroke="#aaa" stroke-width="1.5" transform="rotate(4)"/>
+      <!-- Carpeta -->
+      <path d="M -45 -10 L -45 40 L 45 40 L 45 -20 L 5 -20 L -5 -30 L -45 -30 Z" fill="#c9a05a" stroke="#8b6f3f" stroke-width="2"/>
+      <path d="M -45 -10 L 45 -10" stroke="#8b6f3f" stroke-width="1.5"/>
+    </g>
+    <text x="140" y="380" text-anchor="middle" font-size="13" font-weight="600" fill="#555">Papeles físicos</text>
+    <text x="140" y="398" text-anchor="middle" font-size="11" fill="#888" font-style="italic">Carpetas y archivadores</text>
+
+    <!-- Icono 2: Google Forms -->
+    <g transform="translate(360 300)">
+      <rect x="-38" y="-42" width="76" height="76" rx="8" fill="#673ab7"/>
+      <rect x="-24" y="-28" width="48" height="6" fill="#ffffff"/>
+      <rect x="-24" y="-16" width="34" height="4" fill="#ffffff" opacity="0.7"/>
+      <rect x="-24" y="-6" width="48" height="6" fill="#ffffff"/>
+      <rect x="-24" y="6" width="34" height="4" fill="#ffffff" opacity="0.7"/>
+      <rect x="-24" y="16" width="48" height="6" fill="#ffffff"/>
+    </g>
+    <text x="360" y="380" text-anchor="middle" font-size="13" font-weight="600" fill="#555">Formularios online</text>
+    <text x="360" y="398" text-anchor="middle" font-size="11" fill="#888" font-style="italic">Google Forms · partes diarios</text>
+
+    <!-- Icono 3: Excel/hoja de cálculo -->
+    <g transform="translate(580 300)">
+      <rect x="-38" y="-42" width="76" height="76" rx="6" fill="#217346"/>
+      <text x="0" y="12" text-anchor="middle" font-size="42" font-weight="700" fill="#ffffff">X</text>
+    </g>
+    <text x="580" y="380" text-anchor="middle" font-size="13" font-weight="600" fill="#555">Hojas de cálculo</text>
+    <text x="580" y="398" text-anchor="middle" font-size="11" fill="#888" font-style="italic">Compaginación manual</text>
+
+    <!-- Icono 4: Teléfono con fotos sueltas -->
+    <g transform="translate(200 570)">
+      <rect x="-28" y="-42" width="56" height="84" rx="8" fill="#333"/>
+      <rect x="-24" y="-38" width="48" height="66" fill="#e8e8e8"/>
+      <circle cx="0" cy="34" r="3" fill="#666"/>
+      <!-- Fotos sueltas -->
+      <g transform="translate(45 -20)">
+        <rect x="-8" y="-8" width="24" height="24" fill="#ffffff" stroke="#aaa" transform="rotate(15)"/>
+        <rect x="-4" y="-4" width="24" height="24" fill="#ffffff" stroke="#aaa" transform="rotate(-8)"/>
+        <rect x="0" y="0" width="24" height="24" fill="#ffffff" stroke="#aaa" transform="rotate(20)"/>
+      </g>
+    </g>
+    <text x="200" y="650" text-anchor="middle" font-size="13" font-weight="600" fill="#555">Fotos sueltas</text>
+    <text x="200" y="668" text-anchor="middle" font-size="11" fill="#888" font-style="italic">Teléfono personal</text>
+
+    <!-- Icono 5: PC aislada con QGIS local -->
+    <g transform="translate(490 570)">
+      <rect x="-42" y="-38" width="84" height="56" rx="4" fill="#333"/>
+      <rect x="-38" y="-34" width="76" height="46" fill="#009688"/>
+      <text x="0" y="-8" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">QGIS</text>
+      <text x="0" y="6" text-anchor="middle" font-size="9" fill="#ffffff">LOCAL</text>
+      <rect x="-10" y="18" width="20" height="6" fill="#333"/>
+      <rect x="-20" y="24" width="40" height="4" rx="1" fill="#333"/>
+    </g>
+    <text x="490" y="650" text-anchor="middle" font-size="13" font-weight="600" fill="#555">Cartografía aislada</text>
+    <text x="490" y="668" text-anchor="middle" font-size="11" fill="#888" font-style="italic">Sin publicación institucional</text>
+
+    <!-- Líneas discontinuas de conexión (fragmentación) -->
+    <g stroke="#bbb" stroke-width="1.2" stroke-dasharray="4 6" fill="none">
+      <line x1="140" y1="330" x2="200" y2="530"/>
+      <line x1="360" y1="330" x2="200" y2="530"/>
+      <line x1="360" y1="330" x2="490" y2="530"/>
+      <line x1="580" y1="330" x2="490" y2="530"/>
+      <line x1="140" y1="330" x2="360" y2="330"/>
+      <line x1="360" y1="330" x2="580" y2="330"/>
+      <line x1="200" y1="570" x2="490" y2="570"/>
+    </g>
+
+    <!-- Etiqueta al pie -->
+    <rect x="80" y="745" width="560" height="55" rx="8" fill="#ffffff" stroke="#c8c8c8" stroke-width="1.2"/>
+    <text x="360" y="768" text-anchor="middle" font-size="12" font-weight="700" fill="#666" letter-spacing="0.5">CADA PIEZA EN UN COMPARTIMENTO</text>
+    <text x="360" y="788" text-anchor="middle" font-size="11" fill="#888" font-style="italic">La trazabilidad depende de la memoria del operativo y del criterio del compaginador</text>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- FLECHA CENTRAL: SIG Vial PBA -->
+  <!-- ============================================ -->
+  <g>
+    <!-- Cinta flecha -->
+    <path d="M 700 380 L 900 380 L 900 350 L 960 430 L 900 510 L 900 480 L 700 480 Z" fill="url(#arrowGrad)" filter="url(#softShadow)"/>
+    <text x="800" y="418" text-anchor="middle" font-size="18" font-weight="700" fill="#ffffff" letter-spacing="0.8">SIG Vial PBA</text>
+    <text x="800" y="450" text-anchor="middle" font-size="11" fill="#cfeef3" font-style="italic">plataforma web integral</text>
+
+    <!-- Texto arriba y abajo del centro -->
+    <text x="800" y="300" text-anchor="middle" font-size="14" font-weight="700" fill="#003a44" letter-spacing="0.5">INTEGRACIÓN</text>
+    <text x="800" y="322" text-anchor="middle" font-size="11" fill="#556" font-style="italic">campo · oficina · planeamiento · gerencia</text>
+
+    <text x="800" y="565" text-anchor="middle" font-size="11" fill="#556" font-style="italic">Una única base compartida</text>
+    <text x="800" y="583" text-anchor="middle" font-size="11" fill="#556" font-style="italic">para las cuatro caras del sistema</text>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- LADO DERECHO: Sistema unificado -->
+  <!-- ============================================ -->
+  <g>
+    <!-- Panel background -->
+    <rect x="990" y="130" width="580" height="680" rx="18" ry="18" fill="url(#rightBg)" stroke="#00a8bd" stroke-width="1.5"/>
+
+    <!-- Titulo panel -->
+    <text x="1280" y="180" text-anchor="middle" font-size="22" font-weight="700" fill="#00758a" letter-spacing="1">AHORA · Sistema unificado</text>
+    <text x="1280" y="208" text-anchor="middle" font-size="13" fill="#00758a" font-style="italic">Piezas coordinadas sobre una única fuente de verdad</text>
+
+    <!-- Base central: Base de datos en la nube -->
+    <g transform="translate(1280 490)">
+      <!-- Nube -->
+      <path d="M -110 0 Q -130 0 -130 -25 Q -130 -55 -95 -55 Q -85 -80 -55 -80 Q -20 -95 15 -80 Q 55 -85 70 -55 Q 105 -55 110 -30 Q 130 -25 125 0 Q 130 25 105 30 Q 100 55 60 55 L -80 55 Q -110 55 -115 30 Q -125 25 -110 0 Z" fill="#ffffff" stroke="#00758a" stroke-width="2"/>
+      <!-- Cilindro DB adentro -->
+      <g transform="translate(0 -10)">
+        <ellipse cx="0" cy="-18" rx="30" ry="8" fill="#00758a"/>
+        <path d="M -30 -18 L -30 22 Q -30 30 0 30 Q 30 30 30 22 L 30 -18" fill="#00a8bd"/>
+        <ellipse cx="0" cy="-18" rx="30" ry="8" fill="none" stroke="#003a44" stroke-width="1.5"/>
+        <ellipse cx="0" cy="-3" rx="30" ry="8" fill="none" stroke="#003a44" stroke-width="1" opacity="0.5"/>
+        <ellipse cx="0" cy="12" rx="30" ry="8" fill="none" stroke="#003a44" stroke-width="1" opacity="0.5"/>
+      </g>
+    </g>
+    <text x="1280" y="580" text-anchor="middle" font-size="13" font-weight="700" fill="#003a44">Base de datos + Storage en la nube</text>
+    <text x="1280" y="598" text-anchor="middle" font-size="11" fill="#00758a" font-style="italic">PostgreSQL · Auth · Row-Level Security</text>
+
+    <!-- 3 satélites conectados a la base central -->
+
+    <!-- Sat 1: Mapa web (arriba-izq) -->
+    <g transform="translate(1100 300)">
+      <rect x="-45" y="-35" width="90" height="70" rx="8" fill="#ffffff" stroke="#00a8bd" stroke-width="2" filter="url(#softShadow)"/>
+      <!-- Mapa mundi simplificado -->
+      <path d="M -30 -18 Q -20 -25 -5 -20 Q 10 -25 25 -18 L 30 -8 L 25 5 Q 10 12 -5 8 Q -20 12 -30 5 Z" fill="#00b1c7" opacity="0.5"/>
+      <!-- Pins -->
+      <circle cx="-15" cy="-10" r="4" fill="#c47a00"/>
+      <circle cx="8" cy="-2" r="4" fill="#c47a00"/>
+      <circle cx="20" cy="6" r="4" fill="#c47a00"/>
+    </g>
+    <text x="1100" y="360" text-anchor="middle" font-size="12" font-weight="600" fill="#003a44">Mapa web público</text>
+    <text x="1100" y="378" text-anchor="middle" font-size="10" fill="#00758a" font-style="italic">12 zonas · 135 partidos</text>
+
+    <!-- Sat 2: App móvil (arriba-der) -->
+    <g transform="translate(1460 300)">
+      <rect x="-22" y="-38" width="44" height="76" rx="6" fill="#003a44"/>
+      <rect x="-18" y="-32" width="36" height="58" fill="#00a8bd"/>
+      <rect x="-14" y="-27" width="28" height="4" fill="#ffffff"/>
+      <rect x="-14" y="-19" width="20" height="3" fill="#ffffff" opacity="0.6"/>
+      <rect x="-14" y="-10" width="28" height="4" fill="#ffffff"/>
+      <rect x="-14" y="-2" width="20" height="3" fill="#ffffff" opacity="0.6"/>
+      <rect x="-14" y="8" width="28" height="4" fill="#ffffff"/>
+      <circle cx="0" cy="30" r="3" fill="#7dd7e3"/>
+    </g>
+    <text x="1460" y="360" text-anchor="middle" font-size="12" font-weight="600" fill="#003a44">Aplicación móvil PWA</text>
+    <text x="1460" y="378" text-anchor="middle" font-size="10" fill="#00758a" font-style="italic">Instalable · offline</text>
+
+    <!-- Sat 3: Portal escritorio (abajo-izq) -->
+    <g transform="translate(1100 650)">
+      <rect x="-40" y="-28" width="80" height="52" rx="4" fill="#003a44"/>
+      <rect x="-36" y="-24" width="72" height="44" fill="#00a8bd"/>
+      <!-- Kanban columnas -->
+      <rect x="-30" y="-20" width="14" height="36" fill="#ffffff" opacity="0.9"/>
+      <rect x="-13" y="-20" width="14" height="36" fill="#ffffff" opacity="0.9"/>
+      <rect x="4" y="-20" width="14" height="36" fill="#ffffff" opacity="0.9"/>
+      <rect x="21" y="-20" width="12" height="36" fill="#ffffff" opacity="0.9"/>
+      <rect x="-10" y="24" width="20" height="6" fill="#003a44"/>
+      <rect x="-18" y="30" width="36" height="4" rx="1" fill="#003a44"/>
+    </g>
+    <text x="1100" y="705" text-anchor="middle" font-size="12" font-weight="600" fill="#003a44">Portal de escritorio</text>
+    <text x="1100" y="723" text-anchor="middle" font-size="10" fill="#00758a" font-style="italic">Reportes · Kanban</text>
+
+    <!-- Sat 4: Panel admin (abajo-der) -->
+    <g transform="translate(1460 650)">
+      <circle cx="0" cy="0" r="24" fill="none" stroke="#c47a00" stroke-width="5"/>
+      <circle cx="0" cy="0" r="7" fill="#c47a00"/>
+      <g fill="#c47a00">
+        <rect x="-4" y="-34" width="8" height="10" rx="1"/>
+        <rect x="-4" y="24" width="8" height="10" rx="1"/>
+        <rect x="24" y="-4" width="10" height="8" rx="1"/>
+        <rect x="-34" y="-4" width="10" height="8" rx="1"/>
+      </g>
+    </g>
+    <text x="1460" y="705" text-anchor="middle" font-size="12" font-weight="600" fill="#003a44">Panel administrativo</text>
+    <text x="1460" y="723" text-anchor="middle" font-size="10" fill="#00758a" font-style="italic">Trazabilidad · auditoría</text>
+
+    <!-- Líneas sólidas de integración -->
+    <g stroke="#00758a" stroke-width="2" fill="none">
+      <line x1="1145" y1="330" x2="1230" y2="450"/>
+      <line x1="1415" y1="330" x2="1330" y2="450"/>
+      <line x1="1145" y1="620" x2="1230" y2="530"/>
+      <line x1="1415" y1="620" x2="1330" y2="530"/>
+    </g>
+
+    <!-- Etiqueta al pie -->
+    <rect x="1020" y="745" width="520" height="55" rx="8" fill="#ffffff" stroke="#00a8bd" stroke-width="1.5"/>
+    <text x="1280" y="768" text-anchor="middle" font-size="12" font-weight="700" fill="#00758a" letter-spacing="0.5">MEMORIA INSTITUCIONAL OPERABLE</text>
+    <text x="1280" y="788" text-anchor="middle" font-size="11" fill="#556" font-style="italic">Todo es consultable, cruzable y auditable desde el primer día</text>
+  </g>
+
+  <!-- Nota al pie -->
+  <text x="800" y="860" text-anchor="middle" font-size="11" fill="#889">SIG Vial PBA · XLI Concurso sobre Temas Viales DVBA 2026 · Figura 1 · Punto de partida</text>
+</svg>

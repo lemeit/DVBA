@@ -70,7 +70,7 @@ Alternativa más simple: dejar esta captura para el final o directamente omitirl
 
 ---
 
-### `fig-05-modal-informativo-ruta.png` · Modal informativo estilo DVBA de una ruta
+### `fig-05-modal-informativo-ruta.png` · Modal informativo estilo DVBA de una ruta provincial
 
 **Sección**: `## 4.3 Portal web de escritorio` — como segunda figura del módulo (después de la vista general).
 
@@ -79,7 +79,20 @@ Alternativa más simple: dejar esta captura para el final o directamente omitirl
 2. Se abre el modal informativo con toda la ficha técnica.
 3. Captura solo del modal (o modal + parte del mapa detrás).
 
-**Encuadre sugerido**: El modal completo con Nombre de RP, Zona, Progresiva en punto, Ubicación, Longitud oficial DVBA, Longitud GIS, Diferencia, Características viales (Tipo pavimento, Clase, Ancho de calzada, etc.), botones Agregar al reporte / Editar datos viales / Cerrar.
+**Encuadre sugerido**: El modal completo con Nombre de RP, Zona, Progresiva en punto, Ubicación, Longitud oficial DVBA, Longitud GIS, Diferencia, Características viales (Tipo pavimento, Clase, Ancho de calzada, etc.), botones Agregar al reporte / Cerrar.
+
+---
+
+### `fig-05b-modal-camino-alias.png` · Modal informativo de un camino secundario con edición colaborativa de alias
+
+**Sección**: `## 4.3 Portal web de escritorio` — como tercera figura del módulo (después de fig-05), ilustrando la funcionalidad colaborativa de nombres populares implementada en la red secundaria (sprint v8.72).
+
+**Cómo tomarla**:
+1. En la vista zonal detallada, hacer doble click sobre un camino secundario que tenga alias registrados.
+2. Se abre el modal con la ficha técnica del camino + chips de alias locales editables.
+3. Captura del modal.
+
+**Encuadre sugerido**: Modal completo con nomenclatura oficial, denominación, partido, chips con los alias populares registrados, botón "Editar alias" (para usuarios logueados), y trazabilidad del último cambio.
 
 ---
 
