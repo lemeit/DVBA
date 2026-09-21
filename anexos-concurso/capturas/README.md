@@ -137,13 +137,13 @@ Alternativa más simple: dejar esta captura para el final o directamente omitirl
 
 ---
 
-### `fig-09-reportes-dashboard.png` · Módulo Reportes con los 4 gráficos
+### `fig-09-reportes-dashboard.png` · Módulo Informes con los 4 gráficos
 
-**Sección**: `## 4.5 Módulo Reportes institucionales` — imagen principal.
+**Sección**: `## 4.5 Módulo Informes institucionales` — imagen principal.
 
 **Cómo tomarla**:
-1. Loguearte en el portal como un rol con acceso a Reportes (jefe de zona, gerencia, o admin).
-2. Ir al módulo Reportes.
+1. Loguearte en el portal como un rol con acceso a Informes (jefe de zona, gerencia, o admin).
+2. Ir al módulo Informes.
 3. Seleccionar un rango de fechas con actividad (ej. últimos 3 meses).
 4. Esperar que carguen los 4 gráficos y la tabla.
 5. Captura de la ventana entera con los 4 charts visibles.
@@ -181,10 +181,10 @@ Alternativa más simple: dejar esta captura para el final o directamente omitirl
 
 ### `fig-12-pdf-institucional.png` · Miniatura del PDF exportado
 
-**Sección**: `## 4.5 Módulo Reportes institucionales` — como segunda imagen del módulo (después del dashboard).
+**Sección**: `## 4.5 Módulo Informes institucionales` — como segunda imagen del módulo (después del dashboard).
 
 **Cómo tomarla**:
-1. Desde el módulo Reportes, exportar un PDF de ejemplo.
+1. Desde el módulo Informes, exportar un PDF de ejemplo.
 2. Abrir el PDF y capturar la primera página (portada institucional) o hacer un montaje con miniaturas de las 2-3 páginas más representativas.
 
 **Encuadre sugerido**: primera página del PDF con portada institucional DVBA + tabla o gráficos visibles.

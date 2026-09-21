@@ -16,7 +16,7 @@ Los archivos HTML se abren renderizados desde GitHub Pages (columna «Ver»); lo
 | Guía visual complementaria | [Abrir](https://lemeit.github.io/DVBA/anexos-concurso/guia-visual.html) | 10 láminas navegables con capturas reales de los flujos operativos |
 | Antecedente Sistema SIG Vial 2008 | [Abrir](https://lemeit.github.io/DVBA/anexos-concurso/sistema-sig-vial-2008.pdf) | Documento institucional referenciado en la Parte 1 del informe |
 | Diagrama de arquitectura | [Abrir](https://lemeit.github.io/DVBA/anexos-concurso/diagrama-arquitectura.png) | Diagrama en alto nivel del sistema (PNG alta resolución) |
-| Reporte de ejemplo | [Abrir](https://lemeit.github.io/DVBA/anexos-concurso/reporte-ejemplo.pdf) | PDF generado por el módulo Reportes de un mes representativo de operación |
+| Informe de ejemplo | [Abrir](https://lemeit.github.io/DVBA/anexos-concurso/reporte-ejemplo.pdf) | PDF generado por el módulo Informes de un mes representativo de operación |
 | Capturas del sistema | [Ver carpeta](capturas/) | Capturas de producción con datos reales de la zona piloto |
 
 ---
@@ -30,7 +30,7 @@ Se pone a disposición del jurado la instalación productiva del sistema para ex
 | Portal público · vista panorámica de la Provincia | https://lemeit.github.io/DVBA/ |
 | Portal público · vista de la zona piloto | https://lemeit.github.io/DVBA/?zona=VI |
 | Aplicación móvil PWA de campo | https://lemeit.github.io/DVBA/app.html |
-| Módulo Reportes institucionales | https://lemeit.github.io/DVBA/reportes.html |
+| Módulo Informes institucionales | https://lemeit.github.io/DVBA/reportes.html |
 | Módulo Plan de Seguridad en la Circulación | https://lemeit.github.io/DVBA/partes_diarios.html |
 
 ---
