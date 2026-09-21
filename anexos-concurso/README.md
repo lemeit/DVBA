@@ -8,14 +8,16 @@ Todos los recursos aquí referenciados son de acceso libre desde cualquier naveg
 
 ## Contenido de esta carpeta
 
-| Archivo | Descripción |
-|---|---|
-| [`guia-usuario.html`](guia-usuario.html) | Guía de usuario completa de las aplicaciones móviles del sistema |
-| [`guia-visual.html`](guia-visual.html) | Guía visual complementaria · 10 láminas navegables con capturas reales de los flujos operativos |
-| [`sistema-sig-vial-2008.pdf`](sistema-sig-vial-2008.pdf) | Documento institucional del antecedente Sistema SIG Vial 2008 de la DVBA, referenciado en la Parte 1 del informe |
-| [`capturas/`](capturas/) | Capturas del sistema en producción con datos reales de la zona piloto |
-| [`diagrama-arquitectura.png`](diagrama-arquitectura.png) | Diagrama de arquitectura en alto nivel del sistema |
-| [`reporte-ejemplo.pdf`](reporte-ejemplo.pdf) | PDF generado por el módulo Reportes correspondiente a un mes representativo de operación |
+Los archivos HTML se abren renderizados desde GitHub Pages (columna «Ver»); los PDF y PNG se descargan o previsualizan directamente desde GitHub (columna «Ver» también).
+
+| Recurso | Ver | Descripción |
+|---|---|---|
+| Guía de usuario | [Abrir](https://lemeit.github.io/DVBA/anexos-concurso/guia-usuario.html) | Guía completa de las aplicaciones móviles del sistema |
+| Guía visual complementaria | [Abrir](https://lemeit.github.io/DVBA/anexos-concurso/guia-visual.html) | 10 láminas navegables con capturas reales de los flujos operativos |
+| Antecedente Sistema SIG Vial 2008 | [Abrir](https://lemeit.github.io/DVBA/anexos-concurso/sistema-sig-vial-2008.pdf) | Documento institucional referenciado en la Parte 1 del informe |
+| Diagrama de arquitectura | [Abrir](https://lemeit.github.io/DVBA/anexos-concurso/diagrama-arquitectura.png) | Diagrama en alto nivel del sistema (PNG alta resolución) |
+| Reporte de ejemplo | [Abrir](https://lemeit.github.io/DVBA/anexos-concurso/reporte-ejemplo.pdf) | PDF generado por el módulo Reportes de un mes representativo de operación |
+| Capturas del sistema | [Ver carpeta](capturas/) | Capturas de producción con datos reales de la zona piloto |
 
 ---
 

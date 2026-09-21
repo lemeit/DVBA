@@ -1,0 +1,251 @@
+<mxfile host="app.diagrams.net" modified="2026-09-20T00:00:00.000Z" agent="Claude" version="24.7.0">
+  <diagram name="Arquitectura SIG Vial PBA" id="sigvialpba">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Banda header -->
+        <mxCell id="header" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#003a44;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1600" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="titulo" value="SIG Vial PBA" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;html=1;fontSize=26;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="50" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitulo" value="Arquitectura del sistema · Cuatro clientes sobre un backend compartido" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;html=1;fontSize=14;fontColor=#7dd7e3;" vertex="1" parent="1">
+          <mxGeometry x="50" y="55" width="700" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="concurso" value="XLI Concurso Vial DVBA 2026" style="text;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;html=1;fontSize=13;fontColor=#7dd7e3;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="20" width="450" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Bandas chevron (procesos) -->
+        <mxCell id="band1" value="CAMPO" style="shape=step;perimeter=stepPerimeter;fixedSize=1;fillColor=#00758a;strokeColor=none;fontColor=#ffffff;fontSize=14;fontStyle=1;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="130" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="band2" value="OFICINA ZONAL" style="shape=step;perimeter=stepPerimeter;fixedSize=1;fillColor=#009aae;strokeColor=none;fontColor=#ffffff;fontSize=14;fontStyle=1;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="130" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="band3" value="PLANEAMIENTO" style="shape=step;perimeter=stepPerimeter;fixedSize=1;fillColor=#00b1c7;strokeColor=none;fontColor=#ffffff;fontSize=14;fontStyle=1;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="590" y="130" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="band4" value="ADMINISTRACIÓN" style="shape=step;perimeter=stepPerimeter;fixedSize=1;fillColor=#c47a00;strokeColor=none;fontColor=#ffffff;fontSize=14;fontStyle=1;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="130" width="260" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Divisores verticales dashed -->
+        <mxCell id="div1" style="endArrow=none;html=1;strokeColor=#c7d5da;dashed=1;dashPattern=4 5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="315" y="200" as="sourcePoint" />
+            <mxPoint x="315" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="div2" style="endArrow=none;html=1;strokeColor=#c7d5da;dashed=1;dashPattern=4 5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="585" y="200" as="sourcePoint" />
+            <mxPoint x="585" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="div3" style="endArrow=none;html=1;strokeColor=#c7d5da;dashed=1;dashPattern=4 5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="855" y="200" as="sourcePoint" />
+            <mxPoint x="855" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- CARD 1: Aplicacion movil -->
+        <mxCell id="card1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#00758a;strokeWidth=2;arcSize=8;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="220" width="230" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="icon1" value="📱" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=48;" vertex="1" parent="1">
+          <mxGeometry x="140" y="240" width="90" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="t1a" value="Aplicación móvil" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=15;fontStyle=1;fontColor=#003a44;" vertex="1" parent="1">
+          <mxGeometry x="70" y="340" width="230" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="t1b" value="PWA instalable" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=12;fontColor=#00758a;" vertex="1" parent="1">
+          <mxGeometry x="70" y="360" width="230" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="t1c" value="Modo Básico + Avanzado&#10;Offline · Sello institucional" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=2;fontColor=#556677;" vertex="1" parent="1">
+          <mxGeometry x="70" y="380" width="230" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="act1" value="TÉCNICO · CAPATAZ" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=1;fontColor=#556677;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="440" width="230" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- CARD 2: Portal de escritorio -->
+        <mxCell id="card2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#009aae;strokeWidth=2;arcSize=8;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="220" width="230" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="icon2" value="🖥" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=48;" vertex="1" parent="1">
+          <mxGeometry x="410" y="240" width="90" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="t2a" value="Portal de escritorio" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=15;fontStyle=1;fontColor=#003a44;" vertex="1" parent="1">
+          <mxGeometry x="340" y="340" width="230" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="t2b" value="Puesto de trabajo diario" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=12;fontColor=#009aae;" vertex="1" parent="1">
+          <mxGeometry x="340" y="360" width="230" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="t2c" value="Mapa · Cola de aprobación&#10;Reportes · Partes diarios" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=2;fontColor=#556677;" vertex="1" parent="1">
+          <mxGeometry x="340" y="380" width="230" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="act2" value="JEFE DE DIVISIÓN" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=1;fontColor=#556677;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="440" width="230" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- CARD 3: Portal Plan Operativo -->
+        <mxCell id="card3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#00b1c7;strokeWidth=2;arcSize=8;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="220" width="230" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="icon3" value="📋" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=48;" vertex="1" parent="1">
+          <mxGeometry x="680" y="240" width="90" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="t3a" value="Portal Plan Operativo" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=15;fontStyle=1;fontColor=#003a44;" vertex="1" parent="1">
+          <mxGeometry x="610" y="340" width="230" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="t3b" value="Kanban semanal" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=12;fontColor=#00b1c7;" vertex="1" parent="1">
+          <mxGeometry x="610" y="360" width="230" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="t3c" value="Bandeja de tareas&#10;Asignación a cuadrillas" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=2;fontColor=#556677;" vertex="1" parent="1">
+          <mxGeometry x="610" y="380" width="230" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="act3" value="JEFE DE ZONA" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=1;fontColor=#556677;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="440" width="230" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- CARD 4: Panel administrativo -->
+        <mxCell id="card4" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c47a00;strokeWidth=2;arcSize=8;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="880" y="220" width="230" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="icon4" value="⚙" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=48;fontColor=#c47a00;" vertex="1" parent="1">
+          <mxGeometry x="950" y="240" width="90" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="t4a" value="Panel administrativo" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=15;fontStyle=1;fontColor=#003a44;" vertex="1" parent="1">
+          <mxGeometry x="880" y="340" width="230" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="t4b" value="Gestión del sistema" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=12;fontColor=#c47a00;" vertex="1" parent="1">
+          <mxGeometry x="880" y="360" width="230" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="t4c" value="Usuarios · Solicitudes&#10;Auditoría · Sistema" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=2;fontColor=#556677;" vertex="1" parent="1">
+          <mxGeometry x="880" y="380" width="230" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="act4" value="ADMINISTRACIÓN" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=1;fontColor=#556677;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="880" y="440" width="230" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- BACKEND cinta -->
+        <mxCell id="backend" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00758a;strokeColor=none;arcSize=8;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="570" width="1040" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="backendLabel" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#003a44;strokeColor=none;arcSize=25;" vertex="1" parent="1">
+          <mxGeometry x="70" y="570" width="46" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="backendLabelTxt" value="BACKEND" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=12;fontStyle=1;fontColor=#7dd7e3;rotation=-90;letterSpacing=3;" vertex="1" parent="1">
+          <mxGeometry x="75" y="655" width="36" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="dbIcon" value="🗄" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=50;" vertex="1" parent="1">
+          <mxGeometry x="130" y="620" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="dbTitle" value="Base de datos + Storage compartidos" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=22;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="240" y="590" width="700" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="dbSub" value="Una única fuente de verdad para los cuatro clientes" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=13;fontStyle=2;fontColor=#cfeef3;" vertex="1" parent="1">
+          <mxGeometry x="240" y="620" width="700" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="chip1" value="PostgreSQL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0099b0;strokeColor=none;arcSize=20;fontSize=13;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="240" y="660" width="140" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="chip2" value="Auth" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0099b0;strokeColor=none;arcSize=20;fontSize=13;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="390" y="660" width="140" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="chip3" value="Storage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0099b0;strokeColor=none;arcSize=20;fontSize=13;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="540" y="660" width="140" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="chip4" value="Row-Level Security" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c47a00;strokeColor=none;arcSize=20;fontSize=13;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="690" y="660" width="200" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="dbFooter" value="Zonas · Roles · Fotos · Sello institucional · Auditoría · Notificaciones" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=12;fontColor=#e8f7fa;" vertex="1" parent="1">
+          <mxGeometry x="240" y="710" width="700" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Flechas card -> backend -->
+        <mxCell id="a1" style="endArrow=classic;html=1;strokeColor=#00758a;strokeWidth=2.5;curved=1;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="185" y="475" as="sourcePoint" />
+            <mxPoint x="500" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a2" style="endArrow=classic;html=1;strokeColor=#00758a;strokeWidth=2.5;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="455" y="475" as="sourcePoint" />
+            <mxPoint x="510" y="555" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a3" style="endArrow=classic;html=1;strokeColor=#00758a;strokeWidth=2.5;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="725" y="475" as="sourcePoint" />
+            <mxPoint x="670" y="555" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a4" style="endArrow=classic;html=1;strokeColor=#00758a;strokeWidth=2.5;curved=1;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="995" y="475" as="sourcePoint" />
+            <mxPoint x="680" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Stack tecnologico -->
+        <mxCell id="stackBox" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c47a00;dashed=1;dashPattern=6 4;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="70" y="780" width="1040" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="stackTitle" value="INFRAESTRUCTURA TECNOLÓGICA" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=12;fontStyle=1;fontColor=#c47a00;letterSpacing=2;" vertex="1" parent="1">
+          <mxGeometry x="90" y="795" width="400" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stackList" value="Supabase · GitHub Pages · QGIS 3.42 · Leaflet · Chart.js · jsPDF · Service Worker (PWA)" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=13;fontColor=#003a44;" vertex="1" parent="1">
+          <mxGeometry x="90" y="820" width="900" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stackNote" value="Todo código abierto · Planes gratuitos suficientes para el piloto · Escalable a las 12 zonas a costo marginal" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=11;fontStyle=2;fontColor=#556677;" vertex="1" parent="1">
+          <mxGeometry x="90" y="843" width="900" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Panel derecho: caracteristicas -->
+        <mxCell id="rightPanel" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dbe4e8;strokeWidth=1.5;arcSize=6;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="220" width="390" height="650" as="geometry" />
+        </mxCell>
+        <mxCell id="rightHeader" value="CARACTERÍSTICAS DEL SISTEMA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#003a44;strokeColor=none;arcSize=6;fontSize=14;fontStyle=1;fontColor=#ffffff;letterSpacing=1;align=left;spacingLeft=20;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="220" width="390" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" value="&lt;b&gt;1 · Descentralización zonal&lt;/b&gt;&#10;Cada zona gestiona su propia operativa; la gerencia central consulta y sugiere." style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=12;fontColor=#003a44;" vertex="1" parent="1">
+          <mxGeometry x="1184" y="290" width="350" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" value="&lt;b&gt;2 · Mínimo privilegio + trazabilidad&lt;/b&gt;&#10;Cada acción sensible queda auditada con motivo y autor." style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=12;fontColor=#003a44;" vertex="1" parent="1">
+          <mxGeometry x="1184" y="360" width="350" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" value="&lt;b&gt;3 · Seguridad en la base de datos&lt;/b&gt;&#10;RLS a nivel de fila individual; no depende de la interfaz." style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=12;fontColor=#003a44;" vertex="1" parent="1">
+          <mxGeometry x="1184" y="430" width="350" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" value="&lt;b&gt;4 · Operación en campo sin conexión&lt;/b&gt;&#10;Base cartográfica precargada; sincronización diferida." style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=12;fontColor=#003a44;" vertex="1" parent="1">
+          <mxGeometry x="1184" y="500" width="350" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c5" value="&lt;b&gt;5 · Trazabilidad geográfica&lt;/b&gt;&#10;Cada foto cae en la zona del partido donde ocurrió, sin importar el autor." style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=12;fontColor=#003a44;" vertex="1" parent="1">
+          <mxGeometry x="1184" y="570" width="350" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c6" value="&lt;b&gt;6 · Sello institucional único&lt;/b&gt;&#10;Un módulo compartido para las tres interfaces de carga." style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=12;fontColor=#003a44;" vertex="1" parent="1">
+          <mxGeometry x="1184" y="640" width="350" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c7" value="&lt;b&gt;7 · Escalable a las 12 zonas viales&lt;/b&gt;&#10;Sin agregar complejidad estructural; a costo marginal." style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=12;fontColor=#003a44;" vertex="1" parent="1">
+          <mxGeometry x="1184" y="710" width="350" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Footer -->
+        <mxCell id="footer" value="Cada cliente expone a cada rol solamente lo que necesita para su tarea · La seguridad institucional vive en el nivel más profundo posible" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=12;fontColor=#556677;" vertex="1" parent="1">
+          <mxGeometry x="100" y="930" width="1400" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="footer2" value="SIG Vial PBA · XLI Concurso sobre Temas Viales DVBA 2026" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=10;fontColor=#889;" vertex="1" parent="1">
+          <mxGeometry x="100" y="955" width="1400" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
