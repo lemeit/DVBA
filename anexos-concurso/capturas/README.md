@@ -209,11 +209,114 @@ Todas las flechas van hacia el centro. Puede ser simple, blanco y negro, o con l
 
 ---
 
-## Capturas OPCIONALES (agregar si hay tiempo)
+## Capturas adicionales sugeridas · segunda tanda
 
-- `fig-14-cola-aprobacion.png` — cola de aprobación de relevamientos crudos en el portal escritorio (después del login).
-- `fig-15-mapa-tareas-por-antiguedad.png` — mapa con la capa de tareas activada, mostrando pins de color por antigüedad (rojo últimos 7 días, dorado 30, violeta 90).
-- `fig-16-detalles-registro.png` — modal de detalle de un registro con foto sellada + datos + trazabilidad.
+Estas capturas refuerzan puntos del informe que hoy no están ilustrados. Ordenadas por impacto para el jurado.
+
+### Alta prioridad
+
+#### `fig-14-cola-aprobacion.png` · Cola de aprobación de relevamientos crudos
+
+**Sección**: `## 4.3 Portal web de escritorio` — cerca del final del módulo, junto con la mención a la cola de aprobación en el texto.
+
+**Cómo tomarla**:
+1. Loguearte como jefe de división (técnica u operativa) que tenga relevamientos crudos esperando.
+2. Ir al portal escritorio y abrir el tab / panel "Cola pendientes".
+3. Captura mostrando 3-6 registros en la cola con foto, GPS, autor y rol visibles.
+
+**Encuadre sugerido**: modal o panel de la cola con al menos 3 registros a aprobar, cada uno con miniatura de la foto, coordenadas y datos del operativo que lo cargó.
+
+---
+
+#### `fig-15-partes-diarios.png` · Módulo Plan de Seguridad en la Circulación
+
+**Sección**: `## 4.4 Módulo Plan de Seguridad en la Circulación` — como imagen principal del módulo.
+
+**Cómo tomarla**:
+1. Loguearte como jefe de división técnica u operativa.
+2. Abrir `https://lemeit.github.io/DVBA/partes_diarios.html`.
+3. Cargar (o mostrar) un parte diario con detección automática de partido activa y autocomplete de rutas.
+
+**Encuadre sugerido**: formulario del parte diario alineado al layout DVBA, con el partido detectado automáticamente y algún autocomplete de ruta desplegado, más las fotos vinculadas al parte visibles.
+
+---
+
+#### `fig-16-qr-escaneado.png` · Verificación distribuida a través del QR del sello
+
+**Sección**: `## 6.2.5 Verificación distribuida a través del QR del sello` — Parte 6, al final del texto de esa sub-sección.
+
+**Cómo tomarla**:
+1. Descargar del portal una foto ya sellada con QR (o generar una).
+2. Escanear el QR con otro celular (con la app de cámara nativa).
+3. Captura de la pantalla del celular mostrando el mapa que abre.
+
+**Encuadre sugerido**: pantalla del celular con el mapa mostrando la ubicación exacta del registro, verificable en el momento.
+
+---
+
+#### `fig-06b-wizard-categorias.png` · Wizard Modo Avanzado · paso 1 · elegir categoría
+
+**Sección**: `## 4.1 Aplicación móvil de campo · Modo Avanzado` — como imagen complementaria después de fig-06, mostrando la secuencia del wizard.
+
+**Cómo tomarla**: primera pantalla del wizard con el grid de categorías (Calzada / Drenaje / Estructura / Señalización / Demarcación / Iluminación / Entorno / Seguridad vial / etc.).
+
+---
+
+#### `fig-06c-wizard-tipo-estado.png` · Wizard Modo Avanzado · paso 2 · elegir tipo y estado
+
+**Cómo tomarla**: pantallas del wizard con el selector de tipo dentro de la categoría elegida (ej. "Bache", "Grieta", etc. dentro de Calzada) y el selector de estado (Leve / Regular / Malo / Crítico).
+
+Podés hacer dos capturas separadas (`fig-06c-1-tipo.png`, `fig-06c-2-estado.png`) o una sola combinada.
+
+---
+
+### Prioridad media (refuerzan puntos ya cubiertos)
+
+#### `fig-17-detalle-registro-aprobado.png` · Modal de detalle de un registro aprobado con trazabilidad completa
+
+**Sección**: `## 3.6 De la foto suelta a la trazabilidad institucional forense` — al final de la sub-sección, ilustrando la trazabilidad completa.
+
+**Cómo tomarla**: click sobre un registro aprobado del mapa del portal, se abre el modal con la foto sellada + autor, rol y zona del operativo + fecha + historial de aprobación / ediciones.
+
+---
+
+#### `fig-18-zona-picker.png` · Zona-picker con las 12 zonas viales
+
+**Sección**: `## 3.1 Del piloto zonal a la visión panorámica provincial` — como complemento a fig-03.
+
+**Cómo tomarla**: click sobre el pill amarillo del header con la zona activa (ej. "ZONA VI · SALADILLO") para desplegar el picker con las 12 zonas. Captura del picker abierto.
+
+---
+
+### Prioridad complementaria
+
+#### `fig-19-wiki-tecnica.png` · Home de la wiki técnica MkDocs
+
+**Sección**: `## 7.2 Anexos del informe` — como ilustración del recurso wiki.
+
+**Cómo tomarla**: `https://lemeit.github.io/DVBA/wiki/` en el navegador, captura de la home con la barra lateral de navegación visible.
+
+---
+
+#### `fig-20-bitacora.png` · Bitácora del proyecto · tabs de evolución técnica
+
+**Sección**: `## 7.4 Snapshot al momento de la entrega` — como ilustración del historial de desarrollo.
+
+**Cómo tomarla**: `https://lemeit.github.io/DVBA/wiki/99-Bitacora/` con los tabs visibles (Resumen / Rutas / Apps / Infra / Decisiones / Pendientes / Changelog).
+
+---
+
+#### `fig-21-partido-caminos-detalle.png` · Vista zoom de un partido con caminos secundarios
+
+**Sección**: `## 2.4 Metodología para caminos secundarios` — como imagen complementaria de la parte cartográfica.
+
+**Cómo tomarla**: zoom en el portal escritorio sobre un partido específico de la zona piloto (ej. Saladillo), mostrando la red de caminos secundarios coloreados y los caminos primarios superpuestos.
+
+---
+
+### Notas para completar la lista
+
+Cuando cargues las capturas, respetá los nombres exactos de esta lista. Los archivos con extensión `.jpg` funcionan igual que `.png` (ajustar el path según lo que grabes). Si sale la captura y tenés una segunda toma mejor, usá el sufijo `_v2` (por ej. `fig-15-partes-diarios_v2.png`) y avisá para actualizar el path en el informe.
 
 ---
 
