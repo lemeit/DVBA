@@ -391,7 +391,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.95.26';
+const APP_VER = 'v9.95.27';
 window.APP_VER = APP_VER;
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg';
@@ -408,6 +408,10 @@ function lActualizarSubHeader(){
   if (!el) return;
   try {
     const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
+    if (cache.area_codigo === 'ambiente') {
+      el.textContent = '🌿 Unidad Ambiental · Todas las Zonas Viales';
+      return;
+    }
     if (cache.rol) {
       // v8.82 · Labels completos para todos los roles operativos (SQL_17)
       const LABELS = {
@@ -1185,6 +1189,7 @@ function lVerInfo(){
     if (c.rol) {
       const rl = c.rol === 'admin' ? '🛡 Admin' : c.rol === 'gerencia' ? '📊 Gerencia' : c.rol === 'tecnico' ? '👷 Técnico' : '👤 Usuario';
       rolZona = rl + (c.zona ? ' · Zona ' + c.zona : '');
+      if (c.area_codigo === 'ambiente') rolZona = '🌿 Unidad Ambiental · Todas las Zonas Viales';
     }
   } catch(_){}
   const html = '' +
