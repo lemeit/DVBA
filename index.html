@@ -542,7 +542,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.86s</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.86t</span></div>
   </div>
 </div>
 <div class="layout">
@@ -980,7 +980,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.86s';
+const APP_VERSION = 'v8.86t';
 // v8.86s · Montar nav consolidado (después de que loader_zona haya inicializado hZona)
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
@@ -1523,28 +1523,68 @@ const SUPA_KEY  = 'sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg';
 // ═══════════════════════════════════════════
 
 const _supa = (SUPA_URL !== '')
-  ? supabase.createClient(SUPA_URL, SUPA_KEY)
+  ? supabase.createClient(SUPA_URL, SUPA_KEY, {
+      // dvbaAuth es la fuente de sesión compartida con la app móvil.
+      // Evitar restaurar en paralelo otra sesión antigua del SDK.
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+    })
   : null;
 
 // ════════════════════════════════════════════════════════════════
 // Auth Supabase (compartido con dvba_campo via datos/auth.js)
 // ════════════════════════════════════════════════════════════════
+let _sincronizandoSupa = null;
+function _sesionPortalInvalida(error){
+  return [400,401,403].includes(error && error.status) ||
+    ['session_not_found','session_missing','refresh_token_not_found','refresh_token_already_used','bad_jwt','user_not_found'].includes(error && error.code);
+}
+function _avisarSesionPortalInvalida(){
+  // Solo credenciales y perfil; conservar fotos y pendientes locales.
+  localStorage.removeItem('dvba_session');
+  if (typeof DVBA_PERFIL !== 'undefined') DVBA_PERFIL.limpiar();
+  const info = document.getElementById('user-info');
+  if (info) info.classList.remove('show');
+  aplicarModoSesion();
+  aplicarVisibilidadRol();
+  abrirLogin();
+  const err = document.getElementById('login-err');
+  if (err){
+    err.textContent = 'La sesión del portal ya no es válida. Volvé a iniciar sesión para cargar tus registros.';
+    err.classList.add('show');
+  }
+}
 async function sincronizarSupaConSesion(){
+  if (_sincronizandoSupa) return _sincronizandoSupa;
+  _sincronizandoSupa = _restaurarSesionPortal();
+  try { return await _sincronizandoSupa; }
+  finally { _sincronizandoSupa = null; }
+}
+async function _restaurarSesionPortal(){
   // Si hay sesión local guardada por auth.js, propagarla al cliente _supa
   // para que las queries (insert/update/delete/storage) usen el access_token
   // del usuario logueado y RLS las acepte.
   if (!_supa || !window.dvbaAuth) return false;
-  const s = await dvbaAuth.session();
-  if (!s || !s.access_token) return false;
   try {
-    await _supa.auth.setSession({
+    const s = await dvbaAuth.session();
+    if (!s || !s.access_token){
+      _avisarSesionPortalInvalida();
+      return false;
+    }
+    const { data, error } = await _supa.auth.setSession({
       access_token: s.access_token,
       refresh_token: s.refresh_token
     });
+    if (error) throw error;
+    if (!data || !data.session){
+      const missing = new Error('Sesión no restaurada');
+      missing.code = 'session_missing';
+      throw missing;
+    }
     // v7.95 · Fase 2 · cargar perfil (rol + zona) tras propagar la sesion
     try {
       if (typeof DVBA_PERFIL !== 'undefined'){
-        await DVBA_PERFIL.cargar(_supa);
+        const cache = DVBA_PERFIL.get();
+        await DVBA_PERFIL.cargar(_supa, { force: !cache || cache.user_id !== data.session.user.id });
         aplicarVisibilidadRol();
         // v8.86s · Roles zonales: si el URL NO tiene ?zona= explícito y el perfil
         // tiene una zona asignada, redirigir a esa zona (primer login).
@@ -1565,7 +1605,11 @@ async function sincronizarSupaConSesion(){
       }
     } catch(e){ console.warn('[perfil]', e.message); }
     return true;
-  } catch(e){ console.warn('[auth] setSession:', e.message); return false; }
+  } catch(e){
+    console.warn('[auth] no se pudo restaurar la sesión del portal:', e.code || e.name || 'error');
+    if (_sesionPortalInvalida(e)) _avisarSesionPortalInvalida();
+    return false;
+  }
 }
 
 // v7.95/v7.97 · Aplicar visibilidad UI segun rol del user cargado.
@@ -1629,8 +1673,10 @@ function aplicarVisibilidadRol(){
 function initAuthGate(){
   if (!window.dvbaAuth) return;
   if (dvbaAuth.estaLogueado()){
-    sincronizarSupaConSesion();
-    mostrarUsuario();
+    sincronizarSupaConSesion().then(ok => {
+      if (ok) mostrarUsuario();
+      aplicarModoSesion();
+    });
   }
   // v8.66f.2 · Portal público · siempre aplicar modo sesión al arranque
   aplicarModoSesion();
@@ -1682,8 +1728,7 @@ async function requireAuth(mensaje){
     return false;
   }
   // Re-sincronizar con _supa por las dudas (si la sesión cambió o el cliente perdió el token)
-  await sincronizarSupaConSesion();
-  return true;
+  return await sincronizarSupaConSesion();
 }
 
 async function hacerLogin(){
@@ -1699,7 +1744,7 @@ async function hacerLogin(){
   btn.disabled = true; btn.textContent = 'Verificando…';
   try {
     await dvbaAuth.login(email, pass);
-    await sincronizarSupaConSesion();
+    if (!await sincronizarSupaConSesion()) throw new Error('No se pudo validar la sesión. Volvé a intentar.');
     document.getElementById('login-pass').value = '';
     // v8.51 · Reload post-login para evitar race condition:
     // La app arranca cargando datos con el token anterior (anon/otro user)
@@ -1909,6 +1954,14 @@ async function cargarRegs() {
     return;
   }
   try {
+    // Restaurar el JWT antes de consultar: initAuthGate también es asíncrono.
+    // El encabezado con un perfil cacheado no garantiza una sesión válida.
+    if (!await sincronizarSupaConSesion()) {
+      regs = [];
+      setModoIndicador(false);
+      _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
+      return;
+    }
     // v8.66f.2 · Filtrar por zona activa (picker) para admin/gerencia. Para técnico,
     // la RLS zonal ya limita al server-side, pero el filtro explícito es idempotente
     // y garantiza que si el admin está viendo 'V' o 'IV' se vean SOLO tareas de esa zona
@@ -1962,8 +2015,9 @@ async function cargarRegs() {
     actualizarBadgeCola();  // v7.12 — refresca badge "X pendientes"
     cargarRestauracionesPendientes();  // v8.86s · aviso al jefe si admin restauró algo suyo
   } catch(e) {
-    console.warn('Supabase error, usando localStorage:', e.message);
-    try { regs = JSON.parse(localStorage.getItem('dvba_z6v6') || '[]'); } catch(e2) { regs = []; }
+    console.warn('No se pudieron consultar los registros:', e.code || e.name || 'error');
+    // No sustituir una consulta rechazada por datos locales de otro contexto.
+    regs = [];
     setModoIndicador(false);
   }
   _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
@@ -8481,6 +8535,9 @@ function _partesColorPorEdad(fechaStr){
 
 async function partesCargar(){
   if (!_supa) return { ok:false, msg:'Supabase no disponible' };
+  if (!window.dvbaAuth || !dvbaAuth.estaLogueado() || !await sincronizarSupaConSesion()) {
+    return { ok:false, msg:'Volvé a iniciar sesión para cargar los partes.' };
+  }
   // v8.66f.2-fix · Filtrar por zona activa del picker (fix: admin en zona V veía tareas de VI)
   const zonaAct = window.ZONA_ACTUAL || null;
   let q = _supa.from('partes_diarios')
