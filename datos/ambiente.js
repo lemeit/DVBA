@@ -24,8 +24,16 @@ const cola={
   async listar(user){return (await transaccion('readonly',s=>s.getAll())).filter(p=>p.usuario===user);},
   quitar:id=>transaccion('readwrite',s=>s.delete(id))
 };
-function crear(supa,identidad,{pendientes=cola,uuid=()=>crypto.randomUUID()}={}){
+function crear(supa,identidad,{pendientes=cola,uuid=()=>crypto.randomUUID(),cuentaActual=()=>global.dvbaAuth?.user ? global.dvbaAuth.user()?.id : identidad}={}){
+  function mismaCuenta(){if(cuentaActual()!==identidad)throw new Error('La cuenta cambió. Ingresá con la cuenta que tomó esta captura.');}
   async function validar(){
+    mismaCuenta();
+    if(global.dvbaAuth?.session && supa.auth.setSession){
+      const s=await global.dvbaAuth.session();
+      if(s?.user?.id!==identidad)throw new Error('La sesión cambió o venció. Volvé a ingresar con la cuenta de la captura.');
+      const sesion=await supa.auth.setSession({access_token:s.access_token,refresh_token:s.refresh_token});comprobar(sesion.error);
+      if(sesion.data?.session?.user?.id!==identidad)throw new Error('No se pudo confirmar la sesión de la captura.');
+    }
     const {data,error}=await supa.auth.getUser();comprobar(error);
     if(!data?.user || data.user.id!==identidad)throw new Error('La cuenta cambió. Ingresá con la cuenta que tomó esta captura.');
     const r=await supa.from('usuarios_perfil').select('*').eq('user_id',identidad).maybeSingle();comprobar(r.error);
@@ -37,6 +45,7 @@ function crear(supa,identidad,{pendientes=cola,uuid=()=>crypto.randomUUID()}={})
   }
   async function rpc(nombre,args){const r=await supa.rpc(nombre,args);comprobar(r.error);return fila(r.data);}
   async function guardar(datos,foto){
+    mismaCuenta();
     if(foto && (!['image/jpeg','image/png','image/webp'].includes(foto.type)||foto.size>10485760))
       throw new Error('Usá una foto JPG, PNG o WebP de hasta 10 MB.');
     const p={captura:uuid(),fotoId:foto?uuid():null,usuario:identidad,datos,foto:foto||null,creada:new Date().toISOString()};
@@ -83,7 +92,7 @@ function crear(supa,identidad,{pendientes=cola,uuid=()=>crypto.randomUUID()}={})
   }
   async function accion(nombre,args){await validar();return rpc(nombre,args);}
   return {validar,guardar,enviar,misRegistros,fotoPrivada,
-    pendientes:()=>pendientes.listar(identidad),
+    pendientes:()=>{mismaCuenta();return pendientes.listar(identidad);},
     editar:(id,version,cambios)=>accion('ambiente_editar',{p_id:id,p_version:version,p_cambios:cambios}),
     async transicion(id,version,estado){
       if((await pendientes.listar(identidad)).some(p=>String(p.registroId)===String(id)))

@@ -26,7 +26,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.95.23';  // v9.95.23 · Sello: km minúscula (SI) + labelDe() para estado en enum → texto humano + tipos: +Vehículo abandonado/-Reparación tranquera, Guardarrail (tipo Flex Beam)
+const CACHE_NAME = 'dvba-campo-v9.95.24';  // v9.95.24 · Sello: km minúscula (SI) + labelDe() para estado en enum → texto humano + tipos: +Vehículo abandonado/-Reparación tranquera, Guardarrail (tipo Flex Beam)
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg';

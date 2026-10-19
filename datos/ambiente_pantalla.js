@@ -72,6 +72,12 @@ try{
   if(result.error)throw result.error;
   if(result.data?.session?.user?.id!==session.user.id)throw new Error('No se pudo confirmar la cuenta.');
   api=DVBA_AMBIENTE.crear(supa,session.user.id);await api.validar();
+  window.addEventListener('storage',e=>{
+    if(e.key==='dvba_session' && dvbaAuth.user()?.id!==session.user.id){
+      limpiarFotos();$('registros').replaceChildren();$('trabajo').hidden=true;
+      avisar('La sesión cambió en otra pestaña. Volvé a ingresar. Las capturas pendientes se conservan para su cuenta.');
+    }
+  });
   $('trabajo').hidden=false;
   if(typeof L!=='undefined'){
     mapa=L.map('mapa').setView([-36.5,-60],6);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:19}).addTo(mapa);

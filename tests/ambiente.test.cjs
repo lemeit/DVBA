@@ -15,7 +15,7 @@ function cliente(){
       async upload(key,blob,opts){assert.equal(opts.upsert,false);if(state.uploadError)return {error:state.uploadError};if(state.objects.has(key))return {error:{statusCode:'409'}};state.objects.set(key,blob);return {};},
       async download(key){return {data:state.objects.get(key)};}
     };}}
-  },'A',{uuid:()=>String(++n),pendientes:{async guardar(p){if(state.quota)throw new Error('QuotaExceededError');state.items=state.items.filter(x=>x.captura!==p.captura);state.items.push(p);},async listar(user){return state.items.filter(p=>p.usuario===user);},async quitar(id){state.removed.push(id);state.items=state.items.filter(p=>p.captura!==id);}}});
+  },'A',{cuentaActual:()=>state.compartida||'A',uuid:()=>String(++n),pendientes:{async guardar(p){if(state.quota)throw new Error('QuotaExceededError');state.items=state.items.filter(x=>x.captura!==p.captura);state.items.push(p);},async listar(user){return state.items.filter(p=>p.usuario===user);},async quitar(id){state.removed.push(id);state.items=state.items.filter(p=>p.captura!==id);}}});
   return {api,state};
 }
 const foto=()=>new Blob(['foto de prueba'],{type:'image/jpeg'});
@@ -68,4 +68,11 @@ test('no presenta un registro cuya foto sigue pendiente',async()=>{
 test('la lista de pendientes solo incluye los de su cuenta',async()=>{
   const {api,state}=cliente();await api.guardar({},null);state.items.push({captura:'otra',usuario:'B'});
   assert.equal((await api.pendientes()).length,1);
+});
+test('una sesión SDK anterior no permite operar después de cambiar de cuenta en el portal',async()=>{
+  const {api,state}=cliente(),p=await api.guardar({},foto());state.compartida='B';
+  await assert.rejects(()=>api.enviar(p),/cuenta cambió/);
+  await assert.rejects(()=>api.guardar({},foto()),/cuenta cambió/);
+  assert.throws(()=>api.pendientes(),/cuenta cambió/);
+  assert.equal(state.calls.length,0);assert.equal(state.items.length,1);
 });

@@ -12,7 +12,7 @@ Las fotos nuevas van a `ambiente_privado`, privado y con límite de 10 MB. El au
 
 ## Verificación y aplicación
 
-- 49 pruebas JavaScript, 78 de la candidata integral y 19 específicas del piloto compatible.
+- 50 pruebas JavaScript, 78 de la candidata integral y 19 específicas del piloto compatible.
 - Las 19 del piloto comprueban también que los técnicos y capataces mantienen los flujos zonales heredados. No certifican que esos flujos históricos ya tengan el endurecimiento integral pendiente.
 - Definiciones anteriores y conteos guardados localmente antes de aplicar. Sin copia de credenciales ni exportación de filas operativas.
 - El conector falló con estado de solicitud vencido; se aplicó mediante SQL Editor. Un intento con contenido duplicado se revirtió sin cambios. Después se verificó ausencia de toda estructura piloto, se incorporó preflight obligatorio y límites de espera, y la única ejecución corregida finalizó correctamente.
@@ -20,6 +20,10 @@ Las fotos nuevas van a `ambiente_privado`, privado y con límite de 10 MB. El au
 - Conteos confirmados después: 326 relevamientos, 634 partes, 12 perfiles. La cuenta elegida no tenía relevamientos históricos con autoría atribuida a su identidad.
 
 La prueba SQL real usa el rol `authenticated` y claims de la cuenta dentro de una transacción. No equivale a comprobar login, carga/descarga HTTP ni IndexedDB en un teléfono real. Esa aceptación corresponde a la prueba con la sesión de Ambiente desde la pantalla publicada.
+
+Activación realizada: la cuenta seleccionada pasó de admin a técnico Ambiente, activa, consulta propia y captura provincial. La cuenta personal del administrador conserva admin activo. La comprobación posterior mantiene 326 relevamientos y 634 partes, sin registros de prueba persistentes. Se confirmó por HTTP rechazo 401 a creación anónima y rechazo a acceso público a una ruta del bucket privado.
+
+La aplicación fue manual mediante SQL Editor y aún requiere establecer una línea base antes de gestionar esta base con `db push`. No ejecutar automáticamente los SQL históricos ni la candidata integral. La protección de cuenta también comprueba la sesión compartida para impedir que una pestaña con un SDK anterior envíe pendientes después de un cambio de usuario.
 
 ## Activación y soporte
 
