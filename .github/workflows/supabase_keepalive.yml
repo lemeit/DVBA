@@ -1,43 +1,52 @@
-# .github/workflows/supabase_keepalive.yml
-# Ejecuta un ping a Supabase cada 5 días desde GitHub Actions
-# No requiere que la PC esté encendida — corre en la nube de GitHub (gratis)
-#
-# SETUP:
-# 1. Subir este archivo al repositorio DVBA en .github/workflows/
-# 2. En GitHub → repositorio DVBA → Settings → Secrets and variables → Actions
-#    Agregar secret: SUPABASE_URL = https://txjlfpffyzuhdqtfhlmc.supabase.co
-#    Agregar secret: SUPABASE_KEY = xxxx
-# 3. GitHub ejecuta el workflow automáticamente según el schedule
-
+# Solo consulta el catálogo público. No utiliza service_role ni secretos de Actions.
 name: Supabase Keepalive — DVBA GIS-Z6
 
 on:
   schedule:
-    # Ejecutar cada 5 días a las 7:00 AM UTC (4:00 AM Argentina)
-    # Formato cron: minuto hora día mes día_semana
-    - cron: '0 7 */5 * *'
-  workflow_dispatch:  # permite ejecutarlo manualmente desde GitHub si hace falta
+    # Tres consultas pequeñas por día: 04:17, 12:17 y 20:17 de Argentina.
+    - cron: '17 7,15,23 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/supabase_keepalive.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-keepalive
+  cancel-in-progress: false
 
 jobs:
   keepalive:
     runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      # Datos públicos del proyecto; esta clave no salta RLS.
+      SUPABASE_URL: https://txjlfpffyzuhdqtfhlmc.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg
     steps:
-      - name: Ping Supabase
+      - name: Consultar catálogo público de partidos
+        shell: bash
         run: |
-          echo "Haciendo ping a Supabase proyecto GIS-Z6..."
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X HEAD \
-            -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}" \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/registros?select=count")
-          echo "HTTP status: $STATUS"
-          if [ "$STATUS" = "200" ] || [ "$STATUS" = "406" ]; then
-            echo "✓ Supabase activo — pausa evitada"
-          else
-            echo "⚠ Respuesta inesperada: $STATUS"
+          set -euo pipefail
+          BODY="$RUNNER_TEMP/dvba-keepalive.json"
+          STATUS="$(curl --silent --show-error \
+            --connect-timeout 10 --max-time 20 --retry 2 --retry-delay 2 \
+            --output "$BODY" --write-out '%{http_code}' \
+            --header "apikey: $SUPABASE_PUBLISHABLE_KEY" \
+            "$SUPABASE_URL/rest/v1/partidos_zona?select=partido_numero&limit=1")"
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::El catálogo público respondió HTTP $STATUS."
             exit 1
           fi
-
-      - name: Log resultado
-        run: |
-          echo "Keepalive ejecutado: $(date -u '+%Y-%m-%d %H:%M UTC')"
+          python3 - "$BODY" <<'PY'
+          import json, sys
+          with open(sys.argv[1], encoding="utf-8") as source:
+              rows = json.load(source)
+          if not isinstance(rows, list) or len(rows) != 1 or type(rows[0].get("partido_numero")) is not int:
+              raise SystemExit("La consulta no devolvió el catálogo público esperado.")
+          print("Consulta pública correcta. Sin credenciales administrativas ni escrituras.")
+          PY
+          echo "La consulta genera actividad; no garantiza que el plan gratuito nunca se pause."

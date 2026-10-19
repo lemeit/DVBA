@@ -18,7 +18,7 @@ import numpy as np, io
 
 # ── CONFIGURACIÓN ─────────────────────────────────────────────
 SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co'
-SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4amxmcGZmeXp1aGRxdGZobG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDY5ODQsImV4cCI6MjA4ODEyMjk4NH0.LEqkMHh_t4TUb-2rKOlGmZmKTAw9mRrfL63UxK7LGNc'
+SUPA_KEY = 'sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg'
 VERSION  = 'v6.1'
 # ─────────────────────────────────────────────────────────────
 
