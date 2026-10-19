@@ -236,7 +236,7 @@ const DVBA_NAV = {
     const rol = perfil.rol || 'publico';
     // Los roles transversales (admin/gerencia) no tienen zona propia — se muestran
     // como "🌐 Todas" para dejar claro que ven la Provincia entera.
-    const esTransversal = (rol === 'gerencia' || rol === 'admin');
+    const esTransversal = (rol === 'gerencia' || rol === 'admin' || perfil.area_codigo==='ambiente');
     const zona = perfil.zona || (esTransversal ? 'Todas' : '');
     const zonaLabel = esTransversal ? '🌐 Todas las zonas' : ('Zona ' + zona);
     const nombre = perfil.nombre || perfil.email || (rol === 'publico' ? 'Usuario público' : 'Sin nombre');
@@ -336,7 +336,7 @@ const DVBA_NAV = {
     }
     _zonaActual = _zonaActual.toUpperCase();
     const _zonaPerfil = (zona || '').toUpperCase();
-    const _mostrarBannerZonaAjena = _rolesZonalesSet.has(rol) && _zonaPerfil && _zonaActual && _zonaActual !== _zonaPerfil && _zonaActual !== 'PBA';
+    const _mostrarBannerZonaAjena = perfil.area_codigo!=='ambiente' && _rolesZonalesSet.has(rol) && _zonaPerfil && _zonaActual && _zonaActual !== _zonaPerfil && _zonaActual !== 'PBA';
     const bannerZonaAjenaHTML = _mostrarBannerZonaAjena
       ? `<div id="dvba-zonaajena-banner" style="background:#fff8e6;color:#5a3d00;padding:8px 16px;text-align:center;font-size:11.5px;font-weight:600;border-bottom:2px solid #c47a00;font-family:'Encode Sans',sans-serif">ℹ Estás consultando <b>Zona ${esc(_zonaActual)}</b> pero tu perfil es de <b>Zona ${esc(_zonaPerfil)}</b>. Podés navegar y consultar libremente, pero para cargar registros o ver la cola de pendientes, volvé a <b>Zona ${esc(_zonaPerfil)}</b> desde el menú amarillo de arriba.</div>`
       : '';

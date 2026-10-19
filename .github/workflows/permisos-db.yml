@@ -54,4 +54,4 @@ jobs:
         working-directory: tests/database
         run: npm test
       - name: Verificar cliente y configuración de perfiles
-        run: node --test tests/ambiente.test.cjs tests/ambiente_destino.test.cjs tests/perfil.test.cjs tests/permisos_config.test.cjs
+        run: node --test tests/ambiente.test.cjs tests/ambiente_campo.test.cjs tests/ambiente_destino.test.cjs tests/fotos_privadas.test.cjs tests/perfil.test.cjs tests/permisos_config.test.cjs

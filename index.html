@@ -16,6 +16,7 @@
 <script src="datos/supabase-js.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="datos/auth.js"></script>
+<script src="datos/fotos_privadas.js"></script>
 <script src="datos/perfil.js" defer></script>
 <script src="datos/legales.js" defer></script>
 <script src="datos/nav.js"></script>
@@ -542,7 +543,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.86w</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.86x</span></div>
   </div>
 </div>
 <div class="layout">
@@ -980,7 +981,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.86w';
+const APP_VERSION = 'v8.86x';
 // v8.86s · Montar nav consolidado (después de que loader_zona haya inicializado hZona)
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
@@ -988,7 +989,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let perfil = { rol: 'publico', zona: null, nombre: '', email: '' };
     try {
       const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
-      if (cache.rol) perfil = { rol: cache.rol, zona: cache.zona||null, nombre: cache.nombre||cache.email||'', email: cache.email||'' };
+      if (cache.rol) perfil = { rol: cache.rol, area_codigo:cache.area_codigo, zona: cache.zona||null, nombre: cache.nombre||cache.email||'', email: cache.email||'' };
     } catch(e){}
     const hZona = document.getElementById('hZona')?.textContent || '';
     DVBA_NAV.montar({
@@ -1593,9 +1594,6 @@ async function _restaurarSesionPortal(){
         // con el picker para navegar/consultar. La RLS igual limita la escritura.
         try {
           const perfil = DVBA_PERFIL.get();
-          if(perfil?.activo && perfil.area_codigo==='ambiente'){
-            location.replace('ambiente.html');return true;
-          }
           const rolesZonales = new Set(['tecnico','capataz','jefe_zona','jefe_tecnica','jefe_operativa','jefe_administrativa','jefe_automotores']);
           const _urlZona = new URLSearchParams(location.search).get('zona');
           if (perfil && rolesZonales.has(perfil.rol) && perfil.zona && !_urlZona){
@@ -1979,8 +1977,9 @@ async function cargarRegs() {
     if (zonaAct && zonaAct !== 'PBA') {
       q = q.or(`zona.eq.${zonaAct},zona.is.null`);
     }
-    const { data, error } = await q;
+    const { data: filas, error } = await q;
     if (error) throw error;
+    const data=typeof DVBA_FOTOS_PRIVADAS!=='undefined' ? await DVBA_FOTOS_PRIVADAS.cargar(_supa,filas) : filas;
     regs = data.map(r => ({
       id:      r.id,
       ruta:    r.ruta,
@@ -4152,7 +4151,10 @@ async function descargarFotoDesdeEdit(){
   }
 }
 
-function showFoto(src, id, ruta, prog){
+async function showFoto(src, id, ruta, prog){
+  if(typeof DVBA_FOTOS_PRIVADAS!=='undefined' && DVBA_FOTOS_PRIVADAS.esPrivada(id)){
+    try{src=await DVBA_FOTOS_PRIVADAS.abrir(_supa,id);}catch(e){alert('No se pudo acceder a la foto privada. Verificá la sesión y reintentá.');return;}
+  }
   const ov = document.createElement('div');
   ov.className = 'foto-modal';
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';

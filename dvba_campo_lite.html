@@ -16,6 +16,8 @@
      onerror fallback a CDN por si el archivo local aún no está desplegado (transición). -->
 <script src="datos/supabase-js.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.async=false;document.head.appendChild(s);"></script>
 <script src="datos/auth.js"></script>
+<script src="datos/ambiente.js"></script>
+<script src="datos/ambiente_campo.js"></script>
 <script src="datos/perfil.js" defer></script>
 <script src="datos/legales.js" defer></script>
 <!-- v9.80 · piexifjs para inyectar EXIF (GPS+fecha) dentro del JPEG · fallback CDN -->
@@ -389,7 +391,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.95.24';
+const APP_VER = 'v9.95.25';
 window.APP_VER = APP_VER;
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg';
@@ -901,6 +903,16 @@ async function lGuardar(){
     tipo_via: 'rp',
     zona: (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.zonaActual() : 'VI'
   };
+  // Mismo flujo de captura; el perfil define únicamente el destino y alcance.
+  if(DVBA_CAMPO_AMBIENTE.esAmbiente()){
+    try{
+      const resultado=await DVBA_CAMPO_AMBIENTE.guardar(reg,_fotoActual);
+      _fotoActual=null;_gpsCuandoSaco=null;actualizarPendientes();
+      if(resultado.cloud)statusMostrar('ok','¡Enviado!','Registro <b class="num">#'+resultado.id+'</b> guardado en el sistema.<br><br>Ya podés sacar otra foto.');
+      else statusMostrar('offline','Guardado en el celu','La foto quedó guardada y pendiente de envío.<br><br><b>Sin enviar: '+contarPendientes()+'</b>');
+    }catch(e){statusMostrar('error','No se pudo guardar',e.message+'<br>Conservamos la foto en la vista previa para reintentar.');}
+    return;
+  }
   // Sin internet · directo a cola local
   if (!navigator.onLine){
     console.warn('[lite] sin conexión, guardando en cola local');
@@ -994,6 +1006,7 @@ function guardarEnColaLocal(reg, fotoBase64){
   } catch(e){ console.error('[cola]', e); }
 }
 function contarPendientes(){
+  if(DVBA_CAMPO_AMBIENTE.esAmbiente())return DVBA_CAMPO_AMBIENTE.pendientes().length;
   try { return (JSON.parse(localStorage.getItem(PENDIENTES_KEY) || '[]')).length; }
   catch(e){ return 0; }
 }
@@ -1008,6 +1021,9 @@ function actualizarPendientes(){
 // sesión estaba solo en localStorage y sin refresh online (la app quedaba
 // offline en el celu pero con conexión estable).
 async function sincronizarCola(){
+  if(DVBA_CAMPO_AMBIENTE.esAmbiente()){
+    const r=await DVBA_CAMPO_AMBIENTE.sincronizar();actualizarPendientes();return r;
+  }
   const cola = JSON.parse(localStorage.getItem(PENDIENTES_KEY) || '[]');
   if (!cola.length) return { ok:0, err:0, errores:[] };
   let ok = 0, err = 0;
@@ -1106,6 +1122,7 @@ function renderPendientes(){
 }
 
 function leerCola(){
+  if(DVBA_CAMPO_AMBIENTE.esAmbiente())return DVBA_CAMPO_AMBIENTE.pendientes();
   try { return JSON.parse(localStorage.getItem(PENDIENTES_KEY) || '[]'); }
   catch(e){ return []; }
 }
@@ -1113,19 +1130,26 @@ function escribirCola(cola){
   localStorage.setItem(PENDIENTES_KEY, JSON.stringify(cola));
   actualizarPendientes();
 }
-function lBorrarPendiente(idx){
+async function lBorrarPendiente(idx){
   const cola = leerCola();
   if (idx < 0 || idx >= cola.length) return;
   if (!confirm('¿Borrar esta foto pendiente?\nEsta acción no se puede deshacer.')) return;
+  if(DVBA_CAMPO_AMBIENTE.esAmbiente()){
+    await DVBA_CAMPO_AMBIENTE.borrar(cola[idx].id);actualizarPendientes();renderPendientes();toast('Foto borrada');return;
+  }
   cola.splice(idx, 1);
   escribirCola(cola);
   renderPendientes();
   toast('Foto borrada');
 }
-function lBorrarTodosPendientes(){
+async function lBorrarTodosPendientes(){
   const cola = leerCola();
   if (cola.length === 0) return;
   if (!confirm('¿Borrar TODAS las ' + cola.length + ' fotos pendientes?\nEsta acción no se puede deshacer.')) return;
+  if(DVBA_CAMPO_AMBIENTE.esAmbiente()){
+    for(const item of cola)await DVBA_CAMPO_AMBIENTE.borrar(item.id);
+    actualizarPendientes();renderPendientes();toast('Todas las fotos borradas');return;
+  }
   escribirCola([]);
   renderPendientes();
   toast('Todas las fotos borradas');
@@ -1244,7 +1268,7 @@ async function inicializar(){
     // Paso 2 · si hay red, refrescar/validar en segundo plano sin bloquear la UI
     if (navigator.onLine){
       try {
-        if(await dvbaAuth.abrirAmbiente())return;
+        await DVBA_CAMPO_AMBIENTE.preparar();
         await _supa.auth.setSession({ access_token: sesionLocal.access_token, refresh_token: sesionLocal.refresh_token });
         const { data:{ user }, error } = await _supa.auth.getUser();
         if (!error && user){ _user = user; console.log('[auth] sesión validada online:', user.email); }
@@ -1296,9 +1320,10 @@ async function lLogin(){
     _user = data.user;
     // Guardar en el mismo storage key que dvba_campo para compartir sesión
     localStorage.setItem('dvba_session', JSON.stringify(data.session));
-    if(await dvbaAuth.abrirAmbiente())return;
+    await DVBA_CAMPO_AMBIENTE.preparar();
     if(typeof DVBA_PERFIL!=='undefined')await DVBA_PERFIL.cargar(_supa,{force:true});
     lActualizarSubHeader();_lChequearRolPuedeCargar();
+    actualizarPendientes();
     $('login-ov').classList.remove('on');
     toast('✓ Sesión iniciada');
   } catch(e){

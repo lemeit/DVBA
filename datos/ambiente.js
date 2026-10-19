@@ -92,6 +92,7 @@ function crear(supa,identidad,{pendientes=cola,uuid=()=>crypto.randomUUID(),cuen
   }
   async function accion(nombre,args){await validar();return rpc(nombre,args);}
   return {validar,guardar,enviar,misRegistros,fotoPrivada,
+    descartar:async captura=>{mismaCuenta();if(!(await pendientes.listar(identidad)).some(p=>p.captura===captura))throw new Error('Captura no encontrada para esta cuenta.');await pendientes.quitar(captura);},
     pendientes:()=>{mismaCuenta();return pendientes.listar(identidad);},
     editar:(id,version,cambios)=>accion('ambiente_editar',{p_id:id,p_version:version,p_cambios:cambios}),
     async transicion(id,version,estado){

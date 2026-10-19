@@ -26,7 +26,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.95.24';  // v9.95.24 · Sello: km minúscula (SI) + labelDe() para estado en enum → texto humano + tipos: +Vehículo abandonado/-Reparación tranquera, Guardarrail (tipo Flex Beam)
+const CACHE_NAME = 'dvba-campo-v9.95.25';  // v9.95.25 · Sello: km minúscula (SI) + labelDe() para estado en enum → texto humano + tipos: +Vehículo abandonado/-Reparación tranquera, Guardarrail (tipo Flex Beam)
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg';
@@ -44,12 +44,13 @@ const CACHE_URLS = [
   './dvba_campo_lite.html',   // v9.59 · UI móvil minimalista (foto + GPS)
   './ambiente.html',
   './datos/ambiente.js',
-  './datos/ambiente_pantalla.js',
+  './datos/ambiente_campo.js',
   './manifest.json',
   './sw.js',
   './dvba_tipos.js',
   './datos/auth.js',
   './datos/perfil.js',
+  './datos/permisos_config.js', // Dependencia del panel de administración.
   './datos/legales.js',           // v9.95.20 · modal Acerca/Términos/Privacidad (usado por ambos móviles)
   './datos/qrcode.min.js',
   './datos/supabase-js.min.js',   // v9.92a · Supabase JS local (fix modo básico offline)
@@ -197,8 +198,11 @@ self.addEventListener('fetch', e => {
         }
         return resp;
       });
+      // El panel necesita este archivo para guardar permisos. En la primera
+      // visita aún puede no estar cacheado; dar tiempo a una conexión lenta.
+      const timeoutMs = url.pathname.endsWith('/datos/permisos_config.js') ? 15000 : 3000;
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('timeout')), 3000)
+        setTimeout(() => reject(new Error('timeout')), timeoutMs)
       );
       return Promise.race([netPromise, timeoutPromise])
         .catch(() => _fallbackOffline(url));

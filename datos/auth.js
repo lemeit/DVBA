@@ -162,35 +162,10 @@
     return r;
   }
 
-  // Derivar la cuenta habilitada de Ambiente hacia su espacio propio.
-  // Siempre consultar el perfil del servidor; nunca decidir por correo o caché.
-  async function abrirAmbiente(){
-    const s=await session();
-    if(!s?.user?.id)return false;
-    if(typeof navigator!=='undefined' && navigator.onLine===false){
-      // La caché solo decide qué pantalla abrir, nunca concede permisos.
-      try{
-        const p=JSON.parse(localStorage.getItem('dvba_perfil')||'null');
-        if(p?.user_id===s.user.id && p.area_codigo==='ambiente'){
-          location.replace('ambiente.html');return true;
-        }
-      }catch(e){}
-      return false;
-    }
-    const respuesta=await fetchAuth(SUPA_URL+'/rest/v1/usuarios_perfil?select=*&user_id=eq.'+encodeURIComponent(s.user.id));
-    if(!respuesta.ok)throw new Error('No se pudo verificar el perfil. Reintentá antes de capturar.');
-    const filas=await respuesta.json();
-    const p=Array.isArray(filas)?filas.find(p=>p.user_id===s.user.id):null;
-    if(p?.activo===true && p.rol==='tecnico' && p.area_codigo==='ambiente' && p.alcance_lectura==='propios'){
-      location.replace('ambiente.html');return true;
-    }
-    return false;
-  }
-
   // Exponer
   window.dvbaAuth = {
     SUPA_URL, SUPA_KEY,
-    login, logout, session, token, user, estaLogueado, fetchAuth, abrirAmbiente
+    login, logout, session, token, user, estaLogueado, fetchAuth
   };
 
   // Log inicial para debugging
