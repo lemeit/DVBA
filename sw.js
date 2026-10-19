@@ -26,7 +26,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.95.25';  // v9.95.25 · Sello: km minúscula (SI) + labelDe() para estado en enum → texto humano + tipos: +Vehículo abandonado/-Reparación tranquera, Guardarrail (tipo Flex Beam)
+const CACHE_NAME = 'dvba-campo-v9.95.26';  // v9.95.26 · Sello: km minúscula (SI) + labelDe() para estado en enum → texto humano + tipos: +Vehículo abandonado/-Reparación tranquera, Guardarrail (tipo Flex Beam)
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg';
@@ -51,6 +51,7 @@ const CACHE_URLS = [
   './datos/auth.js',
   './datos/perfil.js',
   './datos/permisos_config.js', // Dependencia del panel de administración.
+  './datos/fotos_privadas.js',
   './datos/legales.js',           // v9.95.20 · modal Acerca/Términos/Privacidad (usado por ambos móviles)
   './datos/qrcode.min.js',
   './datos/supabase-js.min.js',   // v9.92a · Supabase JS local (fix modo básico offline)
@@ -160,6 +161,29 @@ self.addEventListener('fetch', e => {
   if (e.request.url.includes('nominatim.openstreetmap')) return;
   if (e.request.url.includes('unpkg.com')) return;
   if (e.request.url.includes('tile.openstreetmap')) return;
+
+  // El portal debe recibir el visor actual cuando hay conexión. La captura
+  // móvil conserva su arranque inmediato desde caché.
+  const esPortal = url.origin === self.location.origin &&
+    (/\/(index|admin_usuarios)\.html$/.test(url.pathname) || url.pathname === self.registration.scope.replace(self.location.origin, ''));
+  if (esPortal) {
+    e.respondWith((async () => {
+      let timer;
+      try {
+        const resp = await Promise.race([
+          fetch(e.request, { cache: 'no-cache' }),
+          new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('timeout')), 15000); })
+        ]);
+        if (!resp.ok) throw new Error('Portal no disponible');
+        const cache = await caches.open(CACHE_NAME);
+        await cache.put(e.request, resp.clone());
+        return resp;
+      } catch (err) {
+        return (await caches.match(e.request, {ignoreSearch:true})) || _fallbackOffline(url);
+      } finally { clearTimeout(timer); }
+    })());
+    return;
+  }
 
   // v9.95.18 · Estrategia mixta:
   //   · Si está en cache → CACHE-FIRST (sirve al toque + refresca en background).
