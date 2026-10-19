@@ -1,0 +1,57 @@
+name: Verificar permisos de base de datos
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/candidatas/**'
+      - 'tests/database/**'
+      - 'tests/ambiente.test.cjs'
+      - 'tests/permisos_config.test.cjs'
+      - 'datos/ambiente*.js'
+      - 'datos/permisos_config.js'
+      - 'datos/auth.js'
+      - 'datos/perfil.js'
+      - 'tests/perfil.test.cjs'
+      - 'tests/ambiente_destino.test.cjs'
+      - 'diagnostico/2026-10-19/evidencia_supabase.json'
+      - '.github/workflows/permisos-db.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/candidatas/**'
+      - 'tests/database/**'
+      - 'tests/ambiente.test.cjs'
+      - 'tests/permisos_config.test.cjs'
+      - 'datos/ambiente*.js'
+      - 'datos/permisos_config.js'
+      - 'datos/auth.js'
+      - 'datos/perfil.js'
+      - 'tests/perfil.test.cjs'
+      - 'tests/ambiente_destino.test.cjs'
+      - 'diagnostico/2026-10-19/evidencia_supabase.json'
+      - '.github/workflows/permisos-db.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  permisos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tests/database/package-lock.json
+      - name: Instalar motor de prueba local
+        working-directory: tests/database
+        run: npm ci --ignore-scripts
+      - name: Ejecutar pruebas sin conexión a producción
+        working-directory: tests/database
+        run: npm test
+      - name: Verificar cliente y configuración de perfiles
+        run: node --test tests/ambiente.test.cjs tests/ambiente_destino.test.cjs tests/perfil.test.cjs tests/permisos_config.test.cjs

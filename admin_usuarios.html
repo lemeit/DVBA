@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;600;700;800&family=Roboto:wght@400;500;700&display=swap">
 <script src="datos/supabase-js.min.js"></script>
 <script src="datos/auth.js"></script>
+<script src="datos/permisos_config.js"></script>
 <script src="datos/legales.js" defer></script>
 <script src="datos/nav.js"></script>
 <style>
@@ -303,7 +304,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
     <span style="margin-left:8px">Panel de Administración · Módulo de gestión de usuarios y perfiles para Admin del sistema.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86v</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86w</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -330,6 +331,13 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
             <option value="tecnico">Técnico</option>
             <option value="gerencia">Gerencia</option>
             <option value="admin">Admin</option>
+            <option value="jefe_zona">Jefe de zona</option>
+            <option value="jefe_tecnica">Jefe de Técnica</option>
+            <option value="jefe_operativa">Jefe de Operativa</option>
+            <option value="jefe_administrativa">Jefe de Administrativa</option>
+            <option value="jefe_automotores">Jefe de Automotores</option>
+            <option value="capataz">Capataz</option>
+            <option value="publico">Público</option>
           </select>
         </div>
         <div>
@@ -350,6 +358,11 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
           <option value="false">✕ Inactivo (no puede loguearse)</option>
         </select>
         <div class="hint">Un user inactivo mantiene su cuenta pero sin permisos.</div>
+      </div>
+      <div class="row">
+        <label for="eArea">Área y acceso</label>
+        <select id="eArea"><option value="vialidad">Vialidad · operativa zonal</option><option value="ambiente">Ambiente · registros propios y captura provincial</option></select>
+        <div class="hint" id="eAreaAyuda">Ambiente usa rol Técnico y no accede a la operativa zonal.</div>
       </div>
       <input type="hidden" id="eUserId">
     </div>
@@ -405,7 +418,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 
 <script>
 // v8.66f.2 · Constante de versión unificada (familia escritorio v8.X)
-const APP_VERSION = 'v8.86v';
+const APP_VERSION = 'v8.86w';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 // v8.72 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VERSION; });
@@ -419,6 +432,7 @@ const _supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
 });
 
 let _users = [];  // cache
+let _permisosV2 = false;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Toast helper
@@ -500,6 +514,13 @@ async function cargarUsuarios(){
     return;
   }
   _users = data || [];
+  // SELECT * funciona tanto antes como después de añadir los nuevos alcances.
+  const perfiles = await _supa.from('usuarios_perfil').select('*');
+  if (perfiles.error) { toast('No se pudieron verificar los perfiles. Recargá antes de editar.', 'err'); _users=[]; _permisosV2=false; }
+  else {
+    _permisosV2=(perfiles.data||[]).some(p=>Object.hasOwn(p,'area_codigo'));
+    _users=_users.map(u=>({...u,...(perfiles.data||[]).find(p=>p.user_id===u.user_id)}));
+  }
   renderMetricas();
   renderTabla();
 }
@@ -552,7 +573,7 @@ function renderTabla(){
   }
   tb.innerHTML = filas.map(u => {
     const rolClass = u.rol ? 'chip-rol ' + u.rol : 'chip-rol none';
-    const rolTxt = u.rol || 'sin perfil';
+    const rolTxt = u.area_codigo==='ambiente' ? 'Técnico · Ambiente' : (u.rol || 'sin perfil');
     const zonaHtml = u.zona
       ? '<span class="chip-zona">' + u.zona + '</span>'
       : '<span class="chip-zona sin">—</span>';
@@ -603,6 +624,11 @@ function abrirModalEditar(userId){
   document.getElementById('eRol').value = u.rol || 'tecnico';
   document.getElementById('eZona').value = u.zona || '';
   document.getElementById('eActivo').value = String(!!u.activo);
+  document.getElementById('eArea').value = u.area_codigo || 'vialidad';
+  document.getElementById('eArea').disabled = !_permisosV2;
+  document.getElementById('eAreaAyuda').textContent = _permisosV2
+    ? 'Ambiente: elegí rol Técnico. Captura provincial y consulta de registros propios.'
+    : 'El nuevo acceso de Ambiente todavía no está habilitado en la base.';
   document.getElementById('mEdit').classList.add('on');
 }
 
@@ -612,8 +638,14 @@ async function guardarEdicion(){
   const rol = document.getElementById('eRol').value;
   const zona = document.getElementById('eZona').value || null;
   const activo = document.getElementById('eActivo').value === 'true';
+  let configuracion={rol,zona};
+  try {
+    if(_permisosV2)configuracion=DVBA_PERMISOS_CONFIG.configurar({rol,zona,area:document.getElementById('eArea').value,
+      capturaProvincial:_users.some(u=>u.user_id===userId && u.rol==='tecnico' && u.area_codigo==='vialidad' && u.alcance_captura==='provincial')});
+    else if(document.getElementById('eArea').value==='ambiente')throw new Error('Ambiente todavía no está habilitado en la base. No se cambió el perfil.');
+  }catch(e){return toast(e.message,'err');}
   const { error } = await _supa.from('usuarios_perfil').upsert({
-    user_id: userId, nombre, rol, zona, activo, updated_at: new Date().toISOString()
+    user_id: userId, nombre, ...configuracion, activo, updated_at: new Date().toISOString()
   }, { onConflict: 'user_id' });
   if (error) return toast('Error: ' + error.message, 'err');
   toast('✓ Usuario actualizado', 'ok');
@@ -625,10 +657,11 @@ async function toggleActivo(userId, nuevoEstado){
   const u = _users.find(x => x.user_id === userId);
   if (!u) return toast('Usuario no encontrado', 'err');
   if (!confirm((nuevoEstado ? 'Activar' : 'Desactivar') + ' a ' + u.email + '?')) return;
-  const { error } = await _supa.from('usuarios_perfil').upsert({
-    user_id: userId, activo: nuevoEstado, updated_at: new Date().toISOString()
-  }, { onConflict: 'user_id' });
+  const { data, error } = await _supa.from('usuarios_perfil').update({
+    activo: nuevoEstado, updated_at: new Date().toISOString()
+  }).eq('user_id',userId).select('user_id');
   if (error) return toast('Error: ' + error.message, 'err');
+  if (!data?.length) return toast('No se confirmó el cambio de estado. Recargá para verificar.', 'err');
   toast('✓ ' + (nuevoEstado ? 'Activado' : 'Desactivado'), 'ok');
   await cargarUsuarios();
 }

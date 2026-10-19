@@ -17,9 +17,8 @@
          zona: DVBA_PERFIL.zonaActual()
        });
 
-   El módulo es tolerante a errores: si el perfil no existe todavía
-   (usuario nuevo sin fila en usuarios_perfil), zonaActual() cae a
-   'VI' por default (compat con el sistema pre-multi-zona).
+   Si falta el perfil o no se puede verificar, no se inventan rol,
+   habilitación ni zona. El servidor conserva la autoridad de permisos.
 
    Depende únicamente del cliente Supabase pasado por argumento —
    funciona en las 4 apps sin código repetido.
@@ -31,70 +30,27 @@ const STORAGE_KEY = 'dvba_perfil';
 const ZONA_DEFAULT = 'VI';  // Zona operativa histórica hasta que llegue multi-zona real
 
 let _perfilCache = null;    // { user_id, nombre, rol, zona, activo }
-let _cargando = null;       // Promise mientras está en vuelo
+// Cada carga verifica identidad y perfil; la caché se usa solo para presentar la UI.
 
-// Cargar perfil desde Supabase para el user logueado. Cachea en memoria +
-// localStorage. Si ya se cargó en esta sesión, devuelve el cache sin red.
+// Verificar la cuenta actual y cargar su perfil real desde el servidor.
+let _generacion = 0;
 async function cargar(supa, opts){
-  opts = opts || {};
-  const force = !!opts.force;
-
-  if (!force && _perfilCache) return _perfilCache;
-  if (!force && _cargando)    return _cargando;
-
-  _cargando = (async () => {
-    try {
-      // 1) Obtener user actual
-      const { data: { user }, error: uErr } = await supa.auth.getUser();
-      if (uErr || !user){
-        console.warn('[perfil] no hay user autenticado');
-        _perfilCache = null;
-        _persistir(null);
-        return null;
-      }
-
-      // 2) SELECT sobre usuarios_perfil (RLS permite self-read)
-      const { data, error } = await supa
-        .from('usuarios_perfil')
-        .select('user_id, nombre, rol, zona, activo')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (error){
-        console.warn('[perfil] error al leer usuarios_perfil:', error.message);
-        // Fallback: si la tabla no existe todavía o RLS falla, seguimos con default
-        _perfilCache = _fallback(user);
-      } else if (!data){
-        console.warn('[perfil] user autenticado sin fila en usuarios_perfil, usando fallback');
-        _perfilCache = _fallback(user);
-      } else {
-        _perfilCache = data;
-      }
-
-      _persistir(_perfilCache);
-      return _perfilCache;
-    } catch(e){
-      console.error('[perfil] excepción al cargar:', e);
-      _perfilCache = _perfilCache || _hydrate();  // último cache válido si lo hay
-      return _perfilCache;
-    } finally {
-      _cargando = null;
+  const generacion=++_generacion;
+  try {
+    const {data: identidad,error: errorUsuario}=await supa.auth.getUser();
+    if(errorUsuario || !identidad?.user)throw errorUsuario || new Error('Sin usuario autenticado');
+    const {data,error}=await supa.from('usuarios_perfil').select('*').eq('user_id',identidad.user.id).maybeSingle();
+    if(error)throw error;
+    if(generacion!==_generacion)return null;
+    if(!data || data.user_id!==identidad.user.id || data.activo!==true){
+      _perfilCache=null;_persistir(null);return null;
     }
-  })();
-
-  return _cargando;
-}
-
-// Perfil por defecto cuando falta la fila real (compat migración)
-function _fallback(user){
-  return {
-    user_id: user.id,
-    nombre:  user.email || '(sin nombre)',
-    rol:     'tecnico',
-    zona:    ZONA_DEFAULT,
-    activo:  true,
-    _fallback: true
-  };
+    _perfilCache=data;_persistir(data);return data;
+  }catch(e){
+    console.warn('[perfil] no se pudo verificar el perfil activo');
+    if(generacion===_generacion){_perfilCache=null;_persistir(null);}
+    return null;
+  }
 }
 
 // Hidratar desde localStorage al arranque (para no depender de red inmediata)
@@ -118,7 +74,9 @@ function _persistir(perfil){
 // desde otra pestaña o el logout no limpio el cache.
 _perfilCache = _hydrate();
 try {
-  if (_perfilCache && !localStorage.getItem('dvba_session')){
+  const sesion=JSON.parse(localStorage.getItem('dvba_session')||'null');
+  const actual=(sesion?.session||sesion)?.user?.id;
+  if (_perfilCache && (!actual || _perfilCache.user_id!==actual || _perfilCache.activo!==true || _perfilCache._fallback)){
     console.log('[perfil] hay perfil cacheado pero no sesion — limpiando');
     _perfilCache = null;
     _persistir(null);
@@ -135,6 +93,7 @@ function zona(){ return _perfilCache ? _perfilCache.zona : null; }
 //   2) Zona activa del selector del header (localStorage['dvba_zona'])
 //   3) Default 'VI' (compat pre-multi-zona)
 function zonaActual(){
+  if(!_perfilCache || !_perfilCache.activo || _perfilCache.area_codigo==='ambiente')return null;
   const z = zona();
   if (z) return z;
   try {
@@ -152,6 +111,7 @@ function esGerenciaOAdmin(){
 
 // Limpiar cache al logout
 function limpiar(){
+  _generacion++;
   _perfilCache = null;
   _persistir(null);
 }

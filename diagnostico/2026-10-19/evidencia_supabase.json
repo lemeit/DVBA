@@ -1,0 +1,1622 @@
+{
+  "fecha": "2026-10-19",
+  "project": "txjlfpffyzuhdqtfhlmc",
+  "policies": [
+    {
+      "schemaname": "public",
+      "tablename": "asignaciones_tarea",
+      "policyname": "asig_delete",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "DELETE",
+      "qual": "((current_user_rol() = 'admin'::text) OR ((current_user_rol() = ANY (ARRAY['jefe_zona'::text, 'jefe_operativa'::text])) AND (zona = current_user_zona())))",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "asignaciones_tarea",
+      "policyname": "asig_insert",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "((current_user_rol() = 'admin'::text) OR ((current_user_rol() = ANY (ARRAY['jefe_zona'::text, 'jefe_operativa'::text, 'jefe_tecnica'::text])) AND (zona = current_user_zona()) AND (asignado_por = auth.uid())))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "asignaciones_tarea",
+      "policyname": "asig_select",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "SELECT",
+      "qual": "((current_user_rol() = 'admin'::text) OR (current_user_rol() = 'gerencia'::text) OR ((current_user_rol() = ANY (ARRAY['tecnico'::text, 'capataz'::text, 'jefe_administrativa'::text, 'jefe_automotores'::text, 'jefe_tecnica'::text, 'jefe_operativa'::text, 'jefe_zona'::text])) AND (zona = current_user_zona()) AND ((current_user_rol() <> 'capataz'::text) OR (capataz_id = auth.uid()))))",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "asignaciones_tarea",
+      "policyname": "asig_update",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "UPDATE",
+      "qual": "((current_user_rol() = 'admin'::text) OR ((current_user_rol() = ANY (ARRAY['jefe_zona'::text, 'jefe_operativa'::text])) AND (zona = current_user_zona())) OR ((current_user_rol() = 'capataz'::text) AND (capataz_id = auth.uid()) AND (zona = current_user_zona())))",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "caminos_alias",
+      "policyname": "caminos_alias_delete_admin",
+      "permissive": "PERMISSIVE",
+      "roles": "{authenticated}",
+      "cmd": "DELETE",
+      "qual": "(EXISTS ( SELECT 1\n   FROM usuarios_perfil up\n  WHERE ((up.user_id = auth.uid()) AND (up.rol = 'admin'::text))))",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "caminos_alias",
+      "policyname": "caminos_alias_insert_tech",
+      "permissive": "PERMISSIVE",
+      "roles": "{authenticated}",
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "(EXISTS ( SELECT 1\n   FROM usuarios_perfil up\n  WHERE ((up.user_id = auth.uid()) AND (up.rol = ANY (ARRAY['tecnico'::text, 'gerencia'::text, 'admin'::text])) AND ((up.rol = ANY (ARRAY['gerencia'::text, 'admin'::text])) OR (up.zona = caminos_alias.zona)))))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "caminos_alias",
+      "policyname": "caminos_alias_select_anon",
+      "permissive": "PERMISSIVE",
+      "roles": "{anon}",
+      "cmd": "SELECT",
+      "qual": "true",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "caminos_alias",
+      "policyname": "caminos_alias_select_auth",
+      "permissive": "PERMISSIVE",
+      "roles": "{authenticated}",
+      "cmd": "SELECT",
+      "qual": "true",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "caminos_alias",
+      "policyname": "caminos_alias_update_tech",
+      "permissive": "PERMISSIVE",
+      "roles": "{authenticated}",
+      "cmd": "UPDATE",
+      "qual": "(EXISTS ( SELECT 1\n   FROM usuarios_perfil up\n  WHERE ((up.user_id = auth.uid()) AND (up.rol = ANY (ARRAY['tecnico'::text, 'gerencia'::text, 'admin'::text])) AND ((up.rol = ANY (ARRAY['gerencia'::text, 'admin'::text])) OR (up.zona = caminos_alias.zona)))))",
+      "with_check": "(EXISTS ( SELECT 1\n   FROM usuarios_perfil up\n  WHERE ((up.user_id = auth.uid()) AND (up.rol = ANY (ARRAY['tecnico'::text, 'gerencia'::text, 'admin'::text])) AND ((up.rol = ANY (ARRAY['gerencia'::text, 'admin'::text])) OR (up.zona = caminos_alias.zona)))))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "catalogo_identificadores",
+      "policyname": "catalogos_read_auth_i",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "SELECT",
+      "qual": "(auth.role() = 'authenticated'::text)",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "catalogo_maquinarias",
+      "policyname": "catalogos_read_auth_m",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "SELECT",
+      "qual": "(auth.role() = 'authenticated'::text)",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "catalogo_tareas",
+      "policyname": "catalogos_read_auth",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "SELECT",
+      "qual": "(auth.role() = 'authenticated'::text)",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "comentarios_zona",
+      "policyname": "comentarios_delete",
+      "permissive": "PERMISSIVE",
+      "roles": "{authenticated}",
+      "cmd": "DELETE",
+      "qual": "(current_user_rol() = 'admin'::text)",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "comentarios_zona",
+      "policyname": "comentarios_insert",
+      "permissive": "PERMISSIVE",
+      "roles": "{authenticated}",
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "((autor_id = auth.uid()) AND (autor_rol = current_user_rol()) AND ((current_user_rol() = 'admin'::text) OR ((current_user_rol() = 'gerencia'::text) AND (tipo = ANY (ARRAY['comentario'::text, 'mover_zona'::text]))) OR ((current_user_rol() = 'tecnico'::text) AND (tipo = 'mover_zona'::text) AND (target_zona = current_user_zona()))))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "comentarios_zona",
+      "policyname": "comentarios_select",
+      "permissive": "PERMISSIVE",
+      "roles": "{authenticated}",
+      "cmd": "SELECT",
+      "qual": "((current_user_rol() = ANY (ARRAY['admin'::text, 'gerencia'::text])) OR ((current_user_rol() = 'tecnico'::text) AND (target_zona = current_user_zona())))",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "comentarios_zona",
+      "policyname": "comentarios_update",
+      "permissive": "PERMISSIVE",
+      "roles": "{authenticated}",
+      "cmd": "UPDATE",
+      "qual": "((current_user_rol() = 'admin'::text) OR ((current_user_rol() = 'tecnico'::text) AND (target_zona = current_user_zona()) AND (tipo = 'comentario'::text)))",
+      "with_check": "((current_user_rol() = 'admin'::text) OR ((current_user_rol() = 'tecnico'::text) AND (target_zona = current_user_zona()) AND (tipo = 'comentario'::text)))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "parte_fotos",
+      "policyname": "parte_fotos_zonal",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "ALL",
+      "qual": "(EXISTS ( SELECT 1\n   FROM partes_diarios pd\n  WHERE (pd.id = parte_fotos.parte_id)))",
+      "with_check": "(EXISTS ( SELECT 1\n   FROM partes_diarios pd\n  WHERE (pd.id = parte_fotos.parte_id)))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "parte_maquinarias",
+      "policyname": "parte_maq_zonal",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "ALL",
+      "qual": "(EXISTS ( SELECT 1\n   FROM partes_diarios pd\n  WHERE (pd.id = parte_maquinarias.parte_id)))",
+      "with_check": "(EXISTS ( SELECT 1\n   FROM partes_diarios pd\n  WHERE (pd.id = parte_maquinarias.parte_id)))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "partes_diarios",
+      "policyname": "partes_delete_zonal",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "DELETE",
+      "qual": "(current_user_rol() = 'admin'::text)",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "partes_diarios",
+      "policyname": "partes_insert_zonal",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "((current_user_rol() = 'admin'::text) OR (current_user_es_operativo_zonal() AND (zona = current_user_zona())) OR ((auth.role() = 'authenticated'::text) AND (current_user_rol() IS NULL)))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "partes_diarios",
+      "policyname": "partes_read_zonal",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "SELECT",
+      "qual": "((current_user_rol() = 'admin'::text) OR ((borrado_en IS NULL) AND ((current_user_rol() = 'gerencia'::text) OR (current_user_es_operativo_zonal() AND ((zona = current_user_zona()) OR (zona IS NULL))) OR (current_user_es_lector_zonal() AND ((zona = current_user_zona()) OR (zona IS NULL))) OR ((auth.role() = 'authenticated'::text) AND (current_user_rol() IS NULL)))))",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "partes_diarios",
+      "policyname": "partes_update_zonal",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "UPDATE",
+      "qual": "((current_user_rol() = 'admin'::text) OR ((borrado_en IS NULL) AND current_user_es_operativo_zonal() AND ((zona = current_user_zona()) OR (zona IS NULL))) OR ((auth.role() = 'authenticated'::text) AND (current_user_rol() IS NULL)))",
+      "with_check": "((current_user_rol() = 'admin'::text) OR (current_user_es_operativo_zonal() AND (zona = current_user_zona())) OR ((auth.role() = 'authenticated'::text) AND (current_user_rol() IS NULL)))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "partidos_zona",
+      "policyname": "escritura_admin_partidos_zona",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "ALL",
+      "qual": "(current_user_rol() = 'admin'::text)",
+      "with_check": "(current_user_rol() = 'admin'::text)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "partidos_zona",
+      "policyname": "lectura_publica_partidos_zona",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "SELECT",
+      "qual": "true",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "relevamientos",
+      "policyname": "relev_delete_zonal",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "DELETE",
+      "qual": "(current_user_rol() = 'admin'::text)",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "relevamientos",
+      "policyname": "relev_insert_zonal",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "((current_user_rol() = 'admin'::text) OR (current_user_es_operativo_zonal() AND (zona = current_user_zona())) OR ((auth.role() = 'authenticated'::text) AND (current_user_rol() IS NULL)))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "relevamientos",
+      "policyname": "relev_read_zonal",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "SELECT",
+      "qual": "((current_user_rol() = 'admin'::text) OR ((borrado_en IS NULL) AND ((current_user_rol() = 'gerencia'::text) OR (current_user_es_operativo_zonal() AND ((zona = current_user_zona()) OR (zona IS NULL))) OR (current_user_es_lector_zonal() AND ((zona = current_user_zona()) OR (zona IS NULL))) OR ((auth.role() = 'authenticated'::text) AND (current_user_rol() IS NULL)))))",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "relevamientos",
+      "policyname": "relev_update_zonal",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "UPDATE",
+      "qual": "((current_user_rol() = 'admin'::text) OR ((borrado_en IS NULL) AND (((current_user_rol() = ANY (ARRAY['jefe_zona'::text, 'jefe_tecnica'::text, 'jefe_operativa'::text, 'capataz'::text])) AND (zona = current_user_zona())) OR ((current_user_rol() = 'tecnico'::text) AND (zona = current_user_zona()) AND ((autor_id = auth.uid()) OR (autor_id IS NULL))))) OR ((auth.role() = 'authenticated'::text) AND (current_user_rol() IS NULL)))",
+      "with_check": "((current_user_rol() = 'admin'::text) OR (current_user_es_operativo_zonal() AND (zona = current_user_zona())) OR ((auth.role() = 'authenticated'::text) AND (current_user_rol() IS NULL)))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "usuarios_perfil",
+      "policyname": "usuarios_perfil_admin_all",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "UPDATE",
+      "qual": "(current_user_rol() = 'admin'::text)",
+      "with_check": "(current_user_rol() = 'admin'::text)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "usuarios_perfil",
+      "policyname": "usuarios_perfil_admin_write",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "ALL",
+      "qual": "(current_user_rol() = 'admin'::text)",
+      "with_check": "(current_user_rol() = 'admin'::text)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "usuarios_perfil",
+      "policyname": "usuarios_perfil_own_read",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "SELECT",
+      "qual": "((auth.uid() = user_id) OR (current_user_rol() = 'admin'::text) OR (current_user_rol() = 'gerencia'::text))",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "usuarios_perfil",
+      "policyname": "usuarios_perfil_own_upsert",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "((auth.uid() = user_id) OR (current_user_rol() = 'admin'::text))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "usuarios_perfil",
+      "policyname": "usuarios_perfil_self_read",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "SELECT",
+      "qual": "((user_id = auth.uid()) OR (current_user_rol() = 'admin'::text))",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "vehiculos",
+      "policyname": "vehiculos_read_auth",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "SELECT",
+      "qual": "((auth.role() = 'authenticated'::text) AND (activo = true))",
+      "with_check": null
+    },
+    {
+      "schemaname": "storage",
+      "tablename": "objects",
+      "policyname": "auth_update_relevamientos",
+      "permissive": "PERMISSIVE",
+      "roles": "{authenticated}",
+      "cmd": "UPDATE",
+      "qual": "(bucket_id = 'relevamientos'::text)",
+      "with_check": "(bucket_id = 'relevamientos'::text)"
+    },
+    {
+      "schemaname": "storage",
+      "tablename": "objects",
+      "policyname": "fotos_borrar_auth",
+      "permissive": "PERMISSIVE",
+      "roles": "{authenticated}",
+      "cmd": "DELETE",
+      "qual": "(bucket_id = 'relevamientos'::text)",
+      "with_check": null
+    },
+    {
+      "schemaname": "storage",
+      "tablename": "objects",
+      "policyname": "fotos_lectura_individual",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "SELECT",
+      "qual": "((bucket_id = 'relevamientos'::text) AND (name IS NOT NULL))",
+      "with_check": null
+    },
+    {
+      "schemaname": "storage",
+      "tablename": "objects",
+      "policyname": "fotos_subida_auth",
+      "permissive": "PERMISSIVE",
+      "roles": "{authenticated}",
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "(bucket_id = 'relevamientos'::text)"
+    },
+    {
+      "schemaname": "storage",
+      "tablename": "objects",
+      "policyname": "storage_insert_publico",
+      "permissive": "PERMISSIVE",
+      "roles": "{public}",
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "(bucket_id = 'relevamientos'::text)"
+    }
+  ],
+  "functions": [
+    {
+      "proname": "_touch_updated_at",
+      "args": "",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public._touch_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = NOW();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+    },
+    {
+      "proname": "admin_listar_usuarios",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.admin_listar_usuarios()\n RETURNS TABLE(user_id uuid, email text, nombre text, rol text, zona text, activo boolean, created_at timestamp with time zone, last_sign_in timestamp with time zone, email_confirmed boolean)\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  -- Guard: solo admins pueden invocar\r\n  IF current_user_rol() != 'admin' THEN\r\n    RAISE EXCEPTION 'Acceso denegado: se requiere rol admin (rol actual: %)', COALESCE(current_user_rol(), 'sin perfil');\r\n  END IF;\r\n\r\n  RETURN QUERY\r\n  SELECT\r\n    au.id                                       AS user_id,\r\n    au.email::TEXT                              AS email,\r\n    up.nombre                                   AS nombre,\r\n    up.rol                                      AS rol,\r\n    up.zona                                     AS zona,\r\n    COALESCE(up.activo, false)                  AS activo,\r\n    au.created_at                               AS created_at,\r\n    au.last_sign_in_at                          AS last_sign_in,\r\n    (au.email_confirmed_at IS NOT NULL)         AS email_confirmed\r\n  FROM auth.users au\r\n  LEFT JOIN usuarios_perfil up ON up.user_id = au.id\r\n  ORDER BY\r\n    CASE up.rol WHEN 'admin' THEN 1 WHEN 'gerencia' THEN 2 WHEN 'tecnico' THEN 3 ELSE 4 END,\r\n    up.zona NULLS LAST,\r\n    au.email;\r\nEND;\r\n$function$\n"
+    },
+    {
+      "proname": "admin_metricas_sistema",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.admin_metricas_sistema()\n RETURNS jsonb\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_result JSONB;\r\nBEGIN\r\n  IF current_user_rol() <> 'admin' THEN\r\n    RAISE EXCEPTION 'Solo admin puede consultar métricas del sistema';\r\n  END IF;\r\n\r\n  v_result := jsonb_build_object(\r\n    'timestamp', NOW(),\r\n\r\n    -- Tamaño de la BD (data + indexes)\r\n    'db_size_bytes', (SELECT pg_database_size(current_database())),\r\n    'db_size_pretty', (SELECT pg_size_pretty(pg_database_size(current_database()))),\r\n\r\n    -- Tamaños de tablas del schema public (top 10 por tamaño)\r\n    'tablas', (\r\n      SELECT jsonb_agg(t) FROM (\r\n        SELECT c.relname AS tabla,\r\n               pg_size_pretty(pg_total_relation_size(c.oid)) AS tamano,\r\n               pg_total_relation_size(c.oid) AS tamano_bytes,\r\n               c.reltuples::BIGINT AS filas_estimadas\r\n          FROM pg_class c\r\n          JOIN pg_namespace n ON n.oid = c.relnamespace\r\n         WHERE c.relkind = 'r'\r\n           AND n.nspname = 'public'\r\n         ORDER BY pg_total_relation_size(c.oid) DESC\r\n         LIMIT 12\r\n      ) t\r\n    ),\r\n\r\n    -- Conteo de filas exacto en tablas clave\r\n    'filas_relevamientos', (SELECT COUNT(*) FROM public.relevamientos),\r\n    'filas_relevamientos_activos', (SELECT COUNT(*) FROM public.relevamientos WHERE borrado_en IS NULL),\r\n    'filas_relevamientos_archivados', (SELECT COUNT(*) FROM public.relevamientos WHERE borrado_en IS NOT NULL),\r\n    'filas_partes_diarios', (SELECT COUNT(*) FROM public.partes_diarios),\r\n    'filas_usuarios_perfil', (SELECT COUNT(*) FROM public.usuarios_perfil),\r\n    'filas_usuarios_activos', (SELECT COUNT(*) FROM public.usuarios_perfil WHERE activo),\r\n\r\n    -- Almacenamiento del bucket relevamientos\r\n    'storage_relevamientos', (\r\n      SELECT jsonb_build_object(\r\n        'total_archivos', COUNT(*),\r\n        'tamano_bytes', COALESCE(SUM((metadata->>'size')::BIGINT), 0),\r\n        'tamano_pretty', pg_size_pretty(COALESCE(SUM((metadata->>'size')::BIGINT), 0)),\r\n        'ultima_subida', MAX(created_at)\r\n      )\r\n      FROM storage.objects\r\n      WHERE bucket_id = 'relevamientos'\r\n    ),\r\n\r\n    -- Salud RLS: cuántas tablas tienen RLS activa y cuántas policies\r\n    'salud_rls', (\r\n      SELECT jsonb_build_object(\r\n        'tablas_con_rls', COUNT(DISTINCT c.relname),\r\n        'total_policies', (SELECT COUNT(*) FROM pg_policies WHERE schemaname = 'public')\r\n      )\r\n      FROM pg_class c\r\n      JOIN pg_namespace n ON n.oid = c.relnamespace\r\n      WHERE c.relkind = 'r'\r\n        AND n.nspname = 'public'\r\n        AND c.relrowsecurity = TRUE\r\n    ),\r\n\r\n    -- Info de auth: usuarios registrados en auth.users\r\n    'auth', (\r\n      SELECT jsonb_build_object(\r\n        'total_usuarios_auth', (SELECT COUNT(*) FROM auth.users),\r\n        'confirmados', (SELECT COUNT(*) FROM auth.users WHERE email_confirmed_at IS NOT NULL),\r\n        'ultima_actividad', (SELECT MAX(last_sign_in_at) FROM auth.users)\r\n      )\r\n    )\r\n  );\r\n\r\n  RETURN v_result;\r\nEND;\r\n$function$\n"
+    },
+    {
+      "proname": "admin_metricas_usuarios",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.admin_metricas_usuarios()\n RETURNS TABLE(rol text, zona text, activos bigint, total bigint)\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  IF current_user_rol() != 'admin' THEN\r\n    RAISE EXCEPTION 'Acceso denegado: se requiere rol admin';\r\n  END IF;\r\n  RETURN QUERY\r\n  SELECT\r\n    COALESCE(up.rol, '<sin_perfil>')::TEXT   AS rol,\r\n    COALESCE(up.zona, '<sin_zona>')::TEXT    AS zona,\r\n    COUNT(*) FILTER (WHERE COALESCE(up.activo, false))  AS activos,\r\n    COUNT(*)                                            AS total\r\n  FROM auth.users au\r\n  LEFT JOIN usuarios_perfil up ON up.user_id = au.id\r\n  GROUP BY up.rol, up.zona\r\n  ORDER BY\r\n    CASE up.rol WHEN 'admin' THEN 1 WHEN 'gerencia' THEN 2 WHEN 'tecnico' THEN 3 ELSE 4 END,\r\n    up.zona NULLS LAST;\r\nEND;\r\n$function$\n"
+    },
+    {
+      "proname": "comentarios_contadores",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.comentarios_contadores()\n RETURNS jsonb\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  rol TEXT;\r\n  zona TEXT;\r\n  uid UUID;\r\n  resultado JSONB;\r\nBEGIN\r\n  rol := public.current_user_rol();\r\n  zona := public.current_user_zona();\r\n  uid := auth.uid();\r\n  IF rol IS NULL OR uid IS NULL THEN\r\n    RETURN '{}'::jsonb;\r\n  END IF;\r\n\r\n  IF rol = 'admin' THEN\r\n    SELECT jsonb_build_object(\r\n      'solicitudes_pendientes',\r\n        (SELECT COUNT(*) FROM public.comentarios_zona\r\n         WHERE estado='abierto' AND tipo IN ('mover_zona','eliminar')),\r\n      'comentarios_abiertos',\r\n        (SELECT COUNT(*) FROM public.comentarios_zona\r\n         WHERE estado='abierto' AND tipo='comentario')\r\n    ) INTO resultado;\r\n\r\n  ELSIF rol = 'gerencia' THEN\r\n    SELECT jsonb_build_object(\r\n      'mis_comentarios_activos',\r\n        (SELECT COUNT(*) FROM public.comentarios_zona\r\n         WHERE autor_id=uid AND tipo='comentario' AND estado='abierto'),\r\n      'solicitudes_mias_pendientes',\r\n        (SELECT COUNT(*) FROM public.comentarios_zona\r\n         WHERE autor_id=uid AND tipo IN ('mover_zona','eliminar') AND estado='abierto')\r\n    ) INTO resultado;\r\n\r\n  ELSIF rol = 'tecnico' THEN\r\n    SELECT jsonb_build_object(\r\n      'comentarios_sin_responder',\r\n        (SELECT COUNT(*) FROM public.comentarios_zona\r\n         WHERE target_zona=zona AND tipo='comentario' AND estado='abierto'),\r\n      'mis_solicitudes_pendientes',\r\n        (SELECT COUNT(*) FROM public.comentarios_zona\r\n         WHERE autor_id=uid AND tipo IN ('mover_zona','eliminar') AND estado='abierto')\r\n    ) INTO resultado;\r\n  ELSE\r\n    resultado := '{}'::jsonb;\r\n  END IF;\r\n\r\n  RETURN resultado;\r\nEND $function$\n"
+    },
+    {
+      "proname": "current_user_es_capataz",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.current_user_es_capataz()\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\n    SELECT current_user_rol() = 'capataz';\r\n$function$\n"
+    },
+    {
+      "proname": "current_user_es_jefe",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.current_user_es_jefe()\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\n    SELECT current_user_rol() IN (\r\n      'jefe_zona', 'jefe_administrativa', 'jefe_automotores',\r\n      'jefe_tecnica', 'jefe_operativa'\r\n    );\r\n$function$\n"
+    },
+    {
+      "proname": "current_user_es_lector_zonal",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.current_user_es_lector_zonal()\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\n    SELECT current_user_rol() IN (\r\n      'jefe_administrativa', 'jefe_automotores'\r\n    );\r\n$function$\n"
+    },
+    {
+      "proname": "current_user_es_operativo_zonal",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.current_user_es_operativo_zonal()\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\n    SELECT current_user_rol() IN (\r\n      'tecnico', 'capataz',\r\n      'jefe_zona', 'jefe_tecnica', 'jefe_operativa'\r\n    );\r\n$function$\n"
+    },
+    {
+      "proname": "current_user_puede_asignar",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.current_user_puede_asignar()\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\n    SELECT current_user_rol() IN ('jefe_zona', 'jefe_operativa', 'gerencia', 'admin');\r\n$function$\n"
+    },
+    {
+      "proname": "current_user_rol",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.current_user_rol()\n RETURNS text\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\n  SELECT rol FROM usuarios_perfil WHERE user_id = auth.uid()\r\n$function$\n"
+    },
+    {
+      "proname": "current_user_zona",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.current_user_zona()\n RETURNS text\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\n  SELECT zona FROM usuarios_perfil WHERE user_id = auth.uid()\r\n$function$\n"
+    },
+    {
+      "proname": "forzar_zona_por_rol",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "definition": "CREATE OR REPLACE FUNCTION public.forzar_zona_por_rol()\n RETURNS trigger\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  rol_actual  TEXT;\r\n  zona_actual TEXT;\r\n  zona_geo    TEXT;\r\nBEGIN\r\n  rol_actual  := current_user_rol();\r\n  zona_actual := current_user_zona();\r\n\r\n  -- Normalizar: \"PBA\" no es una zona vial válida (es la vista panorámica del picker).\r\n  -- Si viene \"PBA\", tratarlo como NULL para que la lógica siguiente lo resuelva.\r\n  IF NEW.zona = 'PBA' THEN\r\n    NEW.zona := NULL;\r\n  END IF;\r\n\r\n  -- Prioridad 1: derivar zona del partido si es reconocible.\r\n  IF NEW.partido IS NOT NULL AND TRIM(NEW.partido) <> '' THEN\r\n    zona_geo := zona_por_partido(NEW.partido);\r\n    IF zona_geo IS NOT NULL THEN\r\n      NEW.zona := zona_geo;\r\n      RETURN NEW;\r\n    END IF;\r\n  END IF;\r\n\r\n  -- Prioridad 2: si el user es operativo zonal, usar su zona.\r\n  IF rol_actual IN (\r\n       'tecnico', 'capataz',\r\n       'jefe_zona', 'jefe_tecnica', 'jefe_operativa',\r\n       'jefe_administrativa', 'jefe_automotores'\r\n     ) AND zona_actual IS NOT NULL THEN\r\n    NEW.zona := zona_actual;\r\n    RETURN NEW;\r\n  END IF;\r\n\r\n  -- Prioridad 3: admin/gerencia sin partido reconocible → respetar lo enviado\r\n  -- (puede ser NULL si el frontend no lo pobló). Ya no puede ser 'PBA' por\r\n  -- el guard al inicio.\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+    },
+    {
+      "proname": "get_solicitudes_admin",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.get_solicitudes_admin()\n RETURNS TABLE(id bigint, tipo text, target_tabla text, target_id bigint, target_zona text, zona_destino text, mensaje text, estado text, creado_en timestamp with time zone, actualizado_en timestamp with time zone, autor_id uuid, autor_rol text, autor_zona text, autor_email text, autor_nombre text)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\n  SELECT c.id,\r\n         c.tipo,\r\n         c.target_tabla,\r\n         c.target_id,\r\n         c.target_zona,\r\n         c.zona_destino,\r\n         c.mensaje,\r\n         c.estado,\r\n         c.creado_en,\r\n         c.actualizado_en,\r\n         c.autor_id,\r\n         c.autor_rol,\r\n         c.autor_zona,\r\n         au.email AS autor_email,\r\n         up.nombre AS autor_nombre\r\n    FROM public.comentarios_zona c\r\n    LEFT JOIN public.usuarios_perfil up ON up.user_id = c.autor_id\r\n    LEFT JOIN auth.users au             ON au.id      = c.autor_id\r\n   WHERE c.tipo IN ('mover_zona', 'eliminar')\r\n     AND c.estado = 'abierto'\r\n     AND EXISTS (\r\n       SELECT 1 FROM public.usuarios_perfil me\r\n        WHERE me.user_id = auth.uid()\r\n          AND me.activo\r\n          AND me.rol = 'admin'\r\n     )\r\n   ORDER BY c.creado_en;\r\n$function$\n"
+    },
+    {
+      "proname": "marcar_restauraciones_vistas",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.marcar_restauraciones_vistas()\n RETURNS integer\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_zona TEXT;\r\n  v_count INTEGER := 0;\r\n  v_c INTEGER;\r\nBEGIN\r\n  v_zona := current_user_zona();\r\n  IF v_zona IS NULL AND current_user_rol() NOT IN ('admin','gerencia') THEN\r\n    RETURN 0;\r\n  END IF;\r\n\r\n  -- Admin y gerencia marcan todo. Roles zonales solo su zona.\r\n  IF current_user_rol() IN ('admin','gerencia') THEN\r\n    UPDATE public.relevamientos SET restauracion_vista = TRUE\r\n     WHERE restaurado_en IS NOT NULL AND NOT restauracion_vista;\r\n    GET DIAGNOSTICS v_c = ROW_COUNT; v_count := v_count + v_c;\r\n\r\n    UPDATE public.partes_diarios SET restauracion_vista = TRUE\r\n     WHERE restaurado_en IS NOT NULL AND NOT restauracion_vista;\r\n    GET DIAGNOSTICS v_c = ROW_COUNT; v_count := v_count + v_c;\r\n  ELSE\r\n    UPDATE public.relevamientos SET restauracion_vista = TRUE\r\n     WHERE zona = v_zona AND restaurado_en IS NOT NULL AND NOT restauracion_vista;\r\n    GET DIAGNOSTICS v_c = ROW_COUNT; v_count := v_count + v_c;\r\n\r\n    UPDATE public.partes_diarios SET restauracion_vista = TRUE\r\n     WHERE zona = v_zona AND restaurado_en IS NOT NULL AND NOT restauracion_vista;\r\n    GET DIAGNOSTICS v_c = ROW_COUNT; v_count := v_count + v_c;\r\n  END IF;\r\n\r\n  RETURN v_count;\r\nEND;\r\n$function$\n"
+    },
+    {
+      "proname": "restaurar_registro",
+      "args": "p_tabla text, p_id bigint, p_motivo text",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.restaurar_registro(p_tabla text, p_id bigint, p_motivo text DEFAULT NULL::text)\n RETURNS bigint\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  IF current_user_rol() <> 'admin' THEN\r\n    RAISE EXCEPTION 'Solo admin puede restaurar registros';\r\n  END IF;\r\n\r\n  IF p_tabla NOT IN ('relevamientos', 'partes_diarios') THEN\r\n    RAISE EXCEPTION 'Tabla % no soportada', p_tabla;\r\n  END IF;\r\n\r\n  IF p_tabla = 'relevamientos' THEN\r\n    UPDATE public.relevamientos\r\n       SET borrado_en          = NULL,\r\n           borrado_por         = NULL,\r\n           restaurado_en       = NOW(),\r\n           restaurado_por      = auth.uid(),\r\n           motivo_restauracion = NULLIF(TRIM(COALESCE(p_motivo,'')), ''),\r\n           restauracion_vista  = FALSE\r\n     WHERE id = p_id\r\n       AND borrado_en IS NOT NULL;\r\n  ELSE\r\n    UPDATE public.partes_diarios\r\n       SET borrado_en          = NULL,\r\n           borrado_por         = NULL,\r\n           restaurado_en       = NOW(),\r\n           restaurado_por      = auth.uid(),\r\n           motivo_restauracion = NULLIF(TRIM(COALESCE(p_motivo,'')), ''),\r\n           restauracion_vista  = FALSE\r\n     WHERE id = p_id\r\n       AND borrado_en IS NOT NULL;\r\n  END IF;\r\n\r\n  RETURN p_id;\r\nEND;\r\n$function$\n"
+    },
+    {
+      "proname": "set_autor_registro",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "definition": "CREATE OR REPLACE FUNCTION public.set_autor_registro()\n RETURNS trigger\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_rol  TEXT;\r\n  v_zona TEXT;\r\nBEGIN\r\n  -- Solo poblar si autor_id no vino explícito\r\n  IF NEW.autor_id IS NULL THEN\r\n    NEW.autor_id := auth.uid();\r\n  END IF;\r\n\r\n  -- Snapshot del rol/zona del autor en el momento del INSERT\r\n  -- (para que si el user cambia de zona/rol después, el registro histórico\r\n  -- conserve quién era esa persona cuando cargó)\r\n  IF NEW.autor_id IS NOT NULL AND (NEW.autor_rol IS NULL OR NEW.autor_zona IS NULL) THEN\r\n    SELECT rol, zona INTO v_rol, v_zona\r\n      FROM public.usuarios_perfil\r\n     WHERE user_id = NEW.autor_id\r\n     LIMIT 1;\r\n    IF NEW.autor_rol  IS NULL THEN NEW.autor_rol  := v_rol; END IF;\r\n    IF NEW.autor_zona IS NULL THEN NEW.autor_zona := v_zona; END IF;\r\n  END IF;\r\n\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+    },
+    {
+      "proname": "set_caminos_alias_updated_at",
+      "args": "",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "definition": "CREATE OR REPLACE FUNCTION public.set_caminos_alias_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n    NEW.updated_at = NOW();\r\n    NEW.updated_by = auth.uid();\r\n    RETURN NEW;\r\nEND;\r\n$function$\n"
+    },
+    {
+      "proname": "soft_delete_parte_diario",
+      "args": "p_id bigint, p_motivo text",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.soft_delete_parte_diario(p_id bigint, p_motivo text)\n RETURNS bigint\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_rol TEXT;\r\n  v_zona TEXT;\r\n  v_reg_zona TEXT;\r\nBEGIN\r\n  IF p_motivo IS NULL OR LENGTH(TRIM(p_motivo)) < 10 THEN\r\n    RAISE EXCEPTION 'Motivo obligatorio (mínimo 10 caracteres)';\r\n  END IF;\r\n\r\n  v_rol  := current_user_rol();\r\n  v_zona := current_user_zona();\r\n\r\n  IF v_rol NOT IN ('admin', 'jefe_zona') THEN\r\n    RAISE EXCEPTION 'Rol % no autorizado para borrar', v_rol;\r\n  END IF;\r\n\r\n  SELECT zona INTO v_reg_zona FROM public.partes_diarios WHERE id = p_id;\r\n  IF v_reg_zona IS NULL THEN\r\n    RAISE EXCEPTION 'Parte % no existe', p_id;\r\n  END IF;\r\n\r\n  IF v_rol = 'jefe_zona' AND v_reg_zona <> v_zona THEN\r\n    RAISE EXCEPTION 'jefe_zona solo puede borrar partes de su zona (% vs %)', v_reg_zona, v_zona;\r\n  END IF;\r\n\r\n  UPDATE public.partes_diarios\r\n     SET borrado_en     = NOW(),\r\n         borrado_por    = auth.uid(),\r\n         motivo_borrado = p_motivo\r\n   WHERE id = p_id\r\n     AND borrado_en IS NULL;\r\n\r\n  RETURN p_id;\r\nEND;\r\n$function$\n"
+    },
+    {
+      "proname": "soft_delete_relevamiento",
+      "args": "p_id bigint, p_motivo text",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.soft_delete_relevamiento(p_id bigint, p_motivo text)\n RETURNS bigint\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\nDECLARE\r\n  v_rol TEXT;\r\n  v_zona TEXT;\r\n  v_reg_zona TEXT;\r\nBEGIN\r\n  IF p_motivo IS NULL OR LENGTH(TRIM(p_motivo)) < 10 THEN\r\n    RAISE EXCEPTION 'Motivo obligatorio (mínimo 10 caracteres)';\r\n  END IF;\r\n\r\n  v_rol  := current_user_rol();\r\n  v_zona := current_user_zona();\r\n\r\n  IF v_rol NOT IN ('admin', 'jefe_zona') THEN\r\n    RAISE EXCEPTION 'Rol % no autorizado para borrar', v_rol;\r\n  END IF;\r\n\r\n  SELECT zona INTO v_reg_zona FROM public.relevamientos WHERE id = p_id;\r\n  IF v_reg_zona IS NULL THEN\r\n    RAISE EXCEPTION 'Registro % no existe', p_id;\r\n  END IF;\r\n\r\n  IF v_rol = 'jefe_zona' AND v_reg_zona <> v_zona THEN\r\n    RAISE EXCEPTION 'jefe_zona solo puede borrar registros de su zona (% vs %)', v_reg_zona, v_zona;\r\n  END IF;\r\n\r\n  UPDATE public.relevamientos\r\n     SET borrado_en     = NOW(),\r\n         borrado_por    = auth.uid(),\r\n         motivo_borrado = p_motivo\r\n   WHERE id = p_id\r\n     AND borrado_en IS NULL;\r\n\r\n  RETURN p_id;\r\nEND;\r\n$function$\n"
+    },
+    {
+      "proname": "trg_comentarios_zona_updated",
+      "args": "",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": true,
+      "definition": "CREATE OR REPLACE FUNCTION public.trg_comentarios_zona_updated()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\r\nBEGIN\r\n  NEW.actualizado_en := NOW();\r\n  RETURN NEW;\r\nEND $function$\n"
+    },
+    {
+      "proname": "zona_por_partido",
+      "args": "p_nombre text",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=public"
+      ],
+      "anon_execute": false,
+      "auth_execute": false,
+      "definition": "CREATE OR REPLACE FUNCTION public.zona_por_partido(p_nombre text)\n RETURNS text\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\r\n    SELECT zona FROM partidos_zona\r\n     WHERE LOWER(nombre) = LOWER(TRIM(p_nombre))\r\n        OR EXISTS (\r\n             SELECT 1 FROM unnest(aliases) AS a\r\n             WHERE LOWER(a) = LOWER(TRIM(p_nombre))\r\n           )\r\n     LIMIT 1;\r\n$function$\n"
+    }
+  ],
+  "metadata": [
+    {
+      "diagnostico": {
+        "users": {
+          "auth": 12,
+          "inactivos": 0,
+          "sin_perfil": 0
+        },
+        "buckets": [
+          {
+            "id": "fotos-relevamiento",
+            "public": true,
+            "file_size_limit": null,
+            "allowed_mime_types": null
+          },
+          {
+            "id": "relevamientos",
+            "public": true,
+            "file_size_limit": null,
+            "allowed_mime_types": null
+          }
+        ],
+        "triggers": [
+          {
+            "tabla": "partes_diarios",
+            "schema": "public",
+            "tgname": "trg_partes_diarios_touch",
+            "definition": "CREATE TRIGGER trg_partes_diarios_touch BEFORE UPDATE ON public.partes_diarios FOR EACH ROW EXECUTE FUNCTION _touch_updated_at()"
+          },
+          {
+            "tabla": "usuarios_perfil",
+            "schema": "public",
+            "tgname": "trg_usuarios_perfil_updated",
+            "definition": "CREATE TRIGGER trg_usuarios_perfil_updated BEFORE UPDATE ON public.usuarios_perfil FOR EACH ROW EXECUTE FUNCTION _touch_updated_at()"
+          },
+          {
+            "tabla": "relevamientos",
+            "schema": "public",
+            "tgname": "trg_relev_forzar_zona",
+            "definition": "CREATE TRIGGER trg_relev_forzar_zona BEFORE INSERT OR UPDATE OF zona ON public.relevamientos FOR EACH ROW EXECUTE FUNCTION forzar_zona_por_rol()"
+          },
+          {
+            "tabla": "partes_diarios",
+            "schema": "public",
+            "tgname": "trg_partes_forzar_zona",
+            "definition": "CREATE TRIGGER trg_partes_forzar_zona BEFORE INSERT OR UPDATE OF zona ON public.partes_diarios FOR EACH ROW EXECUTE FUNCTION forzar_zona_por_rol()"
+          },
+          {
+            "tabla": "comentarios_zona",
+            "schema": "public",
+            "tgname": "comentarios_zona_set_updated",
+            "definition": "CREATE TRIGGER comentarios_zona_set_updated BEFORE UPDATE ON public.comentarios_zona FOR EACH ROW EXECUTE FUNCTION trg_comentarios_zona_updated()"
+          },
+          {
+            "tabla": "caminos_alias",
+            "schema": "public",
+            "tgname": "trg_caminos_alias_upd",
+            "definition": "CREATE TRIGGER trg_caminos_alias_upd BEFORE UPDATE ON public.caminos_alias FOR EACH ROW EXECUTE FUNCTION set_caminos_alias_updated_at()"
+          },
+          {
+            "tabla": "asignaciones_tarea",
+            "schema": "public",
+            "tgname": "trg_asig_updated_at",
+            "definition": "CREATE TRIGGER trg_asig_updated_at BEFORE UPDATE ON public.asignaciones_tarea FOR EACH ROW EXECUTE FUNCTION _touch_updated_at()"
+          },
+          {
+            "tabla": "relevamientos",
+            "schema": "public",
+            "tgname": "trg_relev_set_autor",
+            "definition": "CREATE TRIGGER trg_relev_set_autor BEFORE INSERT ON public.relevamientos FOR EACH ROW EXECUTE FUNCTION set_autor_registro()"
+          },
+          {
+            "tabla": "partes_diarios",
+            "schema": "public",
+            "tgname": "trg_partes_set_autor",
+            "definition": "CREATE TRIGGER trg_partes_set_autor BEFORE INSERT ON public.partes_diarios FOR EACH ROW EXECUTE FUNCTION set_autor_registro()"
+          }
+        ]
+      }
+    }
+  ],
+  "quality": [
+    {
+      "diagnostico": {
+        "partes": {
+          "total": 634,
+          "borrados": 0,
+          "sin_zona": 0,
+          "sin_autor": 634,
+          "partido_zona_discrepante": 0
+        },
+        "objetos": [
+          {
+            "bytes": 146327160,
+            "cantidad": 542,
+            "bucket_id": "relevamientos"
+          }
+        ],
+        "perfiles": [
+          {
+            "rol": "jefe_operativa",
+            "zona": "VI",
+            "activo": true,
+            "cantidad": 1
+          },
+          {
+            "rol": "gerencia",
+            "zona": null,
+            "activo": true,
+            "cantidad": 3
+          },
+          {
+            "rol": "jefe_tecnica",
+            "zona": "VI",
+            "activo": true,
+            "cantidad": 2
+          },
+          {
+            "rol": "jefe_zona",
+            "zona": "VI",
+            "activo": true,
+            "cantidad": 1
+          },
+          {
+            "rol": "jefe_operativa",
+            "zona": "IV",
+            "activo": true,
+            "cantidad": 1
+          },
+          {
+            "rol": "capataz",
+            "zona": "VI",
+            "activo": true,
+            "cantidad": 1
+          },
+          {
+            "rol": "jefe_operativa",
+            "zona": "V",
+            "activo": true,
+            "cantidad": 1
+          },
+          {
+            "rol": "admin",
+            "zona": null,
+            "activo": true,
+            "cantidad": 2
+          }
+        ],
+        "relevamientos": {
+          "total": 325,
+          "sin_gps": 0,
+          "borrados": 0,
+          "sin_foto": 24,
+          "sin_zona": 12,
+          "sin_autor": 236,
+          "gps_invalido": 0,
+          "sin_clasificar": 54,
+          "partido_zona_discrepante": 0
+        },
+        "fotos_reutilizadas": 0,
+        "enlaces_rotos_parte_fotos": 0
+      }
+    }
+  ],
+  "integrity": [
+    {
+      "diagnostico": {
+        "integridad": [
+          {
+            "tabla": "relevamientos",
+            "conname": "relevamientos_estado_workflow_check",
+            "definicion": "CHECK ((estado_workflow = ANY (ARRAY['campo'::text, 'aprobado'::text, 'rechazado'::text])))"
+          },
+          {
+            "tabla": "relevamientos",
+            "conname": "relevamientos_modalidad_check",
+            "definicion": "CHECK (((modalidad IS NULL) OR (modalidad = ANY (ARRAY['manual'::text, 'mecanico'::text, 'mixto'::text]))))"
+          },
+          {
+            "tabla": "relevamientos",
+            "conname": "relevamientos_naturaleza_check",
+            "definicion": "CHECK ((naturaleza = ANY (ARRAY['relevamiento'::text, 'tarea'::text])))"
+          },
+          {
+            "tabla": "relevamientos",
+            "conname": "relevamientos_prioridad_check",
+            "definicion": "CHECK ((prioridad = ANY (ARRAY['normal'::text, 'urgente'::text])))"
+          },
+          {
+            "tabla": "relevamientos",
+            "conname": "relevamientos_superficie_check",
+            "definicion": "CHECK (((superficie IS NULL) OR (superficie = ANY (ARRAY['asfalto'::text, 'hormigon'::text, 'tierra'::text, 'estabilizado'::text, 'dolomita'::text, 'suelo_cal'::text]))))"
+          },
+          {
+            "tabla": "relevamientos",
+            "conname": "relevamientos_tipo_via_check",
+            "definicion": "CHECK ((tipo_via = ANY (ARRAY['rp'::text, 'camino'::text])))"
+          },
+          {
+            "tabla": "relevamientos",
+            "conname": "relevamientos_validado_geo_check",
+            "definicion": "CHECK ((validado_geo = ANY (ARRAY['pendiente'::text, 'auto_ok'::text, 'auto_corregido'::text, 'usuario_priorizado'::text, 'gps_sospechoso'::text, 'sin_coords'::text])))"
+          },
+          {
+            "tabla": "partes_diarios",
+            "conname": "partes_diarios_tipo_via_check",
+            "definicion": "CHECK ((tipo_via = ANY (ARRAY['rp'::text, 'camino'::text])))"
+          },
+          {
+            "tabla": "usuarios_perfil",
+            "conname": "chk_zona_operativo_obligatoria",
+            "definicion": "CHECK (((rol = ANY (ARRAY['publico'::text, 'gerencia'::text, 'admin'::text])) OR (zona IS NOT NULL)))"
+          },
+          {
+            "tabla": "usuarios_perfil",
+            "conname": "usuarios_perfil_rol_check",
+            "definicion": "CHECK ((rol = ANY (ARRAY['publico'::text, 'tecnico'::text, 'capataz'::text, 'jefe_administrativa'::text, 'jefe_automotores'::text, 'jefe_tecnica'::text, 'jefe_operativa'::text, 'jefe_zona'::text, 'gerencia'::text, 'admin'::text])))"
+          }
+        ],
+        "asignaciones": {
+          "total": 6,
+          "capataz_otra_zona": 0,
+          "capataz_rol_incorrecto": 0,
+          "completadas_sin_cierre": 0
+        },
+        "vinculos_foto": {
+          "urls_locales": 301,
+          "objetos_faltantes": 0
+        },
+        "duplicados_probables": 0
+      }
+    }
+  ],
+  "tests": {
+    "sin_perfil": [
+      {
+        "diagnostico": {
+          "rol": null,
+          "partes_visibles": 634,
+          "usuarios_rpc_admin": 12,
+          "relevamientos_visibles": 325,
+          "metricas_admin_accesibles": true
+        }
+      }
+    ],
+    "anon_storage": [
+      {
+        "diagnostico": {
+          "objetos_visibles": 542,
+          "permiso_insert_storage": true
+        }
+      }
+    ]
+  },
+  "performance": {
+    "result": {
+      "lints": [
+        {
+          "name": "unindexed_foreign_keys",
+          "title": "Unindexed foreign keys",
+          "level": "INFO",
+          "facing": "EXTERNAL",
+          "categories": [
+            "PERFORMANCE"
+          ],
+          "description": "Identifies foreign key constraints without a covering index, which can impact database performance.",
+          "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys",
+          "count": 11,
+          "findings": [
+            {
+              "detail": "Table \\`public.asignaciones_tarea\\` has a foreign key \\`asignaciones_tarea_asignado_por_fkey\\` without a covering index. This can lead to suboptimal query performance.",
+              "metadata": {
+                "name": "asignaciones_tarea",
+                "type": "table",
+                "schema": "public",
+                "fkey_name": "asignaciones_tarea_asignado_por_fkey",
+                "fkey_columns": [
+                  15
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.asignaciones_tarea\\` has a foreign key \\`asignaciones_tarea_registro_cierre_id_fkey\\` without a covering index. This can lead to suboptimal query performance.",
+              "metadata": {
+                "name": "asignaciones_tarea",
+                "type": "table",
+                "schema": "public",
+                "fkey_name": "asignaciones_tarea_registro_cierre_id_fkey",
+                "fkey_columns": [
+                  24
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.caminos_alias\\` has a foreign key \\`caminos_alias_created_by_fkey\\` without a covering index. This can lead to suboptimal query performance.",
+              "metadata": {
+                "name": "caminos_alias",
+                "type": "table",
+                "schema": "public",
+                "fkey_name": "caminos_alias_created_by_fkey",
+                "fkey_columns": [
+                  11
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.caminos_alias\\` has a foreign key \\`caminos_alias_updated_by_fkey\\` without a covering index. This can lead to suboptimal query performance.",
+              "metadata": {
+                "name": "caminos_alias",
+                "type": "table",
+                "schema": "public",
+                "fkey_name": "caminos_alias_updated_by_fkey",
+                "fkey_columns": [
+                  12
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.comentarios_zona\\` has a foreign key \\`comentarios_zona_respondido_por_fkey\\` without a covering index. This can lead to suboptimal query performance.",
+              "metadata": {
+                "name": "comentarios_zona",
+                "type": "table",
+                "schema": "public",
+                "fkey_name": "comentarios_zona_respondido_por_fkey",
+                "fkey_columns": [
+                  13
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.parte_maquinarias\\` has a foreign key \\`parte_maquinarias_vehiculo_id_fkey\\` without a covering index. This can lead to suboptimal query performance.",
+              "metadata": {
+                "name": "parte_maquinarias",
+                "type": "table",
+                "schema": "public",
+                "fkey_name": "parte_maquinarias_vehiculo_id_fkey",
+                "fkey_columns": [
+                  3
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.partes_diarios\\` has a foreign key \\`partes_diarios_borrado_por_fkey\\` without a covering index. This can lead to suboptimal query performance.",
+              "metadata": {
+                "name": "partes_diarios",
+                "type": "table",
+                "schema": "public",
+                "fkey_name": "partes_diarios_borrado_por_fkey",
+                "fkey_columns": [
+                  23
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.partes_diarios\\` has a foreign key \\`partes_diarios_responsable_id_fkey\\` without a covering index. This can lead to suboptimal query performance.",
+              "metadata": {
+                "name": "partes_diarios",
+                "type": "table",
+                "schema": "public",
+                "fkey_name": "partes_diarios_responsable_id_fkey",
+                "fkey_columns": [
+                  12
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.partes_diarios\\` has a foreign key \\`partes_diarios_restaurado_por_fkey\\` without a covering index. This can lead to suboptimal query performance.",
+              "metadata": {
+                "name": "partes_diarios",
+                "type": "table",
+                "schema": "public",
+                "fkey_name": "partes_diarios_restaurado_por_fkey",
+                "fkey_columns": [
+                  29
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.relevamientos\\` has a foreign key \\`relevamientos_borrado_por_fkey\\` without a covering index. This can lead to suboptimal query performance.",
+              "metadata": {
+                "name": "relevamientos",
+                "type": "table",
+                "schema": "public",
+                "fkey_name": "relevamientos_borrado_por_fkey",
+                "fkey_columns": [
+                  23
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.relevamientos\\` has a foreign key \\`relevamientos_restaurado_por_fkey\\` without a covering index. This can lead to suboptimal query performance.",
+              "metadata": {
+                "name": "relevamientos",
+                "type": "table",
+                "schema": "public",
+                "fkey_name": "relevamientos_restaurado_por_fkey",
+                "fkey_columns": [
+                  29
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            }
+          ]
+        },
+        {
+          "name": "auth_rls_initplan",
+          "title": "Auth RLS Initialization Plan",
+          "level": "WARN",
+          "facing": "EXTERNAL",
+          "categories": [
+            "PERFORMANCE"
+          ],
+          "description": "Detects if calls to \\`current_setting()\\` and \\`auth.<function>()\\` in RLS policies are being unnecessarily re-evaluated for each row",
+          "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0003_auth_rls_initplan",
+          "count": 20,
+          "findings": [
+            {
+              "detail": "Table \\`public.catalogo_tareas\\` has a row level security policy \\`catalogos_read_auth\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "catalogo_tareas",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.catalogo_maquinarias\\` has a row level security policy \\`catalogos_read_auth_m\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "catalogo_maquinarias",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.catalogo_identificadores\\` has a row level security policy \\`catalogos_read_auth_i\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "catalogo_identificadores",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.vehiculos\\` has a row level security policy \\`vehiculos_read_auth\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "vehiculos",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has a row level security policy \\`usuarios_perfil_self_read\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has a row level security policy \\`usuarios_perfil_own_read\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has a row level security policy \\`usuarios_perfil_own_upsert\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.comentarios_zona\\` has a row level security policy \\`comentarios_insert\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "comentarios_zona",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.caminos_alias\\` has a row level security policy \\`caminos_alias_insert_tech\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "caminos_alias",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.caminos_alias\\` has a row level security policy \\`caminos_alias_update_tech\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "caminos_alias",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.caminos_alias\\` has a row level security policy \\`caminos_alias_delete_admin\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "caminos_alias",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.asignaciones_tarea\\` has a row level security policy \\`asig_select\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "asignaciones_tarea",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.asignaciones_tarea\\` has a row level security policy \\`asig_insert\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "asignaciones_tarea",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.asignaciones_tarea\\` has a row level security policy \\`asig_update\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "asignaciones_tarea",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.partes_diarios\\` has a row level security policy \\`partes_read_zonal\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "partes_diarios",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.relevamientos\\` has a row level security policy \\`relev_read_zonal\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "relevamientos",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.relevamientos\\` has a row level security policy \\`relev_insert_zonal\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "relevamientos",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.partes_diarios\\` has a row level security policy \\`partes_insert_zonal\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "partes_diarios",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.partes_diarios\\` has a row level security policy \\`partes_update_zonal\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "partes_diarios",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.relevamientos\\` has a row level security policy \\`relev_update_zonal\\` that re-evaluates current_setting() or auth.<function>() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.<function>()\\` with \\`(select auth.<function>())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+              "metadata": {
+                "name": "relevamientos",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            }
+          ]
+        },
+        {
+          "name": "unused_index",
+          "title": "Unused Index",
+          "level": "INFO",
+          "facing": "EXTERNAL",
+          "categories": [
+            "PERFORMANCE"
+          ],
+          "description": "Detects if an index has never been used and may be a candidate for removal.",
+          "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+          "count": 13,
+          "findings": [
+            {
+              "detail": "Index \\`idx_comentarios_zona_target\\` on table \\`public.comentarios_zona\\` has not been used",
+              "metadata": {
+                "name": "comentarios_zona",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Index \\`idx_comentarios_zona_estado\\` on table \\`public.comentarios_zona\\` has not been used",
+              "metadata": {
+                "name": "comentarios_zona",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Index \\`idx_comentarios_zona_tipo_estado\\` on table \\`public.comentarios_zona\\` has not been used",
+              "metadata": {
+                "name": "comentarios_zona",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Index \\`idx_caminos_alias_partido\\` on table \\`public.caminos_alias\\` has not been used",
+              "metadata": {
+                "name": "caminos_alias",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Index \\`idx_caminos_alias_nomencl_tramo\\` on table \\`public.caminos_alias\\` has not been used",
+              "metadata": {
+                "name": "caminos_alias",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Index \\`idx_relevamientos_superficie\\` on table \\`public.relevamientos\\` has not been used",
+              "metadata": {
+                "name": "relevamientos",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Index \\`idx_relevamientos_modalidad\\` on table \\`public.relevamientos\\` has not been used",
+              "metadata": {
+                "name": "relevamientos",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Index \\`idx_parte_fotos_rel\\` on table \\`public.parte_fotos\\` has not been used",
+              "metadata": {
+                "name": "parte_fotos",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Index \\`idx_asig_zona\\` on table \\`public.asignaciones_tarea\\` has not been used",
+              "metadata": {
+                "name": "asignaciones_tarea",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Index \\`idx_asig_estado\\` on table \\`public.asignaciones_tarea\\` has not been used",
+              "metadata": {
+                "name": "asignaciones_tarea",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Index \\`idx_asig_prioridad_fecha\\` on table \\`public.asignaciones_tarea\\` has not been used",
+              "metadata": {
+                "name": "asignaciones_tarea",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Index \\`idx_partidos_zona_nombre_lower\\` on table \\`public.partidos_zona\\` has not been used",
+              "metadata": {
+                "name": "partidos_zona",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Index \\`idx_partidos_zona_aliases\\` on table \\`public.partidos_zona\\` has not been used",
+              "metadata": {
+                "name": "partidos_zona",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            }
+          ]
+        },
+        {
+          "name": "multiple_permissive_policies",
+          "title": "Multiple Permissive Policies",
+          "level": "WARN",
+          "facing": "EXTERNAL",
+          "categories": [
+            "PERFORMANCE"
+          ],
+          "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+          "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+          "count": 20,
+          "findings": [
+            {
+              "detail": "Table \\`public.partidos_zona\\` has multiple permissive policies for role \\`anon\\` for action \\`SELECT\\`. Policies include \\`{escritura_admin_partidos_zona,lectura_publica_partidos_zona}\\`",
+              "metadata": {
+                "name": "partidos_zona",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.partidos_zona\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{escritura_admin_partidos_zona,lectura_publica_partidos_zona}\\`",
+              "metadata": {
+                "name": "partidos_zona",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.partidos_zona\\` has multiple permissive policies for role \\`authenticator\\` for action \\`SELECT\\`. Policies include \\`{escritura_admin_partidos_zona,lectura_publica_partidos_zona}\\`",
+              "metadata": {
+                "name": "partidos_zona",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.partidos_zona\\` has multiple permissive policies for role \\`dashboard_user\\` for action \\`SELECT\\`. Policies include \\`{escritura_admin_partidos_zona,lectura_publica_partidos_zona}\\`",
+              "metadata": {
+                "name": "partidos_zona",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.partidos_zona\\` has multiple permissive policies for role \\`supabase_privileged_role\\` for action \\`SELECT\\`. Policies include \\`{escritura_admin_partidos_zona,lectura_publica_partidos_zona}\\`",
+              "metadata": {
+                "name": "partidos_zona",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`anon\\` for action \\`INSERT\\`. Policies include \\`{usuarios_perfil_admin_write,usuarios_perfil_own_upsert}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`anon\\` for action \\`SELECT\\`. Policies include \\`{usuarios_perfil_admin_write,usuarios_perfil_own_read,usuarios_perfil_self_read}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`anon\\` for action \\`UPDATE\\`. Policies include \\`{usuarios_perfil_admin_all,usuarios_perfil_admin_write}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`authenticated\\` for action \\`INSERT\\`. Policies include \\`{usuarios_perfil_admin_write,usuarios_perfil_own_upsert}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{usuarios_perfil_admin_write,usuarios_perfil_own_read,usuarios_perfil_self_read}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`authenticated\\` for action \\`UPDATE\\`. Policies include \\`{usuarios_perfil_admin_all,usuarios_perfil_admin_write}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`authenticator\\` for action \\`INSERT\\`. Policies include \\`{usuarios_perfil_admin_write,usuarios_perfil_own_upsert}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`authenticator\\` for action \\`SELECT\\`. Policies include \\`{usuarios_perfil_admin_write,usuarios_perfil_own_read,usuarios_perfil_self_read}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`authenticator\\` for action \\`UPDATE\\`. Policies include \\`{usuarios_perfil_admin_all,usuarios_perfil_admin_write}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`dashboard_user\\` for action \\`INSERT\\`. Policies include \\`{usuarios_perfil_admin_write,usuarios_perfil_own_upsert}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`dashboard_user\\` for action \\`SELECT\\`. Policies include \\`{usuarios_perfil_admin_write,usuarios_perfil_own_read,usuarios_perfil_self_read}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`dashboard_user\\` for action \\`UPDATE\\`. Policies include \\`{usuarios_perfil_admin_all,usuarios_perfil_admin_write}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`supabase_privileged_role\\` for action \\`INSERT\\`. Policies include \\`{usuarios_perfil_admin_write,usuarios_perfil_own_upsert}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`supabase_privileged_role\\` for action \\`SELECT\\`. Policies include \\`{usuarios_perfil_admin_write,usuarios_perfil_own_read,usuarios_perfil_self_read}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.usuarios_perfil\\` has multiple permissive policies for role \\`supabase_privileged_role\\` for action \\`UPDATE\\`. Policies include \\`{usuarios_perfil_admin_all,usuarios_perfil_admin_write}\\`",
+              "metadata": {
+                "name": "usuarios_perfil",
+                "type": "table",
+                "schema": "public"
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            }
+          ]
+        },
+        {
+          "name": "duplicate_index",
+          "title": "Duplicate Index",
+          "level": "WARN",
+          "facing": "EXTERNAL",
+          "categories": [
+            "PERFORMANCE"
+          ],
+          "description": "Detects cases where two ore more identical indexes exist.",
+          "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0009_duplicate_index",
+          "count": 2,
+          "findings": [
+            {
+              "detail": "Table \\`public.catalogo_identificadores\\` has identical indexes {catalogo_identificadores_codigo_key,catalogo_identificadores_pkey}. Drop all except one of them",
+              "metadata": {
+                "name": "catalogo_identificadores",
+                "type": "table",
+                "schema": "public",
+                "indexes": [
+                  "catalogo_identificadores_codigo_key",
+                  "catalogo_identificadores_pkey"
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            },
+            {
+              "detail": "Table \\`public.catalogo_maquinarias\\` has identical indexes {catalogo_maquinarias_pkey,catalogo_maquinarias_tipo_key}. Drop all except one of them",
+              "metadata": {
+                "name": "catalogo_maquinarias",
+                "type": "table",
+                "schema": "public",
+                "indexes": [
+                  "catalogo_maquinarias_pkey",
+                  "catalogo_maquinarias_tipo_key"
+                ]
+              },
+              "observed_at": "2026-10-19T13:59:08.208Z"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "migrations": {
+    "migrations": []
+  },
+  "edge_functions": {
+    "functions": []
+  }
+}

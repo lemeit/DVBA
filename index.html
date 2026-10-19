@@ -542,7 +542,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.86u</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.86w</span></div>
   </div>
 </div>
 <div class="layout">
@@ -980,7 +980,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.86u';
+const APP_VERSION = 'v8.86w';
 // v8.86s · Montar nav consolidado (después de que loader_zona haya inicializado hZona)
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
@@ -1593,6 +1593,9 @@ async function _restaurarSesionPortal(){
         // con el picker para navegar/consultar. La RLS igual limita la escritura.
         try {
           const perfil = DVBA_PERFIL.get();
+          if(perfil?.activo && perfil.area_codigo==='ambiente'){
+            location.replace('ambiente.html');return true;
+          }
           const rolesZonales = new Set(['tecnico','capataz','jefe_zona','jefe_tecnica','jefe_operativa','jefe_administrativa','jefe_automotores']);
           const _urlZona = new URLSearchParams(location.search).get('zona');
           if (perfil && rolesZonales.has(perfil.rol) && perfil.zona && !_urlZona){

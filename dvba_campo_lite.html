@@ -389,7 +389,7 @@ footer .fb .cnt{background:var(--ro);color:#fff;font-size:9px;padding:1px 6px;bo
 // Comparte auth, storage y BD con dvba_campo.html.
 // ═══════════════════════════════════════════════════════════════════
 
-const APP_VER = 'v9.95.22';
+const APP_VER = 'v9.95.23';
 window.APP_VER = APP_VER;
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg';
@@ -1244,6 +1244,7 @@ async function inicializar(){
     // Paso 2 · si hay red, refrescar/validar en segundo plano sin bloquear la UI
     if (navigator.onLine){
       try {
+        if(await dvbaAuth.abrirAmbiente())return;
         await _supa.auth.setSession({ access_token: sesionLocal.access_token, refresh_token: sesionLocal.refresh_token });
         const { data:{ user }, error } = await _supa.auth.getUser();
         if (!error && user){ _user = user; console.log('[auth] sesión validada online:', user.email); }
@@ -1295,6 +1296,9 @@ async function lLogin(){
     _user = data.user;
     // Guardar en el mismo storage key que dvba_campo para compartir sesión
     localStorage.setItem('dvba_session', JSON.stringify(data.session));
+    if(await dvbaAuth.abrirAmbiente())return;
+    if(typeof DVBA_PERFIL!=='undefined')await DVBA_PERFIL.cargar(_supa,{force:true});
+    lActualizarSubHeader();_lChequearRolPuedeCargar();
     $('login-ov').classList.remove('on');
     toast('✓ Sesión iniciada');
   } catch(e){

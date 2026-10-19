@@ -1,0 +1,1935 @@
+{
+  "tables": [
+    {
+      "name": "public.relevamientos",
+      "rls_enabled": true,
+      "rows": 325,
+      "columns": [
+        {
+          "name": "id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "nextval('relevamientos_id_seq'::regclass)"
+        },
+        {
+          "name": "ruta",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "partido",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "progresiva",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "tipo",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "estado",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "observaciones",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "foto_url",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "lat",
+          "data_type": "double precision",
+          "format": "float8",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "lng",
+          "data_type": "double precision",
+          "format": "float8",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "fecha",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "now()"
+        },
+        {
+          "name": "estado_workflow",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "'campo'::text",
+          "check": "estado_workflow = ANY (ARRAY['campo'::text, 'aprobado'::text, 'rechazado'::text])"
+        },
+        {
+          "name": "validado_geo",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "'pendiente'::text",
+          "check": "validado_geo = ANY (ARRAY['pendiente'::text, 'auto_ok'::text, 'auto_corregido'::text, 'usuario_priorizado'::text, 'gps_sospechoso'::text, 'sin_coords'::text])"
+        },
+        {
+          "name": "sello_version",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "prioridad",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "'normal'::text",
+          "check": "prioridad = ANY (ARRAY['normal'::text, 'urgente'::text])"
+        },
+        {
+          "name": "motivo_rechazo",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "tipo_via",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "'rp'::text",
+          "check": "tipo_via = ANY (ARRAY['rp'::text, 'camino'::text])"
+        },
+        {
+          "name": "zona",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "comment": "Zona vial DVBA (I..XII). Se llena al INSERT desde usuarios_perfil.zona o desde partido/GPS."
+        },
+        {
+          "name": "naturaleza",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "'relevamiento'::text",
+          "check": "naturaleza = ANY (ARRAY['relevamiento'::text, 'tarea'::text])",
+          "comment": "Naturaleza del registro: relevamiento (observación de estado) o tarea (mantenimiento ejecutado/programado). Modelo Tipos v2."
+        },
+        {
+          "name": "superficie",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "check": "superficie IS NULL OR (superficie = ANY (ARRAY['asfalto'::text, 'hormigon'::text, 'tierra'::text, 'estabilizado'::text, 'dolomita'::text, 'suelo_cal'::text]))",
+          "comment": "Tipo de superficie física (asfalto/hormigon/tierra/estabilizado/dolomita/suelo_cal). Aplica a calzada y a tareas sobre calzada/entorno. Migración SQL_16."
+        },
+        {
+          "name": "modalidad",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "check": "modalidad IS NULL OR (modalidad = ANY (ARRAY['manual'::text, 'mecanico'::text, 'mixto'::text]))",
+          "comment": "Modalidad de ejecución (manual/mecanico/mixto). Aplica solo cuando naturaleza=tarea. Migración SQL_16."
+        },
+        {
+          "name": "borrado_en",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "borrado_por",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "motivo_borrado",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "autor_id",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "autor_rol",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "autor_zona",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "restaurado_en",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "restaurado_por",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "motivo_restauracion",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "restauracion_vista",
+          "data_type": "boolean",
+          "format": "bool",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "false"
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_key_constraints": [
+        {
+          "name": "relevamientos_autor_id_fkey",
+          "source_table": "public.relevamientos",
+          "source_columns": [
+            "autor_id"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "relevamientos_restaurado_por_fkey",
+          "source_table": "public.relevamientos",
+          "source_columns": [
+            "restaurado_por"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "asignaciones_tarea_relevamiento_origen_id_fkey",
+          "source_table": "public.asignaciones_tarea",
+          "source_columns": [
+            "relevamiento_origen_id"
+          ],
+          "target_table": "public.relevamientos",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "asignaciones_tarea_registro_cierre_id_fkey",
+          "source_table": "public.asignaciones_tarea",
+          "source_columns": [
+            "registro_cierre_id"
+          ],
+          "target_table": "public.relevamientos",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "relevamientos_borrado_por_fkey",
+          "source_table": "public.relevamientos",
+          "source_columns": [
+            "borrado_por"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "public.catalogo_tareas",
+      "rls_enabled": true,
+      "rows": 8,
+      "columns": [
+        {
+          "name": "id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "nextval('catalogo_tareas_id_seq'::regclass)"
+        },
+        {
+          "name": "nombre",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable",
+            "unique"
+          ]
+        },
+        {
+          "name": "categoria",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "descripcion",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "activo",
+          "data_type": "boolean",
+          "format": "bool",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "true"
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "now()"
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_key_constraints": [
+        {
+          "name": "partes_diarios_tarea_id_fkey",
+          "source_table": "public.partes_diarios",
+          "source_columns": [
+            "tarea_id"
+          ],
+          "target_table": "public.catalogo_tareas",
+          "target_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "public.catalogo_maquinarias",
+      "rls_enabled": true,
+      "rows": 14,
+      "columns": [
+        {
+          "name": "tipo",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable",
+            "unique"
+          ]
+        },
+        {
+          "name": "categoria",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "activo",
+          "data_type": "boolean",
+          "format": "bool",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "true"
+        }
+      ],
+      "primary_keys": [
+        "tipo"
+      ],
+      "foreign_key_constraints": [
+        {
+          "name": "vehiculos_tipo_maquinaria_fkey",
+          "source_table": "public.vehiculos",
+          "source_columns": [
+            "tipo_maquinaria"
+          ],
+          "target_table": "public.catalogo_maquinarias",
+          "target_columns": [
+            "tipo"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "public.catalogo_identificadores",
+      "rls_enabled": true,
+      "rows": 2,
+      "columns": [
+        {
+          "name": "codigo",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable",
+            "unique"
+          ]
+        },
+        {
+          "name": "descripcion",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "activo",
+          "data_type": "boolean",
+          "format": "bool",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "true"
+        }
+      ],
+      "primary_keys": [
+        "codigo"
+      ],
+      "foreign_key_constraints": [
+        {
+          "name": "vehiculos_identificador_fkey",
+          "source_table": "public.vehiculos",
+          "source_columns": [
+            "identificador"
+          ],
+          "target_table": "public.catalogo_identificadores",
+          "target_columns": [
+            "codigo"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "public.vehiculos",
+      "rls_enabled": true,
+      "rows": 49,
+      "columns": [
+        {
+          "name": "id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "nextval('vehiculos_id_seq'::regclass)"
+        },
+        {
+          "name": "identificador",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "numero",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "tipo_maquinaria",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "marca",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "modelo",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "descripcion",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "observaciones",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "activo",
+          "data_type": "boolean",
+          "format": "bool",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "true"
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "now()"
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_key_constraints": [
+        {
+          "name": "parte_maquinarias_vehiculo_id_fkey",
+          "source_table": "public.parte_maquinarias",
+          "source_columns": [
+            "vehiculo_id"
+          ],
+          "target_table": "public.vehiculos",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "vehiculos_tipo_maquinaria_fkey",
+          "source_table": "public.vehiculos",
+          "source_columns": [
+            "tipo_maquinaria"
+          ],
+          "target_table": "public.catalogo_maquinarias",
+          "target_columns": [
+            "tipo"
+          ]
+        },
+        {
+          "name": "vehiculos_identificador_fkey",
+          "source_table": "public.vehiculos",
+          "source_columns": [
+            "identificador"
+          ],
+          "target_table": "public.catalogo_identificadores",
+          "target_columns": [
+            "codigo"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "public.partes_diarios",
+      "rls_enabled": true,
+      "rows": 634,
+      "columns": [
+        {
+          "name": "id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "nextval('partes_diarios_id_seq'::regclass)"
+        },
+        {
+          "name": "fecha",
+          "data_type": "date",
+          "format": "date",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "tarea_id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "tipo_via",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "check": "tipo_via = ANY (ARRAY['rp'::text, 'camino'::text])"
+        },
+        {
+          "name": "ruta",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "prog_ini",
+          "data_type": "numeric",
+          "format": "numeric",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "prog_fin",
+          "data_type": "numeric",
+          "format": "numeric",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "observaciones",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "foto_previa_url",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "foto_posterior_url",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "responsable_id",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "enviado_admin",
+          "data_type": "boolean",
+          "format": "bool",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "false"
+        },
+        {
+          "name": "enviado_admin_at",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "now()"
+        },
+        {
+          "name": "updated_at",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "now()"
+        },
+        {
+          "name": "combustible_l",
+          "data_type": "numeric",
+          "format": "numeric",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "mezcla_asfaltica_tn",
+          "data_type": "numeric",
+          "format": "numeric",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "km_recorridos",
+          "data_type": "numeric",
+          "format": "numeric",
+          "options": [
+            "generated",
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "abs((prog_fin - prog_ini))"
+        },
+        {
+          "name": "partido",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "zona",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "comment": "Zona vial DVBA (I..XII). Se llena al INSERT desde usuarios_perfil.zona o desde el partido detectado."
+        },
+        {
+          "name": "borrado_en",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "borrado_por",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "motivo_borrado",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "autor_id",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "autor_rol",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "autor_zona",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "restaurado_en",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "restaurado_por",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "motivo_restauracion",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "restauracion_vista",
+          "data_type": "boolean",
+          "format": "bool",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "false"
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_key_constraints": [
+        {
+          "name": "partes_diarios_tarea_id_fkey",
+          "source_table": "public.partes_diarios",
+          "source_columns": [
+            "tarea_id"
+          ],
+          "target_table": "public.catalogo_tareas",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "partes_diarios_responsable_id_fkey",
+          "source_table": "public.partes_diarios",
+          "source_columns": [
+            "responsable_id"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "parte_maquinarias_parte_id_fkey",
+          "source_table": "public.parte_maquinarias",
+          "source_columns": [
+            "parte_id"
+          ],
+          "target_table": "public.partes_diarios",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "parte_fotos_parte_id_fkey",
+          "source_table": "public.parte_fotos",
+          "source_columns": [
+            "parte_id"
+          ],
+          "target_table": "public.partes_diarios",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "partes_diarios_borrado_por_fkey",
+          "source_table": "public.partes_diarios",
+          "source_columns": [
+            "borrado_por"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "partes_diarios_autor_id_fkey",
+          "source_table": "public.partes_diarios",
+          "source_columns": [
+            "autor_id"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "partes_diarios_restaurado_por_fkey",
+          "source_table": "public.partes_diarios",
+          "source_columns": [
+            "restaurado_por"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "public.parte_maquinarias",
+      "rls_enabled": true,
+      "rows": 1206,
+      "columns": [
+        {
+          "name": "parte_id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "orden",
+          "data_type": "smallint",
+          "format": "int2",
+          "options": [
+            "updatable"
+          ],
+          "check": "orden >= 1 AND orden <= 5"
+        },
+        {
+          "name": "vehiculo_id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "updatable"
+          ]
+        }
+      ],
+      "primary_keys": [
+        "parte_id",
+        "orden"
+      ],
+      "foreign_key_constraints": [
+        {
+          "name": "parte_maquinarias_parte_id_fkey",
+          "source_table": "public.parte_maquinarias",
+          "source_columns": [
+            "parte_id"
+          ],
+          "target_table": "public.partes_diarios",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "parte_maquinarias_vehiculo_id_fkey",
+          "source_table": "public.parte_maquinarias",
+          "source_columns": [
+            "vehiculo_id"
+          ],
+          "target_table": "public.vehiculos",
+          "target_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "public.parte_fotos",
+      "rls_enabled": true,
+      "rows": 2,
+      "columns": [
+        {
+          "name": "parte_id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "relevamiento_id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "momento",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "check": "momento = ANY (ARRAY['previa'::text, 'posterior'::text])"
+        },
+        {
+          "name": "orden",
+          "data_type": "smallint",
+          "format": "int2",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "1"
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "now()"
+        }
+      ],
+      "primary_keys": [
+        "parte_id",
+        "relevamiento_id",
+        "momento"
+      ],
+      "foreign_key_constraints": [
+        {
+          "name": "parte_fotos_parte_id_fkey",
+          "source_table": "public.parte_fotos",
+          "source_columns": [
+            "parte_id"
+          ],
+          "target_table": "public.partes_diarios",
+          "target_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "public.usuarios_perfil",
+      "rls_enabled": true,
+      "rows": 12,
+      "comment": "Perfil operativo del usuario. Extiende auth.users con rol y zona.",
+      "columns": [
+        {
+          "name": "user_id",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "nombre",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "rol",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "check": "rol = ANY (ARRAY['publico'::text, 'tecnico'::text, 'capataz'::text, 'jefe_administrativa'::text, 'jefe_automotores'::text, 'jefe_tecnica'::text, 'jefe_operativa'::text, 'jefe_zona'::text, 'gerencia'::text, 'admin'::text])",
+          "comment": "Rol operativo del usuario. Ver organigrama en SQL_17."
+        },
+        {
+          "name": "zona",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "comment": "Código romano de la zona (I..XII). NULL = ve todas (gerencia/admin)."
+        },
+        {
+          "name": "activo",
+          "data_type": "boolean",
+          "format": "bool",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "true"
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "now()"
+        },
+        {
+          "name": "updated_at",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "now()"
+        }
+      ],
+      "primary_keys": [
+        "user_id"
+      ],
+      "foreign_key_constraints": [
+        {
+          "name": "usuarios_perfil_user_id_fkey",
+          "source_table": "public.usuarios_perfil",
+          "source_columns": [
+            "user_id"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "public.comentarios_zona",
+      "rls_enabled": true,
+      "rows": 1,
+      "comment": "v8.66a · Comentarios y solicitudes de gerencia/técnico sobre registros de vialidad. Permite auditar quién pidió qué, quién respondió y cuándo.",
+      "columns": [
+        {
+          "name": "id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "nextval('comentarios_zona_id_seq'::regclass)"
+        },
+        {
+          "name": "target_tabla",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "check": "target_tabla = ANY (ARRAY['relevamientos'::text, 'partes_diarios'::text])"
+        },
+        {
+          "name": "target_id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "target_zona",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "tipo",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "'comentario'::text",
+          "check": "tipo = ANY (ARRAY['comentario'::text, 'mover_zona'::text, 'eliminar'::text])"
+        },
+        {
+          "name": "autor_id",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "autor_rol",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "check": "autor_rol = ANY (ARRAY['tecnico'::text, 'gerencia'::text, 'admin'::text])"
+        },
+        {
+          "name": "autor_zona",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "mensaje",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "check": "length(TRIM(BOTH FROM mensaje)) >= 3"
+        },
+        {
+          "name": "zona_destino",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "estado",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "'abierto'::text",
+          "check": "estado = ANY (ARRAY['abierto'::text, 'resuelto'::text, 'descartado'::text])"
+        },
+        {
+          "name": "respuesta",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "respondido_por",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "respondido_en",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "creado_en",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "now()"
+        },
+        {
+          "name": "actualizado_en",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "now()"
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_key_constraints": [
+        {
+          "name": "comentarios_zona_respondido_por_fkey",
+          "source_table": "public.comentarios_zona",
+          "source_columns": [
+            "respondido_por"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "comentarios_zona_autor_id_fkey",
+          "source_table": "public.comentarios_zona",
+          "source_columns": [
+            "autor_id"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "public.caminos_alias",
+      "rls_enabled": true,
+      "rows": 4,
+      "columns": [
+        {
+          "name": "id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "nextval('caminos_alias_id_seq'::regclass)"
+        },
+        {
+          "name": "nomenclatura",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "zona",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "'VI'::text"
+        },
+        {
+          "name": "partido",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "denominacion_oficial",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "alias_locales",
+          "data_type": "ARRAY",
+          "format": "_text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "ARRAY[]::text[]"
+        },
+        {
+          "name": "denominacion_local",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "observaciones",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "now()"
+        },
+        {
+          "name": "updated_at",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "now()"
+        },
+        {
+          "name": "created_by",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "updated_by",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "tramo_num",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "'ALL'::text"
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_key_constraints": [
+        {
+          "name": "caminos_alias_created_by_fkey",
+          "source_table": "public.caminos_alias",
+          "source_columns": [
+            "created_by"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "caminos_alias_updated_by_fkey",
+          "source_table": "public.caminos_alias",
+          "source_columns": [
+            "updated_by"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "public.asignaciones_tarea",
+      "rls_enabled": true,
+      "rows": 6,
+      "comment": "Tareas de mantenimiento asignadas por Jefes de Zona/Operativa a Capataces. Cierra el ciclo relevamiento → asignación → ejecución → registro de cierre.",
+      "columns": [
+        {
+          "name": "id",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "gen_random_uuid()"
+        },
+        {
+          "name": "relevamiento_origen_id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "categoria",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "tipo",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "ruta",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "progresiva",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "progresiva_fin",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "partido",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "tipo_via",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "'rp'::text",
+          "check": "tipo_via = ANY (ARRAY['rp'::text, 'camino'::text])"
+        },
+        {
+          "name": "superficie",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "check": "superficie IS NULL OR (superficie = ANY (ARRAY['asfalto'::text, 'hormigon'::text, 'tierra'::text, 'estabilizado'::text, 'dolomita'::text, 'suelo_cal'::text]))"
+        },
+        {
+          "name": "modalidad",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "check": "modalidad IS NULL OR (modalidad = ANY (ARRAY['manual'::text, 'mecanico'::text, 'mixto'::text]))"
+        },
+        {
+          "name": "lat",
+          "data_type": "numeric",
+          "format": "numeric",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "lng",
+          "data_type": "numeric",
+          "format": "numeric",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "zona",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "asignado_por",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "capataz_id",
+          "data_type": "uuid",
+          "format": "uuid",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "cuadrilla_nombre",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "fecha_prevista",
+          "data_type": "date",
+          "format": "date",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "prioridad",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "'media'::text",
+          "check": "prioridad = ANY (ARRAY['baja'::text, 'media'::text, 'alta'::text, 'urgente'::text])"
+        },
+        {
+          "name": "notas_asignacion",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "estado_asignacion",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "'pendiente'::text",
+          "check": "estado_asignacion = ANY (ARRAY['pendiente'::text, 'en_curso'::text, 'completada'::text, 'pospuesta'::text, 'cancelada'::text])"
+        },
+        {
+          "name": "fecha_iniciada",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "fecha_completada",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "registro_cierre_id",
+          "data_type": "bigint",
+          "format": "int8",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "motivo_no_ejecucion",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "nullable",
+            "updatable"
+          ]
+        },
+        {
+          "name": "created_at",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "now()"
+        },
+        {
+          "name": "updated_at",
+          "data_type": "timestamp with time zone",
+          "format": "timestamptz",
+          "options": [
+            "updatable"
+          ],
+          "default_value": "now()"
+        }
+      ],
+      "primary_keys": [
+        "id"
+      ],
+      "foreign_key_constraints": [
+        {
+          "name": "asignaciones_tarea_relevamiento_origen_id_fkey",
+          "source_table": "public.asignaciones_tarea",
+          "source_columns": [
+            "relevamiento_origen_id"
+          ],
+          "target_table": "public.relevamientos",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "asignaciones_tarea_asignado_por_fkey",
+          "source_table": "public.asignaciones_tarea",
+          "source_columns": [
+            "asignado_por"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "asignaciones_tarea_capataz_id_fkey",
+          "source_table": "public.asignaciones_tarea",
+          "source_columns": [
+            "capataz_id"
+          ],
+          "target_table": "auth.users",
+          "target_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "asignaciones_tarea_registro_cierre_id_fkey",
+          "source_table": "public.asignaciones_tarea",
+          "source_columns": [
+            "registro_cierre_id"
+          ],
+          "target_table": "public.relevamientos",
+          "target_columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "public.partidos_zona",
+      "rls_enabled": true,
+      "rows": 135,
+      "comment": "Mapping oficial partido → zona vial DVBA. Fuente: ARBA + Luciano 2026-08-03.",
+      "columns": [
+        {
+          "name": "partido_numero",
+          "data_type": "integer",
+          "format": "int4",
+          "options": [
+            "updatable"
+          ]
+        },
+        {
+          "name": "nombre",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable",
+            "unique"
+          ]
+        },
+        {
+          "name": "zona",
+          "data_type": "text",
+          "format": "text",
+          "options": [
+            "updatable"
+          ],
+          "check": "zona = ANY (ARRAY['I'::text, 'II'::text, 'III'::text, 'IV'::text, 'V'::text, 'VI'::text, 'VII'::text, 'VIII'::text, 'IX'::text, 'X'::text, 'XI'::text, 'XII'::text])"
+        },
+        {
+          "name": "aliases",
+          "data_type": "ARRAY",
+          "format": "_text",
+          "options": [
+            "nullable",
+            "updatable"
+          ],
+          "default_value": "ARRAY[]::text[]"
+        }
+      ],
+      "primary_keys": [
+        "partido_numero"
+      ]
+    }
+  ]
+}
