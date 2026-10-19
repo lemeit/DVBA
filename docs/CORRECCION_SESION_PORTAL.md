@@ -1,5 +1,11 @@
 # Portal v8.86t — restauración de sesión
 
+## Incidente posterior: v8.86u — SDK local
+
+El usuario aportó la consola: falló la descarga de `supabase-js@2` desde jsDelivr con `ERR_CONNECTION_CLOSED`. A continuación, `supabase is not defined` interrumpió el script al construir `_supa`, antes de inicializar `_sincronizandoSupa`. El formulario seguía accesible por la declaración anticipada de funciones y mostraba el error secundario de variable sin inicializar. No era evidencia de registros borrados ni de claves rechazadas.
+
+v8.86u carga `datos/supabase-js.min.js`, la copia 2.112.2 ya incluida y usada por la aplicación móvil. Se elimina esa dependencia de descarga externa del portal, sin cambiar credenciales, permisos ni datos. La octava prueba ejecuta el SDK real y el código inicial real del portal sin acceso a servidores externos, comprobando que el cliente y el estado de sincronización se inicializan. Las ocho pruebas locales pasan; la validación del ingreso con una cuenta real corresponde al portal publicado.
+
 Fecha: 19/10/2026. El portal de escritorio y la PWA tienen numeraciones independientes: este arreglo cambia el portal de v8.86s a v8.86t.
 
 El usuario confirmó que cerrar sesión y volver a ingresar recuperó los registros de Zona VI. La base conservaba 310 registros en esa zona. Los logs agregados de Auth mostraron session_not_found (403), y las consultas de relevamientos incluyeron rechazos 401. No se atribuye cada solicitud a una cuenta concreta.

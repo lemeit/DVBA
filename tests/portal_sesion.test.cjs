@@ -6,6 +6,28 @@ const path = require('node:path');
 
 // Ejecutar las funciones reales del portal sin mapa, red ni credenciales.
 const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
+test('el portal arranca con el SDK local aunque el CDN externo no esté disponible',()=>{
+  const sdkTag=html.match(/<script\s+src="([^"]*supabase[^\"]*)"[^>]*><\/script>/);
+  assert.equal(sdkTag?.[1],'datos/supabase-js.min.js');
+  assert.ok(html.indexOf(sdkTag[0]) < html.indexOf('const APP_VERSION'));
+  let requests=0;
+  const ctx={
+    console:{log(){},warn(){},error(){}},
+    document:{addEventListener(){},getElementById(){return null;}},
+    Image:class{},setTimeout(){},clearTimeout(){},setInterval(){},clearInterval(){},
+    URL,URLSearchParams,Headers,Request,Response,AbortController,TextEncoder,TextDecoder,WebSocket,
+    fetch(){requests++;throw new Error('Sin acceso a servidores externos');}
+  };
+  ctx.window=ctx;vm.createContext(ctx);
+  // Código real: SDK incluido y todo el arranque anterior a la sincronización.
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'..',sdkTag[1]),'utf8'),ctx);
+  const start=html.indexOf('const APP_VERSION');
+  const end=html.indexOf('function _sesionPortalInvalida',start);
+  vm.runInContext(html.slice(start,end),ctx);
+  assert.equal(vm.runInContext('typeof _supa.auth.setSession',ctx),'function');
+  assert.equal(vm.runInContext('_sincronizandoSupa',ctx),null);
+  assert.equal(requests,0);
+});
 function section(start, end) {
   const a = html.indexOf(start), b = html.indexOf(end, a);
   assert.ok(a >= 0 && b > a, 'Funciones del portal localizadas');

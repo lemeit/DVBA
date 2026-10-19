@@ -3,9 +3,9 @@ name: Probar sesión del portal
 on:
   push:
     branches: [main]
-    paths: ['index.html', 'tests/portal_sesion.test.cjs', '.github/workflows/portal-sesion.yml']
+    paths: ['index.html', 'datos/supabase-js.min.js', 'tests/portal_sesion.test.cjs', '.github/workflows/portal-sesion.yml']
   pull_request:
-    paths: ['index.html', 'tests/portal_sesion.test.cjs', '.github/workflows/portal-sesion.yml']
+    paths: ['index.html', 'datos/supabase-js.min.js', 'tests/portal_sesion.test.cjs', '.github/workflows/portal-sesion.yml']
   workflow_dispatch:
 
 permissions:
