@@ -9,7 +9,8 @@
 <title>SIG Vial PBA · Panel de Administración de Usuarios</title>
 <link rel="icon" href="datos/img/favicon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;600;700;800&family=Roboto:wght@400;500;700&display=swap">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="datos/supabase-js.min.js"></script>
+<script src="datos/auth.js"></script>
 <script src="datos/legales.js" defer></script>
 <script src="datos/nav.js"></script>
 <style>
@@ -302,7 +303,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
     <span style="margin-left:8px">Panel de Administración · Módulo de gestión de usuarios y perfiles para Admin del sistema.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86s</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86v</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -404,7 +405,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 
 <script>
 // v8.66f.2 · Constante de versión unificada (familia escritorio v8.X)
-const APP_VERSION = 'v8.86s';
+const APP_VERSION = 'v8.86v';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 // v8.72 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VERSION; });
@@ -413,7 +414,9 @@ document.addEventListener('DOMContentLoaded', () => { const s=document.getElemen
 // ═══════════════════════════════════════════════════════════════════════════════
 const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY = 'sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg';
-const _supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+const _supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+});
 
 let _users = [];  // cache
 
@@ -431,62 +434,43 @@ function toast(msg, tipo){
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Guard · sólo admin
-// v8.51 · Tolerante a token expirado: intenta refresh, fallback a cache local
+// Sesión compartida validada y perfil activo leído del servidor.
 // ═══════════════════════════════════════════════════════════════════════════════
 async function chequearAcceso(){
   const guardMsg = document.getElementById('guardMsg');
   const guardBtn = document.getElementById('guardBtn');
   try {
-    // 1) Chequear sesión
-    let { data: { session } } = await _supa.auth.getSession();
-    if (!session) {
-      guardMsg.innerHTML = '<b style="color:var(--ro)">Sesión no iniciada.</b><br>Iniciá sesión desde el portal principal.';
+    // Usar la misma sesión del portal, no una sesión separada del SDK.
+    const local = await window.dvbaAuth.session();
+    if (!local?.access_token || !local?.refresh_token) {
+      guardMsg.textContent = 'Sesión no iniciada. Iniciá sesión desde el portal principal.';
       guardBtn.style.display = 'inline-block';
       return false;
     }
-    // v8.86s · #hUser vive en el header legacy (display:none), guard defensivo
+    const { data, error } = await _supa.auth.setSession({
+      access_token: local.access_token, refresh_token: local.refresh_token
+    });
+    if (error) throw error;
+    const session = data?.session;
+    if (!session?.user?.id) throw new Error('No se pudo validar la sesión.');
+
+    // Consultar el perfil real: la caché nunca concede administración.
+    const { data: perfil, error: perfilError } = await _supa.from('usuarios_perfil')
+      .select('user_id,nombre,rol,zona,activo').eq('user_id', session.user.id).maybeSingle();
+    if (perfilError) throw perfilError;
+    if (!perfil || perfil.user_id !== session.user.id || perfil.rol !== 'admin' || perfil.activo !== true) {
+      guardMsg.textContent = 'Acceso denegado. Se requiere un perfil de administrador activo.';
+      guardBtn.style.display = 'inline-block';
+      return false;
+    }
+    const rol = perfil.rol;
     const _hUser = document.getElementById('hUser');
     if (_hUser) _hUser.textContent = session.user.email;
-
-    // 2) v8.66f.2 · Solo refrescar si el token está próximo a expirar (evita el 400 innecesario).
-    // Antes se llamaba a refreshSession() siempre — cuando el refresh_token estaba
-    // revocado/vencido daba 400 en la consola aunque no fuera fatal.
-    try {
-      const exp = session.expires_at; // segundos epoch
-      const now = Math.floor(Date.now() / 1000);
-      const margen = 5 * 60; // refrescar si faltan menos de 5 min
-      if (exp && (exp - now) < margen) {
-        const { data: r, error } = await _supa.auth.refreshSession();
-        if (r?.session) session = r.session;
-        else if (error) console.warn('[guard] refresh no aplicable:', error.message);
-      }
-    } catch(e){ /* silencioso · el fallback a localStorage cubre el caso */ }
-
-    // 3) Intentar RPC current_user_rol
-    let rol = null;
-    try {
-      const { data, error } = await _supa.rpc('current_user_rol');
-      if (error) throw error;
-      rol = data;
-    } catch(e){
-      console.warn('[guard] RPC falló, uso cache local:', e);
-      // 4) Fallback: leer del localStorage dvba_perfil (cache del portal)
-      try {
-        const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
-        if (cache.user_id === session.user.id && cache.rol) rol = cache.rol;
-      } catch(_){}
-    }
-
-    if (rol !== 'admin') {
-      guardMsg.innerHTML = '<b style="color:var(--ro)">Acceso denegado.</b><br>Necesitás rol <b>admin</b> para acceder al Panel de Administración.<br><br>Tu rol actual: <code>' + (rol || 'sin perfil') + '</code><br><br>Si sabés que sos admin, cerrá sesión desde el portal y volvé a entrar (probable token expirado).';
-      guardBtn.style.display = 'inline-block';
-      return false;
-    }
     document.getElementById('guard').style.display = 'none';
     // v8.86s · Montar nav compartido (después de verificar admin)
     if (typeof DVBA_NAV !== 'undefined'){
       try {
-        const cache = JSON.parse(localStorage.getItem('dvba_perfil') || '{}');
+        const cache = perfil;
         DVBA_NAV.montar({
           titulo: 'Panel Admin · Gestión de Usuarios',
           seccion: 'admin',
@@ -498,7 +482,7 @@ async function chequearAcceso(){
     return true;
   } catch (e) {
     console.error('[guard]', e);
-    guardMsg.innerHTML = '<b style="color:var(--ro)">Error al verificar acceso.</b><br>' + (e.message || e) + '<br><br>Probá cerrar sesión desde el portal y volver a entrar.';
+    guardMsg.textContent = 'No se pudo verificar el acceso. Recargá para reintentar; si la sesión venció, ingresá desde el portal principal.';
     guardBtn.style.display = 'inline-block';
     return false;
   }
