@@ -14,7 +14,7 @@
    - Login estándar Supabase Auth (email + password).
    - Sesión guardada en localStorage bajo 'dvba_session'.
    - Auto-refresh con refresh_token cuando access_token está por expirar.
-   - Si refresh falla, se borra la sesión local y session() devuelve null.
+   - Los fallos temporales de red conservan la sesión para reintentar.
 
    Para usar el token en fetch a relevamientos:
      headers: {
@@ -27,6 +27,7 @@
   const SUPA_URL = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
   const SUPA_KEY = 'sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg';
   const SK = 'dvba_session';     // clave de localStorage
+  let renovando = null;
 
   function leerSesion(){
     try { return JSON.parse(localStorage.getItem(SK) || 'null'); }
@@ -66,8 +67,15 @@
       headers: { 'apikey': SUPA_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: refreshToken })
     });
-    if (!r.ok) throw new Error('Refresh falló (' + r.status + ')');
+    if (!r.ok) {
+      const error = new Error('Refresh falló (' + r.status + ')');
+      error.status = r.status;
+      throw error;
+    }
     const data = await r.json();
+    // No resucitar una sesión cerrada ni pisar una cuenta abierta mientras
+    // llegaba la respuesta de renovación.
+    if (leerSesion()?.refresh_token !== refreshToken) return leerSesion();
     guardarSesion(data);
     return data;
   }
@@ -113,17 +121,24 @@
       borrarSesion();
       return null;
     }
-    try {
-      const nuevo = await refresh(s.refresh_token);
-      return nuevo;
-    } catch (e) {
-      console.warn('[auth] refresh falló:', e.message);
-      // Si el refresh falla por estar offline (TypeError de fetch),
-      // conservamos la sesión local para seguir trabajando offline.
-      if (typeof navigator !== 'undefined' && !navigator.onLine) return s;
-      borrarSesion();
-      return null;
-    }
+    if (renovando) return renovando;
+    const renovar = async () => {
+      const actual = leerSesion();
+      if (!actual?.access_token) return null;
+      if (actual.refresh_token !== s.refresh_token || Date.now() < actual.expires_at * 1000 - 60000) return actual;
+      try { return await refresh(actual.refresh_token); }
+      catch (e) {
+        console.warn('[auth] refresh falló:', e.message);
+        if (leerSesion()?.refresh_token !== actual.refresh_token) return leerSesion();
+        if (e.status === 400 || e.status === 401) { borrarSesion(); return null; }
+        // navigator.onLine puede seguir en true aunque la conexión falle.
+        // Propagar el fallo temporal sin borrar las credenciales guardadas.
+        throw e;
+      }
+    };
+    renovando = (typeof navigator !== 'undefined' && navigator.locks?.request)
+      ? navigator.locks.request('dvba-renovar-sesion', renovar) : renovar();
+    try { return await renovando; } finally { renovando = null; }
   }
 
   async function token(){

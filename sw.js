@@ -26,7 +26,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.95.27';  // v9.95.27 · Sello: km minúscula (SI) + labelDe() para estado en enum → texto humano + tipos: +Vehículo abandonado/-Reparación tranquera, Guardarrail (tipo Flex Beam)
+const CACHE_NAME = 'dvba-campo-v9.95.28';  // v9.95.28 · Sello: km minúscula (SI) + labelDe() para estado en enum → texto humano + tipos: +Vehículo abandonado/-Reparación tranquera, Guardarrail (tipo Flex Beam)
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg';
@@ -161,6 +161,28 @@ self.addEventListener('fetch', e => {
   if (e.request.url.includes('nominatim.openstreetmap')) return;
   if (e.request.url.includes('unpkg.com')) return;
   if (e.request.url.includes('tile.openstreetmap')) return;
+
+  // La cartografía provincial pesa varios MB. No cancelar su primera
+  // descarga a los tres segundos: eso dejaba el mapa sin rutas ni partidos.
+  const esCartografia = url.origin === self.location.origin &&
+    /\/datos\/referencias\/(partidos|rutas)_pba\.geojson$/.test(url.pathname);
+  if (esCartografia) {
+    e.respondWith((async () => {
+      const cached = await caches.match(e.request, {ignoreSearch:true});
+      if (cached?.ok) return cached;
+      try {
+        const resp = await fetch(e.request);
+        if (resp.ok) {
+          try {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(e.request, resp.clone());
+          } catch (err) { console.warn('[SW cartografía] sin espacio en caché'); }
+        }
+        return resp;
+      } catch (err) { return _fallbackOffline(url); }
+    })());
+    return;
+  }
 
   // El portal debe recibir el visor actual cuando hay conexión. La captura
   // móvil conserva su arranque inmediato desde caché.
