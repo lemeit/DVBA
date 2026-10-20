@@ -13,7 +13,7 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 **Nivel de revisión de la cartografía:**
 
-- **Zona VI Saladillo:** concentra el trabajo propio de revisión y ajuste de rutas y caminos secundarios. Abarca 8 partidos y un catálogo de 15 rutas provinciales; **8 RPs cuentan con trazas y referencias de progresivas calibradas**. No todas las rutas del catálogo tienen el mismo grado de calibración.
+- **Zona VI Saladillo:** abarca 8 partidos, un catálogo de **15 rutas provinciales** y **100 caminos secundarios revisados y calibrados**. Entre las rutas provinciales, **8 RPs cuentan con trazas y referencias de progresivas calibradas**; no todas las rutas del catálogo tienen el mismo grado de calibración.
 - **Resto de las zonas:** las trazas se visualizan a partir de **GeoJSON de fuentes oficiales**, sin revisión exhaustiva ni calibración equivalente a la desarrollada en Zona VI. Sirven como referencia cartográfica; no deben interpretarse como progresivas verificadas con el mismo nivel de precisión.
 
 **Hosting:** GitHub Pages — https://lemeit.github.io/DVBA/
