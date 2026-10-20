@@ -14,7 +14,7 @@
 --   capataz.iv    · jefetecnica.iv · jefeoperativa.iv · jefeadmin.iv · jefeautomot.iv
 --   jefezona.iv   · tecnico.iv     · [idem V y VI]
 --
--- PASSWORD INICIAL para todos los .test:  Dvba2026!
+-- PASSWORD INICIAL para todos los .test:  [retirada: no publicar contraseñas]
 --   (cambiar al primer login, o el admin puede resetear)
 --
 -- IMPORTANTE
@@ -23,6 +23,13 @@
 -- ═════════════════════════════════════════════════════════════════════════════
 
 BEGIN;
+-- Archivo histórico. No ejecutar para reparar permisos ni rotar cuentas existentes.
+-- La clave debe configurarse solo en la sesión SQL privada, fuera del repositorio.
+DO $$ BEGIN
+ IF length(coalesce(current_setting('dvba.test_password',true),'')) < 16 THEN
+ RAISE EXCEPTION 'Configure una clave privada de al menos 16 caracteres; no existe clave predeterminada';
+ END IF;
+END $$;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1) Subir lulamaita@ a admin
@@ -101,7 +108,7 @@ insert_auth AS (
     gen_random_uuid(),
     '00000000-0000-0000-0000-000000000000',
     n.email,
-    crypt('Dvba2026!', gen_salt('bf')),
+    crypt(current_setting('dvba.test_password'), gen_salt('bf')),
     NOW(),  -- email confirmed
     NOW(),
     NOW(),
@@ -154,6 +161,6 @@ SELECT u.email, p.nombre, p.rol, p.zona, p.activo
 -- CREDENCIALES DE PRUEBA
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Email: cualquiera de la lista (@dvba.test)
--- Password: Dvba2026!
+-- Password: [retirada: no publicar contraseñas]
 -- Al primer login se puede cambiar la password desde el módulo Auth.
 -- Admin puede resetear cualquiera con el botón 🔑 Reset del panel de usuarios.

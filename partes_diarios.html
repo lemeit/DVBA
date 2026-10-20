@@ -348,7 +348,7 @@ table.partes .obs-preview{color:var(--mut);font-size:10.5px;font-style:italic;ma
     <span style="margin-left:8px">Plan de Seguridad en la Circulación · Módulo de carga de partes diarios para Técnicos y Jefes de la División Operativa.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86s</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.87a</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -1883,6 +1883,7 @@ async function pdGuardar(){
 async function pdEliminar(){
   const id = document.getElementById('editId').value;
   if (!id) return;
+  if (await pdDerivarSolicitudBorrado(id)) return;
   if (!confirm(`¿Eliminar la tarea #${id}?\n\nEsta acción no se puede deshacer.`)) return;
   const { error } = await _supa.from('partes_diarios').delete().eq('id', id);
   if (error) { alert('Error: '+error.message); return; }
@@ -1891,10 +1892,29 @@ async function pdEliminar(){
 }
 
 async function pdEliminarDirecto(id){
+  if (await pdDerivarSolicitudBorrado(id)) return;
   if (!confirm(`¿Eliminar la tarea #${id}?`)) return;
   const { error } = await _supa.from('partes_diarios').delete().eq('id', id);
   if (error) { alert('Error: '+error.message); return; }
   pdCargar();
+}
+
+async function pdDerivarSolicitudBorrado(id){
+  const perfil = typeof DVBA_PERFIL !== 'undefined' ? DVBA_PERFIL.get() : null;
+  if (perfil?.rol === 'admin') return false;
+  if (!perfil || !(perfil.rol === 'gerencia' || perfil.rol.startsWith('jefe_'))){
+    alert('Solo el administrador puede eliminar. Los jefes pueden solicitar el borrado.');return true;
+  }
+  const motivo = prompt('Justificá la solicitud de borrado al administrador (mínimo 10 caracteres):');
+  if (motivo === null) return true;
+  if (motivo.trim().length < 10){alert('El motivo debe tener al menos 10 caracteres.');return true;}
+  const parte = _tareas.find(t => String(t.id) === String(id));
+  const {error} = await _supa.from('comentarios_zona').insert({
+    tipo:'eliminar',target_tabla:'partes_diarios',target_id:Number(id),target_zona:parte?.zona || null,
+    autor_id:_userId,autor_rol:perfil.rol,autor_zona:perfil.zona || null,mensaje:motivo.trim()
+  });
+  alert(error ? 'No se pudo solicitar: '+error.message : 'Solicitud enviada al administrador. El parte sigue disponible.');
+  return true;
 }
 
 // v7.66 — Textos legales

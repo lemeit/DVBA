@@ -6,6 +6,8 @@ on:
       - 'supabase/migrations/**'
       - 'supabase/candidatas/**'
       - 'tests/database/**'
+      - 'scripts/revisar_secretos_publicos.py'
+      - 'docs/SQL_34_usuarios_prueba_batch.sql'
       - 'tests/ambiente.test.cjs'
       - 'tests/permisos_config.test.cjs'
       - 'datos/ambiente*.js'
@@ -22,6 +24,8 @@ on:
       - 'supabase/migrations/**'
       - 'supabase/candidatas/**'
       - 'tests/database/**'
+      - 'scripts/revisar_secretos_publicos.py'
+      - 'docs/SQL_34_usuarios_prueba_batch.sql'
       - 'tests/ambiente.test.cjs'
       - 'tests/permisos_config.test.cjs'
       - 'datos/ambiente*.js'
@@ -53,5 +57,7 @@ jobs:
       - name: Ejecutar pruebas sin conexión a producción
         working-directory: tests/database
         run: npm test
+      - name: Detectar credenciales en archivos públicos
+        run: python3 scripts/revisar_secretos_publicos.py
       - name: Verificar cliente y configuración de perfiles
         run: node --test tests/ambiente.test.cjs tests/ambiente_campo.test.cjs tests/ambiente_destino.test.cjs tests/fotos_privadas.test.cjs tests/perfil.test.cjs tests/permisos_config.test.cjs

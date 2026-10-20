@@ -2,6 +2,6 @@
   "name": "dvba-database-permissions-tests",
   "private": true,
   "type": "module",
-  "scripts": { "test": "node permissions.test.mjs && node piloto.test.mjs" },
+  "scripts": { "test": "node permissions.test.mjs && node piloto.test.mjs && node perimetro.test.mjs" },
   "devDependencies": { "@electric-sql/pglite": "0.5.10" }
 }

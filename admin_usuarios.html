@@ -304,7 +304,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
     <span style="margin-left:8px">Panel de Administración · Módulo de gestión de usuarios y perfiles para Admin del sistema.</span>
   </div>
   <div style="font-size:9.5px;color:rgba(255,255,255,.5)">
-    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.86w</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
+    SIG Vial PBA<sup style="font-size:.7em;color:#ffd060;letter-spacing:0">β</sup> · <span id="app-ver">v8.87a</span> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('acerca')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Acerca</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('terminos')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Términos</a> · <a href="#" onclick="event.preventDefault();DVBA_LEGAL.abrir('privacidad')" style="color:#8ac6ff;text-decoration:none;font-weight:600;margin:0 6px">Privacidad</a>
   </div>
 </footer>
 
@@ -418,7 +418,7 @@ footer{margin-top:30px;padding:12px 20px;font-size:10px;color:var(--mut);border-
 
 <script>
 // v8.66f.2 · Constante de versión unificada (familia escritorio v8.X)
-const APP_VERSION = 'v8.86w';
+const APP_VERSION = 'v8.87a';
 window.APP_VERSION = APP_VERSION;  // v8.72 · expone a window para legales.js
 // v8.72 · Auto-update del span del footer para que nunca quede desactualizado
 document.addEventListener('DOMContentLoaded', () => { const s=document.getElementById('app-ver'); if(s) s.textContent = APP_VERSION; });
@@ -786,7 +786,7 @@ async function ejecutarSolicitud(id){
     }
     // Marcar solicitud como resuelta
     const { error: e2 } = await _supa.from('comentarios_zona')
-      .update({ estado: 'resuelto', respuesta: 'Ejecutado por admin', respondido_en: new Date().toISOString() })
+      .update({ estado: 'resuelto', respuesta: 'Ejecutado por admin', respondido_por:dvbaAuth.user()?.id, respondido_en: new Date().toISOString() })
       .eq('id', id);
     if (e2) throw e2;
     toast('Solicitud ejecutada', 'ok');

@@ -3,9 +3,9 @@ name: Probar sesión del portal
 on:
   push:
     branches: [main]
-    paths: ['datos/auth.js', 'tests/auth_refresh.test.cjs', 'sw.js', 'tests/sw_portal.test.cjs', 'datos/fotos_privadas.js', 'tests/fotos_privadas.test.cjs', 'admin_usuarios.html', 'tests/admin_sesion.test.cjs', 'index.html', 'datos/supabase-js.min.js', 'tests/portal_sesion.test.cjs', '.github/workflows/portal-sesion.yml']
+    paths: ['partes_diarios.html', 'tests/solicitud_borrado.test.cjs', 'datos/auth.js', 'tests/auth_refresh.test.cjs', 'sw.js', 'tests/sw_portal.test.cjs', 'datos/fotos_privadas.js', 'tests/fotos_privadas.test.cjs', 'admin_usuarios.html', 'tests/admin_sesion.test.cjs', 'index.html', 'datos/supabase-js.min.js', 'tests/portal_sesion.test.cjs', '.github/workflows/portal-sesion.yml']
   pull_request:
-    paths: ['datos/auth.js', 'tests/auth_refresh.test.cjs', 'sw.js', 'tests/sw_portal.test.cjs', 'datos/fotos_privadas.js', 'tests/fotos_privadas.test.cjs', 'admin_usuarios.html', 'tests/admin_sesion.test.cjs', 'index.html', 'datos/supabase-js.min.js', 'tests/portal_sesion.test.cjs', '.github/workflows/portal-sesion.yml']
+    paths: ['partes_diarios.html', 'tests/solicitud_borrado.test.cjs', 'datos/auth.js', 'tests/auth_refresh.test.cjs', 'sw.js', 'tests/sw_portal.test.cjs', 'datos/fotos_privadas.js', 'tests/fotos_privadas.test.cjs', 'admin_usuarios.html', 'tests/admin_sesion.test.cjs', 'index.html', 'datos/supabase-js.min.js', 'tests/portal_sesion.test.cjs', '.github/workflows/portal-sesion.yml']
   workflow_dispatch:
 
 permissions:
@@ -19,4 +19,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: node --test tests/auth_refresh.test.cjs tests/portal_sesion.test.cjs tests/admin_sesion.test.cjs tests/sw_portal.test.cjs tests/fotos_privadas.test.cjs
+      - run: node --test tests/solicitud_borrado.test.cjs tests/auth_refresh.test.cjs tests/portal_sesion.test.cjs tests/admin_sesion.test.cjs tests/sw_portal.test.cjs tests/fotos_privadas.test.cjs

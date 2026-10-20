@@ -543,7 +543,7 @@ body.modo-campo #campo-fab{display:flex}
       <button type="submit" id="login-btn" onclick="hacerLogin()">Iniciar sesión</button>
       <button type="button" onclick="cerrarLoginModal()" style="margin-top:8px;width:100%;background:transparent;color:#ccc;border:1px solid rgba(255,255,255,.25);padding:9px;border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit">← Volver al mapa público</button>
     </form>
-    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.86z</span></div>
+    <div class="footer">SIG Vial PBA<sup style="font-size:.7em;color:var(--am);letter-spacing:0">β</sup> · <span id="login-app-ver">v8.87a</span></div>
   </div>
 </div>
 <div class="layout">
@@ -981,7 +981,7 @@ body.modo-campo #campo-fab{display:flex}
 </div>
 </div>
 <script>
-const APP_VERSION = 'v8.86z';
+const APP_VERSION = 'v8.87a';
 // v8.86s · Montar nav consolidado (después de que loader_zona haya inicializado hZona)
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
@@ -1982,6 +1982,7 @@ async function cargarRegs() {
     const data=typeof DVBA_FOTOS_PRIVADAS!=='undefined' ? await DVBA_FOTOS_PRIVADAS.cargar(_supa,filas) : filas;
     regs = data.map(r => ({
       id:      r.id,
+      zona:    r.zona || null,
       ruta:    r.ruta,
       partido: r.partido,
       prog:    r.progresiva,
@@ -3669,10 +3670,15 @@ function _mcActualizarUIporRol(){
     if (optEliminar)   optEliminar.disabled = true;
     selTipo.value = 'mover_zona';
   } else if (rol === 'gerencia') {
-    // Gerencia: comentario o mover, no eliminar
+    // Solicitar no elimina: el administrador recibe y decide.
     if (optComentario) optComentario.disabled = false;
     if (optMover)      optMover.disabled = false;
-    if (optEliminar)   optEliminar.disabled = true;
+    if (optEliminar)   optEliminar.disabled = false;
+  } else if (rol.startsWith('jefe_')) {
+    if (optComentario) optComentario.disabled = true;
+    if (optMover)      optMover.disabled = true;
+    if (optEliminar)   optEliminar.disabled = false;
+    selTipo.value = 'eliminar';
   } else {
     // Admin: todo permitido
     if (optComentario) optComentario.disabled = false;
@@ -3691,10 +3697,12 @@ async function guardarComentarioZona(){
   const mensaje     = document.getElementById('mcMensaje').value.trim();
   const zonaDestino = document.getElementById('mcZonaDestino').value || null;
   if (mensaje.length < 3) { alert('Escribí un mensaje (mínimo 3 caracteres).'); return; }
+  if (tipo === 'eliminar' && mensaje.length < 10) { alert('Justificá la solicitud de borrado (mínimo 10 caracteres).'); return; }
   if (tipo === 'mover_zona' && !zonaDestino) { alert('Elegí zona destino.'); return; }
 
   const btn = document.getElementById('mcBtnGuardar');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Guardando...'; }
+  if (!await sincronizarSupaConSesion()) { if(btn){btn.disabled=false;btn.textContent='Guardar';} return; }
   const { data: sess } = await _supa.auth.getUser();
   const uid = sess && sess.user && sess.user.id;
   if (!uid) { alert('Sesión inválida.'); if (btn){btn.disabled=false;btn.textContent='Guardar';} return; }
@@ -3713,7 +3721,7 @@ async function guardarComentarioZona(){
     return;
   }
   cerrarModalComentario();
-  _toastOK('Comentario registrado ' + (tipo === 'mover_zona' ? '· solicitud enviada a admin' : ''));
+  _toastOK(tipo === 'eliminar' ? 'Solicitud de borrado enviada al administrador. El registro sigue disponible.' : 'Comentario registrado ' + (tipo === 'mover_zona' ? '· solicitud enviada a admin' : ''));
 }
 function _toastOK(msg){
   const el = document.createElement('div');
@@ -3821,21 +3829,20 @@ async function delReg(id){
   // Gate de auth: si no hay sesión, abrir login y abortar
   if (!(await requireAuth('Iniciá sesión para borrar registros.'))) return;
 
-  // v8.86s · Router de borrado según rol:
-  //  - admin: DELETE físico directo (con confirm simple)
-  //  - jefe_zona: soft-delete via RPC con motivo obligatorio (min 10 chars)
-  //  - resto: no puede borrar (bloqueado por RLS también, pero avisamos amablemente)
+  // Solo admin elimina. Los jefes y Gerencia envían una solicitud motivada.
   const perfil = (typeof DVBA_PERFIL !== 'undefined') ? DVBA_PERFIL.get() : null;
   const rol = (perfil && perfil.rol) || '';
 
   if (rol === 'admin'){
     return _delRegAdminHard(id);
   }
-  if (rol === 'jefe_zona'){
-    return _abrirModalBorradoConMotivo(id);
+  if (rol === 'gerencia' || rol.startsWith('jefe_')){
+    const reg = regs.find(r => r.id === id);
+    if (!reg) return;
+    return abrirModalComentario('relevamientos', id, reg.zona || null, 'eliminar');
   }
   alert('Tu rol (' + (rol || 'sin definir') + ') no está autorizado para borrar registros.\n\n' +
-        'Solo el Admin del sistema puede eliminar definitivamente. El Jefe de Zona puede archivar con justificación.\n\n' +
+        'Solo el Admin del sistema puede eliminar. Los jefes pueden solicitarlo con justificación.\n\n' +
         'Si es un error, contactá al admin.');
 }
 
@@ -3849,106 +3856,6 @@ async function _delRegAdminHard(id){
   regs = regs.filter(r => r.id !== id);
   if (!_supa) { try { localStorage.setItem('dvba_z6v6', JSON.stringify(regs)); } catch(e) {} }
   _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
-}
-
-// v8.86s · Modal de soft-delete con motivo (jefe_zona)
-function _abrirModalBorradoConMotivo(id){
-  const reg = regs.find(r => r.id === id);
-  if (!reg) { alert('Registro no encontrado'); return; }
-  // Reutilizar overlay existente o crear uno nuevo
-  let ov = document.getElementById('modal-borrado-motivo');
-  if (!ov){
-    ov = document.createElement('div');
-    ov.id = 'modal-borrado-motivo';
-    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9800;padding:20px';
-    // v8.86s · Paleta oficial DVBA: turquesa (--p/--pd) para primarios, rojo (--ro) para destructivos.
-    // Header en gradient turquesa institucional (mismo del nav consolidado).
-    // Botón "Archivar" en rojo #BE1717 porque es acción de riesgo (aunque recuperable por admin).
-    ov.innerHTML = `
-      <div style="background:#fff;border-radius:8px;max-width:520px;width:100%;box-shadow:0 12px 32px rgba(0,0,0,.35);font-family:'Encode Sans',sans-serif;overflow:hidden">
-        <div style="background:linear-gradient(135deg,#00aec3,#007e8c);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
-          <div>
-            <div style="font-size:16px;font-weight:800">⚠ Archivar registro con justificación</div>
-            <div style="font-size:11px;opacity:.9;margin-top:2px">El Admin del sistema podrá revisarlo y restaurarlo si fue error</div>
-          </div>
-          <button onclick="_cerrarModalBorrado()" style="background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.4);color:#fff;font-size:16px;line-height:1;cursor:pointer;padding:3px 10px 5px;border-radius:14px;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.5)">×</button>
-        </div>
-        <div style="padding:18px">
-          <div id="mb-reg-info" style="background:#cae7ea;border-left:3px solid #007e8c;border-radius:4px;padding:10px 12px;font-size:12px;color:#000;margin-bottom:14px;line-height:1.5"></div>
-          <label style="display:block;font-size:11px;font-weight:800;color:#007e8c;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">Motivo del archivado (mínimo 10 caracteres)</label>
-          <textarea id="mb-motivo" rows="4" maxlength="500" placeholder="Ej: Registro duplicado (mismo relevamiento ya cargado con id X). Confirmado con capataz."
-            style="width:100%;padding:9px 11px;border:1.5px solid #d0d4dc;border-radius:5px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;color:#000"
-            onfocus="this.style.borderColor='#007e8c'" onblur="this.style.borderColor='#d0d4dc'"></textarea>
-          <div id="mb-contador" style="font-size:10px;color:#838383;margin-top:4px;text-align:right">0 / 500</div>
-        </div>
-        <div style="padding:12px 18px;background:#f5f7f8;border-top:1px solid #e0e0e0;display:flex;gap:8px;justify-content:flex-end">
-          <button onclick="_cerrarModalBorrado()" style="padding:8px 16px;border:1px solid #d0d4dc;background:#fff;color:#404040;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer" onmouseover="this.style.borderColor='#007e8c';this.style.color='#007e8c'" onmouseout="this.style.borderColor='#d0d4dc';this.style.color='#404040'">Cancelar</button>
-          <button id="mb-confirmar" onclick="_confirmarBorradoConMotivo()" disabled
-            style="padding:8px 18px;border:0;background:#BE1717;color:#fff;border-radius:5px;font-size:12px;font-weight:800;cursor:pointer;opacity:.5;box-shadow:0 1px 3px rgba(0,0,0,.15)">
-            ⚠ Confirmar archivado
-          </button>
-        </div>
-      </div>`;
-    document.body.appendChild(ov);
-    // Contador + habilitación del botón
-    const ta = ov.querySelector('#mb-motivo');
-    const btn = ov.querySelector('#mb-confirmar');
-    const cnt = ov.querySelector('#mb-contador');
-    ta.addEventListener('input', () => {
-      const len = ta.value.trim().length;
-      cnt.textContent = len + ' / 500';
-      const ok = len >= 10;
-      btn.disabled = !ok;
-      btn.style.opacity = ok ? '1' : '.5';
-      btn.style.cursor = ok ? 'pointer' : 'not-allowed';
-    });
-  }
-  ov.dataset.regId = String(id);
-  ov.querySelector('#mb-reg-info').innerHTML =
-    '<b>Registro #' + id + '</b>' +
-    (reg.ruta ? ' · RP ' + reg.ruta : '') +
-    (reg.prog ? ' · km ' + reg.prog : '') +
-    (reg.partido ? '<br>' + reg.partido : '') +
-    (reg.tipo ? ' · ' + reg.tipo : '') +
-    (reg.fecha ? '<br><span style="color:#808080;font-size:11px">' + reg.fecha + '</span>' : '');
-  ov.querySelector('#mb-motivo').value = '';
-  ov.querySelector('#mb-contador').textContent = '0 / 500';
-  const btnFinal = ov.querySelector('#mb-confirmar');
-  // v8.86s · Restaurar texto del botón cada vez que se abre el modal
-  // (por si quedó "Archivando..." pegado de un intento previo fallido)
-  btnFinal.textContent = '⚠ Confirmar archivado';
-  btnFinal.disabled = true; btnFinal.style.opacity = '.5'; btnFinal.style.cursor = 'not-allowed';
-  ov.style.display = 'flex';
-  setTimeout(() => ov.querySelector('#mb-motivo').focus(), 100);
-}
-
-function _cerrarModalBorrado(){
-  const ov = document.getElementById('modal-borrado-motivo');
-  if (ov) ov.style.display = 'none';
-}
-
-async function _confirmarBorradoConMotivo(){
-  const ov = document.getElementById('modal-borrado-motivo');
-  if (!ov) return;
-  const id = Number(ov.dataset.regId);
-  const motivo = ov.querySelector('#mb-motivo').value.trim();
-  if (motivo.length < 10){ alert('El motivo debe tener al menos 10 caracteres.'); return; }
-  const btn = ov.querySelector('#mb-confirmar');
-  btn.disabled = true; btn.textContent = 'Archivando...';
-  try {
-    const { data, error } = await _supa.rpc('soft_delete_relevamiento', { p_id: id, p_motivo: motivo });
-    if (error) throw error;
-    // Sacar del cache local (queda oculto para roles no-admin de todos modos)
-    regs = regs.filter(r => r.id !== id);
-    _regPage=0; renderRegs(); drawRegMarkers(); buildRegTags();
-    _cerrarModalBorrado();
-    // Feedback simple
-    console.log('[soft-delete] registro', id, 'archivado con motivo:', motivo);
-  } catch(e){
-    console.error('[soft-delete]', e);
-    alert('Error al archivar: ' + (e.message || e));
-    btn.disabled = false; btn.textContent = '⚠ Confirmar archivado';
-  }
 }
 
 // v8.8 · Nombre corto: SIGVialPBA_ID_RP.jpg (sin progresiva, ya está en el sello + EXIF).

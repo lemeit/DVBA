@@ -26,7 +26,7 @@
    v3.2: CACHE_URLS relativas para /DVBA/ subpath en GitHub Pages.
    ══════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dvba-campo-v9.95.28';  // v9.95.28 · Sello: km minúscula (SI) + labelDe() para estado en enum → texto humano + tipos: +Vehículo abandonado/-Reparación tranquera, Guardarrail (tipo Flex Beam)
+const CACHE_NAME = 'dvba-campo-v9.95.29';  // v9.95.29 · Sello: km minúscula (SI) + labelDe() para estado en enum → texto humano + tipos: +Vehículo abandonado/-Reparación tranquera, Guardarrail (tipo Flex Beam)
 const SYNC_TAG   = 'dvba-sync-registros';
 const SUPA_URL   = 'https://txjlfpffyzuhdqtfhlmc.supabase.co';
 const SUPA_KEY   = 'sb_publishable_yplmX1jZhT9XAHCkv-CYmA_1fuaLulg';
@@ -187,7 +187,7 @@ self.addEventListener('fetch', e => {
   // El portal debe recibir el visor actual cuando hay conexión. La captura
   // móvil conserva su arranque inmediato desde caché.
   const esPortal = url.origin === self.location.origin &&
-    (/\/(index|admin_usuarios)\.html$/.test(url.pathname) || url.pathname === self.registration.scope.replace(self.location.origin, ''));
+    (/\/(index|admin_usuarios|partes_diarios)\.html$/.test(url.pathname) || url.pathname === self.registration.scope.replace(self.location.origin, ''));
   if (esPortal) {
     e.respondWith((async () => {
       let timer;

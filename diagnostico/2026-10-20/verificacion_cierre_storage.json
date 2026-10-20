@@ -1,0 +1,36 @@
+{
+  "fecha": "2026-10-20",
+  "migracion": "20261020103210_cerrar_storage_publico_y_solicitudes",
+  "aplicada": true,
+  "verificacion": [
+    {
+      "verificacion": {
+        "bucket": {
+          "tipos": [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+          ],
+          "limite": 10485760,
+          "publico": true
+        },
+        "partes": 634,
+        "perfiles": 12,
+        "bloqueo_anon": "false",
+        "borrado_fotos": "((bucket_id = 'relevamientos'::text) AND dvba_privado.admin())",
+        "relevamientos": 326,
+        "rpc_archivo_admin": true,
+        "proteccion_archivo": 3,
+        "subida_publica_eliminada": true
+      }
+    }
+  ],
+  "prueba_http_anon": {
+    "http": 400,
+    "storage_status": 403,
+    "codigo": "AccessDenied",
+    "motivo": "new row violates row-level security policy"
+  },
+  "pruebas_locales_nuevas": 39,
+  "cuentas_modificadas": 0
+}
