@@ -574,10 +574,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#archivar-un-registro-jefe-de-zona" class="md-nav__link">
+  <a href="#solicitar-el-borrado-de-un-registro" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Archivar un registro (Jefe de Zona)
+        Solicitar el borrado de un registro
       
     </span>
   </a>
@@ -1172,10 +1172,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#archivar-un-registro-jefe-de-zona" class="md-nav__link">
+  <a href="#solicitar-el-borrado-de-un-registro" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Archivar un registro (Jefe de Zona)
+        Solicitar el borrado de un registro
       
     </span>
   </a>
@@ -1274,10 +1274,10 @@
 <li><strong>✕ Rechazar</strong> — descarta el registro con motivo.</li>
 </ul>
 <p>Gerencia también ve la cola pero solo con opción de consulta.</p>
-<h3 id="archivar-un-registro-jefe-de-zona">Archivar un registro (Jefe de Zona)<a class="headerlink" href="#archivar-un-registro-jefe-de-zona" title="Permanent link">¶</a></h3>
-<p>Además de las opciones de aprobación, el Jefe de Zona puede <strong>archivar</strong> un registro de su zona cuando corresponda (ej. duplicado, prueba, mal cargado). El botón <code>✕</code> en la ficha de un registro abre un modal que exige completar un motivo con al menos 10 caracteres antes de confirmar. El sistema muestra el motivo con un contador de caracteres en tiempo real y solo habilita el botón de confirmación cuando el motivo es válido.</p>
-<p>Al confirmar, el registro deja de ser visible para el resto de los roles pero <strong>el Admin del sistema lo conserva</strong> en el Panel de Administración y puede restaurarlo si fue un error o eliminarlo definitivamente después de revisar. La acción queda registrada con fecha, motivo declarado y autor original del registro.</p>
-<p>Los roles de técnico y capataz <strong>no ven este botón</strong> — solo el admin puede eliminar de forma definitiva, y solo el jefe de zona puede archivar con justificación.</p>
+<h3 id="solicitar-el-borrado-de-un-registro">Solicitar el borrado de un registro<a class="headerlink" href="#solicitar-el-borrado-de-un-registro" title="Permanent link">¶</a></h3>
+<p>Desde el botón <code>✕</code> de la ficha, Gerencia y los cinco roles de jefatura pueden enviar una <strong>solicitud al administrador</strong>, con un motivo de al menos 10 caracteres. Los jefes solo pueden pedirlo para registros de su zona.</p>
+<p>Enviar el pedido <strong>no elimina ni oculta el registro</strong>. Llega a <strong>Administración → Solicitudes</strong>, donde admin puede ejecutarlo o descartarlo. Solo admin puede eliminar o archivar; el Jefe de Zona ya no archiva por su cuenta.</p>
+<p>Los controles se aplican también en Supabase. La regla no depende únicamente de mostrar u ocultar un botón.</p>
 <h3 id="modal-sig-vial-ficha-de-ruta">Modal SIG Vial (ficha de ruta)<a class="headerlink" href="#modal-sig-vial-ficha-de-ruta" title="Permanent link">¶</a></h3>
 <p>Al hacer clic sobre cualquier RP en el mapa se abre una ficha estilo DNV con los datos oficiales de la ruta: número, denominación, longitud, tipo de pavimento, ancho de calzada y banquinas, partidos que atraviesa. El header del modal toma el color de la ruta seleccionada para identificarla visualmente.</p>
 

@@ -1020,6 +1020,26 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 <p><strong>Cobertura:</strong> 8 partidos (Saladillo, Gral. Alvear, Gral. Las Heras, Lobos, Roque Pérez, Las Flores, Navarro, 25 de Mayo) · 15 rutas provinciales pavimentadas, tierra y mixtas + red de caminos secundarios.</p>
 <p><strong>Hosting:</strong> GitHub Pages — https://lemeit.github.io/DVBA/</p>
 <hr />
+<h2 id="estado-actual-20-de-octubre-de-2026">Estado actual · 20 de octubre de 2026<a class="headerlink" href="#estado-actual-20-de-octubre-de-2026" title="Permanent link">¶</a></h2>
+<p>Versión de pruebas con datos reales y uso todavía limitado. <strong>Portal, partes y administración: v8.87a · Móvil Básico/Avanzado y Service Worker: v9.95.29.</strong> Reportes y planificación conservan v8.86s.</p>
+<ul>
+<li><strong>Unidad Ambiental:</strong> captura en toda la provincia y consulta sus propios registros/fotos privados. No requiere admin ni ve la operativa de otras zonas. Usa los dos modos móviles originales; el mapa sigue en el portal de escritorio.</li>
+<li><strong>Borrado:</strong> solo admin elimina o archiva. Gerencia y los cinco roles de jefatura solicitan el borrado con justificación de al menos 10 caracteres; el pedido llega a <strong>Administración → Solicitudes</strong>, sin ocultar el registro.</li>
+<li><strong>Seguridad de fotos:</strong> subida anónima bloqueada en Supabase; Gerencia no sube, reemplaza ni borra fotos. El bucket zonal limita formatos y tamaño; el de Ambiente es privado.</li>
+<li><strong>Sesión y caché:</strong> SDK local en el portal, renovación coordinada que conserva la sesión ante fallos temporales, carga de fotos privadas y descarga de cartografía provincial sin corte a los tres segundos. La captura móvil conserva el arranque desde caché.</li>
+<li><strong>Credenciales:</strong> retiradas las copias actuales de la contraseña inicial del SQL/wiki/buscador y agregado un control automático de secretos. Las cuentas se conservan. <strong>La rotación/revocación de contraseñas de prueba queda pospuesta por decisión del usuario</strong>; retirar el literal no cambia una contraseña ni borra el historial.</li>
+</ul>
+<p>Documentación vigente: <a href="https://github.com/lemeit/DVBA/blob/main/docs/MATRIZ_PERMISOS.md">matriz de permisos</a>, <a href="https://github.com/lemeit/DVBA/blob/main/docs/CIERRE_SEGURIDAD_2026-10-20.md">cierre de seguridad</a>, <a href="https://github.com/lemeit/DVBA/blob/main/docs/PILOTO_AMBIENTE_PRODUCCION.md">piloto compatible</a>, <a href="https://github.com/lemeit/DVBA/blob/main/tests/database/README.md">pruebas y límites</a>, <a href="https://lemeit.github.io/DVBA/wiki/99-Bitacora/">bitácora</a>.</p>
+<p>Las secciones fechadas anteriores son historia del proyecto. No equivalen a una certificación integral de seguridad ni sustituyen la matriz vigente.</p>
+<h2 id="publicacion-y-espejo-de-respaldo">Publicación y espejo de respaldo<a class="headerlink" href="#publicacion-y-espejo-de-respaldo" title="Permanent link">¶</a></h2>
+<p>Remotos locales: <code>origin</code> → GitHub y <code>gitlab</code> → GitLab (<code>lemeit/DVBA</code>). GitHub Pages sirve la app y la wiki. La documentación privada del concurso queda fuera de esta actualización; el Excel ajeno al proyecto no se agrega a Git.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">main</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c"># Esperar que Build wiki termine: genera un commit automático en main.</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">git</span> <span class="n">fetch</span> <span class="n">origin</span> <span class="n">main</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">git</span> <span class="n">merge</span> <span class="p">-</span><span class="n">-ff-only</span> <span class="n">origin</span><span class="p">/</span><span class="n">main</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">git</span> <span class="n">push</span> <span class="n">gitlab</span> <span class="n">main</span>
+</code></pre></div>
+<p>Verificar primero que no haya cambios propios que se crucen con lo entrante. Si el avance rápido falla, revisar la divergencia: <strong>no usar force ni push --mirror</strong>, porque podrían sobrescribir o eliminar contenido del respaldo. No llevar documentación privada de GitLab al repositorio público.</p>
 <h2 id="apps-publicadas">Apps publicadas<a class="headerlink" href="#apps-publicadas" title="Permanent link">¶</a></h2>
 <table>
 <thead>
@@ -1034,37 +1054,43 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 <tr>
 <td>https://lemeit.github.io/DVBA/</td>
 <td><code>index.html</code></td>
-<td><strong>v8.86q</strong></td>
+<td><strong>v8.87a</strong></td>
 <td>Portal principal: mapa Leaflet + <strong>sidebar drawer colapsable</strong> (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. <strong>Botón <code>🎯 Ubicar</code></strong> (flujo inverso ruta+km → posición). <strong>Sistema de reportes mixto</strong> (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. <strong>Sello v4 overlay</strong> semitransparente sobre la foto con QR + logo DVBA. <strong>EXIF metadata</strong> completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III). Basemaps: OSM + Satélite Esri (Vista Oscura CARTO temporalmente desactivada, pendiente proxy para no exponer API key).</td>
 </tr>
 <tr>
 <td>https://lemeit.github.io/DVBA/partes_diarios.html</td>
 <td><code>partes_diarios.html</code></td>
-<td><strong>v8.86q</strong></td>
+<td><strong>v8.87a</strong></td>
 <td>App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo <code>sello_v4.js</code> con el portal.</td>
+</tr>
+<tr>
+<td>https://lemeit.github.io/DVBA/admin_usuarios.html</td>
+<td><code>admin_usuarios.html</code></td>
+<td><strong>v8.87a</strong></td>
+<td>Gestión de perfiles, solicitudes de borrado, archivos y métricas. Solo administrador activo.</td>
 </tr>
 <tr>
 <td>https://lemeit.github.io/DVBA/reportes.html</td>
 <td><code>reportes.html</code></td>
-<td><strong>v8.86q</strong></td>
+<td><strong>v8.86s</strong></td>
 <td>Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia.</td>
 </tr>
 <tr>
 <td>https://lemeit.github.io/DVBA/app.html</td>
 <td><code>app.html</code> → router</td>
-<td><strong>v9.95.18</strong></td>
+<td><strong>v9.95.29</strong></td>
 <td><strong>App móvil PWA (URL canónica)</strong> — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia. Instalado en el celu queda como <code>SIG Vial PBA</code> (un solo ícono). URL legacy <code>campo.html</code> sigue como redirect.</td>
 </tr>
 <tr>
 <td>↳ <code>dvba_campo_lite.html</code> (interno)</td>
 <td>Modo Básico</td>
-<td>v9.91</td>
+<td>v9.95.29</td>
 <td>UI minimalista: foto + GPS + envío directo. Compresión 1200px/q=0.75 con <code>createImageBitmap</code> (low-memory). Inyección EXIF con GPS + fecha aunque la foto vaya cruda. Diseñado para operarios sin fluidez tecnológica.</td>
 </tr>
 <tr>
 <td>↳ <code>dvba_campo.html</code> (interno)</td>
 <td>Modo Avanzado</td>
-<td>v9.91</td>
+<td>v9.95.29</td>
 <td>Wizard completo con selección de tipo/estado/subatributos, autocomplete de rutas y caminos, edición fina + sello v4 aplicado en móvil.</td>
 </tr>
 <tr>
@@ -1076,7 +1102,7 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 <tr>
 <td>https://lemeit.github.io/DVBA/wiki/99-Bitacora/</td>
 <td>bitácora unificada</td>
-<td>v4.5</td>
+<td>v5.13</td>
 <td>Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog)</td>
 </tr>
 <tr>
@@ -1099,14 +1125,14 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 </tr>
 </tbody>
 </table>
-<h2 id="funcionalidades-destacadas-v872-v886q-v9955-v99518-1-septiembre-2026">Funcionalidades destacadas (v8.72-v8.86q · v9.95.5-v9.95.18 · 1-septiembre-2026)<a class="headerlink" href="#funcionalidades-destacadas-v872-v886q-v9955-v99518-1-septiembre-2026" title="Permanent link">¶</a></h2>
+<h2 id="historico-funcionalidades-destacadas-v872-v886q-v9955-v99518-1-septiembre-2026">Histórico · funcionalidades destacadas (v8.72-v8.86q · v9.95.5-v9.95.18 · 1-septiembre-2026)<a class="headerlink" href="#historico-funcionalidades-destacadas-v872-v886q-v9955-v99518-1-septiembre-2026" title="Permanent link">¶</a></h2>
 <h3 id="robustez-movil-con-senal-debil-apagado-temporal-vista-oscura-carto-v99518-v886q-1-sep-2026">Robustez móvil con señal débil + apagado temporal Vista Oscura CARTO (v9.95.18 + v8.86q · 1-sep-2026)<a class="headerlink" href="#robustez-movil-con-senal-debil-apagado-temporal-vista-oscura-carto-v99518-v886q-1-sep-2026" title="Permanent link">¶</a></h3>
 <p>Sprint de robustez cerrado con un fix crítico del Service Worker. Trío de bugs correlacionados aparecían cuando el celu tenía señal débil (no offline duro): Modo Básico "no arrancaba" y terminaba abriendo el portal escritorio (redirect loop en el fallback offline que servía <code>app.html</code> en vez de <code>dvba_campo_lite.html</code>), Modo Avanzado abría pero no calculaba la progresiva (los bundles <code>rutas_rpXX.js</code> quedaban colgados esperando la red y <code>ARMONIZADOR</code> arrancaba sin <code>CHAINS_DATA</code>), y la app "buscando señal" no arrancaba nunca (solo modo avión funcionaba porque <code>fetch()</code> falla al toque). Causa raíz común: SW era <strong>network-first sin timeout</strong> para TODO. Fix: <strong>cache-first</strong> para todo lo cacheado (HTML/JS/geojsons se sirven al instante + refresco en background) + <strong>network-first con timeout 3s</strong> para lo no cacheado + fallback offline que matchea PRIMERO el HTML pedido. Bump <code>CACHE_NAME</code> v9.95.18.</p>
 <p>En paralelo, apagado temporal del basemap "Vista Oscura" en <code>index.html</code> porque CARTO ahora exige API key para servir <code>dark_all</code> y el proxy que va a manejar la key sin exponerla en el HTML público todavía no está listo. El botón queda comentado en el selector de capas y <code>tDark</code> queda como alias defensivo de <code>tOSM</code>. Los basemaps OSM y Satélite Esri siguen funcionando normal. El plan es replicar el patrón de proxy con Cloudflare Worker + secret que ya funciona en tres proyectos internos (Ema Saladillo · PurpleAir · Agua).</p>
 <h3 id="guard-de-rol-en-movil-panel-admin-en-4-tabs-batch-usuarios-prueba-v99517-v886p-sql_34">Guard de rol en móvil + panel admin en 4 tabs + batch usuarios prueba (v9.95.17 + v8.86p · SQL_34)<a class="headerlink" href="#guard-de-rol-en-movil-panel-admin-en-4-tabs-batch-usuarios-prueba-v99517-v886p-sql_34" title="Permanent link">¶</a></h3>
 <p>Cierre del sprint de coherencia de permisos. Los tres roles solo-lectura (<strong>gerencia</strong>, <strong>jefe_administrativa</strong>, <strong>jefe_automotores</strong>) ahora ven un banner amarillo persistente en la app móvil ("Tu rol no está autorizado para cargar registros") y el botón de captura de foto queda deshabilitado — aplica en Modo Básico y Modo Avanzado. La seguridad real ya estaba en las policies RLS (SQL_27), esto es UX para no dejar al usuario descubrir el rechazo después de sacar la foto. Panel admin <code>admin_usuarios.html</code> reestructurado en 4 pestañas pill turquesa con hash-routing y lazy-load (Usuarios / Solicitudes / Auditoría / Sistema); tab Sistema llama a la RPC <code>admin_metricas_sistema</code> (SQL_33) con snapshot de BD + storage + auth + top tablas. Batch SQL_34: 15 usuarios <code>@dvba.test</code> completando los 7 roles operativos en las 3 zonas piloto (IV/V/VI), <code>lulamaita@vialidad.gba.gov.ar</code> promovido a admin (backup), alias <code>+z4/+z5</code> eliminados. Trazabilidad de autor en la cola pendiente del portal escritorio: etiqueta "👤 rol · Zona X" con el snapshot del autor (nombre + rol + zona en el momento de la carga).</p>
 <h3 id="hardening-de-seguridad-trazabilidad-multi-usuario-v886j-v886k-sql_26-sql_30">Hardening de seguridad + trazabilidad multi-usuario (v8.86j – v8.86k · SQL_26 → SQL_30)<a class="headerlink" href="#hardening-de-seguridad-trazabilidad-multi-usuario-v886j-v886k-sql_26-sql_30" title="Permanent link">¶</a></h3>
-<p>Después de una auditoría con el linter de Supabase se cerraron todos los hallazgos de seguridad y se agregó trazabilidad completa por autor:</p>
+<p>Entrada histórica del sprint SQL_26–SQL_30: se corrigieron los hallazgos abordados entonces y se agregó trazabilidad de autor. La revisión del 20/10 encontró otros permisos amplios; el estado vigente y sus límites están documentados arriba:</p>
 <ul>
 <li><strong>SQL_26</strong> — hardening de vistas y bucket: <code>security_invoker</code> en las vistas de reportes, drop de la tabla legacy <code>registros</code> con policy pública peligrosa, reemplazo de <code>v_solicitudes_admin</code> (que cruzaba <code>auth.users</code>) por función RPC <code>get_solicitudes_admin()</code>, policy de lectura pública en <code>partidos_zona</code>.</li>
 <li><strong>SQL_27</strong> — matriz de permisos consolidada (fuente única de verdad): rollback de derivas (gerencia vuelve a solo lectura + sugerir, jefes admin/automotores a solo lectura zonal, técnico pierde DELETE) + soft-delete para jefe_zona con motivo obligatorio (mínimo 10 caracteres). Nueva vista <code>v_borrados_auditoria</code> para restaurar/eliminar desde el panel admin.</li>
@@ -1125,136 +1151,8 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 <li><strong>Trigger zona-por-partido-geográfico</strong> (SQL_23): la zona del registro se deriva del partido (tabla <code>partidos_zona</code> con 135 partidos). Cualquier agente DVBA que recorra la PBA y cargue una foto queda automáticamente asignado al jefe de la zona correcta.</li>
 <li><strong>App móvil</strong> (v9.95.15) acepta todos los roles operativos. Labels de rol completos.</li>
 </ul>
-<h3 id="matriz-de-permisos-consolidada-fuente-unica-de-verdad-sql_27">Matriz de permisos consolidada (fuente única de verdad · SQL_27)<a class="headerlink" href="#matriz-de-permisos-consolidada-fuente-unica-de-verdad-sql_27" title="Permanent link">¶</a></h3>
-<table>
-<thead>
-<tr>
-<th>Rol</th>
-<th>Alcance</th>
-<th style="text-align: center;">SELECT</th>
-<th style="text-align: center;">INSERT</th>
-<th style="text-align: center;">UPDATE</th>
-<th style="text-align: center;">DELETE</th>
-<th style="text-align: center;">Aprobar</th>
-<th style="text-align: center;">Intervenir</th>
-<th style="text-align: center;">Asignar</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>admin</strong></td>
-<td>Todo el sistema</td>
-<td style="text-align: center;">✓ all</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✓ hard</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✓</td>
-</tr>
-<tr>
-<td><strong>gerencia</strong></td>
-<td>Todas las zonas</td>
-<td style="text-align: center;">✓ all</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✗</td>
-</tr>
-<tr>
-<td><strong>jefe_zona</strong></td>
-<td>Su zona</td>
-<td style="text-align: center;">✓ zona</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✓ soft (con motivo)</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✓</td>
-</tr>
-<tr>
-<td><strong>jefe_operativa</strong></td>
-<td>Su zona</td>
-<td style="text-align: center;">✓ zona</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✓ (tareas cerradas)</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✓</td>
-</tr>
-<tr>
-<td><strong>jefe_tecnica</strong></td>
-<td>Su zona</td>
-<td style="text-align: center;">✓ zona</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✓ (relevamientos)</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-</tr>
-<tr>
-<td><strong>jefe_administrativa</strong></td>
-<td>Su zona</td>
-<td style="text-align: center;">✓ zona</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-</tr>
-<tr>
-<td><strong>jefe_automotores</strong></td>
-<td>Su zona</td>
-<td style="text-align: center;">✓ zona</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-</tr>
-<tr>
-<td><strong>capataz</strong></td>
-<td>Su zona</td>
-<td style="text-align: center;">✓ zona</td>
-<td style="text-align: center;">✓ (cierre de tarea)</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-</tr>
-<tr>
-<td><strong>tecnico</strong></td>
-<td>Su zona</td>
-<td style="text-align: center;">✓ zona</td>
-<td style="text-align: center;">✓</td>
-<td style="text-align: center;">✓ (propios)</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-</tr>
-<tr>
-<td><strong>publico</strong></td>
-<td>Solo mapa institucional</td>
-<td style="text-align: center;">mapa</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-<td style="text-align: center;">✗</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Convención DELETE</strong>: <code>hard</code> elimina físicamente la fila (solo admin). <code>soft (con motivo)</code> marca el registro como borrado con un motivo obligatorio (mínimo 10 caracteres); queda oculto para roles no-admin pero recuperable por admin desde la vista de auditoría <code>v_borrados_auditoria</code> (jefe_zona, solo dentro de su zona).</p>
-<p>Principios que guían la matriz: <strong>descentralización zonal</strong> (cada zona gestiona su operativa · gerencia consulta y sugiere pero no ejecuta), <strong>jerarquía real DVBA</strong> (los jefes de las divisiones administrativas y de automotores no cargan trabajo de campo vial), <strong>mínimo privilegio con trazabilidad</strong> (solo admin borra físico · jefe_zona borra lógico con justificación auditable · técnicos editan solo lo propio · capataces solo cierran su tarea asignada), y <strong>trazabilidad geográfica</strong> (cada registro cae en la zona de su partido, no en la del usuario que lo cargó).</p>
+<h3 id="matriz-vigente-de-permisos">Matriz vigente de permisos<a class="headerlink" href="#matriz-vigente-de-permisos" title="Permanent link">¶</a></h3>
+<p>La matriz actual está en <a href="https://github.com/lemeit/DVBA/blob/main/docs/MATRIZ_PERMISOS.md">docs/MATRIZ_PERMISOS.md</a> y en la <a href="https://lemeit.github.io/DVBA/wiki/04-Roles-y-Accesos/">guía de roles de la wiki</a>. Desde el 20/10/2026, los jefes <strong>no archivan ni eliminan</strong>: solicitan el borrado con motivo y solo admin lo ejecuta. Las notas de SQL_27 que siguen en el historial describen el funcionamiento anterior.</p>
 <p><strong>Migración #4 · sub-atributos a columnas dedicadas (v8.78 · v9.95.14 · SQL_16)</strong> — Hasta v8.77, los sub-atributos <code>superficie</code> (asfalto/hormigón/tierra/…) y <code>modalidad</code> (manual/mecánico/mixto) se serializaban al final del campo <code>observaciones</code> con el formato <code>[superficie:X · modalidad:Y]</code>. Funcional pero impedía cruzar en reportes agregados. La migración crea columnas dedicadas, hace backfill automático con regex desde el texto existente + limpieza del sufijo. Frontend (móvil y escritorio) escribe en columnas propias; lectura con fallback al parseo para retrocompatibilidad. Ahora se puede consultar en SQL directo (ej. <code>SELECT superficie, COUNT(*) FROM relevamientos WHERE naturaleza='tarea' GROUP BY superficie</code>).</p>
 <p><strong>Cámara in-app en el Modo Básico (v9.95.13)</strong> — El Modo Básico crasheaba al abrir la cámara nativa (<code>&lt;input capture&gt;</code>): Android manda la PWA a background y por policy puede matar el proceso por gestión de recursos, con lo cual la app "reinicia" al volver de la cámara. Solución: portado el flow del Modo Avanzado (<code>getUserMedia</code> + modal in-app con <code>&lt;video&gt;</code> + botones capturar/cancelar/flip). La cámara vive dentro de la PWA, nunca pasa a background. Fallback automático a <code>&lt;input capture&gt;</code> si <code>getUserMedia</code> falla (permiso denegado, sin cámara, browser sin soporte).</p>
 <p><strong>Service Worker offline reparado (v9.95.11)</strong> — El fallback offline del SW solo cubría <code>/dvba_campo</code>; no manejaba <code>/app.html</code> (start_url del PWA) ni <code>/dvba_campo_lite.html</code>. Al abrir desde el icono PWA en modo avión, caía al mensaje "sin caché". Extendido a todas las entradas del PWA (<code>/app.html</code>, <code>/campo.html</code>, <code>/dvba_campo.html</code>, <code>/dvba_campo_lite.html</code>, <code>/</code>, <code>/DVBA/</code>, <code>/DVBA</code>) con cadena de fallback en cascada. <code>caches.match</code> con <code>{ignoreSearch:true, ignoreVary:true}</code> para tolerar query params (cache-busters, params UTM que Android agrega al PWA).</p>
@@ -1520,16 +1418,16 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 <h2 id="sello-dvba-en-fotos-v3-desde-junio-2026">Sello DVBA en fotos (v3 — desde junio 2026)<a class="headerlink" href="#sello-dvba-en-fotos-v3-desde-junio-2026" title="Permanent link">¶</a></h2>
 <p>Toda foto cargada en cualquiera de las dos apps se estampa con un sello institucional estilo <strong>GPS Map Camera</strong>, offline-first y con datos editables antes de aplicar.</p>
 <h3 id="layout-v3-3-columnas-banner-debajo-de-la-foto">Layout v3 (3 columnas, banner DEBAJO de la foto)<a class="headerlink" href="#layout-v3-3-columnas-banner-debajo-de-la-foto" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌────────────────────────────────────────────────────┐
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│              [FOTO ORIGINAL INTACTA]               │
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├────────────────────────────────────────────────────┤
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│ ┌────┐  Localidad                          ▣▣▣ ▣  │
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│ │LOGO│  Ruta · Km                          ▣ ▣ ▣  │
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│ │DVBA│  Tipo de incidencia                 ▣ ▣▣  │
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│ └────┘  Lat / Long / Alt                   ▣▣ ▣   │
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│         Fecha · Hora                       ▣▣▣ ▣  │
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>└────────────────────────────────────────────────────┘
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>   logo    texto blanco grande               QR Google Maps
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>┌────────────────────────────────────────────────────┐
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>│              [FOTO ORIGINAL INTACTA]               │
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├────────────────────────────────────────────────────┤
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│ ┌────┐  Localidad                          ▣▣▣ ▣  │
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│ │LOGO│  Ruta · Km                          ▣ ▣ ▣  │
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│ │DVBA│  Tipo de incidencia                 ▣ ▣▣  │
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│ └────┘  Lat / Long / Alt                   ▣▣ ▣   │
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│         Fecha · Hora                       ▣▣▣ ▣  │
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>└────────────────────────────────────────────────────┘
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>   logo    texto blanco grande               QR Google Maps
 </code></pre></div>
 <ul>
 <li>La foto <strong>queda 100% intacta</strong> — el banner es un footer agregado debajo (no la tapa).</li>
@@ -1589,68 +1487,68 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 <li><strong>Cambio publicable</strong> (feature, fix funcional): bump de los 3 — <code>APP_VERSION</code> en <code>index.html</code>, <code>&lt;span id='app-ver'&gt;</code> en <code>dvba_campo.html</code>, <code>CACHE_NAME</code> en <code>sw.js</code>.</li>
 </ul>
 <h2 id="estructura-del-repositorio">Estructura del repositorio<a class="headerlink" href="#estructura-del-repositorio" title="Permanent link">¶</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>DVBA/
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── index.html              ← App de escritorio (= ex dvba_zona6.html)
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├── dvba_campo.html         ← App móvil PWA
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>├── dvba_tipos.js           ← Selector jerárquico de tipos MSV 2017
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>├── manifest.json           ← Manifiesto PWA
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>├── sw.js                   ← Service Worker (cache + sync Supabase)
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>├── icon-192.png  icon-512.png
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>├── datos/                  ← Bundles JS por ruta + módulos compartidos
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│   ├── rutas.js            ← Índice maestro
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│   ├── rutas_rp40.js       ← RP40 — completa (cadena + anchors + 5 mojones físicos + 37 sintéticos + 3 gaps)
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│   ├── rutas_rp30.js  rutas_rp41.js  rutas_rp46.js  rutas_rp51.js  rutas_rp91.js  …
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>│   ├── auth.js             ← Módulo Supabase Auth compartido entre apps
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>│   ├── dvba_estados.js     ← Modelo de estados por categoría + superficies + modalidades (v9.18)
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>│   ├── qrcode.min.js       ← Librería QR vanilla JS para el sello (sin dependencias, ~14 KB)
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>│   └── img/                ← Logos e íconos institucionales (logo_dvba_circular.png ← usado en sello)
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>│
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>├── scripts/                ← Scripts Python (procesamiento, generación de bundles)
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>│   ├── gen_ruta_bundle.py        ← Generador de bundles datos/rutas_rpXX.js
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>│   ├── build_campo.py            ← Build de la app de campo
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>│   ├── Armonizar_mojones.py
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>│   ├── 01_procesamiento_rutas/   ← Cálculo de progresivas, validación, corrección
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>│   ├── 02_analisis_topologia/
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>│   ├── 03_utilidades/            ← Exploración SHP, generación de mojones
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>│   ├── 04_reportes/
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>│   └── requirements.txt
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>│
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>├── geojson_procesados/     ← GeoJSONs intermedios listos para generar bundles
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>│   ├── rp40_unificada_congaps.geojson  + mojones_rp40_final.geojson
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>│   ├── rp30_…  rp41_…  rp46_…  rp51_…  rp91_…
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>│
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>├── docs/                   ← Documentación
-<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>│   ├── bitacora.html                   ← Bitácora unificada (tabs por temática)
-<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>│   ├── MODELO_TIPOS_ESTADOS.md         ← Referencia del modelo Tipo↔Estado (v9.18)
-<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>│   ├── HANDOFF_caminos_secundarios.md
-<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>│   ├── SETUP_AUTH.md                   ← Guía de configuración Supabase Auth
-<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>│   ├── guia_dvba_campo.html
-<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>│   └── guia_dvba_campo.pdf
-<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>│
-<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>├── tests/                  ← Tests de integración por ruta
-<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>│   └── test_rp30.html  test_rp40.html  test_rp41.html  test_rp46.html  test_rp51.html  test_rp91.html
-<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>│
-<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>├── archivo/                ← Versiones legacy y referencias históricas
-<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>│   ├── versiones/                       ← Backups de los HTMLs (incluye dvba_campo_BKFUNCIONAL)
-<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>│   ├── dvba_zona6_bk2.html
-<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>│   ├── dvba_zona6_bx.html
-<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>│   └── servidor_http.py                 ← Server local antiguo (era pre-GitHub Pages)
-<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>│
-<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>└── .github/workflows/
-<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>    └── supabase_keepalive.yml           ← Keepalive del proyecto Supabase (free tier)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>DVBA/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── index.html              ← App de escritorio (= ex dvba_zona6.html)
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>├── dvba_campo.html         ← App móvil PWA
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>├── dvba_tipos.js           ← Selector jerárquico de tipos MSV 2017
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>├── manifest.json           ← Manifiesto PWA
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>├── sw.js                   ← Service Worker (cache + sync Supabase)
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>├── icon-192.png  icon-512.png
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>├── datos/                  ← Bundles JS por ruta + módulos compartidos
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>│   ├── rutas.js            ← Índice maestro
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>│   ├── rutas_rp40.js       ← RP40 — completa (cadena + anchors + 5 mojones físicos + 37 sintéticos + 3 gaps)
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>│   ├── rutas_rp30.js  rutas_rp41.js  rutas_rp46.js  rutas_rp51.js  rutas_rp91.js  …
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│   ├── auth.js             ← Módulo Supabase Auth compartido entre apps
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>│   ├── dvba_estados.js     ← Modelo de estados por categoría + superficies + modalidades (v9.18)
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>│   ├── qrcode.min.js       ← Librería QR vanilla JS para el sello (sin dependencias, ~14 KB)
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>│   └── img/                ← Logos e íconos institucionales (logo_dvba_circular.png ← usado en sello)
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>│
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>├── scripts/                ← Scripts Python (procesamiento, generación de bundles)
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>│   ├── gen_ruta_bundle.py        ← Generador de bundles datos/rutas_rpXX.js
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>│   ├── build_campo.py            ← Build de la app de campo
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>│   ├── Armonizar_mojones.py
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>│   ├── 01_procesamiento_rutas/   ← Cálculo de progresivas, validación, corrección
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>│   ├── 02_analisis_topologia/
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>│   ├── 03_utilidades/            ← Exploración SHP, generación de mojones
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>│   ├── 04_reportes/
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>│   └── requirements.txt
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>│
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>├── geojson_procesados/     ← GeoJSONs intermedios listos para generar bundles
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>│   ├── rp40_unificada_congaps.geojson  + mojones_rp40_final.geojson
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>│   ├── rp30_…  rp41_…  rp46_…  rp51_…  rp91_…
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>│
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>├── docs/                   ← Documentación
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>│   ├── bitacora.html                   ← Bitácora unificada (tabs por temática)
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>│   ├── MODELO_TIPOS_ESTADOS.md         ← Referencia del modelo Tipo↔Estado (v9.18)
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>│   ├── HANDOFF_caminos_secundarios.md
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>│   ├── SETUP_AUTH.md                   ← Guía de configuración Supabase Auth
+<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>│   ├── guia_dvba_campo.html
+<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>│   └── guia_dvba_campo.pdf
+<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>│
+<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>├── tests/                  ← Tests de integración por ruta
+<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>│   └── test_rp30.html  test_rp40.html  test_rp41.html  test_rp46.html  test_rp51.html  test_rp91.html
+<a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a>│
+<a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a>├── archivo/                ← Versiones legacy y referencias históricas
+<a id="__codelineno-2-44" name="__codelineno-2-44" href="#__codelineno-2-44"></a>│   ├── versiones/                       ← Backups de los HTMLs (incluye dvba_campo_BKFUNCIONAL)
+<a id="__codelineno-2-45" name="__codelineno-2-45" href="#__codelineno-2-45"></a>│   ├── dvba_zona6_bk2.html
+<a id="__codelineno-2-46" name="__codelineno-2-46" href="#__codelineno-2-46"></a>│   ├── dvba_zona6_bx.html
+<a id="__codelineno-2-47" name="__codelineno-2-47" href="#__codelineno-2-47"></a>│   └── servidor_http.py                 ← Server local antiguo (era pre-GitHub Pages)
+<a id="__codelineno-2-48" name="__codelineno-2-48" href="#__codelineno-2-48"></a>│
+<a id="__codelineno-2-49" name="__codelineno-2-49" href="#__codelineno-2-49"></a>└── .github/workflows/
+<a id="__codelineno-2-50" name="__codelineno-2-50" href="#__codelineno-2-50"></a>    └── supabase_keepalive.yml           ← Keepalive del proyecto Supabase (free tier)
 </code></pre></div>
 <h2 id="fuentes-pesadas-fuera-del-repo">Fuentes pesadas (FUERA del repo)<a class="headerlink" href="#fuentes-pesadas-fuera-del-repo" title="Permanent link">¶</a></h2>
 <p>Las fuentes crudas se mantienen localmente y NO se versionan:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>C:\DVBA_fuentes\
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── qgis/                   ← Proyecto QGIS completo
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│   ├── proyecto_redes_viales.qgz
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│   ├── 02_BASES_VECTORES/  ← SHP fuente (305 MB — mojones, partidos, red provincial)
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>│   ├── 03_CAPAS_GENERADAS/ ← Capas procesadas (17 MB)
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│   ├── 04_BACKUPS/         ← Backups históricos (49 MB)
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│   ├── 05_TABLAS/  06_RESULTADOS/  07_EXPORTS/
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│   └── venv_redes_viales/  ← Virtualenv (regenerable con scripts/requirements.txt)
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>└── osm/                    ← OSM PBF Argentina + extractos (~430 MB)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>C:\DVBA_fuentes\
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>├── qgis/                   ← Proyecto QGIS completo
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>│   ├── proyecto_redes_viales.qgz
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>│   ├── 02_BASES_VECTORES/  ← SHP fuente (305 MB — mojones, partidos, red provincial)
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>│   ├── 03_CAPAS_GENERADAS/ ← Capas procesadas (17 MB)
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>│   ├── 04_BACKUPS/         ← Backups históricos (49 MB)
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>│   ├── 05_TABLAS/  06_RESULTADOS/  07_EXPORTS/
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>│   └── venv_redes_viales/  ← Virtualenv (regenerable con scripts/requirements.txt)
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>└── osm/                    ← OSM PBF Argentina + extractos (~430 MB)
 </code></pre></div>
 <h2 id="flujo-para-incorporar-una-ruta-nueva">Flujo para incorporar una ruta nueva<a class="headerlink" href="#flujo-para-incorporar-una-ruta-nueva" title="Permanent link">¶</a></h2>
 <ol>
@@ -1658,7 +1556,7 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 <li><strong>Digitalizar gaps</strong> (cruces de río sin puente, zonas urbanas) sobre imagen satelital con snap activado.</li>
 <li><strong>Preparar capa de mojones</strong> (campo <code>Name</code>: "0KM", "50KM"…; campo <code>description</code>: sentido).</li>
 <li><strong>Generar bundle:</strong>
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>scripts/gen_ruta_bundle.py<span class="w"> </span>rpXX
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>scripts/gen_ruta_bundle.py<span class="w"> </span>rpXX
 </code></pre></div>
    Esto produce <code>datos/rutas_rpXX.js</code>.</li>
 <li><strong>Integrar en las apps:</strong> agregar <code>&lt;script src="datos/rutas_rpXX.js"&gt;</code> en <code>index.html</code> y registrarla en <code>datos/rutas.js</code>.</li>
@@ -1712,27 +1610,27 @@ Cualquier cambio hecho en <code>README.md</code> se refleja automáticamente ac�
 </table>
 <h2 id="workflow-campo-oficina-desde-v919-v714">Workflow campo → oficina (desde v9.19 / v7.14)<a class="headerlink" href="#workflow-campo-oficina-desde-v919-v714" title="Permanent link">¶</a></h2>
 <p>Cambio de paradigma en el flujo de captura+sellado de fotos:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>   📱 CAMPO                         🏢 OFICINA
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>   (móvil PWA)                       (escritorio)
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>   ─────────                         ─────────
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>   Operador toma foto                Revisor logueado ve:
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>   GPS pre-llena ruta/km/partido     🔔 X pendientes en header
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>   Datos cargados al form
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>   ↓
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>   Foto cruda + datos →  Supabase →  Modal cola con:
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>   estado_workflow='campo'           - Foto thumb
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>   sello_version=NULL                - Datos cargados
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>                                     - Armonización en tiempo real:
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>                                       sugerencias del sistema
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>                                       basadas en GPS vs cartografía
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>                                     ↓
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>                                     [✅ Aprobar] / [✏ Editar] / [✕ Rechazar]
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>                                     ↓
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>                                     Al aprobar:
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>                                     1. Acepta sugerencias del armonizador
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>                                     2. Genera sello v3 con datos finales
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>                                     3. storage.update() reemplaza foto cruda
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>                                     4. estado='aprobado' · sello_version='v3'
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>   📱 CAMPO                         🏢 OFICINA
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>   (móvil PWA)                       (escritorio)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>   ─────────                         ─────────
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>   Operador toma foto                Revisor logueado ve:
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>   GPS pre-llena ruta/km/partido     🔔 X pendientes en header
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>   Datos cargados al form
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>   ↓
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>   Foto cruda + datos →  Supabase →  Modal cola con:
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>   estado_workflow='campo'           - Foto thumb
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>   sello_version=NULL                - Datos cargados
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>                                     - Armonización en tiempo real:
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>                                       sugerencias del sistema
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>                                       basadas en GPS vs cartografía
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>                                     ↓
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>                                     [✅ Aprobar] / [✏ Editar] / [✕ Rechazar]
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>                                     ↓
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>                                     Al aprobar:
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>                                     1. Acepta sugerencias del armonizador
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>                                     2. Genera sello v3 con datos finales
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>                                     3. storage.update() reemplaza foto cruda
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>                                     4. estado='aprobado' · sello_version='v3'
 </code></pre></div>
 <h3 id="armonizacion-geoespacial-datosarmonizadorjs">Armonización geoespacial (<code>datos/armonizador.js</code>)<a class="headerlink" href="#armonizacion-geoespacial-datosarmonizadorjs" title="Permanent link">¶</a></h3>
 <p>100% offline (sin red). Usa los GeoJSON de partidos + bundles de RPs cacheados localmente para:</p>

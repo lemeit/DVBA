@@ -646,6 +646,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#cuentas-de-prueba-y-seguridad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cuentas de prueba y seguridad
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1183,6 +1194,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#cuentas-de-prueba-y-seguridad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cuentas de prueba y seguridad
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1214,9 +1236,9 @@
 <p><strong>Filtros disponibles</strong>: por rol, por zona, por estado (activo/inactivo/sin perfil), y búsqueda libre por email o nombre.</p>
 <p><strong>Acciones por usuario</strong>:</p>
 <ul>
-<li><strong>Editar</strong>: modificar rol y zona, activar/desactivar la cuenta.</li>
+<li><strong>Editar</strong>: modificar rol, área y zona, activar/desactivar el perfil. Unidad Ambiental se configura como técnico del área Ambiente, con captura provincial y lectura propia.</li>
 <li><strong>Reset</strong>: enviar link de recuperación de contraseña al email del usuario.</li>
-<li><strong>Desactivar</strong>: baja lógica (queda en la base pero no puede iniciar sesión).</li>
+<li><strong>Desactivar</strong>: baja lógica del perfil: corta sus permisos operativos. No equivale a borrar la identidad de Auth ni a revocar todos sus tokens.</li>
 </ul>
 <p>⚠ Los cambios de rol/zona impactan inmediatamente en el sistema. Un técnico movido de zona VI a IV deja de ver los registros de VI (aunque los haya cargado él mismo históricamente).</p>
 <h3 id="registro-de-nuevos-usuarios">Registro de nuevos usuarios<a class="headerlink" href="#registro-de-nuevos-usuarios" title="Permanent link">¶</a></h3>
@@ -1230,15 +1252,15 @@
 </ol>
 <hr />
 <h2 id="solicitudes-pendientes">Solicitudes pendientes<a class="headerlink" href="#solicitudes-pendientes" title="Permanent link">¶</a></h2>
-<p>Cola de acciones que otros roles (gerencia o jefes de zona) le pidieron al admin. Los tipos habituales:</p>
+<p>Cola de acciones que otros roles (Gerencia o cualquiera de los cinco roles de jefatura) le pidieron al admin. Los tipos habituales:</p>
 <ul>
 <li><strong>Mover zona</strong>: un registro fue cargado en una zona y alguien detectó que en realidad corresponde a otra (por ejemplo, un límite ambiguo entre partidos).</li>
-<li><strong>Eliminar</strong>: un usuario pidió que un registro se elimine definitivamente, con motivo declarado.</li>
+<li><strong>Eliminar</strong>: un usuario pidió que un registro se elimine definitivamente, con justificación de al menos 10 caracteres.</li>
 </ul>
-<p>Cada solicitud muestra fecha, autor de la solicitud, tipo, registro afectado, destino sugerido y mensaje. El admin puede <strong>ejecutar</strong> la acción (con confirmación) o <strong>descartar</strong> (con motivo opcional).</p>
+<p>Solicitar no elimina ni oculta el registro. Cada solicitud muestra fecha, autor de la solicitud, tipo, registro afectado, destino sugerido y mensaje. Solo admin ejecuta o descarta; se conserva la respuesta, responsable y fecha de resolución. El admin puede <strong>ejecutar</strong> la acción (con confirmación) o <strong>descartar</strong> (con motivo opcional).</p>
 <hr />
 <h2 id="auditoria-de-registros-archivados">Auditoría de registros archivados<a class="headerlink" href="#auditoria-de-registros-archivados" title="Permanent link">¶</a></h2>
-<p>Sección dedicada a los registros que un jefe de zona archivó (soft-delete) con motivo declarado. <strong>No están eliminados físicamente</strong>; el admin los ve acá y decide qué hacer.</p>
+<p>Sección de registros archivados, incluyendo el historial anterior de archivos realizados por jefes. Desde el 20/10/2026 solo admin puede archivar; los jefes únicamente solicitan. <strong>No están eliminados físicamente</strong>; el admin los ve acá y decide qué hacer.</p>
 <p>Cada fila muestra:</p>
 <ul>
 <li><strong>Archivado</strong>: fecha y hora del archivado.</li>
@@ -1246,15 +1268,15 @@
 <li><strong>Zona</strong>: la zona donde estaba el registro.</li>
 <li><strong>Registro</strong>: id + tipo + ruta + progresiva + partido.</li>
 <li><strong>Autor original</strong>: nombre + rol + zona de quien había cargado el registro cuando lo creó. Si es "sin autor registrado" es un registro histórico anterior a la trazabilidad de autor.</li>
-<li><strong>Archivado por</strong>: nombre del jefe de zona que lo archivó.</li>
-<li><strong>Motivo</strong>: la justificación que dejó el jefe (hover para ver completo si es largo).</li>
+<li><strong>Archivado por</strong>: responsable que lo archivó; los registros antiguos pueden identificar a un jefe.</li>
+<li><strong>Motivo</strong>: la justificación conservada en el registro (hover para ver completo si es largo).</li>
 <li><strong>Acciones</strong>:<ul>
 <li><strong>↺ Restaurar</strong> — abre un modal con un motivo <strong>opcional</strong> (podés aclarar por qué lo restaurás; se le muestra al jefe). Al confirmar, el registro vuelve a ser visible para todos los roles y <strong>el jefe de zona recibe un aviso</strong> al ingresar al portal con toda la información del ciclo (su motivo original + tu motivo de restauración + fecha).</li>
 <li><strong>✕ Definitivo</strong> — elimina físicamente el registro para siempre (doble confirmación; irreversible).</li>
 </ul>
 </li>
 </ul>
-<p>Este panel es la contrapartida del formulario de archivado que ve el jefe de zona en el mapa. Garantiza que ninguna eliminación es unilateral: siempre hay un rastro, un motivo declarado, una revisión posible por parte del administrador del sistema, y un aviso claro al jefe cuando su decisión de archivado es revertida.</p>
+<p>La bandeja <strong>Solicitudes</strong> es el circuito actual de pedidos de borrado. La pestaña <strong>Auditoría</strong> conserva los archivos y restauraciones disponibles; no representa una auditoría integral de todas las eliminaciones definitivas antiguas.</p>
 <div class="admonition note">
 <p class="admonition-title">📷 Screenshots sugeridos</p>
 <ul>
@@ -1263,6 +1285,8 @@
 <li>Fila de auditoría de borrado con tooltip del motivo completo.</li>
 </ul>
 </div>
+<h2 id="cuentas-de-prueba-y-seguridad">Cuentas de prueba y seguridad<a class="headerlink" href="#cuentas-de-prueba-y-seguridad" title="Permanent link">¶</a></h2>
+<p>Se conservan las cuentas de prueba. La contraseña inicial compartida fue retirada del SQL, la wiki y su buscador; no se cambiaron las contraseñas de las cuentas. Su rotación/revocación queda pospuesta por decisión del usuario. Borrar el texto no invalida una contraseña ni elimina el historial de Git.</p>
 
 
 
