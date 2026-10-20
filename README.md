@@ -8,23 +8,52 @@ Sistema web de relevamiento, cartografía y gestión de la red vial provincial a
 
 ---
 
+## Estado actual · 20 de octubre de 2026
+
+Versión de pruebas con datos reales y uso todavía limitado. **Portal, partes y administración: v8.87a · Móvil Básico/Avanzado y Service Worker: v9.95.29.** Reportes y planificación conservan v8.86s.
+
+- **Unidad Ambiental:** captura en toda la provincia y consulta sus propios registros/fotos privados. No requiere admin ni ve la operativa de otras zonas. Usa los dos modos móviles originales; el mapa sigue en el portal de escritorio.
+- **Borrado:** solo admin elimina o archiva. Gerencia y los cinco roles de jefatura solicitan el borrado con justificación de al menos 10 caracteres; el pedido llega a **Administración → Solicitudes**, sin ocultar el registro.
+- **Seguridad de fotos:** subida anónima bloqueada en Supabase; Gerencia no sube, reemplaza ni borra fotos. El bucket zonal limita formatos y tamaño; el de Ambiente es privado.
+- **Sesión y caché:** SDK local en el portal, renovación coordinada que conserva la sesión ante fallos temporales, carga de fotos privadas y descarga de cartografía provincial sin corte a los tres segundos. La captura móvil conserva el arranque desde caché.
+- **Credenciales:** retiradas las copias actuales de la contraseña inicial del SQL/wiki/buscador y agregado un control automático de secretos. Las cuentas se conservan. **La rotación/revocación de contraseñas de prueba queda pospuesta por decisión del usuario**; retirar el literal no cambia una contraseña ni borra el historial.
+
+Documentación vigente: [matriz de permisos](https://github.com/lemeit/DVBA/blob/main/docs/MATRIZ_PERMISOS.md), [cierre de seguridad](https://github.com/lemeit/DVBA/blob/main/docs/CIERRE_SEGURIDAD_2026-10-20.md), [piloto compatible](https://github.com/lemeit/DVBA/blob/main/docs/PILOTO_AMBIENTE_PRODUCCION.md), [pruebas y límites](https://github.com/lemeit/DVBA/blob/main/tests/database/README.md), [bitácora](https://lemeit.github.io/DVBA/wiki/99-Bitacora/).
+
+Las secciones fechadas anteriores son historia del proyecto. No equivalen a una certificación integral de seguridad ni sustituyen la matriz vigente.
+
+## Publicación y espejo de respaldo
+
+Remotos locales: `origin` → GitHub y `gitlab` → GitLab (`lemeit/DVBA`). GitHub Pages sirve la app y la wiki. La documentación privada del concurso queda fuera de esta actualización; el Excel ajeno al proyecto no se agrega a Git.
+
+```powershell
+git push origin main
+# Esperar que Build wiki termine: genera un commit automático en main.
+git fetch origin main
+git merge --ff-only origin/main
+git push gitlab main
+```
+
+Verificar primero que no haya cambios propios que se crucen con lo entrante. Si el avance rápido falla, revisar la divergencia: **no usar force ni push --mirror**, porque podrían sobrescribir o eliminar contenido del respaldo. No llevar documentación privada de GitLab al repositorio público.
+
 ## Apps publicadas
 
 | URL | Archivo | Versión | Descripción |
 |---|---|---|---|
-| https://lemeit.github.io/DVBA/ | `index.html` | **v8.86q** | Portal principal: mapa Leaflet + **sidebar drawer colapsable** (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. **Botón `🎯 Ubicar`** (flujo inverso ruta+km → posición). **Sistema de reportes mixto** (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. **Sello v4 overlay** semitransparente sobre la foto con QR + logo DVBA. **EXIF metadata** completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III). Basemaps: OSM + Satélite Esri (Vista Oscura CARTO temporalmente desactivada, pendiente proxy para no exponer API key). |
-| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v8.86q** | App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo `sello_v4.js` con el portal. |
-| https://lemeit.github.io/DVBA/reportes.html | `reportes.html` | **v8.86q** | Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia. |
-| https://lemeit.github.io/DVBA/app.html | `app.html` → router | **v9.95.18** | **App móvil PWA (URL canónica)** — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia. Instalado en el celu queda como `SIG Vial PBA` (un solo ícono). URL legacy `campo.html` sigue como redirect. |
-| ↳ `dvba_campo_lite.html` (interno) | Modo Básico | v9.91 | UI minimalista: foto + GPS + envío directo. Compresión 1200px/q=0.75 con `createImageBitmap` (low-memory). Inyección EXIF con GPS + fecha aunque la foto vaya cruda. Diseñado para operarios sin fluidez tecnológica. |
-| ↳ `dvba_campo.html` (interno) | Modo Avanzado | v9.91 | Wizard completo con selección de tipo/estado/subatributos, autocomplete de rutas y caminos, edición fina + sello v4 aplicado en móvil. |
+| https://lemeit.github.io/DVBA/ | `index.html` | **v8.87a** | Portal principal: mapa Leaflet + **sidebar drawer colapsable** (Ctrl+B). Pins arrastrables con auto-detección de partido/ruta/progresiva. **Botón `🎯 Ubicar`** (flujo inverso ruta+km → posición). **Sistema de reportes mixto** (Red Vial Provincial Primaria + Secundaria) con selección manual por click en mapa, halo dorado, PDF unificado con logo DVBA institucional. **Sello v4 overlay** semitransparente sobre la foto con QR + logo DVBA. **EXIF metadata** completo (GPS, Make, Model, DateTime) inyectado en cada foto. Paleta minimalista PBA (Anexo III). Basemaps: OSM + Satélite Esri (Vista Oscura CARTO temporalmente desactivada, pendiente proxy para no exponer API key). |
+| https://lemeit.github.io/DVBA/partes_diarios.html | `partes_diarios.html` | **v8.87a** | App "Plan de Seguridad en la Circulación" alineada al Google Form oficial DVBA. Carga de partes diarios con detección automática de partido, autocomplete de caminos con recorrido encadenado, dropdown único primaria/secundaria con typeahead. Comparte el módulo `sello_v4.js` con el portal. |
+| https://lemeit.github.io/DVBA/admin_usuarios.html | `admin_usuarios.html` | **v8.87a** | Gestión de perfiles, solicitudes de borrado, archivos y métricas. Solo administrador activo. |
+| https://lemeit.github.io/DVBA/reportes.html | `reportes.html` | **v8.86s** | Módulo Reportes: 4 charts institucionales + tabla filtrable + export CSV. Genera PDF con jsPDF + autotable. Cotejado contra la paleta oficial DVBA del Informe Mensual Gerencia. |
+| https://lemeit.github.io/DVBA/app.html | `app.html` → router | **v9.95.29** | **App móvil PWA (URL canónica)** — bootstrap que decide entre Modo Básico y Modo Avanzado según preferencia. Instalado en el celu queda como `SIG Vial PBA` (un solo ícono). URL legacy `campo.html` sigue como redirect. |
+| ↳ `dvba_campo_lite.html` (interno) | Modo Básico | v9.95.29 | UI minimalista: foto + GPS + envío directo. Compresión 1200px/q=0.75 con `createImageBitmap` (low-memory). Inyección EXIF con GPS + fecha aunque la foto vaya cruda. Diseñado para operarios sin fluidez tecnológica. |
+| ↳ `dvba_campo.html` (interno) | Modo Avanzado | v9.95.29 | Wizard completo con selección de tipo/estado/subatributos, autocomplete de rutas y caminos, edición fina + sello v4 aplicado en móvil. |
 | https://lemeit.github.io/DVBA/caminos_secundarios.html | `caminos_secundarios.html` | **v1.1** | Visor interactivo de red secundaria con filtros, hover tolerante, exportación CSV/reporte (subruta legacy — el portal principal ya cubre este flujo) |
-| https://lemeit.github.io/DVBA/wiki/99-Bitacora/ | bitácora unificada | v4.5 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
+| https://lemeit.github.io/DVBA/wiki/99-Bitacora/ | bitácora unificada | v5.13 | Bitácora con tabs por temática (Resumen, Rutas/QGIS, Apps, Infraestructura, Decisiones, Pendientes, Changelog) |
 | https://lemeit.github.io/DVBA/docs/guia_sig_vial_pba.html | guía textual | v1.1 | Manual completo de las apps móviles |
 | https://lemeit.github.io/DVBA/docs/guia_visual_sig_vial_pba.html | guía visual | v1.1 | 10 láminas navegables (mockups smartphone) · imprimible como PDF |
 | https://github.com/lemeit/DVBA/blob/main/docs/MODELO_TIPOS_ESTADOS.md | doc técnica | v1.0 | Referencia del modelo Tipo↔Estado con árbol, matriz y guía de extensibilidad |
 
-## Funcionalidades destacadas (v8.72-v8.86q · v9.95.5-v9.95.18 · 1-septiembre-2026)
+## Histórico · funcionalidades destacadas (v8.72-v8.86q · v9.95.5-v9.95.18 · 1-septiembre-2026)
 
 ### Robustez móvil con señal débil + apagado temporal Vista Oscura CARTO (v9.95.18 + v8.86q · 1-sep-2026)
 
@@ -38,7 +67,7 @@ Cierre del sprint de coherencia de permisos. Los tres roles solo-lectura (**gere
 
 ### Hardening de seguridad + trazabilidad multi-usuario (v8.86j – v8.86k · SQL_26 → SQL_30)
 
-Después de una auditoría con el linter de Supabase se cerraron todos los hallazgos de seguridad y se agregó trazabilidad completa por autor:
+Entrada histórica del sprint SQL_26–SQL_30: se corrigieron los hallazgos abordados entonces y se agregó trazabilidad de autor. La revisión del 20/10 encontró otros permisos amplios; el estado vigente y sus límites están documentados arriba:
 
 - **SQL_26** — hardening de vistas y bucket: `security_invoker` en las vistas de reportes, drop de la tabla legacy `registros` con policy pública peligrosa, reemplazo de `v_solicitudes_admin` (que cruzaba `auth.users`) por función RPC `get_solicitudes_admin()`, policy de lectura pública en `partidos_zona`.
 - **SQL_27** — matriz de permisos consolidada (fuente única de verdad): rollback de derivas (gerencia vuelve a solo lectura + sugerir, jefes admin/automotores a solo lectura zonal, técnico pierde DELETE) + soft-delete para jefe_zona con motivo obligatorio (mínimo 10 caracteres). Nueva vista `v_borrados_auditoria` para restaurar/eliminar desde el panel admin.
@@ -59,26 +88,9 @@ Estado final del linter Supabase: 0 errores + 13 warnings esperados (helpers RLS
 - **Trigger zona-por-partido-geográfico** (SQL_23): la zona del registro se deriva del partido (tabla `partidos_zona` con 135 partidos). Cualquier agente DVBA que recorra la PBA y cargue una foto queda automáticamente asignado al jefe de la zona correcta.
 - **App móvil** (v9.95.15) acepta todos los roles operativos. Labels de rol completos.
 
-### Matriz de permisos consolidada (fuente única de verdad · SQL_27)
+### Matriz vigente de permisos
 
-| Rol | Alcance | SELECT | INSERT | UPDATE | DELETE | Aprobar | Intervenir | Asignar |
-|---|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| **admin** | Todo el sistema | ✓ all | ✓ | ✓ | ✓ hard | ✓ | ✓ | ✓ |
-| **gerencia** | Todas las zonas | ✓ all | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ |
-| **jefe_zona** | Su zona | ✓ zona | ✓ | ✓ | ✓ soft (con motivo) | ✓ | ✗ | ✓ |
-| **jefe_operativa** | Su zona | ✓ zona | ✓ | ✓ | ✗ | ✓ (tareas cerradas) | ✗ | ✓ |
-| **jefe_tecnica** | Su zona | ✓ zona | ✓ | ✓ | ✗ | ✓ (relevamientos) | ✗ | ✗ |
-| **jefe_administrativa** | Su zona | ✓ zona | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **jefe_automotores** | Su zona | ✓ zona | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **capataz** | Su zona | ✓ zona | ✓ (cierre de tarea) | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **tecnico** | Su zona | ✓ zona | ✓ | ✓ (propios) | ✗ | ✗ | ✗ | ✗ |
-| **publico** | Solo mapa institucional | mapa | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
-
-**Convención DELETE**: `hard` elimina físicamente la fila (solo admin). `soft (con motivo)` marca el registro como borrado con un motivo obligatorio (mínimo 10 caracteres); queda oculto para roles no-admin pero recuperable por admin desde la vista de auditoría `v_borrados_auditoria` (jefe_zona, solo dentro de su zona).
-
-Principios que guían la matriz: **descentralización zonal** (cada zona gestiona su operativa · gerencia consulta y sugiere pero no ejecuta), **jerarquía real DVBA** (los jefes de las divisiones administrativas y de automotores no cargan trabajo de campo vial), **mínimo privilegio con trazabilidad** (solo admin borra físico · jefe_zona borra lógico con justificación auditable · técnicos editan solo lo propio · capataces solo cierran su tarea asignada), y **trazabilidad geográfica** (cada registro cae en la zona de su partido, no en la del usuario que lo cargó).
-
-
+La matriz actual está en [docs/MATRIZ_PERMISOS.md](https://github.com/lemeit/DVBA/blob/main/docs/MATRIZ_PERMISOS.md) y en la [guía de roles de la wiki](https://lemeit.github.io/DVBA/wiki/04-Roles-y-Accesos/). Desde el 20/10/2026, los jefes **no archivan ni eliminan**: solicitan el borrado con motivo y solo admin lo ejecuta. Las notas de SQL_27 que siguen en el historial describen el funcionamiento anterior.
 
 **Migración #4 · sub-atributos a columnas dedicadas (v8.78 · v9.95.14 · SQL_16)** — Hasta v8.77, los sub-atributos `superficie` (asfalto/hormigón/tierra/…) y `modalidad` (manual/mecánico/mixto) se serializaban al final del campo `observaciones` con el formato `[superficie:X · modalidad:Y]`. Funcional pero impedía cruzar en reportes agregados. La migración crea columnas dedicadas, hace backfill automático con regex desde el texto existente + limpieza del sufijo. Frontend (móvil y escritorio) escribe en columnas propias; lectura con fallback al parseo para retrocompatibilidad. Ahora se puede consultar en SQL directo (ej. `SELECT superficie, COUNT(*) FROM relevamientos WHERE naturaleza='tarea' GROUP BY superficie`).
 

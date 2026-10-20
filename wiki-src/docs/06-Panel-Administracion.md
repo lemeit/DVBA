@@ -20,9 +20,9 @@ Lista todos los usuarios registrados en el sistema con: email, rol, zona asignad
 
 **Acciones por usuario**:
 
-- **Editar**: modificar rol y zona, activar/desactivar la cuenta.
+- **Editar**: modificar rol, área y zona, activar/desactivar el perfil. Unidad Ambiental se configura como técnico del área Ambiente, con captura provincial y lectura propia.
 - **Reset**: enviar link de recuperación de contraseña al email del usuario.
-- **Desactivar**: baja lógica (queda en la base pero no puede iniciar sesión).
+- **Desactivar**: baja lógica del perfil: corta sus permisos operativos. No equivale a borrar la identidad de Auth ni a revocar todos sus tokens.
 
 ⚠ Los cambios de rol/zona impactan inmediatamente en el sistema. Un técnico movido de zona VI a IV deja de ver los registros de VI (aunque los haya cargado él mismo históricamente).
 
@@ -40,18 +40,18 @@ Para dar de alta a alguien nuevo:
 
 ## Solicitudes pendientes
 
-Cola de acciones que otros roles (gerencia o jefes de zona) le pidieron al admin. Los tipos habituales:
+Cola de acciones que otros roles (Gerencia o cualquiera de los cinco roles de jefatura) le pidieron al admin. Los tipos habituales:
 
 - **Mover zona**: un registro fue cargado en una zona y alguien detectó que en realidad corresponde a otra (por ejemplo, un límite ambiguo entre partidos).
-- **Eliminar**: un usuario pidió que un registro se elimine definitivamente, con motivo declarado.
+- **Eliminar**: un usuario pidió que un registro se elimine definitivamente, con justificación de al menos 10 caracteres.
 
-Cada solicitud muestra fecha, autor de la solicitud, tipo, registro afectado, destino sugerido y mensaje. El admin puede **ejecutar** la acción (con confirmación) o **descartar** (con motivo opcional).
+Solicitar no elimina ni oculta el registro. Cada solicitud muestra fecha, autor de la solicitud, tipo, registro afectado, destino sugerido y mensaje. Solo admin ejecuta o descarta; se conserva la respuesta, responsable y fecha de resolución. El admin puede **ejecutar** la acción (con confirmación) o **descartar** (con motivo opcional).
 
 ---
 
 ## Auditoría de registros archivados
 
-Sección dedicada a los registros que un jefe de zona archivó (soft-delete) con motivo declarado. **No están eliminados físicamente**; el admin los ve acá y decide qué hacer.
+Sección de registros archivados, incluyendo el historial anterior de archivos realizados por jefes. Desde el 20/10/2026 solo admin puede archivar; los jefes únicamente solicitan. **No están eliminados físicamente**; el admin los ve acá y decide qué hacer.
 
 Cada fila muestra:
 
@@ -60,15 +60,19 @@ Cada fila muestra:
 - **Zona**: la zona donde estaba el registro.
 - **Registro**: id + tipo + ruta + progresiva + partido.
 - **Autor original**: nombre + rol + zona de quien había cargado el registro cuando lo creó. Si es "sin autor registrado" es un registro histórico anterior a la trazabilidad de autor.
-- **Archivado por**: nombre del jefe de zona que lo archivó.
-- **Motivo**: la justificación que dejó el jefe (hover para ver completo si es largo).
+- **Archivado por**: responsable que lo archivó; los registros antiguos pueden identificar a un jefe.
+- **Motivo**: la justificación conservada en el registro (hover para ver completo si es largo).
 - **Acciones**:
     - **↺ Restaurar** — abre un modal con un motivo **opcional** (podés aclarar por qué lo restaurás; se le muestra al jefe). Al confirmar, el registro vuelve a ser visible para todos los roles y **el jefe de zona recibe un aviso** al ingresar al portal con toda la información del ciclo (su motivo original + tu motivo de restauración + fecha).
     - **✕ Definitivo** — elimina físicamente el registro para siempre (doble confirmación; irreversible).
 
-Este panel es la contrapartida del formulario de archivado que ve el jefe de zona en el mapa. Garantiza que ninguna eliminación es unilateral: siempre hay un rastro, un motivo declarado, una revisión posible por parte del administrador del sistema, y un aviso claro al jefe cuando su decisión de archivado es revertida.
+La bandeja **Solicitudes** es el circuito actual de pedidos de borrado. La pestaña **Auditoría** conserva los archivos y restauraciones disponibles; no representa una auditoría integral de todas las eliminaciones definitivas antiguas.
 
 !!! note "📷 Screenshots sugeridos"
     - Panel Admin con las 3 secciones visibles (métricas + tabla usuarios + solicitudes + auditoría borrados).
     - Modal de edición de usuario abierto.
     - Fila de auditoría de borrado con tooltip del motivo completo.
+
+## Cuentas de prueba y seguridad
+
+Se conservan las cuentas de prueba. La contraseña inicial compartida fue retirada del SQL, la wiki y su buscador; no se cambiaron las contraseñas de las cuentas. Su rotación/revocación queda pospuesta por decisión del usuario. Borrar el texto no invalida una contraseña ni elimina el historial de Git.

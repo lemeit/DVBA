@@ -1,5 +1,7 @@
 # Piloto Ambiente compatible
 
+Actualización del 20/10/2026: el usuario aclara que GIS-Z6 es un entorno de pruebas con datos reales, todavía sin uso extendido. El estado vigente y las vulnerabilidades pendientes están en [la matriz revisada](MATRIZ_PERMISOS.md). Los conteos y resultados siguientes describen momentos anteriores de la implementación, no el inventario actual.
+
 El usuario autorizó usar GIS-Z6 en producción para la prueba. El proyecto “previa” queda fuera de alcance.
 
 ## Cambio específico
@@ -27,7 +29,7 @@ La aplicación fue manual mediante SQL Editor y aún requiere establecer una lí
 
 ## Activación y soporte
 
-Publicar clientes primero y comprobar el despliegue. Cambiar después únicamente el perfil seleccionado, con los seis atributos en una misma transacción y verificando que queda otro administrador activo. No cambiar contraseña ni eliminar la cuenta. Portal y ambos modos móviles derivan al espacio Ambiente al verificar el perfil.
+Publicar clientes primero y comprobar el despliegue. Cambiar después únicamente el perfil seleccionado, con los seis atributos en una misma transacción y verificando que queda otro administrador activo. No cambiar contraseña ni eliminar la cuenta. La pantalla independiente de Ambiente se retiró: se conservan los modos Básico y Avanzado originales, sin mapa móvil; el mapa sigue en el portal de escritorio. El enlace antiguo de Ambiente vuelve a la app original. El área determina permisos y destino privado de fotos, no otra aplicación.
 
 Después de activar, cerrar/abrir la sesión de Ambiente y confirmar una captura con foto. Si se usan datos de prueba, identificarlos antes de retirarlos; no borrar registros u objetos ajenos por prefijos generales.
 

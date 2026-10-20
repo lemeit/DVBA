@@ -4,15 +4,28 @@
 
 DVBA · Departamento Zona VI Saladillo
 
-Última actualización: 1 de septiembre de 2026
+Última actualización: 20 de octubre de 2026
 
-Versión bitácora: v5.12 — apps v9.95.18 / v8.86q · 1-sep-2026 (SW cache-first + timeout 3s: fix app móvil con señal débil + desactivar Vista Oscura CARTO en escritorio)
+Versión bitácora: v5.13 — móvil v9.95.29 · portal/partes/admin v8.87a · reportes/planificación v8.86s
 
 Responsable: Ing. Luciano Lamaita
 
 Repositorio: [github.com/lemeit/DVBA](https://github.com/lemeit/DVBA)
 
 Estado general: 🟢 En desarrollo activo
+
+## Estado vigente · 20 octubre 2026
+
+Entorno de pruebas con datos reales y uso limitado. Esta sección y la [matriz de roles vigente](04-Roles-y-Accesos.md) prevalecen sobre las decisiones antiguas de este documento. Las entradas fechadas conservan la historia; no autorizan a ejecutar SQL históricos sobre la base actual.
+
+- **Unidad Ambiental:** captura provincial, lectura de registros propios y fotos privadas, sin privilegios de administrador. Misma app y mismos modos Básico/Avanzado; sin mapa móvil. El mapa sigue en el portal de escritorio. El encabezado identifica Unidad Ambiental y Todas las Zonas Viales.
+- **Borrado:** los cinco roles de jefatura y Gerencia solicitan con motivo de al menos 10 caracteres. La solicitud no oculta el registro y llega a **Administración → Solicitudes**. Solo admin elimina o archiva; ya no hay archivo autónomo del Jefe de Zona ni borrado delegado.
+- **Seguridad:** cerrada la subida anónima al almacenamiento; Gerencia no sube, reemplaza ni elimina fotos. Se conserva la lectura pública histórica zonal y la privacidad de Ambiente. Los límites del bucket zonal son 10 MB y JPEG/PNG/WebP.
+- **Sesiones y caché:** SDK local en el portal, renovación compartida sin borrar sesión por un fallo temporal, visor de fotos privadas y cartografía provincial sin el corte previo a los tres segundos. Los modos móviles mantienen su interfaz original y el arranque desde caché.
+- **Credenciales de prueba:** retiradas cuatro copias actuales de la contraseña inicial en SQL/wiki/buscador, con control automático de patrones de secretos. Se conservan las cuentas y sus claves actuales. **El usuario pospone su rotación/revocación**; el historial de Git puede conservar el valor publicado.
+- **Pendientes:** integración de todas las acciones de Ambiente en el portal, permisos finos de edición/cierre y filas hijas de partes, auditoría/recuperación y revisión integral de seguridad. Las pruebas ejecutadas no certifican todos los escenarios.
+
+Documentación técnica: [matriz y límites](https://github.com/lemeit/DVBA/blob/main/docs/MATRIZ_PERMISOS.md), [cierre aplicado](https://github.com/lemeit/DVBA/blob/main/docs/CIERRE_SEGURIDAD_2026-10-20.md), [pruebas PostgreSQL](https://github.com/lemeit/DVBA/blob/main/tests/database/README.md).
 
 ## Índice de la bitácora
 
@@ -754,11 +767,13 @@ TAB 6 · PENDIENTES
 
 ## 🔴 Alta Prioridad
 
+**Pendientes vigentes al 20/10/2026:** rotación/revocación de contraseñas de prueba pospuesta por el usuario; revisar filas hijas de partes y edición/cierre; completar acciones de Ambiente y recuperación. La subida anónima y el borrado por jefes ya se corrigieron. La lista siguiente conserva antecedentes de planificación.
+
 - **Módulo Reportes (Bloque 3 · Sesión 3)**: dashboard con métricas + reporte oficial DVBA en PDF con layout institucional (portada, resumen ejecutivo, tabla de tareas por partido, gráficos de barras, tabla luminarias LED, anexo fotográfico). Pendiente confirmar layout con adjunto del user. Es lo que faltaría para "presentación Gerencia".
 
 - **Capa de partes en el mapa del portal (v7.76 planeado)**: nueva capa toggleable en `index.html` sobre panel Capas. Cada parte se dibuja como polyline del tramo `prog_ini↔prog_fin` sobre la traza RP + pin en el punto medio. Partes con foto usan el punto del relevamiento asociado. Sin foto: polyline gruesa + pin gris (necesita agregar columnas `lat`/`lon` o computar on-the-fly).
 
-- **[SQL] Correr `SQL_5_rls_partes_flexible.sql` y `SQL_6_partido_en_partes.sql`** en Supabase antes del próximo test end-to-end del portal Plan de Seguridad. El primero fixea el 403 al guardar; el segundo agrega columna `partido` y actualiza la view de export.
+- **[SQL · antecedente histórico, no ejecutar automáticamente]** `SQL_5_rls_partes_flexible.sql` y `SQL_6_partido_en_partes.sql` figuraban como pendientes en una etapa anterior del portal Plan de Seguridad. El primero fixea el 403 al guardar; el segundo agrega columna `partido` y actualiza la view de export.
 
 - **Regenerar RP30 y RP46** con calma en QGIS (task #195): el `_traza_completa` original tenía zigzag / mala longitud. Requiere revisar el orden geográfico de fids uno a uno antes de re-correr `gen_ruta_bundle.py`.
 
@@ -824,10 +839,26 @@ TAB 6 · PENDIENTES
 
 ## 📋 Changelog · Apps
 
+### 19–20 octubre 2026 · Ambiente, seguridad y recuperación de la app original
+
+**Versiones finales:** portal/partes/admin v8.87a; móvil y Service Worker v9.95.29. Reportes y planificación permanecen v8.86s.
+
+- Migración compatible de Ambiente: separación de área, contexto y alcances; captura provincial propia, bucket privado y cola de fotos aislada por cuenta. Admin conserva lectura; Gerencia y las zonas no reciben originales automáticamente.
+- Se retiró la pantalla independiente introducida durante el piloto y sus redirecciones. Se restauraron los dos modos móviles originales, sin mapa. Una comprobación compara su estructura visual con la versión anterior al piloto.
+- Corregidos restauración de sesión y SDK externo del portal, visor de fotos privadas, coherencia de etiquetas de Ambiente, fallos de caché y renovación concurrente de sesión. La descarga de rutas/partidos provinciales no usa el límite corto de tres segundos.
+- Aplicado el cierre de Storage: sin subida anónima, sin cambios ni borrado de fotos por Gerencia, actualización operativa por propietario o vínculo zonal autorizado y eliminación de archivos zonales solo por admin.
+- Nuevo circuito de solicitudes de borrado para Gerencia y todos los jefes; destino, zona y justificación comprobados en servidor. El registro se conserva hasta la decisión administrativa. Se bloquearon RPC y cambios directos de archivo por jefes.
+- Contraseña inicial retirada del SQL y tres copias de wiki; el SQL histórico ya no tiene valor predeterminado. No se rotaron contraseñas ni se desactivaron cuentas. Decisión del usuario: conservarlas y revisar su revocación/cambio más adelante.
+- Verificación diferenciada: 78 pruebas locales de la candidata no aplicada, 19 del piloto compatible y 39 del cierre aplicado. Además, prueba HTTP real de subida anónima rechazada por RLS y revisión de conteos sin borrar registros reales. Se añadieron pruebas de solicitud desde interfaz y detección de secretos.
+
+No se aplicó la candidata integral de permisos. El piloto fue manual y el cierre quedó registrado como migración: antes de `db push` hay que reconciliar la línea base, sin ejecutar automáticamente todos los SQL históricos. Las fotos públicas históricas y los pendientes funcionales continúan documentados; no se declara seguridad integral.
+
+
 | Artefacto | Versión | Archivo(s) | Bumpear con |
 |---|---|---|---|
-| **📱 App Campo (PWA unificada)** | v9.95.18 | `app.html` (router) + `dvba_campo_lite.html` (Modo Básico) + `dvba_campo.html` (Modo Avanzado) + `sw.js` | Manual: `APP_VER` en HTMLs + `CACHE_NAME` en `sw.js` |
-| **🖥 Familia escritorio** | v8.86q | `index.html`, `partes_diarios.html`, `reportes.html`, `admin_usuarios.html`, `plan_operativo.html` + módulos `datos/` (nav.js, loader_zona.js) | Manual en `const APP_VERSION` + spans footer en los 5 |
+| **📱 App Campo (PWA unificada)** | v9.95.29 | `app.html` (router) + `dvba_campo_lite.html` (Modo Básico) + `dvba_campo.html` (Modo Avanzado) + `sw.js` | Manual: `APP_VER` en HTMLs + `CACHE_NAME` en `sw.js` |
+| **🖥 Portal, partes y administración** | v8.87a | `index.html`, `partes_diarios.html`, `admin_usuarios.html` | `APP_VERSION` y spans del artefacto modificado |
+| **📊 Reportes y planificación** | v8.86s | `reportes.html`, `plan_operativo.html` | Versionado propio; sin cambios en esta revisión |
 | **🎨 Módulo sello v4** | unificado | `datos/sello_v4.js` + `datos/exif_writer.js` + `datos/piexif.min.js` | Auto: cualquier fix impacta portal + partes + móvil sin re-bumpear |
 | **🛣 Caminos Secundarios** | v1.1 | `caminos_secundarios.html` | — |
 
@@ -1836,6 +1867,10 @@ Backfill aplicado: 82 registros con foto → estado `aprobado` + sello v2 (hist�
 
 ## 🔧 Changelog · Service Worker
 
+### v9.95.22–v9.95.29 · 19–20 octubre 2026
+
+Clave publicable, integración de captura privada sin cambiar la UI móvil, recursos administrativos y visor privado en caché, portal actualizado desde red con respaldo local y cartografía provincial sin el corte corto de descarga. Se conserva la cola local y la actualización mediante aviso; no borrar datos para forzar una actualización.
+
 ### v9.15 / v9.15a / v9.15b · 24 junio 2026
 
 - Política de bumps clarificada: cambio cosmético (tweak de fuente, color, posición) → bump **solo** de `CACHE_NAME` con sufijo letra (`v9.15a`, `v9.15b`...) sin tocar el `<span id='app-ver'>` del footer. Cambio publicable (feature, fix funcional) → bump de los 3: `APP_VERSION` escritorio, `<span>` móvil, y `CACHE_NAME`.
@@ -1855,6 +1890,16 @@ Backfill aplicado: 82 registros con foto → estado `aprobado` + sello v2 (hist�
 - Estrategia network-first con offline fallback + auto-purge de 404.
 
 ## 📦 Changelog · Infraestructura
+
+### 20 octubre 2026 · Documentación y espejo GitLab
+
+Actualizados README, matriz de accesos, guías de roles/portal/admin, bitácora v5.13 y documentación técnica de pruebas y seguridad. La bitácora HTML anterior enlaza a la wiki vigente. Se conserva el historial fechado con aviso de que no sustituye las reglas actuales.
+
+El usuario mantiene el espejo de respaldo `gitlab`. Publicar en GitHub, esperar la regeneración automática de la wiki, incorporar ese commit por avance rápido y ejecutar `git push gitlab main`. Sin force, sin borrar ramas y sin modificar la documentación privada del concurso. La rotación de contraseñas de prueba queda pospuesta por decisión del usuario.
+
+### 19–20 octubre 2026 · Supabase, keepalive y permisos
+
+Clientes migrados a clave publicable y claves legacy JWT deshabilitadas. Keepalive mediante lectura de catálogo público en GitHub Actions, sin credencial administrativa; genera actividad pero no garantiza que el plan gratuito nunca se pause. Aplicados piloto compatible y cierre específico de Storage/solicitudes. Las contraseñas de cuentas de prueba no se modificaron; decisión de rotación pospuesta y advertencia de historial conservadas.
 
 ### 20 mayo 2026 — Seguridad: Supabase Auth + RLS
 

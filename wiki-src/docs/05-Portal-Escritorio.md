@@ -69,13 +69,13 @@ Botones disponibles según el rol:
 
 Gerencia también ve la cola pero solo con opción de consulta.
 
-### Archivar un registro (Jefe de Zona)
+### Solicitar el borrado de un registro
 
-Además de las opciones de aprobación, el Jefe de Zona puede **archivar** un registro de su zona cuando corresponda (ej. duplicado, prueba, mal cargado). El botón `✕` en la ficha de un registro abre un modal que exige completar un motivo con al menos 10 caracteres antes de confirmar. El sistema muestra el motivo con un contador de caracteres en tiempo real y solo habilita el botón de confirmación cuando el motivo es válido.
+Desde el botón `✕` de la ficha, Gerencia y los cinco roles de jefatura pueden enviar una **solicitud al administrador**, con un motivo de al menos 10 caracteres. Los jefes solo pueden pedirlo para registros de su zona.
 
-Al confirmar, el registro deja de ser visible para el resto de los roles pero **el Admin del sistema lo conserva** en el Panel de Administración y puede restaurarlo si fue un error o eliminarlo definitivamente después de revisar. La acción queda registrada con fecha, motivo declarado y autor original del registro.
+Enviar el pedido **no elimina ni oculta el registro**. Llega a **Administración → Solicitudes**, donde admin puede ejecutarlo o descartarlo. Solo admin puede eliminar o archivar; el Jefe de Zona ya no archiva por su cuenta.
 
-Los roles de técnico y capataz **no ven este botón** — solo el admin puede eliminar de forma definitiva, y solo el jefe de zona puede archivar con justificación.
+Los controles se aplican también en Supabase. La regla no depende únicamente de mostrar u ocultar un botón.
 
 ### Modal SIG Vial (ficha de ruta)
 

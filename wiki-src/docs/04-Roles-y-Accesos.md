@@ -2,6 +2,8 @@
 
 # Roles y accesos
 
+**Actualización: 20/10/2026.** Las reglas de esta página reemplazan la autorización anterior de archivado del Jefe de Zona. El sistema está en pruebas con datos reales.
+
 SIG Vial PBA refleja el organigrama real de la DVBA en **10 roles operativos**. La interfaz se adapta automáticamente al rol del usuario logueado, y cada registro que se carga queda asociado a la zona que corresponde según el partido donde ocurrió.
 
 ---
@@ -35,35 +37,50 @@ SIG Vial PBA refleja el organigrama real de la DVBA en **10 roles operativos**. 
 
 ---
 
-## Matriz completa de permisos (fuente única de verdad)
+## Matriz vigente de accesos y borrado
 
-| Rol | Alcance | Ver | Cargar | Editar | Borrar | Aprobar | Sugerir | Asignar tareas |
-|---|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| **publico** | Solo mapa institucional | mapa | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **tecnico** | Su zona | ✓ zona | ✓ | ✓ (propios) | ✗ | ✗ | ✗ | ✗ |
-| **capataz** | Su zona | ✓ zona | ✓ (cierre de tarea) | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **jefe_tecnica** | Su zona | ✓ zona | ✓ | ✓ | ✗ | ✓ (relevamientos) | ✗ | ✗ |
-| **jefe_operativa** | Su zona | ✓ zona | ✓ | ✓ | ✗ | ✓ (tareas cerradas) | ✗ | ✓ |
-| **jefe_administrativa** | Su zona | ✓ zona | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **jefe_automotores** | Su zona | ✓ zona | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
-| **jefe_zona** | Su zona | ✓ zona | ✓ | ✓ | ✓ con motivo | ✓ | ✗ | ✓ |
-| **gerencia** | Todas las zonas | ✓ todas | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ |
-| **admin** | Todo el sistema | ✓ todo | ✓ | ✓ | ✓ definitivo | ✓ | ✓ | ✓ |
+Todos pueden consultar la cartografía pública. Ver el mapa de una zona no permite ver ni modificar sus registros.
 
-**Sobre el borrado de registros**: solo admin puede borrar de forma definitiva. El jefe de zona puede borrar registros de su zona pero **debe completar un formulario con el motivo del borrado** (mínimo 10 caracteres). Los registros borrados de esa forma quedan ocultos para todos los demás roles pero **el admin los conserva y puede restaurarlos si fue un error**. Toda la actividad de borrado queda registrada en una sección de auditoría en el Panel de Administración con: fecha del archivado, quién lo archivó, motivo declarado, **quién había cargado originalmente el registro** (con su rol y zona en ese momento), y botones para restaurar o eliminar definitivamente. Los demás roles (jefes operativa/técnica/administrativa/automotores, capataces, técnicos) no pueden borrar bajo ninguna circunstancia.
+| Perfil | Registros que consulta | Captura de fotos/registros | Eliminar o archivar | Solicitar borrado |
+|---|---|---|---|---|
+| Público / sin sesión | Ninguno; solo cartografía | No | No | No |
+| Sin perfil o desactivado | Ninguno | No | No | No |
+| **Unidad Ambiental** | Solo propios, en toda la provincia | En toda la provincia; fotos privadas | No | No sobre operativa zonal |
+| Técnico vial | Su zona | Zonal, según configuración¹ | No | No |
+| Capataz | Su zona¹; trabajo previsto con tareas asignadas | Cierre de tareas¹ | No | No |
+| Jefe de Zona | Su zona | Su zona | **No** | Sí, en su zona |
+| Jefe de División Técnica | Su zona | Su zona | **No** | Sí, en su zona |
+| Jefe de División Operativa | Su zona | Su zona | **No** | Sí, en su zona |
+| Jefe de División Administrativa | Su zona, consulta | No | **No** | Sí, en su zona |
+| Jefe de División Automotores | Su zona, consulta | No | **No** | Sí, en su zona |
+| Gerencia | Operativa vial provincial; no originales privados de Ambiente | No | **No** | Sí |
+| Administrador | Todo, incluyendo Ambiente | Provincial | **Sí** | Ejecuta o descarta pedidos |
 
-**Sobre la trazabilidad de autor**: cada registro (relevamiento o parte diario) guarda automáticamente quién lo cargó, con qué rol y desde qué zona en ese momento. Esta información se conserva aunque el usuario cambie de rol o zona después. En la cola de aprobación aparece visible el autor de cada registro pendiente (ej. "👤 técnico · Zona VI") para que el aprobador sepa el origen antes de aprobar. Un caso concreto: un agente de casa central que recorra la Provincia y saque fotos desde el móvil, verá que cada registro cae en la cola del jefe de la zona geográfica correspondiente, y ese jefe verá que el autor fue "admin · (sin zona)" — información inmediata de que vino de casa central, no de su propio equipo.
+¹ La captura provincial opcional del técnico y el control fino del cierre del capataz siguen sujetos a integración y revisión. La matriz resume los accesos principales; no certifica todas las operaciones históricas de edición.
 
-**Principios que guían la matriz**:
+### Unidad Ambiental
 
-- **Descentralización zonal**: cada zona gestiona su operativa; gerencia consulta y sugiere pero no ejecuta.
-- **Jerarquía real DVBA**: los jefes de las divisiones administrativa y de automotores no cargan trabajo de campo vial (gestionan RRHH/contable y parque vehicular respectivamente); consultan datos de su zona pero no operan.
-- **Mínimo privilegio con trazabilidad**: nadie borra sin dejar registro. Admin borra definitivo. Jefe de zona borra con motivo obligatorio, y su acción queda auditada.
-- **Trazabilidad geográfica**: cada registro cae en la zona del partido donde ocurrió, independientemente de qué usuario lo cargó.
+La cuenta usa la misma app con **Modo Básico y Modo Avanzado**, sin una pantalla independiente ni mapa móvil. El encabezado muestra **Unidad Ambiental · Todas las Zonas Viales**. El mapa se consulta desde el portal de escritorio.
 
-**Nota sobre `gerencia`**: por convención institucional y decisión de diseño, gerencia solo **lee todas las zonas y sugiere intervenciones** al jefe de la zona correspondiente. No aprueba, no edita, no borra. Preserva la descentralización — cada zona gestiona su operativa.
+Puede recorrer cualquier zona y crear sus propios registros. No accede a los registros operativos de cada zona ni a los de otros integrantes del área. Ubicar una foto en una zona no la comparte automáticamente. El administrador puede consultar los registros y fotos privados. Una compartición explícita autorizada con jefes destinatarios puede revocarse y no se extiende a Gerencia.
 
-**Nota sobre `admin`**: además de la gestión del sistema, los usuarios admin pueden **impersonar** a cualquier otro rol o zona desde el menú para testear vistas y ayudar en soporte.
+### Solicitud de borrado
+
+Gerencia y los cinco roles de jefatura pueden pedir el borrado de un registro o parte de su alcance. Deben escribir una **justificación de al menos 10 caracteres**. El pedido llega a **Administración → Solicitudes** y el registro sigue disponible hasta que admin actúe. La notificación queda dentro del sistema; no se envía un correo.
+
+**Solo el administrador elimina o archiva.** Los jefes no tienen borrado delegado ni archivo autónomo. El administrador ejecuta o descarta y queda la respuesta en la solicitud. Los archivos históricos pueden restaurarse; una eliminación definitiva es irreversible.
+
+### Seguridad de las fotos
+
+La subida anónima está bloqueada en el servidor. Gerencia y perfiles de consulta no pueden subir, reemplazar ni borrar fotos. Un operativo puede actualizar sus archivos propios; los jefes operativos pueden actualizar fotos vinculadas a registros de su zona. Solo admin puede eliminar archivos zonales. Las fotos nuevas de Ambiente son privadas; las fotos zonales históricas conservan su lectura pública.
+
+### Usuarios y contraseñas
+
+El administrador asigna roles, área y zona. Unidad Ambiental es un perfil de técnico con área Ambiente y alcance provincial de captura; **no necesita ser admin**. Una cuenta sin perfil activo no obtiene permisos por defecto.
+
+Las cuentas de prueba se conservan. Se retiró la contraseña inicial compartida del código publicado, pero **el usuario decidió cambiarla o revocarla más adelante**. Hasta hacerlo, quitar el texto no invalida una contraseña que siga en uso y Git puede conservar versiones anteriores.
+
+La matriz técnica y las limitaciones de la revisión están en el [README técnico](95-README-Tecnico.md). No es una certificación integral de seguridad.
 
 ---
 
@@ -99,9 +116,9 @@ Cada rol interviene en una etapa distinta del ciclo:
 
 Cambio arquitectónico importante de la Fase 2: **la zona del registro NO se define por el rol del usuario que lo cargó, sino por el partido donde ocurrió**.
 
-**Ejemplo**: un agente de Casa Central (admin/gerencia) que recorra la Provincia y cargue una foto en RP7 (partido Las Heras), verá que el registro cae automáticamente en la **cola del jefe de Zona VI Saladillo**, porque Las Heras pertenece geográficamente a esa zona.
+**Ejemplo:** una captura vial autorizada en Las Heras se ubica geográficamente en Zona VI. La ubicación no amplía los permisos de la cuenta. Gerencia consulta y sugiere; no captura fotos. El capataz trabaja en el circuito de tareas habilitado para su perfil.
 
-Un capataz de Zona VI que viaje a Junín (Zona IV) y cargue un bache ahí, el registro va a la **cola del jefe IV**, no al de su propia zona.
+**Excepción de privacidad:** un registro de Unidad Ambiental conserva su ubicación geográfica, pero no entra por ese solo hecho en la operativa visible de la zona. Continúa siendo propio y privado hasta una compartición autorizada.
 
 El sistema tiene cargado el mapeo oficial de los 135 partidos bonaerenses cruzado con las 12 zonas viales DVBA, y lo aplica automáticamente cada vez que se guarda un registro.
 
@@ -118,7 +135,7 @@ Cualquier usuario logueado puede **explorar el mapa** de cualquier zona con el p
 
 ## Impersonación (solo admin y gerencia)
 
-Desde el menú del header, un admin o gerencia puede **"ver como"** otro rol/zona a través del panel de impersonación. El sistema completo se comporta como si fueras ese rol/zona: menús, mapa, colas y permisos de escritura. Sirve para testear vistas de otros usuarios sin necesidad de mantener sesiones separadas.
+Desde el menú del header, un admin o gerencia puede **"ver como"** otro rol/zona a través del panel de impersonación. La vista cambia menús y contexto para probar la interfaz. Esto no cambia la identidad autenticada ni reemplaza la autorización del servidor; no certifica los permisos reales de otra cuenta. Sirve para testear vistas de otros usuarios sin necesidad de mantener sesiones separadas.
 
 Un banner amarillo superior indica que estás viendo el sistema como otra persona, con un botón **✕ Volver a vista real** para regresar.
 

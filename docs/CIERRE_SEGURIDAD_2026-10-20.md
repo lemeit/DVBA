@@ -17,7 +17,7 @@ La contraseña inicial compartida fue retirada del SQL de alta y de tres copias 
 
 Se agregó revisión automática de claves secretas, JWT privilegiados y contraseñas SQL literales en archivos versionados; los informes omiten los valores. No es una garantía de detección universal ni revisa todo el historial.
 
-**Pendiente:** retirar el literal del código no cambia las claves de las cuentas existentes. El historial público puede conservarlo y no se verificó si las cuentas todavía lo aceptan. La decisión actual conserva las cuentas de prueba; para invalidar una contraseña expuesta hay que rotarla también en Supabase y revisar las sesiones. No se reescribió Git ni se declara resuelto este riesgo de credenciales.
+**Pendiente:** retirar el literal del código no cambia las claves de las cuentas existentes. El historial público puede conservarlo y no se verificó si las cuentas todavía lo aceptan. Decisión del usuario del 20/10: conservar las cuentas y posponer la rotación/revocación de sus contraseñas; para invalidar una contraseña expuesta hay que rotarla también en Supabase y revisar las sesiones. No se reescribió Git ni se declara resuelto este riesgo de credenciales.
 
 ## Verificación
 
