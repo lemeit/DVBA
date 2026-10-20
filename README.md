@@ -1,8 +1,20 @@
 # DVBA Zona VI Saladillo · Sistema de Relevamiento y Gestión Vial
 
+[![Estado: en pruebas](https://img.shields.io/badge/Estado-en%20pruebas-orange)](https://github.com/lemeit/DVBA)
+[![Portal](https://img.shields.io/badge/Portal-GitHub%20Pages-007e8c)](https://lemeit.github.io/DVBA/)
+[![Wiki](https://img.shields.io/badge/Documentaci%C3%B3n-Wiki-009aae)](https://lemeit.github.io/DVBA/wiki/)
+[![Pruebas de permisos](https://github.com/lemeit/DVBA/actions/workflows/permisos-db.yml/badge.svg?branch=main)](https://github.com/lemeit/DVBA/actions/workflows/permisos-db.yml)
+[![Pruebas de sesión](https://github.com/lemeit/DVBA/actions/workflows/portal-sesion.yml/badge.svg?branch=main)](https://github.com/lemeit/DVBA/actions/workflows/portal-sesion.yml)
+[![Respaldo GitLab](https://img.shields.io/badge/Respaldo-GitLab-fc6d26)](https://gitlab.com/lemeit/DVBA)
+
 Sistema web de relevamiento, cartografía y gestión de la red vial provincial a cargo del **Departamento Zona VI** de la Dirección de Vialidad de la Provincia de Buenos Aires (DVBA), con sede en Saladillo.
 
-**Cobertura:** 8 partidos (Saladillo, Gral. Alvear, Gral. Las Heras, Lobos, Roque Pérez, Las Flores, Navarro, 25 de Mayo) · 15 rutas provinciales pavimentadas, tierra y mixtas + red de caminos secundarios.
+**Cobertura provincial:** el portal permite seleccionar y explorar las **12 zonas viales y los 135 partidos de la Provincia de Buenos Aires**, y visualizar las rutas provinciales y la cartografía vial disponible para cada zona.
+
+**Nivel de revisión de la cartografía:**
+
+- **Zona VI Saladillo:** concentra el trabajo propio de revisión y ajuste de rutas y caminos secundarios. Abarca 8 partidos y un catálogo de 15 rutas provinciales; **8 RPs cuentan con trazas y referencias de progresivas calibradas**. No todas las rutas del catálogo tienen el mismo grado de calibración.
+- **Resto de las zonas:** las trazas se visualizan a partir de **GeoJSON de fuentes oficiales**, sin revisión exhaustiva ni calibración equivalente a la desarrollada en Zona VI. Sirven como referencia cartográfica; no deben interpretarse como progresivas verificadas con el mismo nivel de precisión.
 
 **Hosting:** GitHub Pages — https://lemeit.github.io/DVBA/
 
@@ -596,12 +608,6 @@ Cada item muestra de un vistazo su estado en el workflow:
 - ✕ **RECHAZADO** (rojo, tooltip con motivo)
 
 Para detalles técnicos completos (5 columnas BD agregadas, lógica de umbrales, fases de implementación), ver la **[bitácora — Tab Changelog](https://lemeit.github.io/DVBA/wiki/99-Bitacora/)**.
-
----
-
-## Convención institucional
-
-Denominación oficial en todos los documentos y apps: **"Departamento Zona VI Saladillo"** o abreviado **"Zona VI Saladillo"**. NUNCA "Delegación Saladillo".
 
 ---
 

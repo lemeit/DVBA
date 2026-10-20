@@ -6,6 +6,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'README.md'
       - 'wiki-src/**'
       - '.github/workflows/wiki-build.yml'
   workflow_dispatch:  # permite dispararlo a mano desde GitHub Actions
